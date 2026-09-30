@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckDiga - أداة فحص السيارات المتكاملة</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Tahoma, Arial, sans-serif; background: #f0f4f8; color: #1e293b; padding: 15px; max-width: 900px; margin: auto; }
+        h1 { text-align: center; color: #1e293b; margin-bottom: 5px; font-size: 22px; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        button { padding: 12px 20px; font-size: 14px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        #connectBtn { background: #3b82f6; color: white; }
+        #disconnectBtn { background: #ef4444; color: white; }
+        #clearBtn { background: #dc2626; color: white; }
+        #vinBtn { background: #8b5cf6; color: white; }
+        #log { background: #0f172a; color: #22c55e; padding: 12px; border-radius: 10px; height: 150px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12px; direction: ltr; text-align: left; margin-bottom: 20px; }
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab { padding: 10px 15px; background: #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .tab.active { background: #3b82f6; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        /* Data Cards */
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .data-card { background: white; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .data-card .label { font-size: 12px; color: #64748b; margin-bottom: 5px; }
+        .data-card .value { font-size: 22px; font-weight: bold; color: #1e293b; }
+        .data-card .unit { font-size: 12px; color: #94a3b8; }
+        /* DTC */
+        .dtc-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .dtc-item { background: #fef2f2; border-right: 4px solid #ef4444; padding: 10px 12px; border-radius: 6px; margin-bottom: 8px; font-family: monospace; font-size: 14px; }
+        .dtc-item.clear { background: #f0fdf4; border-right-color: #22c55e; }
+        .vin-box { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .vin-box .vin-value { font-size: 18px; font-weight: bold; font-family: monospace; color: #1e293b; direction: ltr; margin-top: 10px; }
+        .note { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>🔧 CheckDiga</h1>
+    <p class="subtitle">أداة فحص السيارات المتكاملة عبر المتصفح</p>
+
+    <div class="controls">
+        <button id="connectBtn">🔗 اتصال</button>
+        <button id="disconnectBtn" disabled>🔌 قطع</button>
+        <button id="clearBtn" disabled>🗑️ مسح الأعطال</button>
+        <button id="vinBtn" disabled>🔍 قراءة VIN</button>
+    </div>
+
+    <div id="log">في انتظار الاتصال...</div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="dtc">📋 الأعطال</div>
+        <div class="tab" data-tab="live">📊 بيانات حية</div>
+        <div class="tab" data-tab="vin">🔍 VIN</div>
+    </div>
+
+    <!-- Tab: DTCs -->
+    <div id="tab-dtc" class="tab-content active">
+        <div class="dtc-section">
+            <h2 style="font-size: 18px; margin-bottom: 10px;">أكواد الأعطال (DTCs)</h2>
+            <button id="dtcBtn" disabled style="background:#f59e0b; color:white; margin-bottom:15px;">📋 قراءة الأعطال</button>
+            <div id="dtcList"><p style="color: #64748b;">لم يتم القراءة بعد.</p></div>
+        </div>
+    </div>
+
+    <!-- Tab: Live Data -->
+    <div id="tab-live" class="tab-content">
+        <div class="data-grid">
+            <div class="data-card"><div class="label">RPM</div><div class="value" id="rpmValue">--</div><div class="unit">دورة/دقيقة</div></div>
+            <div class="data-card"><div class="label">السرعة</div><div class="value" id="speedValue">--</div><div class="unit">كم/ساعة</div></div>
+            <div class="data-card"><div class="label">حرارة المحرك</div><div class="value" id="tempValue">--</div><div class="unit">°C</div></div>
+            <div class="data-card"><div class="label">ضغط الوقود</div><div class="value" id="fuelValue">--</div><div class="unit">kPa</div></div>
+            <div class="data-card"><div class="label">موضع الخنق</div><div class="value" id="throttleValue">--</div><div class="unit">%</div></div>
+            <div class="data-card"><div class="label">حرارة الهواء</div><div class="value" id="airTempValue">--</div><div class="unit">°C</div></div>
+            <div class="data-card"><div class="label">جهد البطارية</div><div class="value" id="batteryValue">--</div><div class="unit">V</div></div>
+        </div>
+        <button id="liveBtn" disabled style="background:#10b981; color:white; display:block; margin:auto;">📊 قراءة البيانات</button>
+    </div>
+
+    <!-- Tab: VIN -->
+    <div id="tab-vin" class="tab-content">
+        <div class="vin-box">
+            <h2 style="font-size: 18px; margin-bottom: 10px;">رقم الهيكل (VIN)</h2>
+            <button id="vinBtn2" disabled style="background:#8b5cf6; color:white;">🔍 قراءة VIN</button>
+            <div class="vin-value" id="vinValue">--</div>
+        </div>
+    </div>
+
+    <p class="note">ملاحظة: قد تحتاج إلى تعديل UUIDs حسب جهاز ELM327 الخاص بك.</p>
+
+    <script>
+        // ===== المتغيرات =====
+        let bluetoothDevice = null, gattServer = null, obdService = null;
+        let notifyChar = null, writeChar = null;
+        let isConnected = false;
+
+        const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+        const NOTIFY_UUID  = '0000fff1-0000-1000-8000-00805f9b34fb';
+        const WRITE_UUID   = '0000fff2-0000-1000-8000-00805f9b34fb';
+
+        const logEl = document.getElementById('log');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const dtcBtn = document.getElementById('dtcBtn');
+        const liveBtn = document.getElementById('liveBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const vinBtn = document.getElementById('vinBtn');
+        const vinBtn2 = document.getElementById('vinBtn2');
+        const rpmEl = document.getElementById('rpmValue');
+        const speedEl = document.getElementById('speedValue');
+        const tempEl = document.getElementById('tempValue');
+        const fuelEl = document.getElementById('fuelValue');
+        const throttleEl = document.getElementById('throttleValue');
+        const airTempEl = document.getElementById('airTempValue');
+        const batteryEl = document.getElementById('batteryValue');
+        const dtcListEl = document.getElementById('dtcList');
+        const vinValueEl = document.getElementById('vinValue');
+
+        // ===== Tabs =====
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ===== Log =====
+        function log(msg) {
+            const time = new Date().toLocaleTimeString('ar-DZ');
+            logEl.innerHTML += `[${time}] ${msg}<br>`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(msg);
+        }
+
+        // ===== Send Command =====
+        async function sendCommand(command) {
+            if (!writeChar || !notifyChar) throw new Error('الجهاز غير متصل');
+            const encoder = new TextEncoder();
+            await writeChar.writeValue(encoder.encode(command + '\r'));
+            log(`📤 ${command}`);
+            return new Promise((resolve, reject) => {
+                let response = '';
+                const timeout = setTimeout(() => {
+                    notifyChar.removeEventListener('characteristicvaluechanged', handler);
+                    reject(new Error('انتهت المهلة'));
+                }, 5000);
+                const handler = (event) => {
+                    const value = event.target.value;
+                    const decoder = new TextDecoder();
+                    response += decoder.decode(value);
+                    if (response.includes('>')) {
+                        clearTimeout(timeout);
+                        notifyChar.removeEventListener('characteristicvaluechanged', handler);
+                        resolve(response.replace(/>/g, '').trim());
+                    }
+                };
+                notifyChar.addEventListener('characteristicvaluechanged', handler);
+                notifyChar.startNotifications();
+            });
+        }
+
+        // ===== Initialize =====
+        async function initializeAdapter() {
+            log('⚙️ تهيئة...');
+            for (const cmd of ['ATZ','ATE0','ATL0','ATS0','ATSP0','0100']) {
+                try { const r = await sendCommand(cmd); log(`✅ ${cmd} → ${r}`); }
+                catch(e) { log(`⚠️ ${cmd} → ${e.message}`); }
+            }
+            log('✅ تم التهيئة');
+        }
+
+        // ===== Connect =====
+        connectBtn.addEventListener('click', async () => {
+            try {
+                log('🔍 بحث...');
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { services: [SERVICE_UUID] },
+                        { namePrefix: 'OBD' }, { namePrefix: 'ELM' }, { namePrefix: 'Vgate' }, { namePrefix: 'Vlinker' }
+                    ],
+                    optionalServices: [SERVICE_UUID]
+                });
+                log(`✅ ${bluetoothDevice.name}`);
+                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+                gattServer = await bluetoothDevice.gatt.connect();
+                obdService = await gattServer.getPrimaryService(SERVICE_UUID);
+                const chars = await obdService.getCharacteristics();
+                for (const c of chars) {
+                    if (c.properties.notify || c.properties.indicate) notifyChar = c;
+                    if (c.properties.write || c.properties.writeWithoutResponse) writeChar = c;
+                }
+                if (!notifyChar || !writeChar) throw new Error('لم يتم العثور على الخصائص');
+                await notifyChar.startNotifications();
+                notifyChar.addEventListener('characteristicvaluechanged', () => {});
+                isConnected = true;
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                dtcBtn.disabled = false;
+                liveBtn.disabled = false;
+                clearBtn.disabled = false;
+                vinBtn.disabled = false;
+                vinBtn2.disabled = false;
+                await initializeAdapter();
+                log('🎉 جاهز!');
+            } catch (e) { log(`❌ ${e.message}`); }
+        });
+
+        // ===== Disconnect =====
+        disconnectBtn.addEventListener('click', () => { if (bluetoothDevice?.gatt.connected) bluetoothDevice.gatt.disconnect(); });
+        function onDisconnected() {
+            log('🔌 تم قطع الاتصال');
+            isConnected = false;
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            dtcBtn.disabled = true;
+            liveBtn.disabled = true;
+            clearBtn.disabled = true;
+            vinBtn.disabled = true;
+            vinBtn2.disabled = true;
+        }
+
+        // ===== DTC Reading =====
+        dtcBtn.addEventListener('click', async () => {
+            try {
+                log('📋 قراءة الأعطال...');
+                dtcListEl.innerHTML = '<p>جاري القراءة...</p>';
+                const response = await sendCommand('03');
+                log(`📥 ${response}`);
+                const dtcs = parseDTCResponse(response);
+                if (dtcs.length === 0) dtcListEl.innerHTML = '<div class="dtc-item clear">✅ لا توجد أعطال</div>';
+                else dtcListEl.innerHTML = dtcs.map(d => `<div class="dtc-item">⚠️ ${d.code} - ${d.desc}</div>`).join('');
+            } catch (e) { log(`❌ ${e.message}`); dtcListEl.innerHTML = `<div class="dtc-item">❌ ${e.message}</div>`; }
+        });
+
+        // ===== Clear DTCs (Mode 04) =====
+        clearBtn.addEventListener('click', async () => {
+            if (!confirm('هل أنت متأكد من مسح جميع الأعطال؟')) return;
+            try {
+                log('🗑️ مسح الأعطال...');
+                const response = await sendCommand('04');
+                log(`📥 ${response}`);
+                if (response.includes('44')) {
+                    log('✅ تم مسح الأعطال');
+                    dtcListEl.innerHTML = '<div class="dtc-item clear">✅ تم مسح الأعطال</div>';
+                } else {
+                    log('⚠️ لم يتم التأكيد');
+                }
+            } catch (e) { log(`❌ ${e.message}`); }
+        });
+
+        // ===== VIN Reading (Mode 09 PID 02) =====
+        async function readVIN() {
+            try {
+                log('🔍 قراءة VIN...');
+                vinValueEl.textContent = '...';
+                const response = await sendCommand('0902');
+                log(`📥 ${response}`);
+                const vin = parseVIN(response);
+                vinValueEl.textContent = vin || 'غير متوفر';
+                log(`✅ VIN: ${vin}`);
+            } catch (e) { log(`❌ ${e.message}`); vinValueEl.textContent = 'خطأ'; }
+        }
+        vinBtn.addEventListener('click', readVIN);
+        vinBtn2.addEventListener('click', readVIN);
+
+        // ===== Live Data =====
+        liveBtn.addEventListener('click', async () => {
+            try {
+                log('📊 قراءة البيانات...');
+                const pids = [
+                    { cmd: '010C', parse: parseRPM, el: rpmEl },
+                    { cmd: '010D', parse: parseSpeed, el: speedEl },
+                    { cmd: '0105', parse: parseCoolantTemp, el: tempEl },
+                    { cmd: '010A', parse: parseFuelPressure, el: fuelEl },
+                    { cmd: '0111', parse: parseThrottle, el: throttleEl },
+                    { cmd: '010F', parse: parseIntakeAirTemp, el: airTempEl },
+                    { cmd: '0142', parse: parseBatteryVoltage, el: batteryEl }
+                ];
+                for (const pid of pids) {
+                    try {
+                        const resp = await sendCommand(pid.cmd);
+                        const val = pid.parse(resp);
+                        pid.el.textContent = val !== null ? val : '--';
+                        log(`📊 ${pid.cmd} → ${val}`);
+                    } catch (e) { log(`⚠️ ${pid.cmd} → ${e.message}`); }
+                }
+            } catch (e) { log(`❌ ${e.message}`); }
+        });
+
+        // ===== Parsers =====
+        function parseRPM(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('410C');
+            if (i === -1) return null;
+            const A = parseInt(hex.substr(i+4,2),16), B = parseInt(hex.substr(i+6,2),16);
+            return Math.round(((A*256)+B)/4);
+        }
+        function parseSpeed(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('410D');
+            return i === -1 ? null : parseInt(hex.substr(i+4,2),16);
+        }
+        function parseCoolantTemp(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('4105');
+            return i === -1 ? null : parseInt(hex.substr(i+4,2),16) - 40;
+        }
+        function parseFuelPressure(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('410A');
+            return i === -1 ? null : parseInt(hex.substr(i+4,2),16) * 3;
+        }
+        function parseThrottle(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('4111');
+            if (i === -1) return null;
+            return Math.round(parseInt(hex.substr(i+4,2),16) * 100 / 255);
+        }
+        function parseIntakeAirTemp(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('410F');
+            return i === -1 ? null : parseInt(hex.substr(i+4,2),16) - 40;
+        }
+        function parseBatteryVoltage(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const i = hex.indexOf('4142');
+            if (i === -1) return null;
+            const A = parseInt(hex.substr(i+4,2),16), B = parseInt(hex.substr(i+6,2),16);
+            return ((A*256)+B)/1000;
+        }
+
+        // ===== DTC Parser =====
+        function parseDTCResponse(resp) {
+            const dtcs = [];
+            let hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const idx = hex.indexOf('43');
+            if (idx === -1) return dtcs;
+            hex = hex.substring(idx+2);
+            for (let i = 0; i < hex.length-3; i += 4) {
+                const bytes = hex.substring(i, i+4);
+                if (bytes === '0000') break;
+                const fb = parseInt(bytes.substring(0,2),16);
+                const sb = parseInt(bytes.substring(2,4),16);
+                const code = decodeDTC(fb, sb);
+                if (code) dtcs.push({ code, desc: getDTCDescription(code) });
+            }
+            return dtcs;
+        }
+        function decodeDTC(fb, sb) {
+            const sys = {0:'P',1:'C',2:'B',3:'U'}[(fb>>6)&3];
+            const d1 = (fb>>4)&3;
+            const d2 = fb&0xF;
+            const d3 = (sb>>4)&0xF;
+            const d4 = sb&0xF;
+            return `${sys}${d1}${d2.toString(16).toUpperCase()}${d3.toString(16).toUpperCase()}${d4.toString(16).toUpperCase()}`;
+        }
+        function getDTCDescription(code) {
+            const map = {
+                'P0100':'خلل حساس MAF','P0101':'أداء حساس MAF','P0102':'إشارة منخفضة MAF','P0103':'إشارة عالية MAF',
+                'P0110':'حساس حرارة الهواء','P0115':'حساس حرارة المحرك','P0116':'أداء حساس الحرارة','P0117':'إشارة منخفضة حرارة','P0118':'إشارة عالية حرارة',
+                'P0120':'حساس الخنق','P0121':'أداء حساس الخنق','P0122':'إشارة منخفضة خنق','P0123':'إشارة عالية خنق',
+                'P0130':'حساس أكسجين B1S1','P0133':'بطء استجابة أكسجين','P0135':'سخان أكسجين',
+                'P0171':'خليط فقير B1','P0172':'خليط غني B1','P0174':'خليط فقير B2','P0175':'خليط غني B2',
+                'P0200':'دائرة البخاخات','P0300':'خلل إشعال عشوائي','P0301':'خلل أسطوانة 1','P0302':'خلل أسطوانة 2','P0303':'خلل أسطوانة 3','P0304':'خلل أسطوانة 4',
+                'P0325':'حساس الطرق','P0335':'حساس عمود المرفق','P0340':'حساس عمود الكامات','P0400':'نظام EGR','P0420':'كفاءة المحول الحفاز',
+                'P0440':'نظام EVAP','P0455':'تسرب EVAP','P0500':'حساس سرعة السيارة','P0505':'نظام الخمول','P0562':'جهد بطارية منخفض','P0563':'جهد بطارية عالي',
+                'P0600':'اتصال تسلس عندلي','P0601':'ذاكرة وحدة التحكم','P0700':'ناقل حركة أوتوماتيكي','P0705':'حساس نطاق ناقل الحركة','P0715':'حساس عمود إدخال','P0720':'حساس عمود إخراج',
+                'U0100':'فقدان اتصال ECM','U0101':'فقدان اتصال TCM','U0121':'فقدان اتصال ABS','U0155':'فقدان اتصال العدادات',
+                'C0035':'حساس عجلة أمامية يسرى','C0040':'حساس عجلة أمامية يمنى','B0001':'وسائد هوائية'
+            };
+            return map[code] || 'كود غير معروف - راجع الدليل';
+        }
+
+        // ===== VIN Parser =====
+        function parseVIN(resp) {
+            const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
+            const idx = hex.indexOf('4902');
+            if (idx === -1) return null;
+            const data = hex.substring(idx+4);
+            let vin = '';
+            for (let i = 0; i < data.length-1; i += 2) {
+                const charCode = parseInt(data.substr(i,2),16);
+                if (charCode > 0) vin += String.fromCharCode(charCode);
+            }
+            return vin.trim() || null;
+        }
+    </script>
+</body>
+</html>
