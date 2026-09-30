@@ -13,28 +13,29 @@
         button { padding: 12px 20px; font-size: 14px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
         #connectBtn { background: #3b82f6; color: white; }
+        #demoBtn { background: #8b5cf6; color: white; }
         #disconnectBtn { background: #ef4444; color: white; }
         #clearBtn { background: #dc2626; color: white; }
-        #vinBtn { background: #8b5cf6; color: white; }
         #log { background: #0f172a; color: #22c55e; padding: 12px; border-radius: 10px; height: 150px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12px; direction: ltr; text-align: left; margin-bottom: 20px; }
-        /* Tabs */
         .tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab { padding: 10px 15px; background: #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
         .tab.active { background: #3b82f6; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        /* Data Cards */
         .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .data-card { background: white; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .data-card .label { font-size: 12px; color: #64748b; margin-bottom: 5px; }
         .data-card .value { font-size: 22px; font-weight: bold; color: #1e293b; }
         .data-card .unit { font-size: 12px; color: #94a3b8; }
-        /* DTC */
         .dtc-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .dtc-item { background: #fef2f2; border-right: 4px solid #ef4444; padding: 10px 12px; border-radius: 6px; margin-bottom: 8px; font-family: monospace; font-size: 14px; }
         .dtc-item.clear { background: #f0fdf4; border-right-color: #22c55e; }
         .vin-box { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .vin-box .vin-value { font-size: 18px; font-weight: bold; font-family: monospace; color: #1e293b; direction: ltr; margin-top: 10px; }
+        .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; }
+        .status-connected { background: #dcfce7; color: #166534; }
+        .status-disconnected { background: #fee2e2; color: #991b1b; }
+        .status-demo { background: #ede9fe; color: #5b21b6; }
         .note { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px; }
     </style>
 </head>
@@ -43,16 +44,19 @@
     <h1>🔧 CheckDiga</h1>
     <p class="subtitle">أداة فحص السيارات المتكاملة عبر المتصفح</p>
 
-    <div class="controls">
-        <button id="connectBtn">🔗 اتصال</button>
-        <button id="disconnectBtn" disabled>🔌 قطع</button>
-        <button id="clearBtn" disabled>🗑️ مسح الأعطال</button>
-        <button id="vinBtn" disabled>🔍 قراءة VIN</button>
+    <div style="text-align:center;">
+        <span id="statusBadge" class="status-badge status-disconnected">غير متصل</span>
     </div>
 
-    <div id="log">في انتظار الاتصال...</div>
+    <div class="controls">
+        <button id="connectBtn">🔗 اتصال بلوتوث</button>
+        <button id="demoBtn">🧪 وضع تجريبي</button>
+        <button id="disconnectBtn" disabled>🔌 قطع</button>
+        <button id="clearBtn" disabled>🗑️ مسح الأعطال</button>
+    </div>
 
-    <!-- Tabs -->
+    <div id="log">مرحباً! اضغط "اتصال بلوتوث" للاتصال بجهاز OBD-II، أو "وضع تجريبي" لتجربة الموقع بدون جهاز.</div>
+
     <div class="tabs">
         <div class="tab active" data-tab="dtc">📋 الأعطال</div>
         <div class="tab" data-tab="live">📊 بيانات حية</div>
@@ -86,31 +90,54 @@
     <div id="tab-vin" class="tab-content">
         <div class="vin-box">
             <h2 style="font-size: 18px; margin-bottom: 10px;">رقم الهيكل (VIN)</h2>
-            <button id="vinBtn2" disabled style="background:#8b5cf6; color:white;">🔍 قراءة VIN</button>
+            <button id="vinBtn" disabled style="background:#8b5cf6; color:white;">🔍 قراءة VIN</button>
             <div class="vin-value" id="vinValue">--</div>
         </div>
     </div>
 
-    <p class="note">ملاحظة: قد تحتاج إلى تعديل UUIDs حسب جهاز ELM327 الخاص بك.</p>
+    <p class="note">💡 نصيحة: استخدم Chrome على Android. للآيفون، استخدم الوضع التجريبي فقط.</p>
 
     <script>
-        // ===== المتغيرات =====
-        let bluetoothDevice = null, gattServer = null, obdService = null;
+        // ============================================================
+        // 1. المتغيرات العامة
+        // ============================================================
+        let bluetoothDevice = null, gattServer = null;
         let notifyChar = null, writeChar = null;
         let isConnected = false;
+        let isDemoMode = false;
 
-        const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
-        const NOTIFY_UUID  = '0000fff1-0000-1000-8000-00805f9b34fb';
-        const WRITE_UUID   = '0000fff2-0000-1000-8000-00805f9b34fb';
+        // قائمة UUIDs المحتملة لأجهزة ELM327 المختلفة
+        const POSSIBLE_SERVICES = [
+            '0000fff0-0000-1000-8000-00805f9b34fb',
+            '000018f0-0000-1000-8000-00805f9b34fb',
+            '0000ffe0-0000-1000-8000-00805f9b34fb',
+            'e7810a71-73ae-499d-8c15-faa9aef0c3f2'
+        ];
 
+        const POSSIBLE_NOTIFY = [
+            '0000fff1-0000-1000-8000-00805f9b34fb',
+            '00002af0-0000-1000-8000-00805f9b34fb',
+            '0000ffe1-0000-1000-8000-00805f9b34fb',
+            'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'
+        ];
+
+        const POSSIBLE_WRITE = [
+            '0000fff2-0000-1000-8000-00805f9b34fb',
+            '00002af1-0000-1000-8000-00805f9b34fb',
+            '0000ffe1-0000-1000-8000-00805f9b34fb',
+            'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f'
+        ];
+
+        // عناصر الصفحة
         const logEl = document.getElementById('log');
         const connectBtn = document.getElementById('connectBtn');
+        const demoBtn = document.getElementById('demoBtn');
         const disconnectBtn = document.getElementById('disconnectBtn');
         const dtcBtn = document.getElementById('dtcBtn');
         const liveBtn = document.getElementById('liveBtn');
         const clearBtn = document.getElementById('clearBtn');
         const vinBtn = document.getElementById('vinBtn');
-        const vinBtn2 = document.getElementById('vinBtn2');
+        const statusBadge = document.getElementById('statusBadge');
         const rpmEl = document.getElementById('rpmValue');
         const speedEl = document.getElementById('speedValue');
         const tempEl = document.getElementById('tempValue');
@@ -121,7 +148,9 @@
         const dtcListEl = document.getElementById('dtcList');
         const vinValueEl = document.getElementById('vinValue');
 
-        // ===== Tabs =====
+        // ============================================================
+        // 2. Tabs
+        // ============================================================
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -131,7 +160,9 @@
             });
         });
 
-        // ===== Log =====
+        // ============================================================
+        // 3. Log Function
+        // ============================================================
         function log(msg) {
             const time = new Date().toLocaleTimeString('ar-DZ');
             logEl.innerHTML += `[${time}] ${msg}<br>`;
@@ -139,18 +170,57 @@
             console.log(msg);
         }
 
-        // ===== Send Command =====
+        // ============================================================
+        // 4. تحديث حالة الاتصال
+        // ============================================================
+        function updateStatus(status) {
+            if (status === 'connected') {
+                statusBadge.textContent = '✅ متصل';
+                statusBadge.className = 'status-badge status-connected';
+            } else if (status === 'demo') {
+                statusBadge.textContent = '🧪 وضع تجريبي';
+                statusBadge.className = 'status-badge status-demo';
+            } else {
+                statusBadge.textContent = 'غير متصل';
+                statusBadge.className = 'status-badge status-disconnected';
+            }
+        }
+
+        // ============================================================
+        // 5. تفعيل/تعطيل الأزرار
+        // ============================================================
+        function enableButtons(enabled) {
+            dtcBtn.disabled = !enabled;
+            liveBtn.disabled = !enabled;
+            clearBtn.disabled = !enabled;
+            vinBtn.disabled = !enabled;
+            disconnectBtn.disabled = !enabled;
+            connectBtn.disabled = enabled;
+            demoBtn.disabled = enabled;
+        }
+
+        // ============================================================
+        // 6. إرسال أمر إلى ECU
+        // ============================================================
         async function sendCommand(command) {
+            // في الوضع التجريبي، نرجع بيانات وهمية
+            if (isDemoMode) {
+                return mockResponse(command);
+            }
+
             if (!writeChar || !notifyChar) throw new Error('الجهاز غير متصل');
+            
             const encoder = new TextEncoder();
             await writeChar.writeValue(encoder.encode(command + '\r'));
             log(`📤 ${command}`);
+
             return new Promise((resolve, reject) => {
                 let response = '';
                 const timeout = setTimeout(() => {
                     notifyChar.removeEventListener('characteristicvaluechanged', handler);
-                    reject(new Error('انتهت المهلة'));
+                    reject(new Error('انتهت مهلة الانتظار'));
                 }, 5000);
+
                 const handler = (event) => {
                     const value = event.target.value;
                     const decoder = new TextDecoder();
@@ -166,67 +236,159 @@
             });
         }
 
-        // ===== Initialize =====
-        async function initializeAdapter() {
-            log('⚙️ تهيئة...');
-            for (const cmd of ['ATZ','ATE0','ATL0','ATS0','ATSP0','0100']) {
-                try { const r = await sendCommand(cmd); log(`✅ ${cmd} → ${r}`); }
-                catch(e) { log(`⚠️ ${cmd} → ${e.message}`); }
-            }
-            log('✅ تم التهيئة');
+        // ============================================================
+        // 7. الوضع التجريبي - ردود وهمية
+        // ============================================================
+        function mockResponse(command) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const mockData = {
+                        'ATZ': 'ELM327 v1.5',
+                        'ATE0': 'OK',
+                        'ATL0': 'OK',
+                        'ATS0': 'OK',
+                        'ATSP0': 'OK',
+                        '0100': '4100 BE 3F A8 13',
+                        '03': '43 01 33 00 00 00 00',
+                        '04': '44',
+                        '0902': '49 02 01 31 47 31 4A 43 35 34 34 34 52 37 32 35 32 33 36 37',
+                        '010C': '41 0C 1A F8',
+                        '010D': '41 0D 32',
+                        '0105': '41 05 7B',
+                        '010A': '41 0A 32',
+                        '0111': '41 11 4D',
+                        '010F': '41 0F 3C',
+                        '0142': '41 42 30 39'
+                    };
+                    resolve(mockData[command] || 'NO DATA');
+                }, 300);
+            });
         }
 
-        // ===== Connect =====
+        // ============================================================
+        // 8. تهيئة الجهاز
+        // ============================================================
+        async function initializeAdapter() {
+            log('⚙️ تهيئة الجهاز...');
+            const commands = ['ATZ', 'ATE0', 'ATL0', 'ATS0', 'ATSP0', '0100'];
+            for (const cmd of commands) {
+                try {
+                    const response = await sendCommand(cmd);
+                    log(`✅ ${cmd} → ${response}`);
+                } catch (e) {
+                    log(`⚠️ ${cmd} → ${e.message}`);
+                }
+            }
+            log('✅ الجهاز جاهز!');
+        }
+
+        // ============================================================
+        // 9. الاتصال بجهاز البلوتوث
+        // ============================================================
         connectBtn.addEventListener('click', async () => {
             try {
-                log('🔍 بحث...');
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { services: [SERVICE_UUID] },
-                        { namePrefix: 'OBD' }, { namePrefix: 'ELM' }, { namePrefix: 'Vgate' }, { namePrefix: 'Vlinker' }
-                    ],
-                    optionalServices: [SERVICE_UUID]
-                });
-                log(`✅ ${bluetoothDevice.name}`);
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-                gattServer = await bluetoothDevice.gatt.connect();
-                obdService = await gattServer.getPrimaryService(SERVICE_UUID);
-                const chars = await obdService.getCharacteristics();
-                for (const c of chars) {
-                    if (c.properties.notify || c.properties.indicate) notifyChar = c;
-                    if (c.properties.write || c.properties.writeWithoutResponse) writeChar = c;
+                if (!navigator.bluetooth) {
+                    throw new Error('متصفحك لا يدعم Web Bluetooth. استخدم Chrome على Android.');
                 }
-                if (!notifyChar || !writeChar) throw new Error('لم يتم العثور على الخصائص');
+
+                log('🔍 البحث عن أجهزة بلوتوث...');
+                log('💡 اختر جهاز OBD-II من القائمة');
+
+                // البحث عن جميع الأجهزة (بدون فلترة)
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: POSSIBLE_SERVICES
+                });
+
+                log(`✅ تم العثور على: ${bluetoothDevice.name || 'جهاز غير معروف'}`);
+                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+                gattServer = await bluetoothDevice.gatt.connect();
+                log('✅ تم الاتصال');
+
+                // البحث عن الخدمات والخصائص
+                const services = await gattServer.getPrimaryServices();
+                log(`📋 عدد الخدمات: ${services.length}`);
+
+                let found = false;
+                for (const service of services) {
+                    try {
+                        const chars = await service.getCharacteristics();
+                        for (const char of chars) {
+                            const props = char.properties;
+                            if ((props.notify || props.indicate) && !notifyChar) {
+                                notifyChar = char;
+                                log(`📥 خاصية الاستقبال: ${char.uuid.slice(0,8)}...`);
+                            }
+                            if ((props.write || props.writeWithoutResponse) && !writeChar) {
+                                writeChar = char;
+                                log(`📤 خاصية الإرسال: ${char.uuid.slice(0,8)}...`);
+                            }
+                        }
+                        if (notifyChar && writeChar) { found = true; break; }
+                    } catch (e) { continue; }
+                }
+
+                if (!found || !notifyChar || !writeChar) {
+                    throw new Error('لم يتم العثور على خصائص مناسبة. قد لا يكون الجهاز متوافقاً.');
+                }
+
                 await notifyChar.startNotifications();
                 notifyChar.addEventListener('characteristicvaluechanged', () => {});
+
                 isConnected = true;
-                connectBtn.disabled = true;
-                disconnectBtn.disabled = false;
-                dtcBtn.disabled = false;
-                liveBtn.disabled = false;
-                clearBtn.disabled = false;
-                vinBtn.disabled = false;
-                vinBtn2.disabled = false;
+                updateStatus('connected');
+                enableButtons(true);
+
                 await initializeAdapter();
-                log('🎉 جاهز!');
-            } catch (e) { log(`❌ ${e.message}`); }
+                log('🎉 جاهز للاستخدام!');
+
+            } catch (error) {
+                log(`❌ ${error.message}`);
+                if (error.name === 'NotFoundError') {
+                    log('💡 لم يتم اختيار أي جهاز. حاول مرة أخرى.');
+                }
+            }
         });
 
-        // ===== Disconnect =====
-        disconnectBtn.addEventListener('click', () => { if (bluetoothDevice?.gatt.connected) bluetoothDevice.gatt.disconnect(); });
+        // ============================================================
+        // 10. الوضع التجريبي
+        // ============================================================
+        demoBtn.addEventListener('click', async () => {
+            isDemoMode = true;
+            updateStatus('demo');
+            enableButtons(true);
+            log('🧪 تم تفعيل الوضع التجريبي');
+            log('💡 البيانات المعروضة وهمية لتجربة الواجهة فقط');
+            await initializeAdapter();
+            log('🎉 جاهز (تجريبي)!');
+        });
+
+        // ============================================================
+        // 11. قطع الاتصال
+        // ============================================================
+        disconnectBtn.addEventListener('click', () => {
+            if (isDemoMode) {
+                isDemoMode = false;
+                isConnected = false;
+                updateStatus('disconnected');
+                enableButtons(false);
+                log('🔌 تم إيقاف الوضع التجريبي');
+                return;
+            }
+            if (bluetoothDevice?.gatt.connected) bluetoothDevice.gatt.disconnect();
+        });
+
         function onDisconnected() {
             log('🔌 تم قطع الاتصال');
             isConnected = false;
-            connectBtn.disabled = false;
-            disconnectBtn.disabled = true;
-            dtcBtn.disabled = true;
-            liveBtn.disabled = true;
-            clearBtn.disabled = true;
-            vinBtn.disabled = true;
-            vinBtn2.disabled = true;
+            updateStatus('disconnected');
+            enableButtons(false);
         }
 
-        // ===== DTC Reading =====
+        // ============================================================
+        // 12. قراءة الأعطال
+        // ============================================================
         dtcBtn.addEventListener('click', async () => {
             try {
                 log('📋 قراءة الأعطال...');
@@ -234,29 +396,39 @@
                 const response = await sendCommand('03');
                 log(`📥 ${response}`);
                 const dtcs = parseDTCResponse(response);
-                if (dtcs.length === 0) dtcListEl.innerHTML = '<div class="dtc-item clear">✅ لا توجد أعطال</div>';
-                else dtcListEl.innerHTML = dtcs.map(d => `<div class="dtc-item">⚠️ ${d.code} - ${d.desc}</div>`).join('');
-            } catch (e) { log(`❌ ${e.message}`); dtcListEl.innerHTML = `<div class="dtc-item">❌ ${e.message}</div>`; }
+                if (dtcs.length === 0) {
+                    dtcListEl.innerHTML = '<div class="dtc-item clear">✅ لا توجد أعطال مسجلة</div>';
+                } else {
+                    dtcListEl.innerHTML = dtcs.map(d => 
+                        `<div class="dtc-item">⚠️ ${d.code} - ${d.desc}</div>`
+                    ).join('');
+                }
+            } catch (e) {
+                log(`❌ ${e.message}`);
+                dtcListEl.innerHTML = `<div class="dtc-item">❌ ${e.message}</div>`;
+            }
         });
 
-        // ===== Clear DTCs (Mode 04) =====
+        // ============================================================
+        // 13. مسح الأعطال
+        // ============================================================
         clearBtn.addEventListener('click', async () => {
             if (!confirm('هل أنت متأكد من مسح جميع الأعطال؟')) return;
             try {
                 log('🗑️ مسح الأعطال...');
                 const response = await sendCommand('04');
                 log(`📥 ${response}`);
-                if (response.includes('44')) {
+                if (response.includes('44') || response === 'OK') {
                     log('✅ تم مسح الأعطال');
-                    dtcListEl.innerHTML = '<div class="dtc-item clear">✅ تم مسح الأعطال</div>';
-                } else {
-                    log('⚠️ لم يتم التأكيد');
+                    dtcListEl.innerHTML = '<div class="dtc-item clear">✅ تم مسح الأعطال بنجاح</div>';
                 }
             } catch (e) { log(`❌ ${e.message}`); }
         });
 
-        // ===== VIN Reading (Mode 09 PID 02) =====
-        async function readVIN() {
+        // ============================================================
+        // 14. قراءة VIN
+        // ============================================================
+        vinBtn.addEventListener('click', async () => {
             try {
                 log('🔍 قراءة VIN...');
                 vinValueEl.textContent = '...';
@@ -265,36 +437,43 @@
                 const vin = parseVIN(response);
                 vinValueEl.textContent = vin || 'غير متوفر';
                 log(`✅ VIN: ${vin}`);
-            } catch (e) { log(`❌ ${e.message}`); vinValueEl.textContent = 'خطأ'; }
-        }
-        vinBtn.addEventListener('click', readVIN);
-        vinBtn2.addEventListener('click', readVIN);
+            } catch (e) {
+                log(`❌ ${e.message}`);
+                vinValueEl.textContent = 'خطأ';
+            }
+        });
 
-        // ===== Live Data =====
+        // ============================================================
+        // 15. قراءة البيانات الحية
+        // ============================================================
         liveBtn.addEventListener('click', async () => {
             try {
                 log('📊 قراءة البيانات...');
                 const pids = [
-                    { cmd: '010C', parse: parseRPM, el: rpmEl },
-                    { cmd: '010D', parse: parseSpeed, el: speedEl },
-                    { cmd: '0105', parse: parseCoolantTemp, el: tempEl },
-                    { cmd: '010A', parse: parseFuelPressure, el: fuelEl },
-                    { cmd: '0111', parse: parseThrottle, el: throttleEl },
-                    { cmd: '010F', parse: parseIntakeAirTemp, el: airTempEl },
-                    { cmd: '0142', parse: parseBatteryVoltage, el: batteryEl }
+                    { cmd: '010C', parse: parseRPM, el: rpmEl, name: 'RPM' },
+                    { cmd: '010D', parse: parseSpeed, el: speedEl, name: 'Speed' },
+                    { cmd: '0105', parse: parseCoolantTemp, el: tempEl, name: 'Temp' },
+                    { cmd: '010A', parse: parseFuelPressure, el: fuelEl, name: 'Fuel' },
+                    { cmd: '0111', parse: parseThrottle, el: throttleEl, name: 'Throttle' },
+                    { cmd: '010F', parse: parseIntakeAirTemp, el: airTempEl, name: 'AirTemp' },
+                    { cmd: '0142', parse: parseBatteryVoltage, el: batteryEl, name: 'Battery' }
                 ];
                 for (const pid of pids) {
                     try {
                         const resp = await sendCommand(pid.cmd);
                         const val = pid.parse(resp);
                         pid.el.textContent = val !== null ? val : '--';
-                        log(`📊 ${pid.cmd} → ${val}`);
-                    } catch (e) { log(`⚠️ ${pid.cmd} → ${e.message}`); }
+                        log(`📊 ${pid.name}: ${val}`);
+                    } catch (e) {
+                        log(`⚠️ ${pid.name}: ${e.message}`);
+                    }
                 }
             } catch (e) { log(`❌ ${e.message}`); }
         });
 
-        // ===== Parsers =====
+        // ============================================================
+        // 16. دوال تحليل البيانات (Parsers)
+        // ============================================================
         function parseRPM(resp) {
             const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
             const i = hex.indexOf('410C');
@@ -336,7 +515,9 @@
             return ((A*256)+B)/1000;
         }
 
-        // ===== DTC Parser =====
+        // ============================================================
+        // 17. تحليل أكواد الأعطال
+        // ============================================================
         function parseDTCResponse(resp) {
             const dtcs = [];
             let hex = resp.replace(/[^0-9A-Fa-f]/g, '');
@@ -371,14 +552,16 @@
                 'P0200':'دائرة البخاخات','P0300':'خلل إشعال عشوائي','P0301':'خلل أسطوانة 1','P0302':'خلل أسطوانة 2','P0303':'خلل أسطوانة 3','P0304':'خلل أسطوانة 4',
                 'P0325':'حساس الطرق','P0335':'حساس عمود المرفق','P0340':'حساس عمود الكامات','P0400':'نظام EGR','P0420':'كفاءة المحول الحفاز',
                 'P0440':'نظام EVAP','P0455':'تسرب EVAP','P0500':'حساس سرعة السيارة','P0505':'نظام الخمول','P0562':'جهد بطارية منخفض','P0563':'جهد بطارية عالي',
-                'P0600':'اتصال تسلس عندلي','P0601':'ذاكرة وحدة التحكم','P0700':'ناقل حركة أوتوماتيكي','P0705':'حساس نطاق ناقل الحركة','P0715':'حساس عمود إدخال','P0720':'حساس عمود إخراج',
+                'P0600':'اتصال تسلسلي','P0601':'ذاكرة وحدة التحكم','P0700':'ناقل حركة أوتوماتيكي','P0705':'حساس نطاق ناقل الحركة','P0715':'حساس عمود إدخال','P0720':'حساس عمود إخراج',
                 'U0100':'فقدان اتصال ECM','U0101':'فقدان اتصال TCM','U0121':'فقدان اتصال ABS','U0155':'فقدان اتصال العدادات',
                 'C0035':'حساس عجلة أمامية يسرى','C0040':'حساس عجلة أمامية يمنى','B0001':'وسائد هوائية'
             };
             return map[code] || 'كود غير معروف - راجع الدليل';
         }
 
-        // ===== VIN Parser =====
+        // ============================================================
+        // 18. تحليل VIN
+        // ============================================================
         function parseVIN(resp) {
             const hex = resp.replace(/[^0-9A-Fa-f]/g, '');
             const idx = hex.indexOf('4902');
@@ -387,7 +570,7 @@
             let vin = '';
             for (let i = 0; i < data.length-1; i += 2) {
                 const charCode = parseInt(data.substr(i,2),16);
-                if (charCode > 0) vin += String.fromCharCode(charCode);
+                if (charCode > 0 && charCode < 128) vin += String.fromCharCode(charCode);
             }
             return vin.trim() || null;
         }
