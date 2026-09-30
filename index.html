@@ -20,13 +20,12 @@
   .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
 
   .status {
-    display: inline-block;
+    display: block;
+    width: fit-content;
+    margin: 0 auto 16px;
     padding: 8px 20px;
     border-radius: 20px;
     font-weight: 700;
-    margin: 0 auto 16px;
-    display: block;
-    width: fit-content;
     background: #fee2e2;
     color: #b91c1c;
     transition: 0.3s;
@@ -71,6 +70,7 @@
     line-height: 1.7;
     direction: ltr;
     text-align: left;
+    white-space: pre-wrap;
   }
 
   .tabs {
@@ -103,7 +103,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 
-  /* ==== السيارة التفاعلية ==== */
+  /* ====== السيارة ====== */
   .car-container {
     position: relative;
     background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -113,10 +113,8 @@
     margin-bottom: 16px;
   }
   .car-svg { width: 100%; height: auto; display: block; }
-  .car-body { fill: #334155; stroke: #64748b; stroke-width: 2; transition: 0.4s; }
-  .car-glass { fill: #0ea5e9; opacity: 0.4; }
-  .wheel { fill: #0f172a; stroke: #475569; stroke-width: 3; }
-  .rim   { fill: #94a3b8; }
+  .car-body { transition: all 0.4s ease; }
+  .car-glass { transition: 0.3s; }
 
   .zone { cursor: pointer; opacity: 0; transition: opacity 0.3s; }
   .zone rect, .zone circle.brake-zone {
@@ -191,10 +189,37 @@
     padding: 12px;
     text-align: center;
     border: 1px solid #e2e8f0;
+    transition: 0.3s;
   }
   .data-box .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
   .data-box .value { font-size: 20px; font-weight: 700; color: #0f172a; }
   .data-box .unit { font-size: 11px; color: #94a3b8; }
+
+  .data-box.good { background:#dcfce7; border-color:#16a34a; }
+  .data-box.warn { background:#fef3c7; border-color:#f59e0b; }
+  .data-box.bad  { background:#fee2e2; border-color:#dc2626; }
+  .data-box.good .value { color:#15803d; }
+  .data-box.warn .value { color:#b45309; }
+  .data-box.bad  .value { color:#b91c1c; }
+
+  .group-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #1e293b;
+    border-right: 4px solid #3b82f6;
+    padding-right: 10px;
+  }
+
+  .analysis-item {
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.6);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
 
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
 </style>
@@ -221,18 +246,17 @@
   <button class="tab" data-tab="vin">🔍 VIN</button>
 </div>
 
-<!-- ============ تبويب الأعطال ============ -->
+<!-- ============ الأعطال ============ -->
 <div class="panel active" id="panel-faults">
-
   <div class="car-container">
     <svg viewBox="0 0 800 400" class="car-svg" id="carSvg">
-      <path class="car-body" d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z"/>
-      <path class="car-glass" d="M180,160 L240,160 L220,210 L160,210 Z"/>
-      <path class="car-glass" d="M540,160 L620,160 L640,210 L560,210 Z"/>
-      <circle class="wheel" cx="180" cy="320" r="45"/>
-      <circle class="wheel" cx="620" cy="320" r="45"/>
-      <circle class="rim" cx="180" cy="320" r="20"/>
-      <circle class="rim" cx="620" cy="320" r="20"/>
+      <path class="car-body" d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+      <path class="car-glass" d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
+      <path class="car-glass" d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
+      <circle cx="180" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+      <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+      <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
+      <circle cx="620" cy="320" r="20" fill="#94a3b8"/>
 
       <g class="zone" data-zone="engine"><rect x="620" y="180" width="120" height="90" rx="12"/><text x="680" y="230">المحرك</text></g>
       <g class="zone" data-zone="battery"><rect x="560" y="200" width="55" height="55" rx="8"/><text x="587" y="235">بطارية</text></g>
@@ -243,6 +267,7 @@
       <g class="zone" data-zone="cooling"><rect x="700" y="220" width="60" height="60" rx="8"/><text x="730" y="255">تبريد</text></g>
       <g class="zone" data-zone="abs"><rect x="240" y="230" width="70" height="50" rx="8"/><text x="275" y="260">ABS</text></g>
       <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد هوائية</text></g>
+      <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
     </svg>
 
     <div class="fault-card hidden" id="faultCard">
@@ -262,22 +287,82 @@
   </div>
 </div>
 
-<!-- ============ تبويب البيانات الحية ============ -->
+<!-- ============ البيانات الحية ============ -->
 <div class="panel" id="panel-live">
+
+  <div class="card" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-blue" id="btnStartLive" style="flex:1;min-width:120px;">▶️ بدء القراءة</button>
+    <button class="btn btn-red" id="btnStopLive" style="flex:1;min-width:100px;">⏸️ إيقاف</button>
+    <button class="btn btn-gray" id="btnExportCSV" style="flex:1;min-width:120px;">💾 تصدير CSV</button>
+  </div>
+
   <div class="card">
-    <h3 style="margin-bottom:12px;">البيانات الحية</h3>
-    <div class="data-grid" id="liveData">
-      <div class="data-box"><div class="label">RPM</div><div class="value" id="v-rpm">0</div><div class="unit">دورة/دقيقة</div></div>
-      <div class="data-box"><div class="label">السرعة</div><div class="value" id="v-speed">0</div><div class="unit">كم/س</div></div>
-      <div class="data-box"><div class="label">حرارة المحرك</div><div class="value" id="v-coolant">0</div><div class="unit">°C</div></div>
-      <div class="data-box"><div class="label">جهد البطارية</div><div class="value" id="v-battery">0</div><div class="unit">V</div></div>
-      <div class="data-box"><div class="label">حرارة الهواء</div><div class="value" id="v-iat">0</div><div class="unit">°C</div></div>
-      <div class="data-box"><div class="label">الخانق</div><div class="value" id="v-throttle">0</div><div class="unit">%</div></div>
+    <h3 class="group-title">⚙️ المحرك والأداء</h3>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">RPM</div><div class="value" id="p-rpm">--</div><div class="unit">دورة/دقيقة</div></div>
+      <div class="data-box"><div class="label">السرعة</div><div class="value" id="p-speed">--</div><div class="unit">كم/س</div></div>
+      <div class="data-box"><div class="label">حمل المحرك</div><div class="value" id="p-load">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">موضع الخانق</div><div class="value" id="p-throttle">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">توقيت الإشعال</div><div class="value" id="p-timing">--</div><div class="unit">°</div></div>
+      <div class="data-box"><div class="label">عزم المحرك</div><div class="value" id="p-torque">--</div><div class="unit">%</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="group-title">⛽ الوقود والهواء</h3>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">STFT Bank 1</div><div class="value" id="p-stft1">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">LTFT Bank 1</div><div class="value" id="p-ltft1">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">STFT Bank 2</div><div class="value" id="p-stft2">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">LTFT Bank 2</div><div class="value" id="p-ltft2">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">MAF</div><div class="value" id="p-maf">--</div><div class="unit">g/s</div></div>
+      <div class="data-box"><div class="label">MAP</div><div class="value" id="p-map">--</div><div class="unit">kPa</div></div>
+      <div class="data-box"><div class="label">ضغط الوقود</div><div class="value" id="p-fuelp">--</div><div class="unit">kPa</div></div>
+      <div class="data-box"><div class="label">ضغط الوقود النسبي</div><div class="value" id="p-fuelr">--</div><div class="unit">kPa</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="group-title">💨 حساسات الأكسجين (O2)</h3>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">O2 Bank1 S1</div><div class="value" id="p-o2b1s1">--</div><div class="unit">V</div></div>
+      <div class="data-box"><div class="label">O2 Bank1 S2</div><div class="value" id="p-o2b1s2">--</div><div class="unit">V</div></div>
+      <div class="data-box"><div class="label">O2 Bank2 S1</div><div class="value" id="p-o2b2s1">--</div><div class="unit">V</div></div>
+      <div class="data-box"><div class="label">O2 Bank2 S2</div><div class="value" id="p-o2b2s2">--</div><div class="unit">V</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="group-title">🌡️ الحرارة والبيئة</h3>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">حرارة المحرك</div><div class="value" id="p-coolant">--</div><div class="unit">°C</div></div>
+      <div class="data-box"><div class="label">حرارة الهواء</div><div class="value" id="p-iat">--</div><div class="unit">°C</div></div>
+      <div class="data-box"><div class="label">حرارة البيئة</div><div class="value" id="p-ambient">--</div><div class="unit">°C</div></div>
+      <div class="data-box"><div class="label">حرارة الزيت</div><div class="value" id="p-oil">--</div><div class="unit">°C</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="group-title">🔋 الكهرباء والصيانة</h3>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">جهد البطارية</div><div class="value" id="p-battery">--</div><div class="unit">V</div></div>
+      <div class="data-box"><div class="label">مستوى الوقود</div><div class="value" id="p-fuelLevel">--</div><div class="unit">%</div></div>
+      <div class="data-box"><div class="label">مسافة مع CEL</div><div class="value" id="p-distCel">--</div><div class="unit">كم</div></div>
+      <div class="data-box"><div class="label">مسافة منذ مسح DTC</div><div class="value" id="p-distClr">--</div><div class="unit">كم</div></div>
+      <div class="data-box"><div class="label">زمن تشغيل المحرك</div><div class="value" id="p-runtime">--</div><div class="unit">ثانية</div></div>
+      <div class="data-box"><div class="label">حالة الوقود</div><div class="value" id="p-fuelStatus" style="font-size:13px;">--</div><div class="unit"></div></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#fffbeb;border-right:4px solid #f59e0b;">
+    <h3 class="group-title" style="color:#92400e;border-color:#f59e0b;">🧠 التحليل التلقائي</h3>
+    <div id="autoAnalysis" style="line-height:1.9;color:#78350f;">
+      اضغط "بدء القراءة" لتظهر التحليلات هنا.
     </div>
   </div>
 </div>
 
-<!-- ============ تبويب VIN ============ -->
+<!-- ============ VIN ============ -->
 <div class="panel" id="panel-vin">
   <div class="card">
     <h3 style="margin-bottom:12px;">رقم الهيكل (VIN)</h3>
@@ -320,6 +405,9 @@ const DTC_MAP = {
   P0335: { zone:"engine", title:"حساس الكرنك",              desc:"السبب الأشهر لعدم التشغيل" },
   P0016: { zone:"engine", title:"تزامن الكرنك والكام",      desc:"احتمال سلسلة توقيت ممدودة" },
   P0524: { zone:"engine", title:"ضغط زيت منخفض",            desc:"أوقف المحرك فوراً" },
+  U0100: { zone:"electronics", title:"فقدان الاتصال بـ ECU",   desc:"مشكلة في شبكة CAN أو كمبيوتر المحرك" },
+  U0121: { zone:"electronics", title:"فقدان الاتصال بـ ABS",   desc:"افحص أسلاك وحدة ABS" },
+  U0155: { zone:"electronics", title:"فقدان اتصال العدادات",   desc:"افحص أسلاك العدادات" },
 };
 
 function getFaultInfo(code) {
@@ -392,7 +480,8 @@ document.querySelectorAll('.tab').forEach(tab => {
 ===================================================== */
 function log(msg) {
   const c = document.getElementById('console');
-  c.textContent += '\n' + msg;
+  const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  c.textContent += `\n[${time}] ${msg}`;
   c.scrollTop = c.scrollHeight;
 }
 
@@ -403,11 +492,11 @@ function setStatus(text, connected) {
 }
 
 /* =====================================================
-   Bluetooth ELM327 (Web Bluetooth)
+   Bluetooth
 ===================================================== */
-let device = null, characteristic = null, service = null;
-const ELM_SERVICE = '0000fff0-0000-1000-8000-00805f9b34fb';
-const ELM_CHAR    = '0000fff1-0000-1000-8000-00805f9b34fb';
+let device = null, characteristic = null;
+const ELM_SERVICE  = '0000fff0-0000-1000-8000-00805f9b34fb';
+const ELM_CHAR     = '0000fff1-0000-1000-8000-00805f9b34fb';
 const ELM_SERVICE2 = '0000ffe0-0000-1000-8000-00805f9b34fb';
 const ELM_CHAR2    = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
@@ -431,20 +520,20 @@ async function connectBluetooth() {
     });
     log('✅ تم اختيار: ' + device.name);
     const server = await device.gatt.connect();
-
     try {
-      service = await server.getPrimaryService(ELM_SERVICE);
-      characteristic = await service.getCharacteristic(ELM_CHAR);
+      const svc = await server.getPrimaryService(ELM_SERVICE);
+      characteristic = await svc.getCharacteristic(ELM_CHAR);
     } catch {
-      service = await server.getPrimaryService(ELM_SERVICE2);
-      characteristic = await service.getCharacteristic(ELM_CHAR2);
+      const svc = await server.getPrimaryService(ELM_SERVICE2);
+      characteristic = await svc.getCharacteristic(ELM_CHAR2);
     }
     await characteristic.startNotifications();
     characteristic.addEventListener('characteristicvaluechanged', handleData);
-
     setStatus('متصل ✓', true);
     log('🎉 متصل بـ ' + device.name);
-    await sendCommand('ATZ');
+    await sendCommand('ATZ', 1500);
+    await sendCommand('ATE0', 500);
+    await sendCommand('ATSP0', 500);
   } catch (e) {
     log('❌ خطأ: ' + e.message);
     setStatus('غير متصل', false);
@@ -456,7 +545,7 @@ function disconnectBluetooth() {
     if (device && device.gatt.connected) device.gatt.disconnect();
     setStatus('غير متصل', false);
     log('🔌 تم قطع الاتصال');
-  } catch(e) { log('خطأ في القطع: ' + e.message); }
+  } catch(e) { log('خطأ: ' + e.message); }
 }
 
 /* =====================================================
@@ -464,9 +553,8 @@ function disconnectBluetooth() {
 ===================================================== */
 let responseBuffer = '';
 function handleData(event) {
-  const value = event.target.value;
   const decoder = new TextDecoder();
-  responseBuffer += decoder.decode(value);
+  responseBuffer += decoder.decode(event.target.value);
 }
 
 async function sendCommand(cmd, waitMs = 400) {
@@ -474,7 +562,6 @@ async function sendCommand(cmd, waitMs = 400) {
   responseBuffer = '';
   const encoder = new TextEncoder();
   const full = cmd + '\r';
-  // بعض المحولات تحتاج MTU صغير
   for (let i = 0; i < full.length; i += 20) {
     await characteristic.writeValue(encoder.encode(full.substring(i, i + 20)));
   }
@@ -574,7 +661,225 @@ function parseVIN(raw) {
 }
 
 /* =====================================================
-   وضع تجريبي (Demo Mode)
+   🚀 البيانات الحية الموسّعة (27 معلمة)
+===================================================== */
+const PID_DEFS = {
+  '010C': { key:'rpm',         bytes:2, calc:(a,b)=>((256*a+b)/4) },
+  '010D': { key:'speed',       bytes:1, calc:(a)=>a },
+  '0104': { key:'load',        bytes:1, calc:(a)=>a*100/255 },
+  '0111': { key:'throttle',    bytes:1, calc:(a)=>a*100/255 },
+  '010E': { key:'timing',      bytes:1, calc:(a)=>a/2-64 },
+  '0162': { key:'torque',      bytes:1, calc:(a)=>a-125 },
+  '0106': { key:'stft1',       bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0107': { key:'ltft1',       bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0108': { key:'stft2',       bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0109': { key:'ltft2',       bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0110': { key:'maf',         bytes:2, calc:(a,b)=>(256*a+b)/100 },
+  '010B': { key:'map',         bytes:1, calc:(a)=>a },
+  '010A': { key:'fuelp',       bytes:1, calc:(a)=>a*3 },
+  '0122': { key:'fuelr',       bytes:2, calc:(a,b)=>(256*a+b)*0.079 },
+  '0114': { key:'o2b1s1',      bytes:2, calc:(a)=>a/200 },
+  '0115': { key:'o2b1s2',      bytes:2, calc:(a)=>a/200 },
+  '0118': { key:'o2b2s1',      bytes:2, calc:(a)=>a/200 },
+  '0119': { key:'o2b2s2',      bytes:2, calc:(a)=>a/200 },
+  '0105': { key:'coolant',     bytes:1, calc:(a)=>a-40 },
+  '010F': { key:'iat',         bytes:1, calc:(a)=>a-40 },
+  '0146': { key:'ambient',     bytes:1, calc:(a)=>a-40 },
+  '015C': { key:'oil',         bytes:1, calc:(a)=>a-40 },
+  '0142': { key:'battery',     bytes:2, calc:(a,b)=>(256*a+b)/1000 },
+  '012F': { key:'fuelLevel',   bytes:1, calc:(a)=>a*100/255 },
+  '0131': { key:'distClr',     bytes:2, calc:(a,b)=>256*a+b },
+  '0121': { key:'distCel',     bytes:2, calc:(a,b)=>256*a+b },
+  '011F': { key:'runtime',     bytes:2, calc:(a,b)=>256*a+b },
+  '0151': { key:'fuelStatus',  bytes:1, calc:(a)=>a },
+};
+
+let lastValues = {};
+let liveInterval = null;
+let liveRecording = false;
+let recordingData = [];
+
+async function readPID(pid) {
+  const resp = await sendCommand(pid, 200);
+  if (!resp) return null;
+  return parsePIDResponse(pid, resp);
+}
+
+function parsePIDResponse(pid, raw) {
+  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
+  const expected = '41' + pid.substring(2);
+  const idx = clean.indexOf(expected);
+  if (idx === -1) return null;
+  const dataHex = clean.substring(idx + expected.length);
+  const def = PID_DEFS[pid];
+  if (!def) return null;
+  const bytes = [];
+  for (let i = 0; i < def.bytes * 2; i += 2) {
+    bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
+  }
+  if (bytes.some(isNaN)) return null;
+  return def.calc(...bytes);
+}
+
+function updateLiveUI() {
+  setValue('rpm',        lastValues.rpm,        v=>v.toFixed(0));
+  setValue('speed',      lastValues.speed,      v=>v.toFixed(0));
+  setValue('load',       lastValues.load,       v=>v.toFixed(1));
+  setValue('throttle',   lastValues.throttle,   v=>v.toFixed(1));
+  setValue('timing',     lastValues.timing,     v=>v.toFixed(1));
+  setValue('torque',     lastValues.torque,     v=>v.toFixed(0));
+  setValue('stft1',      lastValues.stft1,      v=>v.toFixed(1));
+  setValue('ltft1',      lastValues.ltft1,      v=>v.toFixed(1));
+  setValue('stft2',      lastValues.stft2,      v=>v.toFixed(1));
+  setValue('ltft2',      lastValues.ltft2,      v=>v.toFixed(1));
+  setValue('maf',        lastValues.maf,        v=>v.toFixed(2));
+  setValue('map',        lastValues.map,        v=>v.toFixed(0));
+  setValue('fuelp',      lastValues.fuelp,      v=>v.toFixed(0));
+  setValue('fuelr',      lastValues.fuelr,      v=>v.toFixed(1));
+  setValue('o2b1s1',     lastValues.o2b1s1,     v=>v.toFixed(2));
+  setValue('o2b1s2',     lastValues.o2b1s2,     v=>v.toFixed(2));
+  setValue('o2b2s1',     lastValues.o2b2s1,     v=>v.toFixed(2));
+  setValue('o2b2s2',     lastValues.o2b2s2,     v=>v.toFixed(2));
+  setValue('coolant',    lastValues.coolant,    v=>v.toFixed(0));
+  setValue('iat',        lastValues.iat,        v=>v.toFixed(0));
+  setValue('ambient',    lastValues.ambient,    v=>v.toFixed(0));
+  setValue('oil',        lastValues.oil,        v=>v.toFixed(0));
+  setValue('battery',    lastValues.battery,    v=>v.toFixed(2));
+  setValue('fuelLevel',  lastValues.fuelLevel,  v=>v.toFixed(0));
+  setValue('distClr',    lastValues.distClr,    v=>v.toFixed(0));
+  setValue('distCel',    lastValues.distCel,    v=>v.toFixed(0));
+  setValue('runtime',    lastValues.runtime,    v=>v.toFixed(0));
+
+  const fs = lastValues.fuelStatus;
+  if (fs !== undefined) {
+    const map = { 1:'محرك يعمل', 2:'إشعال فقط', 3:'حلقة مغلقة', 4:'حلقة مفتوحة - حرارة', 5:'حلقة مفتوحة - حمل' };
+    const el = document.getElementById('p-fuelStatus');
+    if (el) el.textContent = map[fs] || '—';
+  }
+
+  colorize('coolant', 75, 105, 'range');
+  colorize('battery', 12.4, 14.8, 'range');
+  ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
+}
+
+function setValue(key, val, fmt) {
+  const el = document.getElementById('p-' + key);
+  if (!el) return;
+  el.textContent = (val === undefined || val === null) ? '--' : fmt(val);
+}
+
+function colorize(key, min, max, mode) {
+  const box = document.getElementById('p-' + key)?.closest('.data-box');
+  if (!box) return;
+  const v = lastValues[key];
+  if (v === undefined || v === null) return;
+  box.classList.remove('good', 'warn', 'bad');
+  const val = (mode === 'abs') ? Math.abs(v) : v;
+  if (mode === 'abs') {
+    if (val <= min) box.classList.add('good');
+    else if (val <= max) box.classList.add('warn');
+    else box.classList.add('bad');
+  } else {
+    if (v >= min && v <= max) box.classList.add('good');
+    else if (v < min * 0.9 || v > max * 1.1) box.classList.add('bad');
+    else box.classList.add('warn');
+  }
+}
+
+async function liveLoop() {
+  if (!characteristic) return;
+  const pids = Object.keys(PID_DEFS);
+  const batchSize = 3;
+  for (let i = 0; i < pids.length; i += batchSize) {
+    const batch = pids.slice(i, i + batchSize);
+    await Promise.all(batch.map(async pid => {
+      const val = await readPID(pid);
+      if (val !== null && val !== undefined && !isNaN(val)) {
+        lastValues[PID_DEFS[pid].key] = val;
+      }
+    }));
+  }
+  updateLiveUI();
+  runAutoAnalysis();
+  if (liveRecording) recordingData.push({ time: Date.now(), ...lastValues });
+}
+
+function startLive() {
+  if (liveInterval) return;
+  log('▶️ بدء القراءة الحية...');
+  liveInterval = setInterval(liveLoop, 2000);
+  liveLoop();
+}
+
+function stopLive() {
+  if (liveInterval) clearInterval(liveInterval);
+  liveInterval = null;
+  log('⏸️ تم إيقاف القراءة');
+}
+
+function runAutoAnalysis() {
+  const el = document.getElementById('autoAnalysis');
+  if (!el) return;
+  const items = [];
+  const v = lastValues;
+
+  ['stft1','ltft1','stft2','ltft2'].forEach(k => {
+    if (v[k] !== undefined && Math.abs(v[k]) > 10) {
+      items.push({ icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — احتمال تسرب هواء أو مشكلة وقود` });
+    }
+  });
+
+  if (v.coolant !== undefined) {
+    if (v.coolant < 75 && v.runtime > 300) items.push({ icon:'❄️', text:`حرارة المحرك ${v.coolant}°C — ترموستات قد يكون عاطلاً` });
+    if (v.coolant > 105) items.push({ icon:'🔥', text:`حرارة المحرك ${v.coolant}°C — ارتفاع حرارة!` });
+  }
+
+  if (v.battery !== undefined) {
+    if (v.battery < 12.4 && v.rpm > 500) items.push({ icon:'🔋', text:`جهد البطارية ${v.battery}V — الدينامو لا يشحن` });
+    if (v.battery > 15) items.push({ icon:'⚡', text:`جهد مرتفع ${v.battery}V — منظم الدينامو` });
+  }
+
+  ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => {
+    if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) {
+      items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` });
+    }
+  });
+
+  if (v.maf !== undefined && v.rpm !== undefined && v.rpm > 500) {
+    const ratio = v.maf / (v.rpm / 1000);
+    if (ratio < 1.5) items.push({ icon:'🌬️', text:`MAF منخفض نسبةً للـ RPM — تحقق من فلتر الهواء` });
+    if (ratio > 8)   items.push({ icon:'🌬️', text:`MAF مرتفع — احتمال تسرب هواء` });
+  }
+
+  if (v.map !== undefined && v.rpm < 1000 && v.map > 50) {
+    items.push({ icon:'🌫️', text:`MAP ${v.map} kPa مع RPM منخفض — احتمال مشكلة فاكيوم` });
+  }
+
+  if (items.length === 0) {
+    el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
+  } else {
+    el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
+  }
+}
+
+function exportCSV() {
+  if (!recordingData.length) { alert('لا توجد بيانات مسجلة'); return; }
+  const keys = Object.keys(recordingData[0]);
+  const header = keys.join(',');
+  const rows = recordingData.map(r => keys.map(k => r[k] ?? '').join(','));
+  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `diga-log-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  log('💾 تم تصدير ' + recordingData.length + ' قراءة');
+}
+
+/* =====================================================
+   وضع تجريبي
 ===================================================== */
 let demoTimer = null;
 function startDemo() {
@@ -584,15 +889,40 @@ function startDemo() {
   renderDTCs(demoDTCs);
   displayFault(demoDTCs[0]);
 
-  // بيانات حية متحركة
   demoTimer = setInterval(() => {
-    document.getElementById('v-rpm').textContent     = 800 + Math.floor(Math.random() * 2500);
-    document.getElementById('v-speed').textContent   = Math.floor(Math.random() * 120);
-    document.getElementById('v-coolant').textContent = 85 + Math.floor(Math.random() * 10);
-    document.getElementById('v-battery').textContent = (13.8 + Math.random() * 0.6).toFixed(1);
-    document.getElementById('v-iat').textContent     = 25 + Math.floor(Math.random() * 10);
-    document.getElementById('v-throttle').textContent = Math.floor(Math.random() * 80);
-  }, 800);
+    lastValues = {
+      rpm: 800 + Math.random()*2500,
+      speed: Math.random()*120,
+      load: 20 + Math.random()*60,
+      throttle: Math.random()*80,
+      timing: 10 + Math.random()*20,
+      torque: 10 + Math.random()*70,
+      stft1: (Math.random()*20 - 10),
+      ltft1: (Math.random()*15 - 7),
+      stft2: (Math.random()*20 - 10),
+      ltft2: (Math.random()*15 - 7),
+      maf: 3 + Math.random()*15,
+      map: 30 + Math.random()*40,
+      fuelp: 300 + Math.random()*50,
+      fuelr: 280 + Math.random()*40,
+      o2b1s1: 0.1 + Math.random()*0.8,
+      o2b1s2: 0.1 + Math.random()*0.8,
+      o2b2s1: 0.1 + Math.random()*0.8,
+      o2b2s2: 0.1 + Math.random()*0.8,
+      coolant: 85 + Math.random()*10,
+      iat: 25 + Math.random()*10,
+      ambient: 22 + Math.random()*8,
+      oil: 90 + Math.random()*15,
+      battery: 13.8 + Math.random()*0.6,
+      fuelLevel: 30 + Math.random()*50,
+      distClr: 120,
+      distCel: 45,
+      runtime: 420,
+      fuelStatus: 1,
+    };
+    updateLiveUI();
+    runAutoAnalysis();
+  }, 1000);
 }
 
 function stopDemo() {
@@ -606,11 +936,17 @@ function stopDemo() {
 document.getElementById('btnConnect').addEventListener('click', connectBluetooth);
 document.getElementById('btnDemo').addEventListener('click', startDemo);
 document.getElementById('btnDisconnect').addEventListener('click', () => {
-  stopDemo(); disconnectBluetooth();
+  stopDemo(); stopLive(); disconnectBluetooth();
 });
 document.getElementById('btnClear').addEventListener('click', clearDTCs);
 document.getElementById('btnReadDTC').addEventListener('click', readDTCs);
 document.getElementById('btnReadVIN').addEventListener('click', readVIN);
+document.getElementById('btnStartLive').addEventListener('click', () => {
+  liveRecording = true;
+  startLive();
+});
+document.getElementById('btnStopLive').addEventListener('click', stopLive);
+document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
 </script>
 
 </body>
