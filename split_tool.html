@@ -10,8 +10,6 @@
   p{text-align:center;color:#64748b;font-size:14px;margin-bottom:20px;}
   .btn{display:block;width:100%;padding:16px;font-size:16px;background:#3b82f6;color:#fff;border:none;border-radius:12px;cursor:pointer;margin-bottom:12px;font-family:inherit;font-weight:700;}
   .btn:hover{background:#2563eb;}
-  .btn-green{background:#10b981;}
-  .btn-green:hover{background:#059669;}
   .link-box{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
   .link-box a{display:block;padding:14px;background:#f8fafc;border-radius:8px;text-decoration:none;color:#1e293b;font-weight:700;text-align:center;border:2px solid #e2e8f0;margin-bottom:8px;transition:0.2s;}
   .link-box a:hover{background:#e0f2fe;border-color:#3b82f6;}
@@ -52,7 +50,6 @@ async function split() {
     out.textContent += `✅ تم تحميل ${Object.keys(oldData).length} كود\n`;
     out.textContent += '⏳ جاري التقسيم والضغط...\n';
 
-    // تقسيم الأكواد حسب الحرف الأول
     const buckets = { P: {}, C: {}, B: {}, U: {} };
     for (const [code, info] of Object.entries(oldData)) {
       const letter = code[0].toUpperCase();
@@ -60,7 +57,6 @@ async function split() {
       buckets[letter][code] = [info.zone || 'engine', info.title || '', info.desc || ''];
     }
 
-    // الأكواد الأساسية (الأكثر شيوعاً)
     const commonCodes = ['P0171','P0172','P0174','P0175','P0300','P0301','P0302','P0303','P0304','P0305',
       'P0306','P0307','P0308','P0420','P0430','P0440','P0442','P0455','P0456','P0500','P0505','P0562',
       'P0563','P0601','P0606','P0700','P0730','P0741','P0750','P0755','C0035','C0040','C0045','C0050',
@@ -73,7 +69,6 @@ async function split() {
       if (oldData[code]) core[code] = [oldData[code].zone, oldData[code].title, oldData[code].desc];
     }
 
-    // تحويل كل قسم إلى Blob URL
     const files = {
       'dtc_core.json': core,
       'dtc_p.json': buckets.P || {},
