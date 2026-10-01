@@ -121,7 +121,6 @@
     </div>
   </div>
 
-  <!-- 🧠 التشخيص الذكي -->
   <div id="smartDiagnosis" style="display:none;"></div>
 
   <div class="card">
@@ -202,9 +201,12 @@
 <!-- ============ VIN ============ -->
 <div class="panel" id="panel-vin">
   <div class="card">
-    <h3 style="margin-bottom:12px;">رقم الهيكل (VIN)</h3>
-    <button class="btn btn-orange" id="btnReadVIN" style="width:100%;margin-bottom:12px;">🔍 قراءة VIN</button>
-    <div id="vinResult" style="font-family:monospace;font-size:16px;text-align:center;padding:14px;background:#f8fafc;border-radius:10px;color:#334155;">لم يتم القراءة بعد.</div>
+    <h3 style="margin-bottom:12px;">🔍 رقم الهيكل (VIN)</h3>
+    <button class="btn btn-orange" id="btnReadVIN" style="width:100%;margin-bottom:12px;">🔍 قراءة VIN من السيارة</button>
+    <input type="text" class="search-input" id="vinInput" placeholder="أو أدخل VIN يدوياً (17 حرفاً)..." maxlength="17" style="margin-bottom:12px;font-family:monospace;text-transform:uppercase;">
+    <button class="btn btn-blue" id="btnDecodeVIN" style="width:100%;margin-bottom:12px;">🔎 فك الشيفرة</button>
+    <div id="vinResult" style="font-family:monospace;font-size:14px;text-align:center;padding:14px;background:#f8fafc;border-radius:10px;color:#334155;margin-bottom:12px;">لم يتم القراءة بعد.</div>
+    <div id="vinInfo"></div>
   </div>
 </div>
 
@@ -252,6 +254,109 @@ const DTC_MAP = {
 };
 
 let DTC_DATABASE = { ...DTC_MAP };
+
+/* =====================================================
+   🚗 قاعدة بيانات VIN
+===================================================== */
+const VIN_COUNTRY_CODES = {
+  '1': '🇺🇸 الولايات المتحدة', '4': '🇺🇸 الولايات المتحدة', '5': '🇺🇸 الولايات المتحدة',
+  '2': '🇨🇦 كندا', '3': '🇲🇽 المكسيك',
+  'J': '🇯🇵 اليابان', 'K': '🇰🇷 كوريا الجنوبية', 'L': '🇨🇳 الصين',
+  'S': '🇬🇧 المملكة المتحدة', 'V': '🇫🇷 فرنسا', 'W': '🇩🇪 ألمانيا',
+  'Y': '🇸🇪 السويد', 'Z': '🇮🇹 إيطاليا', '9': '🇧🇷 البرازيل',
+  '8': '🇦🇷 الأرجنتين', 'M': '🇮🇳 الهند', 'T': '🇨🇭 سويسرا',
+  '6': '🇦🇺 أستراليا', '7': '🇳🇿 نيوزيلندا'
+};
+
+const VIN_YEARS = {
+  'A': '1980 أو 2010', 'B': '1981 أو 2011', 'C': '1982 أو 2012', 'D': '1983 أو 2013',
+  'E': '1984 أو 2014', 'F': '1985 أو 2015', 'G': '1986 أو 2016', 'H': '1987 أو 2017',
+  'J': '1988 أو 2018', 'K': '1989 أو 2019', 'L': '1990 أو 2020', 'M': '1991 أو 2021',
+  'N': '1992 أو 2022', 'P': '1993 أو 2023', 'R': '1994 أو 2024', 'S': '1995 أو 2025',
+  'T': '1996 أو 2026', 'V': '1997 أو 2027', 'W': '1998 أو 2028', 'X': '1999 أو 2029',
+  'Y': '2000 أو 2030', '1': '2001 أو 2031', '2': '2002 أو 2032', '3': '2003 أو 2033',
+  '4': '2004 أو 2034', '5': '2005 أو 2035', '6': '2006 أو 2036', '7': '2007 أو 2037',
+  '8': '2008 أو 2038', '9': '2009 أو 2039'
+};
+
+const VIN_WMI = {
+  'JHM': 'هوندا (Honda)', 'JHL': 'هوندا (Honda)', 'JHG': 'هوندا (Honda)',
+  'JT2': 'تويوتا (Toyota)', 'JTD': 'تويوتا (Toyota)', 'JTE': 'تويوتا (Toyota)',
+  'JTN': 'تويوتا (Toyota)', 'JTH': 'لكزس (Lexus)', 'JTJ': 'لكزس (Lexus)',
+  'JN1': 'نيسان (Nissan)', 'JN6': 'نيسان (Nissan)', 'JN8': 'نيسان (Nissan)',
+  'JM1': 'مازدا (Mazda)', 'JM3': 'مازدا (Mazda)', 'JMB': 'ميتسوبيشي (Mitsubishi)',
+  'JA3': 'ميتسوبيشي (Mitsubishi)', 'JF1': 'سوبارو (Subaru)', 'JF2': 'سوبارو (Subaru)',
+  'JS2': 'سوزوكي (Suzuki)', 'JS3': 'سوزوكي (Suzuki)', 'JSK': 'سوزوكي (Suzuki)',
+  'WBA': 'بي إم دبليو (BMW)', 'WBS': 'بي إم دبليو M (BMW M)', 'WBY': 'بي إم دبليو i (BMW i)',
+  'WDB': 'مرسيدس-بنز (Mercedes)', 'WDD': 'مرسيدس-بنز (Mercedes)', 'WDC': 'مرسيدس-بنز (Mercedes)',
+  'WVW': 'فولكس فاجن (Volkswagen)', 'WV1': 'فولكس فاجن (Volkswagen)', 'WV2': 'فولكس فاجن (Volkswagen)',
+  'WAU': 'أودي (Audi)', 'WA1': 'أودي (Audi)', 'TRU': 'أودي (Audi)',
+  'WP0': 'بورش (Porsche)', 'WP1': 'بورش (Porsche)',
+  'W0L': 'أوبل (Opel)', 'W0V': 'أوبل (Opel)',
+  '1FA': 'فورد (Ford)', '1FB': 'فورد (Ford)', '1FC': 'فورد (Ford)', '1FD': 'فورد (Ford)',
+  '1FM': 'فورد (Ford)', '1FT': 'فورد (Ford)', '1F1': 'فورد (Ford)',
+  '1G1': 'شيفروليه (Chevrolet)', '1G4': 'بويك (Buick)', '1G6': 'كاديلاك (Cadillac)',
+  '1GC': 'شيفروليه (Chevrolet)', '1GT': 'جي إم سي (GMC)', '1GK': 'جي إم سي (GMC)',
+  '1HG': 'هوندا (Honda)', '1J4': 'جيب (Jeep)',
+  '1C4': 'كرايسلر (Chrysler)', '1C3': 'كرايسلر (Chrysler)',
+  '1B3': 'دودج (Dodge)', '1D7': 'دودج (Dodge)',
+  '4T1': 'تويوتا (Toyota)', '4T3': 'تويوتا (Toyota)', '4S3': 'سوبارو (Subaru)',
+  '5YJ': 'تسلا (Tesla)', '5N1': 'نيسان (Nissan)', '5NP': 'هيونداي (Hyundai)',
+  'KMH': 'هيونداي (Hyundai)', 'KM8': 'هيونداي (Hyundai)',
+  'KNA': 'كيا (Kia)', 'KND': 'كيا (Kia)', 'KNC': 'كيا (Kia)',
+  'KPT': 'سانج يونج (SsangYong)',
+  'VF1': 'رينو (Renault)', 'VF3': 'بيجو (Peugeot)', 'VF7': 'سيتروين (Citroën)',
+  'ZAR': 'ألفا روميو (Alfa Romeo)', 'ZFA': 'فيات (Fiat)',
+  'ZFF': 'فيراري (Ferrari)', 'ZHW': 'لامبورغيني (Lamborghini)',
+  'ZAM': 'مازيراتي (Maserati)',
+  'SAJ': 'جاكوار (Jaguar)', 'SAL': 'لاند روفر (Land Rover)',
+  'SCF': 'أستون مارتن (Aston Martin)', 'SCB': 'بنتلي (Bentley)',
+  'SCA': 'رولز رويس (Rolls-Royce)', 'SCC': 'لوتس (Lotus)',
+  'YV1': 'فولفو (Volvo)', 'YV4': 'فولفو (Volvo)', 'YS3': 'ساب (Saab)',
+  'LFV': 'فولكس فاجن الصين', 'LGB': 'دونغ فينغ (Dongfeng)',
+  'LJD': 'جاك (JAC)', 'LSV': 'سايك موتور (SAIC)',
+  'LSV': 'سايك موتور (SAIC)', 'LGX': 'BYD', 'LDC': 'شيري (Chery)',
+  'MA3': 'ماروتي سوزوكي (Maruti Suzuki)', 'MAT': 'تاتا (Tata)',
+  'MEE': 'ماهيندرا (Mahindra)',
+  '9BD': 'فيات البرازيل', '9BW': 'فولكس فاجن البرازيل',
+  'XTA': 'لادا (Lada)', 'XWB': 'أفتوفاز (AvtoVAZ)'
+};
+
+function decodeVIN(vin) {
+  if (!vin || vin.length !== 17) return null;
+  const v = vin.toUpperCase();
+  const country = VIN_COUNTRY_CODES[v[0]] || 'غير معروف';
+  const wmi = v.substring(0, 3);
+  const manufacturer = VIN_WMI[wmi] || VIN_WMI[v.substring(0, 2) + '0'] || 'غير معروف';
+  const yearChar = v[9];
+  const year = VIN_YEARS[yearChar] || 'غير معروف';
+  const plant = 'مصنع ' + v[10];
+  const serial = v.substring(11, 17);
+  return {
+    vin: v, country, manufacturer, wmi, year, plant, serial,
+    region: v.substring(0, 3),
+    vds: v.substring(3, 8),
+    checkDigit: v[8]
+  };
+}
+
+function validateVIN(vin) {
+  if (!vin || vin.length !== 17) return false;
+  const transliteration = { A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9 };
+  const weights = [8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
+  let sum = 0;
+  for (let i = 0; i < 17; i++) {
+    const c = vin[i];
+    let val = 0;
+    if (/[0-9]/.test(c)) val = parseInt(c);
+    else if (transliteration[c]) val = transliteration[c];
+    else return false;
+    sum += val * weights[i];
+  }
+  const remainder = sum % 11;
+  const checkDigit = remainder === 10 ? 'X' : String(remainder);
+  return checkDigit === vin[8];
+}
 
 /* =====================================================
    🧠 قاعدة قواعد التشخيص الذكي
@@ -464,13 +569,6 @@ const DIAGNOSTIC_RULES = [
     actions: ['استبدل حساس O2', 'افحص الفيوز', 'افحص الأسلاك']
   },
   {
-    required: ['P0131', 'P0132'],
-    title: 'حساس O2 يعطي قراءات شاذة',
-    confidence: 85, severity: 'medium',
-    description: 'الحساس يتراوح بين جهد منخفض جداً ومرتفع جداً.',
-    actions: ['استبدل حساس O2', 'افحص تسرب الهواء', 'افحص ضغط الوقود']
-  },
-  {
     required: ['P0010', 'P0011'],
     title: 'عطل في نظام VVT',
     confidence: 85, severity: 'medium',
@@ -483,41 +581,6 @@ const DIAGNOSTIC_RULES = [
     confidence: 90, severity: 'high',
     description: 'حساس الكام شافت لا يعمل — قد يمنع التشغيل.',
     actions: ['استبدل حساس الكام', 'افحص الأسلاك', 'افحص السلسلة']
-  },
-  {
-    required: ['P0115'],
-    title: 'عطل في دائرة حساس الحرارة',
-    confidence: 85, severity: 'medium',
-    description: 'حساس حرارة المحرك لا يعمل بشكل صحيح.',
-    actions: ['استبدل الحساس', 'افحص الأسلاك']
-  },
-  {
-    required: ['P0301'],
-    title: 'اشتعال متقطع في السلندر 1',
-    confidence: 70, severity: 'medium',
-    description: 'السلندر الأول يعاني من اشتعال متقطع — افحص البوجيه والكويل والحاقن.',
-    actions: ['استبدل البوجيه', 'بادل الكويل مع سلندر آخر للاختبار', 'افحص الحاقن']
-  },
-  {
-    required: ['P0302'],
-    title: 'اشتعال متقطع في السلندر 2',
-    confidence: 70, severity: 'medium',
-    description: 'السلندر الثاني يعاني من اشتعال متقطع.',
-    actions: ['استبدل البوجيه', 'بادل الكويل', 'افحص الحاقن']
-  },
-  {
-    required: ['P0303'],
-    title: 'اشتعال متقطع في السلندر 3',
-    confidence: 70, severity: 'medium',
-    description: 'السلندر الثالث يعاني من اشتعال متقطع.',
-    actions: ['استبدل البوجيه', 'بادل الكويل', 'افحص الحاقن']
-  },
-  {
-    required: ['P0304'],
-    title: 'اشتعال متقطع في السلندر 4',
-    confidence: 70, severity: 'medium',
-    description: 'السلندر الرابع يعاني من اشتعال متقطع.',
-    actions: ['استبدل البوجيه', 'بادل الكويل', 'افحص الحاقن']
   }
 ];
 
@@ -525,27 +588,20 @@ function runSmartDiagnosis(faultCodes) {
   if (!faultCodes || faultCodes.length === 0) return [];
   const codeSet = new Set(faultCodes.map(c => String(c).toUpperCase()));
   const results = [];
-  
   for (const rule of DIAGNOSTIC_RULES) {
     const allRequired = rule.required.every(code => codeSet.has(code));
     if (!allRequired) continue;
-    
     let anyMatch = true;
     if (rule.anyOf && rule.anyOf.length > 0) {
       anyMatch = rule.anyOf.some(code => codeSet.has(code));
     }
     if (!anyMatch) continue;
-    
     results.push({
-      title: rule.title,
-      description: rule.description,
-      confidence: rule.confidence,
-      severity: rule.severity,
-      actions: rule.actions,
-      matchedCodes: rule.required
+      title: rule.title, description: rule.description,
+      confidence: rule.confidence, severity: rule.severity,
+      actions: rule.actions, matchedCodes: rule.required
     });
   }
-  
   results.sort((a, b) => b.confidence - a.confidence);
   return results.slice(0, 5);
 }
@@ -553,15 +609,12 @@ function runSmartDiagnosis(faultCodes) {
 function displaySmartDiagnosis(faultCodes) {
   const container = document.getElementById('smartDiagnosis');
   if (!container) return;
-  
   const diagnoses = runSmartDiagnosis(faultCodes);
-  
   if (diagnoses.length === 0) {
     container.innerHTML = '';
     container.style.display = 'none';
     return;
   }
-  
   container.style.display = 'block';
   container.innerHTML = `
     <div class="card" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-right:4px solid #8b5cf6;">
@@ -596,13 +649,12 @@ function displaySmartDiagnosis(faultCodes) {
 }
 
 /* =====================================================
-   نظام تحميل متقدم بقاعدة بيانات مقسمة
+   نظام تحميل قاعدة البيانات
 ===================================================== */
 const DB_VERSION = 'v3';
 const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
 const CACHE_KEY_PREFIX = 'dtc_ext_' + DB_VERSION + '_';
 const CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000;
-
 const DB_FILES = { P: 'dtc_p.json', C: 'dtc_c.json', B: 'dtc_b.json', U: 'dtc_u.json' };
 const loadedCategories = new Set();
 
@@ -734,12 +786,11 @@ async function performSearch(query) {
    Firebase: حفظ البيانات
 ===================================================== */
 async function saveScanToCloud(faults, vin, carInfo) {
-  if (!faults || faults.length === 0) return;
   try {
     await addDoc(collection(db, "scans"), {
       vin: vin || "unknown",
-      faults: faults.map(f => ({ code: f.code, system: f.system })),
-      faultCodes: faults.map(f => f.code),
+      faults: (faults || []).map(f => ({ code: f.code, system: f.system })),
+      faultCodes: (faults || []).map(f => f.code),
       timestamp: serverTimestamp(),
       carMake: carInfo?.make || "unknown",
       carModel: carInfo?.model || "unknown",
@@ -748,7 +799,7 @@ async function saveScanToCloud(faults, vin, carInfo) {
       language: navigator.language,
       screenWidth: window.screen.width
     });
-    for (const fault of faults) await updateDTCStats(fault.code, carInfo);
+    for (const fault of (faults || [])) await updateDTCStats(fault.code, carInfo);
     log('☁️ تم حفظ الفحص في السحابة');
     return true;
   } catch (e) { log('⚠️ فشل حفظ البيانات: ' + e.message); return false; }
@@ -1005,6 +1056,9 @@ async function clearDTCs() {
   displaySmartDiagnosis([]);
 }
 
+/* =====================================================
+   قراءة VIN
+===================================================== */
 async function readVIN() {
   if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
   log('🔍 قراءة VIN...');
@@ -1012,7 +1066,11 @@ async function readVIN() {
   const resp = await sendCommand('0902', 1500);
   const vin = parseVIN(resp);
   document.getElementById('vinResult').textContent = vin || 'لم يتم استلام VIN';
-  log('VIN: ' + (vin || 'لا يوجد'));
+  if (vin) {
+    displayVINInfo(vin);
+    log('VIN: ' + vin);
+    await saveScanToCloud([], vin, null);
+  }
 }
 
 function parseVIN(raw) {
@@ -1027,6 +1085,54 @@ function parseVIN(raw) {
     vin += String.fromCharCode(code);
   }
   return vin.trim();
+}
+
+function displayVINInfo(vin) {
+  const container = document.getElementById('vinInfo');
+  if (!container) return;
+  const decoded = decodeVIN(vin);
+  if (!decoded) {
+    container.innerHTML = '<p class="hint">⚠️ رقم VIN غير صحيح (يجب أن يكون 17 حرفاً)</p>';
+    return;
+  }
+  const isValid = validateVIN(vin);
+  const validBadge = isValid 
+    ? '<span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">✓ VIN صحيح</span>'
+    : '<span style="background:#fef3c7;color:#b45309;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">⚠️ Check Digit غير متوافق</span>';
+  container.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-family:monospace;font-size:18px;font-weight:700;background:#0f172a;color:#4ade80;padding:14px;border-radius:12px;letter-spacing:1px;word-break:break-all;">${decoded.vin}</div>
+      <div style="margin-top:8px;">${validBadge}</div>
+    </div>
+    <div class="data-grid">
+      <div class="data-box"><div class="label">🌍 بلد الصنع</div><div class="value" style="font-size:14px;">${decoded.country}</div></div>
+      <div class="data-box"><div class="label">🏭 الشركة المصنعة</div><div class="value" style="font-size:14px;">${decoded.manufacturer}</div></div>
+      <div class="data-box"><div class="label">📅 سنة الموديل</div><div class="value" style="font-size:16px;">${decoded.year}</div></div>
+      <div class="data-box"><div class="label">🏭 المصنع</div><div class="value" style="font-size:14px;">${decoded.plant}</div></div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:#f8fafc;border-radius:10px;">
+      <div style="font-size:13px;color:#64748b;font-weight:700;margin-bottom:8px;">🔍 تفاصيل إضافية:</div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
+        <span style="color:#64748b;font-size:13px;">WMI (معرف الصانع)</span>
+        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.wmi}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
+        <span style="color:#64748b;font-size:13px;">VDS (وصف السيارة)</span>
+        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.vds}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
+        <span style="color:#64748b;font-size:13px;">Check Digit</span>
+        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.checkDigit}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;">
+        <span style="color:#64748b;font-size:13px;">الرقم التسلسلي</span>
+        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.serial}</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:10px;font-size:12px;color:#1e40af;">
+      💡 <strong>ملاحظة:</strong> المعلومات مبنية على شيفرة VIN العالمية. للحصول على تفاصيل الموديل والمحرك بدقة، يفضل الرجوع لموقع الشركة المصنعة.
+    </div>
+  `;
 }
 
 /* =====================================================
@@ -1167,7 +1273,7 @@ function exportCSV() {
 ===================================================== */
 let demoTimer = null;
 function startDemo() {
-  log('🧪 وضع تجريبي مفعّل');
+  log('🧪 وضع تجريبي مفعل');
   setStatus('وضع تجريبي', true);
   const demoDTCs = [
     { code: 'P0301', system: 'المحرك' }, { code: 'P0171', system: 'المحرك' },
@@ -1211,6 +1317,14 @@ document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
 document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
 document.getElementById('btnLoadStats').addEventListener('click', displayStats);
+
+document.getElementById('btnDecodeVIN').addEventListener('click', () => {
+  const vin = document.getElementById('vinInput').value.trim().toUpperCase();
+  if (vin.length !== 17) { alert('VIN يجب أن يكون 17 حرفاً'); return; }
+  document.getElementById('vinResult').textContent = vin;
+  displayVINInfo(vin);
+  saveScanToCloud([], vin, null);
+});
 
 loadDatabase();
 </script>
