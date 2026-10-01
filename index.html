@@ -70,6 +70,7 @@
   .data-box.warn .value { color:#b45309; }
   .data-box.bad .value { color:#b91c1c; }
   .group-title { font-size: 16px; margin-bottom: 12px; color: #1e293b; border-right: 4px solid #3b82f6; padding-right: 10px; }
+  body[dir="ltr"] .group-title { border-right: none; border-left: 4px solid #3b82f6; padding-right: 0; padding-left: 10px; }
   .analysis-item { padding: 8px 12px; margin: 6px 0; border-radius: 8px; background: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; font-size: 14px; }
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
   .health-badge { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-radius:14px; margin-bottom:16px; color:#fff; font-weight:700; }
@@ -80,9 +81,25 @@
   .chart-stats { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
   .chart-stats .stat { display:flex; align-items:center; gap:6px; font-size:13px; }
   .chart-stats .stat strong { font-family:monospace; font-size:16px; }
+  .lang-toggle {
+    position: fixed; top: 12px; left: 12px;
+    background: #fff; border: 2px solid #3b82f6;
+    border-radius: 20px; padding: 6px 12px;
+    font-family: inherit; font-weight: 700;
+    cursor: pointer; z-index: 1000;
+    font-size: 13px; color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.2);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .lang-toggle:active { transform: scale(0.95); }
+  body[dir="ltr"] .dtc-item { border-right: none; border-left: 4px solid #ef4444; }
+  body[dir="ltr"] .dtc-item:hover { transform: translateX(4px); }
+  body[dir="ltr"] .health-badge { direction: ltr; }
 </style>
 </head>
 <body>
+
+<button class="lang-toggle" id="btnLang" onclick="toggleLanguage()">🌐 English</button>
 
 <h1>🔧 CheckDiga</h1>
 <p class="subtitle">أداة فحص السيارات المتكاملة عبر المتصفح</p>
@@ -172,12 +189,10 @@
     <button class="btn btn-gray" id="btnExportCSV" style="flex:1;min-width:120px;">💾 تصدير CSV</button>
   </div>
 
-  <!-- 📈 الرسوم البيانية -->
   <div class="card">
     <h3 class="group-title">📈 الرسوم البيانية الحية</h3>
     <p style="font-size:12px;color:#64748b;margin-bottom:14px;">تحديث تلقائي كل ثانيتين — آخر 30 قراءة</p>
     
-    <!-- RPM Chart -->
     <div style="margin-bottom:20px;">
       <div class="chart-stats">
         <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span><strong>RPM</strong><span style="color:#64748b;">سرعة المحرك</span></div>
@@ -186,7 +201,6 @@
       <div class="chart-container"><canvas id="chartRpm"></canvas></div>
     </div>
     
-    <!-- Speed Chart -->
     <div style="margin-bottom:20px;">
       <div class="chart-stats">
         <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#3b82f6;display:inline-block;"></span><strong>السرعة</strong><span style="color:#64748b;">كم/س</span></div>
@@ -195,7 +209,6 @@
       <div class="chart-container"><canvas id="chartSpeed"></canvas></div>
     </div>
     
-    <!-- Coolant Chart -->
     <div>
       <div class="chart-stats">
         <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;"></span><strong>حرارة المحرك</strong><span style="color:#64748b;">°C</span></div>
@@ -321,6 +334,203 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 /* =====================================================
+   🌐 نظام الترجمة (i18n)
+===================================================== */
+const TRANSLATIONS = {
+  ar: {
+    title: 'أداة فحص السيارات المتكاملة عبر المتصفح',
+    connected: 'متصل ✓',
+    disconnected: 'غير متصل',
+    demoMode: 'وضع تجريبي',
+    connect: '🔗 اتصال بلوتوث',
+    demo: '🧪 وضع تجريبي',
+    disconnect: '🔌 قطع',
+    clear: '🗑️ مسح الأعطال',
+    tabFaults: '🛠️ الأعطال',
+    tabLive: '📊 بيانات حية',
+    tabVin: '🔍 VIN',
+    tabHistory: '📁 السجل',
+    tabStats: '📈 إحصائيات',
+    readEngine: '📋 فحص المحرك',
+    readAll: '🔍 فحص جميع الأنظمة',
+    searchPlaceholder: '🔍 ابحث عن كود (مثل P0301 أو P1B00)...',
+    shareReport: '📄 شارك نتائج الفحص',
+    shareReportDesc: 'احصل على تقرير PDF احترافي',
+    exportPdf: '📄 تصدير PDF',
+    startLive: '▶️ بدء القراءة',
+    stopLive: '⏸️ إيقاف',
+    exportCsv: '💾 تصدير CSV',
+    charts: '📈 الرسوم البيانية الحية',
+    chartsDesc: 'تحديث تلقائي كل ثانيتين — آخر 30 قراءة',
+    enginePerformance: '⚙️ المحرك والأداء',
+    fuelAir: '⛽ الوقود والهواء',
+    o2Sensors: '💨 حساسات الأكسجين (O2)',
+    tempEnv: '🌡️ الحرارة والبيئة',
+    electricity: '🔋 الكهرباء والصيانة',
+    autoAnalysis: '🧠 التحليل التلقائي',
+    historyTitle: '📁 سجل الفحوصات',
+    historyDesc: 'آخر 50 فحص محفوظ في هاتفك (يعمل بدون إنترنت).',
+    statsTitle: '📊 إحصائيات حية من جميع المستخدمين',
+    statsDesc: 'البيانات مجمعة بشكل مجهول من فحوصات المستخدمين.',
+    refreshStats: '🔄 تحديث الإحصائيات',
+    readVin: '🔍 قراءة VIN من السيارة',
+    decodeVin: '🔎 فك الشيفرة',
+    vinPlaceholder: 'أو أدخل VIN يدوياً (17 حرفاً)...',
+    vinNotRead: 'لم يتم القراءة بعد.',
+    noData: 'لا توجد بيانات بعد',
+    smartDiagnosis: '🧠 التشخيص الذكي',
+    dtcTitle: 'أكواد الأعطال (DTCs)'
+  },
+  en: {
+    title: 'Complete Car Diagnostic Tool',
+    connected: 'Connected ✓',
+    disconnected: 'Disconnected',
+    demoMode: 'Demo Mode',
+    connect: '🔗 Bluetooth Connect',
+    demo: '🧪 Demo Mode',
+    disconnect: '🔌 Disconnect',
+    clear: '🗑️ Clear DTCs',
+    tabFaults: '🛠️ Faults',
+    tabLive: '📊 Live Data',
+    tabVin: '🔍 VIN',
+    tabHistory: '📁 History',
+    tabStats: '📈 Statistics',
+    readEngine: '📋 Read Engine',
+    readAll: '🔍 Scan All Systems',
+    searchPlaceholder: '🔍 Search code (e.g. P0301 or P1B00)...',
+    shareReport: '📄 Share Results',
+    shareReportDesc: 'Get a professional PDF report',
+    exportPdf: '📄 Export PDF',
+    startLive: '▶️ Start Reading',
+    stopLive: '⏸️ Stop',
+    exportCsv: '💾 Export CSV',
+    charts: '📈 Live Charts',
+    chartsDesc: 'Auto-update every 2s — last 30 readings',
+    enginePerformance: '⚙️ Engine & Performance',
+    fuelAir: '⛽ Fuel & Air',
+    o2Sensors: '💨 Oxygen Sensors (O2)',
+    tempEnv: '🌡️ Temperature & Environment',
+    electricity: '🔋 Electrical & Maintenance',
+    autoAnalysis: '🧠 Automatic Analysis',
+    historyTitle: '📁 Scan History',
+    historyDesc: 'Last 50 scans saved on your device (works offline).',
+    statsTitle: '📊 Live Statistics from All Users',
+    statsDesc: 'Data collected anonymously from user scans.',
+    refreshStats: '🔄 Refresh Statistics',
+    readVin: '🔍 Read VIN from Vehicle',
+    decodeVin: '🔎 Decode VIN',
+    vinPlaceholder: 'Or enter VIN manually (17 chars)...',
+    vinNotRead: 'Not read yet.',
+    noData: 'No data yet',
+    smartDiagnosis: '🧠 Smart Diagnosis',
+    dtcTitle: 'Diagnostic Trouble Codes (DTCs)'
+  }
+};
+
+let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS['ar'][key] || key;
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  localStorage.setItem('checkdiga_lang', currentLang);
+  applyLanguage();
+  if (typeof log === 'function') log(`🌐 Language: ${currentLang === 'ar' ? 'العربية' : 'English'}`);
+}
+
+function applyLanguage() {
+  const isAr = currentLang === 'ar';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.body.dir = isAr ? 'rtl' : 'ltr';
+  
+  const btn = document.getElementById('btnLang');
+  if (btn) btn.textContent = isAr ? '🌐 English' : '🌐 العربية';
+  
+  const subtitle = document.querySelector('.subtitle');
+  if (subtitle) subtitle.textContent = t('title');
+  
+  const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  setText('btnConnect', 'connect');
+  setText('btnDemo', 'demo');
+  setText('btnDisconnect', 'disconnect');
+  setText('btnClear', 'clear');
+  setText('btnReadDTC', 'readEngine');
+  setText('btnScanAll', 'readAll');
+  setText('btnStartLive', 'startLive');
+  setText('btnStopLive', 'stopLive');
+  setText('btnExportCSV', 'exportCsv');
+  setText('btnExportPDF', 'exportPdf');
+  setText('btnReadVIN', 'readVin');
+  setText('btnDecodeVIN', 'decodeVin');
+  setText('btnLoadStats', 'refreshStats');
+  
+  const tabKeys = ['tabFaults', 'tabLive', 'tabVin', 'tabHistory', 'tabStats'];
+  document.querySelectorAll('.tab').forEach((tab, i) => { if (tabKeys[i]) tab.textContent = t(tabKeys[i]); });
+  
+  const search = document.getElementById('dtcSearchInput');
+  if (search) search.placeholder = t('searchPlaceholder');
+  const vinInput = document.getElementById('vinInput');
+  if (vinInput) vinInput.placeholder = t('vinPlaceholder');
+  
+  // تحديث عناوين الأقسام بناءً على النص الحالي
+  document.querySelectorAll('.group-title').forEach(el => {
+    const txt = el.textContent;
+    if (txt.includes('الرسوم البيانية') || txt.includes('Live Charts')) el.textContent = t('charts');
+    else if (txt.includes('المحرك والأداء') || txt.includes('Engine')) el.textContent = t('enginePerformance');
+    else if (txt.includes('الوقود والهواء') || txt.includes('Fuel')) el.textContent = t('fuelAir');
+    else if (txt.includes('حساسات الأكسجين') || txt.includes('Oxygen')) el.textContent = t('o2Sensors');
+    else if (txt.includes('الحرارة والبيئة') || txt.includes('Temperature')) el.textContent = t('tempEnv');
+    else if (txt.includes('الكهرباء والصيانة') || txt.includes('Electrical')) el.textContent = t('electricity');
+    else if (txt.includes('التحليل التلقائي') || txt.includes('Automatic')) el.textContent = t('autoAnalysis');
+    else if (txt.includes('سجل الفحوصات') || txt.includes('Scan History')) el.textContent = t('historyTitle');
+    else if (txt.includes('إحصائيات حية') || txt.includes('Live Statistics')) el.textContent = t('statsTitle');
+    else if (txt.includes('التشخيص الذكي') || txt.includes('Smart Diagnosis')) el.textContent = t('smartDiagnosis');
+    else if (txt.includes('أكواد الأعطال') || txt.includes('Diagnostic Trouble')) el.textContent = t('dtcTitle');
+  });
+  
+  // بطاقة التقرير
+  const exportCard = document.getElementById('exportCard');
+  if (exportCard) {
+    const titleEl = exportCard.querySelector('div[style*="font-weight:700"]');
+    const descEl = exportCard.querySelector('div[style*="font-size:12px"]');
+    if (titleEl) titleEl.textContent = t('shareReport');
+    if (descEl) descEl.textContent = t('shareReportDesc');
+  }
+  
+  // الوصف تحت الرسوم
+  const liveDesc = document.querySelector('#panel-live .card p[style*="font-size:12px"]');
+  if (liveDesc) liveDesc.textContent = t('chartsDesc');
+  
+  // الوصف تحت السجل والإحصائيات
+  const histDesc = document.querySelector('#panel-history p');
+  if (histDesc) histDesc.textContent = t('historyDesc');
+  const statsDescEl = document.querySelector('#panel-stats p');
+  if (statsDescEl) statsDescEl.textContent = t('statsDesc');
+  
+  // حالة الاتصال
+  const status = document.getElementById('status');
+  if (status) {
+    const isConnected = status.classList.contains('connected');
+    if (isConnected) {
+      status.textContent = status.textContent.includes('تجريبي') || status.textContent.includes('Demo') ? t('demoMode') : t('connected');
+    } else {
+      status.textContent = t('disconnected');
+    }
+  }
+  
+  // VIN placeholder
+  const vinRes = document.getElementById('vinResult');
+  if (vinRes && (vinRes.textContent.includes('لم يتم') || vinRes.textContent.includes('Not read'))) {
+    vinRes.textContent = t('vinNotRead');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => setTimeout(applyLanguage, 200));
+
+/* =====================================================
    قاعدة بيانات محلية احتياطية
 ===================================================== */
 const DTC_MAP = {
@@ -349,14 +559,14 @@ const VIN_COUNTRY_CODES = {
 };
 
 const VIN_YEARS = {
-  'A': '1980 أو 2010', 'B': '1981 أو 2011', 'C': '1982 أو 2012', 'D': '1983 أو 2013',
-  'E': '1984 أو 2014', 'F': '1985 أو 2015', 'G': '1986 أو 2016', 'H': '1987 أو 2017',
-  'J': '1988 أو 2018', 'K': '1989 أو 2019', 'L': '1990 أو 2020', 'M': '1991 أو 2021',
-  'N': '1992 أو 2022', 'P': '1993 أو 2023', 'R': '1994 أو 2024', 'S': '1995 أو 2025',
-  'T': '1996 أو 2026', 'V': '1997 أو 2027', 'W': '1998 أو 2028', 'X': '1999 أو 2029',
-  'Y': '2000 أو 2030', '1': '2001 أو 2031', '2': '2002 أو 2032', '3': '2003 أو 2033',
-  '4': '2004 أو 2034', '5': '2005 أو 2035', '6': '2006 أو 2036', '7': '2007 أو 2037',
-  '8': '2008 أو 2038', '9': '2009 أو 2039'
+  'A': '1980 / 2010', 'B': '1981 / 2011', 'C': '1982 / 2012', 'D': '1983 / 2013',
+  'E': '1984 / 2014', 'F': '1985 / 2015', 'G': '1986 / 2016', 'H': '1987 / 2017',
+  'J': '1988 / 2018', 'K': '1989 / 2019', 'L': '1990 / 2020', 'M': '1991 / 2021',
+  'N': '1992 / 2022', 'P': '1993 / 2023', 'R': '1994 / 2024', 'S': '1995 / 2025',
+  'T': '1996 / 2026', 'V': '1997 / 2027', 'W': '1998 / 2028', 'X': '1999 / 2029',
+  'Y': '2000 / 2030', '1': '2001 / 2031', '2': '2002 / 2032', '3': '2003 / 2033',
+  '4': '2004 / 2034', '5': '2005 / 2035', '6': '2006 / 2036', '7': '2007 / 2037',
+  '8': '2008 / 2038', '9': '2009 / 2039'
 };
 
 const VIN_WMI = {
@@ -434,7 +644,7 @@ function validateVIN(vin) {
 }
 
 /* =====================================================
-   🧠 قاعدة قواعد التشخيص الذكي
+   🧠 قواعد التشخيص الذكي
 ===================================================== */
 const DIAGNOSTIC_RULES = [
   { required: ['P0171', 'P0174'], title: 'تسرب هواء في نظام السحب', confidence: 90, severity: 'high',
@@ -549,7 +759,7 @@ function displaySmartDiagnosis(faultCodes) {
   container.style.display = 'block';
   container.innerHTML = `
     <div class="card" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-right:4px solid #8b5cf6;">
-      <h3 style="margin-bottom:14px;color:#5b21b6;border-right:4px solid #8b5cf6;padding-right:10px;">🧠 التشخيص الذكي</h3>
+      <h3 style="margin-bottom:14px;color:#5b21b6;border-right:4px solid #8b5cf6;padding-right:10px;">${t('smartDiagnosis')}</h3>
       ${diagnoses.map(d => {
         const color = d.severity === 'critical' ? '#dc2626' : d.severity === 'high' ? '#ef4444' : d.severity === 'medium' ? '#f59e0b' : '#10b981';
         const bg = d.severity === 'critical' ? '#fef2f2' : d.severity === 'high' ? '#fef2f2' : d.severity === 'medium' ? '#fffbeb' : '#f0fdf4';
@@ -558,14 +768,13 @@ function displaySmartDiagnosis(faultCodes) {
           <div style="background:${bg};border-right:4px solid ${color};border-radius:12px;padding:16px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
               <div style="font-weight:700;color:#1e293b;font-size:15px;">${icon} ${d.title}</div>
-              <div style="background:${color};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;">احتمال ${d.confidence}%</div>
+              <div style="background:${color};color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;">${d.confidence}%</div>
             </div>
             <p style="color:#475569;font-size:13px;line-height:1.7;margin-bottom:10px;">${d.description}</p>
-            <div style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:6px;">🔧 الإجراءات المقترحة:</div>
             <ul style="list-style:none;padding:0;">
               ${d.actions.map(a => `<li style="padding:5px 10px;background:rgba(255,255,255,0.7);border-radius:6px;margin-bottom:4px;font-size:13px;">• ${a}</li>`).join('')}
             </ul>
-            <div style="margin-top:10px;font-size:11px;color:#94a3b8;">الأكواد المرتبطة: ${d.matchedCodes.join(', ')}</div>
+            <div style="margin-top:10px;font-size:11px;color:#94a3b8;">${d.matchedCodes.join(', ')}</div>
           </div>
         `;
       }).join('')}
@@ -604,16 +813,19 @@ function displayHealthScore(faults, diagnosis) {
   const gradient = score >= 80 ? 'linear-gradient(135deg,#10b981,#059669)' : 
                    score >= 50 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 
                    'linear-gradient(135deg,#ef4444,#dc2626)';
-  const text = score >= 80 ? 'حالة السيارة ممتازة' :
-               score >= 60 ? 'تحتاج صيانة قريباً' :
-               score >= 40 ? 'تحتاج صيانة عاجلة' : 'خطر — لا تقد السيارة';
+  const isAr = currentLang === 'ar';
+  const text = score >= 80 ? (isAr ? 'حالة السيارة ممتازة' : 'Vehicle is in excellent condition') :
+               score >= 60 ? (isAr ? 'تحتاج صيانة قريباً' : 'Needs service soon') :
+               score >= 40 ? (isAr ? 'تحتاج صيانة عاجلة' : 'Needs urgent service') : 
+               (isAr ? 'خطر — لا تقد السيارة' : 'Danger — Do not drive');
   const icon = score >= 80 ? '✅' : score >= 50 ? '⚠️' : '🚨';
+  const label = isAr ? 'مؤشر صحة السيارة' : 'Vehicle Health Score';
   badge.style.display = 'block';
   badge.innerHTML = `
     <div class="health-badge" style="background:${gradient};">
       <div>
         <div class="label">${icon} ${text}</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px;">مؤشر صحة السيارة</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:4px;">${label}</div>
       </div>
       <div class="score">${score}<span style="font-size:16px;opacity:0.8;">/100</span></div>
     </div>
@@ -641,7 +853,7 @@ async function saveScanToHistory(faults, vin, diagnosis, vehicleInfo) {
     history.unshift(record);
     if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
     await saveHistoryToStorage(history);
-    log('💾 تم حفظ الفحص في السجل المحلي');
+    log('💾 Saved to history');
     return record;
   } catch (e) { console.warn('History save failed:', e); }
 }
@@ -677,20 +889,21 @@ async function saveHistoryToStorage(history) {
 async function displayHistory() {
   const container = document.getElementById('historyContent');
   if (!container) return;
-  container.innerHTML = '<p class="hint">⏳ جاري التحميل...</p>';
+  container.innerHTML = '<p class="hint">⏳ Loading...</p>';
   const history = await loadHistory();
+  const isAr = currentLang === 'ar';
   if (history.length === 0) {
-    container.innerHTML = '<p class="hint">📁 لا يوجد سجل بعد.<br>ابدأ بفحص سيارتك، وسيظهر هنا تلقائياً.</p>';
+    container.innerHTML = `<p class="hint">${isAr ? '📁 لا يوجد سجل بعد.<br>ابدأ بفحص سيارتك.' : '📁 No history yet.<br>Start scanning your car.'}</p>`;
     return;
   }
   container.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:14px;color:#64748b;">📊 ${history.length} فحص محفوظ</div>
-      <button class="btn btn-red" id="btnClearHistory" style="padding:8px 14px;font-size:13px;">🗑️ حذف كل السجل</button>
+      <div style="font-size:14px;color:#64748b;">📊 ${history.length} ${isAr ? 'فحص محفوظ' : 'saved scans'}</div>
+      <button class="btn btn-red" id="btnClearHistory" style="padding:8px 14px;font-size:13px;">${isAr ? '🗑️ حذف كل السجل' : '🗑️ Clear All'}</button>
     </div>
     <div class="dtc-list">
       ${history.map(h => {
-        const date = new Date(h.timestamp).toLocaleString('ar', {dateStyle:'short', timeStyle:'short'});
+        const date = new Date(h.timestamp).toLocaleString(isAr ? 'ar' : 'en', {dateStyle:'short', timeStyle:'short'});
         const health = h.healthScore || 100;
         const healthColor = health >= 80 ? '#10b981' : health >= 50 ? '#f59e0b' : '#ef4444';
         return `
@@ -700,8 +913,8 @@ async function displayHistory() {
               <span style="background:${healthColor};color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-family:'Cairo',sans-serif;">${health}/100</span>
             </div>
             <div class="title" style="margin-top:6px;">
-              <div>🚗 ${h.vin !== 'unknown' ? 'VIN: ' + h.vin : 'VIN غير محدد'}</div>
-              <div style="margin-top:4px;">🔧 ${h.faults.length} عطل${h.diagnosisCount > 0 ? ' • 🧠 ' + h.diagnosisCount + ' تشخيص' : ''}</div>
+              <div>🚗 ${h.vin !== 'unknown' ? 'VIN: ' + h.vin : (isAr ? 'VIN غير محدد' : 'VIN unknown')}</div>
+              <div style="margin-top:4px;">🔧 ${h.faults.length} ${isAr ? 'عطل' : 'faults'}${h.diagnosisCount > 0 ? ' • 🧠 ' + h.diagnosisCount : ''}</div>
               ${h.faults.length > 0 ? '<div style="margin-top:6px;font-family:monospace;font-size:11px;color:#b91c1c;">' + h.faults.slice(0, 5).map(f => f.code).join(', ') + (h.faults.length > 5 ? '...' : '') + '</div>' : ''}
             </div>
           </div>
@@ -715,10 +928,9 @@ async function displayHistory() {
   const btnClear = document.getElementById('btnClearHistory');
   if (btnClear) {
     btnClear.addEventListener('click', async () => {
-      if (!confirm('هل تريد حذف كل السجل؟')) return;
+      if (!confirm(isAr ? 'هل تريد حذف كل السجل؟' : 'Delete all history?')) return;
       await saveHistoryToStorage([]);
       displayHistory();
-      log('🗑️ تم حذف السجل بالكامل');
     });
   }
 }
@@ -744,16 +956,15 @@ async function showHistoryDetail(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelector('.tab[data-tab="faults"]').classList.add('active');
   document.getElementById('panel-faults').classList.add('active');
-  const date = new Date(record.timestamp).toLocaleString('ar');
-  log(`📁 عرض فحص من ${date} — صحة: ${record.healthScore}/100`);
 }
 
 /* =====================================================
    📄 تصدير تقرير PDF
 ===================================================== */
 function buildReportHTML() {
-  const currentDate = new Date().toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' });
-  const vinText = document.getElementById('vinResult')?.textContent || 'غير محدد';
+  const isAr = currentLang === 'ar';
+  const currentDate = new Date().toLocaleString(isAr ? 'ar-EG' : 'en-US', { dateStyle: 'full', timeStyle: 'short' });
+  const vinText = document.getElementById('vinResult')?.textContent || (isAr ? 'غير محدد' : 'Not specified');
   const vinDecoded = vinText && vinText.length === 17 ? decodeVIN(vinText) : null;
   const faultItems = document.querySelectorAll('#dtcList .dtc-item');
   const faults = [];
@@ -764,17 +975,20 @@ function buildReportHTML() {
   const diagnoses = runSmartDiagnosis(faults.map(f => f.code));
   const healthScore = calculateHealthScore(faults, diagnoses);
   const healthColor = healthScore >= 80 ? '#10b981' : healthScore >= 50 ? '#f59e0b' : '#ef4444';
-  const healthText = healthScore >= 80 ? 'ممتازة' : healthScore >= 60 ? 'جيدة' : healthScore >= 40 ? 'تحتاج صيانة' : 'خطر';
+  const healthText = healthScore >= 80 ? (isAr ? 'ممتازة' : 'Excellent') : 
+                     healthScore >= 60 ? (isAr ? 'جيدة' : 'Good') : 
+                     healthScore >= 40 ? (isAr ? 'تحتاج صيانة' : 'Needs Service') : 
+                     (isAr ? 'خطر' : 'Danger');
   
   return `
-    <div style="padding:30px 24px;font-family:'Cairo',sans-serif;direction:rtl;background:#fff;color:#1e293b;width:700px;">
+    <div style="padding:30px 24px;font-family:'Cairo',sans-serif;direction:${isAr ? 'rtl' : 'ltr'};background:#fff;color:#1e293b;width:700px;">
       <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px 24px;border-radius:14px;margin-bottom:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-size:26px;font-weight:700;">🔧 CheckDiga</div>
-            <div style="font-size:13px;opacity:0.8;margin-top:4px;">تقرير فحص سيارة متكامل</div>
+            <div style="font-size:13px;opacity:0.8;margin-top:4px;">${isAr ? 'تقرير فحص سيارة متكامل' : 'Complete Vehicle Diagnostic Report'}</div>
           </div>
-          <div style="text-align:left;font-size:12px;opacity:0.9;">
+          <div style="text-align:${isAr ? 'left' : 'right'};font-size:12px;opacity:0.9;">
             <div>${currentDate}</div>
             <div style="margin-top:4px;font-family:monospace;">ID: ${Date.now().toString().slice(-8)}</div>
           </div>
@@ -783,30 +997,30 @@ function buildReportHTML() {
 
       <div style="background:${healthColor};color:#fff;padding:18px 22px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div style="font-size:14px;opacity:0.9;">مؤشر صحة السيارة</div>
+          <div style="font-size:14px;opacity:0.9;">${isAr ? 'مؤشر صحة السيارة' : 'Vehicle Health Score'}</div>
           <div style="font-size:20px;font-weight:700;margin-top:4px;">${healthText}</div>
         </div>
         <div style="font-size:42px;font-weight:700;">${healthScore}<span style="font-size:16px;opacity:0.8;">/100</span></div>
       </div>
 
-      <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #3b82f6;">
-        <div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:12px;">🚗 معلومات السيارة</div>
+      <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:20px;border-${isAr ? 'right' : 'left'}:4px solid #3b82f6;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px;">🚗 ${isAr ? 'معلومات السيارة' : 'Vehicle Info'}</div>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
           <tr style="border-bottom:1px solid #e2e8f0;">
-            <td style="padding:8px 0;color:#64748b;">رقم الهيكل (VIN)</td>
-            <td style="padding:8px 0;font-family:monospace;font-weight:700;text-align:left;">${vinText}</td>
+            <td style="padding:8px 0;color:#64748b;">VIN</td>
+            <td style="padding:8px 0;font-family:monospace;font-weight:700;text-align:${isAr ? 'left' : 'right'};">${vinText}</td>
           </tr>
           ${vinDecoded ? `
-          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">بلد الصنع</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.country}</td></tr>
-          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">الشركة المصنعة</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.manufacturer}</td></tr>
-          <tr><td style="padding:8px 0;color:#64748b;">سنة الموديل</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.year}</td></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">${isAr ? 'بلد الصنع' : 'Country'}</td><td style="padding:8px 0;font-weight:700;text-align:${isAr ? 'left' : 'right'};">${vinDecoded.country}</td></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">${isAr ? 'الشركة' : 'Manufacturer'}</td><td style="padding:8px 0;font-weight:700;text-align:${isAr ? 'left' : 'right'};">${vinDecoded.manufacturer}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">${isAr ? 'سنة الموديل' : 'Year'}</td><td style="padding:8px 0;font-weight:700;text-align:${isAr ? 'left' : 'right'};">${vinDecoded.year}</td></tr>
           ` : ''}
         </table>
       </div>
 
-      <div style="background:#fef2f2;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #ef4444;">
-        <div style="font-size:15px;font-weight:700;color:#991b1b;margin-bottom:12px;">🔧 الأعطال المكتشفة (${faults.length})</div>
-        ${faults.length === 0 ? '<div style="color:#15803d;font-size:13px;">✅ لا توجد أعطال مسجلة</div>' : 
+      <div style="background:#fef2f2;border-radius:12px;padding:16px;margin-bottom:20px;border-${isAr ? 'right' : 'left'}:4px solid #ef4444;">
+        <div style="font-size:15px;font-weight:700;color:#991b1b;margin-bottom:12px;">🔧 ${isAr ? 'الأعطال المكتشفة' : 'Detected Faults'} (${faults.length})</div>
+        ${faults.length === 0 ? `<div style="color:#15803d;font-size:13px;">✅ ${isAr ? 'لا توجد أعطال مسجلة' : 'No faults recorded'}</div>` : 
           faults.map((f, i) => `
             <div style="background:#fff;padding:10px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;">
               <div style="font-weight:700;color:#b91c1c;font-family:monospace;">#${i + 1}. ${f.code}</div>
@@ -817,8 +1031,8 @@ function buildReportHTML() {
       </div>
 
       ${diagnoses.length > 0 ? `
-      <div style="background:#f5f3ff;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #8b5cf6;">
-        <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:12px;">🧠 التشخيص الذكي</div>
+      <div style="background:#f5f3ff;border-radius:12px;padding:16px;margin-bottom:20px;border-${isAr ? 'right' : 'left'}:4px solid #8b5cf6;">
+        <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:12px;">🧠 ${isAr ? 'التشخيص الذكي' : 'Smart Diagnosis'}</div>
         ${diagnoses.map(d => `
           <div style="background:#fff;padding:12px;border-radius:8px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -826,7 +1040,6 @@ function buildReportHTML() {
               <div style="background:#8b5cf6;color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">${d.confidence}%</div>
             </div>
             <div style="color:#475569;font-size:12px;margin-bottom:8px;">${d.description}</div>
-            <div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px;">الإجراءات المقترحة:</div>
             <ul style="list-style:none;padding:0;margin:0;">
               ${d.actions.map(a => `<li style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:3px;font-size:12px;">• ${a}</li>`).join('')}
             </ul>
@@ -836,8 +1049,8 @@ function buildReportHTML() {
       ` : ''}
 
       <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">
-        <div>تم إنشاء هذا التقرير بواسطة CheckDiga — أداة فحص السيارات الذكية</div>
-        <div style="margin-top:4px;">⚠️ هذا التقرير للتشخيص المبدئي فقط، يرجى مراجعة ميكانيكي متخصص للتأكيد</div>
+        <div>${isAr ? 'تم إنشاء هذا التقرير بواسطة CheckDiga' : 'Generated by CheckDiga'}</div>
+        <div style="margin-top:4px;">⚠️ ${isAr ? 'هذا التقرير للتشخيص المبدئي فقط' : 'Preliminary diagnosis only. Consult a professional.'}</div>
       </div>
     </div>
   `;
@@ -846,7 +1059,7 @@ function buildReportHTML() {
 async function exportPDF() {
   const btn = document.getElementById('btnExportPDF');
   const originalText = btn.textContent;
-  btn.textContent = '⏳ جاري إنشاء التقرير...';
+  btn.textContent = currentLang === 'ar' ? '⏳ جاري الإنشاء...' : '⏳ Generating...';
   btn.disabled = true;
   try {
     const reportHTML = buildReportHTML();
@@ -864,10 +1077,10 @@ async function exportPDF() {
     };
     await html2pdf().set(opt).from(container.firstElementChild).save();
     document.body.removeChild(container);
-    log('📄 تم إنشاء تقرير PDF بنجاح');
+    log('📄 PDF created');
   } catch (e) {
-    log('⚠️ فشل إنشاء PDF: ' + e.message);
-    alert('فشل إنشاء التقرير: ' + e.message);
+    log('⚠️ PDF failed: ' + e.message);
+    alert('PDF error: ' + e.message);
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;
@@ -885,7 +1098,7 @@ function hideExportButton() {
 }
 
 /* =====================================================
-   ❄️ Freeze Frame (بيانات التجميد)
+   ❄️ Freeze Frame
 ===================================================== */
 const FREEZE_PIDS = {
   '03': { name: 'حالة الوقود', bytes: 1, calc:(a)=>{ const m={1:'حلقة مفتوحة - حرارة',2:'حلقة مغلقة',4:'حلقة مفتوحة - حمل',8:'حلقة مفتوحة - خطأ'}; return m[a] || 'حالة ' + a; } },
@@ -893,18 +1106,18 @@ const FREEZE_PIDS = {
   '05': { name: 'حرارة المحرك', bytes: 1, calc:(a)=>`${a-40} °C` },
   '06': { name: 'STFT Bank 1', bytes: 1, calc:(a)=>`${((a-128)*100/128).toFixed(1)} %` },
   '07': { name: 'LTFT Bank 1', bytes: 1, calc:(a)=>`${((a-128)*100/128).toFixed(1)} %` },
-  '0B': { name: 'ضغط مشعب السحب (MAP)', bytes: 1, calc:(a)=>`${a} kPa` },
-  '0C': { name: 'سرعة المحرك (RPM)', bytes: 2, calc:(a,b)=>`${((256*a+b)/4).toFixed(0)} دورة/دقيقة` },
-  '0D': { name: 'السرعة', bytes: 1, calc:(a)=>`${a} كم/س` },
+  '0B': { name: 'MAP', bytes: 1, calc:(a)=>`${a} kPa` },
+  '0C': { name: 'RPM', bytes: 2, calc:(a,b)=>`${((256*a+b)/4).toFixed(0)} RPM` },
+  '0D': { name: 'السرعة', bytes: 1, calc:(a)=>`${a} km/h` },
   '0E': { name: 'توقيت الإشعال', bytes: 1, calc:(a)=>`${(a/2-64).toFixed(1)} °` },
   '0F': { name: 'حرارة هواء السحب', bytes: 1, calc:(a)=>`${a-40} °C` },
-  '10': { name: 'معدل تدفق الهواء (MAF)', bytes: 2, calc:(a,b)=>`${((256*a+b)/100).toFixed(2)} g/s` },
+  '10': { name: 'MAF', bytes: 2, calc:(a,b)=>`${((256*a+b)/100).toFixed(2)} g/s` },
   '11': { name: 'موضع الخانق', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
-  '1F': { name: 'زمن التشغيل', bytes: 2, calc:(a,b)=>`${256*a+b} ثانية` },
-  '21': { name: 'المسافة مع CEL', bytes: 2, calc:(a,b)=>`${256*a+b} كم` },
+  '1F': { name: 'زمن التشغيل', bytes: 2, calc:(a,b)=>`${256*a+b} s` },
+  '21': { name: 'المسافة مع CEL', bytes: 2, calc:(a,b)=>`${256*a+b} km` },
   '23': { name: 'ضغط سكة الوقود', bytes: 2, calc:(a,b)=>`${((256*a+b)*10).toFixed(0)} kPa` },
   '2F': { name: 'مستوى الوقود', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(0)} %` },
-  '31': { name: 'المسافة منذ مسح الأعطال', bytes: 2, calc:(a,b)=>`${256*a+b} كم` },
+  '31': { name: 'المسافة منذ المسح', bytes: 2, calc:(a,b)=>`${256*a+b} km` },
   '42': { name: 'جهد وحدة التحكم', bytes: 2, calc:(a,b)=>`${((256*a+b)/1000).toFixed(2)} V` },
   '45': { name: 'موضع صمام EGR', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
   '46': { name: 'حرارة البيئة', bytes: 1, calc:(a)=>`${a-40} °C` },
@@ -917,16 +1130,14 @@ async function readFreezeFrame(dtcCode) {
     document.getElementById('freezeCode').textContent = dtcCode;
     document.getElementById('freezeContent').innerHTML = `
       <p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">
-        ⚠️ يجب توصيل جهاز OBD-II بسيارة حقيقية لقراءة بيانات التجميد.<br>
-        <span style="font-size:12px;">الوضع التجريبي لا يمكنه محاكاة هذه البيانات.</span>
+        ⚠️ ${currentLang === 'ar' ? 'يجب توصيل جهاز OBD-II بسيارة حقيقية.' : 'Connect OBD-II device to a real vehicle.'}
       </p>
     `;
     return; 
   }
   document.getElementById('freezeModal').style.display = 'block';
   document.getElementById('freezeCode').textContent = dtcCode;
-  document.getElementById('freezeContent').innerHTML = '<p style="color:#64748b;">⏳ جاري قراءة بيانات التجميد...</p>';
-  log(`❄️ قراءة Freeze Frame للعطل ${dtcCode}...`);
+  document.getElementById('freezeContent').innerHTML = '<p style="color:#64748b;">⏳ Loading...</p>';
   const results = {};
   const pidsToRead = ['03','04','05','06','07','0B','0C','0D','0E','0F','10','11','1F','21','23','2F','31','42','46','5C'];
   for (const pid of pidsToRead) {
@@ -940,53 +1151,32 @@ async function readFreezeFrame(dtcCode) {
         if (idx !== -1) {
           const dataHex = clean.substring(idx + 4);
           const bytes = [];
-          for (let i = 0; i < def.bytes * 2; i += 2) {
-            bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
-          }
-          if (!bytes.some(isNaN)) {
-            results[pid] = { name: def.name, value: def.calc(...bytes) };
-          }
+          for (let i = 0; i < def.bytes * 2; i += 2) bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
+          if (!bytes.some(isNaN)) results[pid] = { name: def.name, value: def.calc(...bytes) };
         }
       }
     } catch(e) {}
   }
   if (Object.keys(results).length === 0) {
-    document.getElementById('freezeContent').innerHTML = `
-      <p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">
-        ⚠️ لا توجد بيانات تجميد مسجلة لهذا العطل.<br>
-        <span style="font-size:12px;">قد لا يدعم كمبيوتر سيارتك هذا النوع من البيانات، أو تم مسح الأعطال مؤخراً.</span>
-      </p>
-    `;
+    document.getElementById('freezeContent').innerHTML = `<p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">⚠️ ${currentLang === 'ar' ? 'لا توجد بيانات تجميد' : 'No freeze frame data'}</p>`;
     return;
   }
   document.getElementById('freezeContent').innerHTML = `
-    <p style="font-size:12px;color:#64748b;margin-bottom:12px;background:#eff6ff;padding:10px;border-radius:8px;">
-      💡 هذه هي حالة المحرك <strong>بالضبط لحظة حدوث العطل</strong>.
-    </p>
-    <div style="display:grid;gap:8px;text-align:right;">
+    <div style="display:grid;gap:8px;text-align:${currentLang === 'ar' ? 'right' : 'left'};">
       ${Object.entries(results).map(([pid, data]) => `
-        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-radius:8px;border-right:3px solid #3b82f6;">
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-radius:8px;border-${currentLang === 'ar' ? 'right' : 'left'}:3px solid #3b82f6;">
           <span style="color:#475569;font-size:13px;">${data.name}</span>
           <span style="font-weight:700;color:#0f172a;font-family:monospace;">${data.value}</span>
         </div>
       `).join('')}
     </div>
-    <div style="margin-top:14px;font-size:11px;color:#94a3b8;text-align:center;">
-      PID: ${Object.keys(results).join(', ')}
-    </div>
   `;
-  log(`✅ تم قراءة ${Object.keys(results).length} معلمة من بيانات التجميد`);
 }
 
 /* =====================================================
-   📈 الرسوم البيانية (Charts)
+   📈 الرسوم البيانية
 ===================================================== */
-const chartData = {
-  rpm: [],
-  speed: [],
-  coolant: [],
-  labels: []
-};
+const chartData = { rpm: [], speed: [], coolant: [], labels: [] };
 const MAX_CHART_POINTS = 30;
 let chartRpmInstance = null;
 let chartSpeedInstance = null;
@@ -998,163 +1188,70 @@ function initCharts() {
   if (chartCoolantInstance) { chartCoolantInstance.destroy(); chartCoolantInstance = null; }
 
   const commonOptions = (color, unit, suggestedMax) => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: { duration: 300 },
+    responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
     plugins: {
       legend: { display: false },
-      tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#fff',
-        bodyColor: '#4ade80',
-        borderColor: color,
-        borderWidth: 1,
-        padding: 10,
-        displayColors: false,
-        callbacks: {
-          label: (context) => `${context.parsed.y.toFixed(1)} ${unit}`
-        }
-      }
+      tooltip: { backgroundColor: '#0f172a', titleColor: '#fff', bodyColor: '#4ade80', borderColor: color, borderWidth: 1, padding: 10, displayColors: false,
+        callbacks: { label: (context) => `${context.parsed.y.toFixed(1)} ${unit}` } }
     },
     scales: {
       x: { display: false, grid: { display: false } },
-      y: {
-        beginAtZero: true,
-        suggestedMax: suggestedMax,
-        grid: { color: 'rgba(226,232,240,0.5)', drawBorder: false },
-        ticks: {
-          color: '#94a3b8',
-          font: { size: 10, family: 'Cairo' },
-          maxTicksLimit: 5
-        }
-      }
+      y: { beginAtZero: true, suggestedMax: suggestedMax, grid: { color: 'rgba(226,232,240,0.5)', drawBorder: false },
+        ticks: { color: '#94a3b8', font: { size: 10, family: 'Cairo' }, maxTicksLimit: 5 } }
     },
-    elements: {
-      point: { radius: 0, hoverRadius: 5 },
-      line: { tension: 0.4, borderWidth: 2 }
-    }
+    elements: { point: { radius: 0, hoverRadius: 5 }, line: { tension: 0.4, borderWidth: 2 } }
   });
 
   const createGradient = (ctx, color) => {
-    const gradient = ctx.createLinearGradient(0, 0, 0, 220);
-    gradient.addColorStop(0, color + '40');
-    gradient.addColorStop(1, color + '00');
-    return gradient;
+    const g = ctx.createLinearGradient(0, 0, 0, 220);
+    g.addColorStop(0, color + '40'); g.addColorStop(1, color + '00');
+    return g;
   };
 
   const rpmCanvas = document.getElementById('chartRpm');
   const speedCanvas = document.getElementById('chartSpeed');
   const coolantCanvas = document.getElementById('chartCoolant');
-  
-  if (!rpmCanvas || !speedCanvas || !coolantCanvas) {
-    console.warn('Canvas elements not found');
-    return;
-  }
+  if (!rpmCanvas || !speedCanvas || !coolantCanvas) return;
 
   const rpmCtx = rpmCanvas.getContext('2d');
-  chartRpmInstance = new Chart(rpmCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        borderColor: '#ef4444',
-        backgroundColor: createGradient(rpmCtx, '#ef4444'),
-        fill: true
-      }]
-    },
-    options: commonOptions('#ef4444', 'RPM', 7000)
-  });
+  chartRpmInstance = new Chart(rpmCtx, { type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: '#ef4444', backgroundColor: createGradient(rpmCtx, '#ef4444'), fill: true }] },
+    options: commonOptions('#ef4444', 'RPM', 7000) });
 
   const speedCtx = speedCanvas.getContext('2d');
-  chartSpeedInstance = new Chart(speedCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        borderColor: '#3b82f6',
-        backgroundColor: createGradient(speedCtx, '#3b82f6'),
-        fill: true
-      }]
-    },
-    options: commonOptions('#3b82f6', 'كم/س', 180)
-  });
+  chartSpeedInstance = new Chart(speedCtx, { type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: '#3b82f6', backgroundColor: createGradient(speedCtx, '#3b82f6'), fill: true }] },
+    options: commonOptions('#3b82f6', 'km/h', 180) });
 
   const coolantCtx = coolantCanvas.getContext('2d');
-  chartCoolantInstance = new Chart(coolantCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        borderColor: '#f59e0b',
-        backgroundColor: createGradient(coolantCtx, '#f59e0b'),
-        fill: true
-      }]
-    },
-    options: commonOptions('#f59e0b', '°C', 120)
-  });
-  
-  if (chartData.labels.length > 0) {
-    chartRpmInstance.data.labels = [...chartData.labels];
-    chartRpmInstance.data.datasets[0].data = [...chartData.rpm];
-    chartRpmInstance.update('none');
-    
-    chartSpeedInstance.data.labels = [...chartData.labels];
-    chartSpeedInstance.data.datasets[0].data = [...chartData.speed];
-    chartSpeedInstance.update('none');
-    
-    chartCoolantInstance.data.labels = [...chartData.labels];
-    chartCoolantInstance.data.datasets[0].data = [...chartData.coolant];
-    chartCoolantInstance.update('none');
-  }
-  
-  log('📈 تم تهيئة الرسوم البيانية');
+  chartCoolantInstance = new Chart(coolantCtx, { type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: '#f59e0b', backgroundColor: createGradient(coolantCtx, '#f59e0b'), fill: true }] },
+    options: commonOptions('#f59e0b', '°C', 120) });
 }
 
 function updateCharts(values) {
-  const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  
+  const time = new Date().toLocaleTimeString();
   if (values.rpm !== undefined && !isNaN(values.rpm)) {
     chartData.rpm.push(values.rpm);
     if (chartData.rpm.length > MAX_CHART_POINTS) chartData.rpm.shift();
-    const el = document.getElementById('chart-rpm-current');
-    if (el) el.textContent = values.rpm.toFixed(0);
+    const el = document.getElementById('chart-rpm-current'); if (el) el.textContent = values.rpm.toFixed(0);
   }
-  
   if (values.speed !== undefined && !isNaN(values.speed)) {
     chartData.speed.push(values.speed);
     if (chartData.speed.length > MAX_CHART_POINTS) chartData.speed.shift();
-    const el = document.getElementById('chart-speed-current');
-    if (el) el.textContent = values.speed.toFixed(0);
+    const el = document.getElementById('chart-speed-current'); if (el) el.textContent = values.speed.toFixed(0);
   }
-  
   if (values.coolant !== undefined && !isNaN(values.coolant)) {
     chartData.coolant.push(values.coolant);
     if (chartData.coolant.length > MAX_CHART_POINTS) chartData.coolant.shift();
-    const el = document.getElementById('chart-coolant-current');
-    if (el) el.textContent = values.coolant.toFixed(0);
+    const el = document.getElementById('chart-coolant-current'); if (el) el.textContent = values.coolant.toFixed(0);
   }
-  
   chartData.labels.push(time);
   if (chartData.labels.length > MAX_CHART_POINTS) chartData.labels.shift();
   
-  if (chartRpmInstance) {
-    chartRpmInstance.data.labels = [...chartData.labels];
-    chartRpmInstance.data.datasets[0].data = [...chartData.rpm];
-    chartRpmInstance.update('none');
-  }
-  if (chartSpeedInstance) {
-    chartSpeedInstance.data.labels = [...chartData.labels];
-    chartSpeedInstance.data.datasets[0].data = [...chartData.speed];
-    chartSpeedInstance.update('none');
-  }
-  if (chartCoolantInstance) {
-    chartCoolantInstance.data.labels = [...chartData.labels];
-    chartCoolantInstance.data.datasets[0].data = [...chartData.coolant];
-    chartCoolantInstance.update('none');
-  }
+  if (chartRpmInstance) { chartRpmInstance.data.labels = [...chartData.labels]; chartRpmInstance.data.datasets[0].data = [...chartData.rpm]; chartRpmInstance.update('none'); }
+  if (chartSpeedInstance) { chartSpeedInstance.data.labels = [...chartData.labels]; chartSpeedInstance.data.datasets[0].data = [...chartData.speed]; chartSpeedInstance.update('none'); }
+  if (chartCoolantInstance) { chartCoolantInstance.data.labels = [...chartData.labels]; chartCoolantInstance.data.datasets[0].data = [...chartData.coolant]; chartCoolantInstance.update('none'); }
 }
 
 /* =====================================================
@@ -1185,9 +1282,7 @@ async function saveToCache(key, data) {
       const tx = db.transaction('cache', 'readwrite');
       tx.objectStore('cache').put({ key, data, timestamp: Date.now() });
       await tx.complete;
-    } else {
-      localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
-    }
+    } else { localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() })); }
   } catch (e) { console.warn('Cache save failed:', e); }
 }
 
@@ -1200,10 +1295,7 @@ async function loadFromCache(key) {
       if (result && (Date.now() - result.timestamp) < CACHE_EXPIRY) return result.data;
     } else {
       const cached = localStorage.getItem(key);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Date.now() - parsed.timestamp < CACHE_EXPIRY) return parsed.data;
-      }
+      if (cached) { const parsed = JSON.parse(cached); if (Date.now() - parsed.timestamp < CACHE_EXPIRY) return parsed.data; }
     }
   } catch (e) { console.warn('Cache load failed:', e); }
   return null;
@@ -1220,18 +1312,14 @@ function openIDB() {
 
 async function loadDatabase() {
   const cached = await loadFromCache(CACHE_KEY_CORE);
-  if (cached) {
-    applyCompressedData(cached);
-    log(`⚡ قاعدة أساسية من الذاكرة (${Object.keys(cached).length} كود)`);
-    return;
-  }
+  if (cached) { applyCompressedData(cached); log(`⚡ Base from cache (${Object.keys(cached).length} codes)`); return; }
   try {
-    log('🌐 تحميل القاعدة الأساسية...');
+    log('🌐 Loading base database...');
     const coreData = await fetchJSON('dtc_core.json');
     applyCompressedData(coreData);
     await saveToCache(CACHE_KEY_CORE, coreData);
-    log(`✅ تم تحميل ${Object.keys(coreData).length} كود أساسي`);
-  } catch (e) { log('⚠️ فشل تحميل القاعدة الأساسية'); }
+    log(`✅ Loaded ${Object.keys(coreData).length} core codes`);
+  } catch (e) { log('⚠️ Base load failed'); }
 }
 
 function applyCompressedData(data) {
@@ -1242,20 +1330,15 @@ async function loadCategory(category) {
   if (loadedCategories.has(category) || !DB_FILES[category]) return;
   const cacheKey = CACHE_KEY_PREFIX + category;
   let data = await loadFromCache(cacheKey);
-  if (data) {
-    applyCompressedData(data);
-    loadedCategories.add(category);
-    log(`⚡ فئة ${category} من الذاكرة (${Object.keys(data).length} كود)`);
-    return;
-  }
+  if (data) { applyCompressedData(data); loadedCategories.add(category); log(`⚡ ${category} from cache`); return; }
   try {
-    log(`🌐 تحميل فئة ${category}...`);
+    log(`🌐 Loading ${category}...`);
     data = await fetchJSON(DB_FILES[category]);
     applyCompressedData(data);
     await saveToCache(cacheKey, data);
     loadedCategories.add(category);
-    log(`✅ فئة ${category}: ${Object.keys(data).length} كود`);
-  } catch (e) { log(`⚠️ فشل تحميل فئة ${category}`); }
+    log(`✅ ${category}: ${Object.keys(data).length} codes`);
+  } catch (e) { log(`⚠️ ${category} failed`); }
 }
 
 let searchTimer = null;
@@ -1270,28 +1353,23 @@ async function performSearch(query) {
   if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
   const firstLetter = q[0];
   if (['P','C','B','U'].includes(firstLetter) && !loadedCategories.has(firstLetter)) {
-    resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد ' + firstLetter + '...</p>';
+    resultsDiv.innerHTML = '<p class="hint">⏳ Loading ' + firstLetter + '...</p>';
     await loadCategory(firstLetter);
   }
   if (q.startsWith('P1') || q.startsWith('P2') || q.startsWith('P3')) {
     if (!loadedCategories.has('CN')) {
-      resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد السيارات الصينية...</p>';
+      resultsDiv.innerHTML = '<p class="hint">⏳ Loading Chinese codes...</p>';
       await loadCategory('CN');
     }
   }
   const matches = [];
   for (const [code, info] of Object.entries(DTC_DATABASE)) {
     if (matches.length >= 20) break;
-    if (code.includes(q) || (info.title && info.title.includes(query)) || (info.desc && info.desc.includes(query))) {
-      matches.push([code, info]);
-    }
+    if (code.includes(q) || (info.title && info.title.includes(query)) || (info.desc && info.desc.includes(query))) matches.push([code, info]);
   }
-  if (matches.length === 0) { resultsDiv.innerHTML = `<p class="hint">لا توجد نتائج لـ "${query}"</p>`; return; }
-  resultsDiv.innerHTML = `
-    <p style="font-size:13px;color:#64748b;margin-bottom:8px;">تم العثور على ${matches.length} نتيجة:</p>
-    <div class="dtc-list">
-      ${matches.map(([code, info]) => `<div class="dtc-item" data-code="${code}"><div class="code">${code}</div><div class="title">${info.title || 'غير معروف'}</div></div>`).join('')}
-    </div>`;
+  if (matches.length === 0) { resultsDiv.innerHTML = `<p class="hint">${currentLang === 'ar' ? 'لا توجد نتائج' : 'No results'} "${query}"</p>`; return; }
+  resultsDiv.innerHTML = `<p style="font-size:13px;color:#64748b;margin-bottom:8px;">${matches.length} ${currentLang === 'ar' ? 'نتيجة' : 'results'}:</p>
+    <div class="dtc-list">${matches.map(([code, info]) => `<div class="dtc-item" data-code="${code}"><div class="code">${code}</div><div class="title">${info.title || 'Unknown'}</div></div>`).join('')}</div>`;
   resultsDiv.querySelectorAll('.dtc-item').forEach(el => {
     el.addEventListener('click', () => { displayFault(el.dataset.code); document.getElementById('dtcSearchInput').value = ''; resultsDiv.innerHTML = ''; });
   });
@@ -1312,20 +1390,17 @@ async function saveScanToCloud(faults, vin, carInfo) {
       screenWidth: window.screen.width
     });
     for (const fault of (faults || [])) await updateDTCStats(fault.code);
-    log('☁️ تم حفظ الفحص في السحابة');
+    log('☁️ Saved to cloud');
     return true;
-  } catch (e) { log('⚠️ فشل حفظ البيانات: ' + e.message); return false; }
+  } catch (e) { log('⚠️ Cloud save failed: ' + e.message); return false; }
 }
 
 async function updateDTCStats(code) {
   try {
     const statsRef = doc(db, "dtc_stats", code);
     const statsDoc = await getDoc(statsRef);
-    if (statsDoc.exists()) {
-      await updateDoc(statsRef, { count: increment(1), lastSeen: serverTimestamp() });
-    } else {
-      await setDoc(statsRef, { code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() });
-    }
+    if (statsDoc.exists()) await updateDoc(statsRef, { count: increment(1), lastSeen: serverTimestamp() });
+    else await setDoc(statsRef, { code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() });
   } catch (e) { console.warn('Stats failed:', e); }
 }
 
@@ -1341,17 +1416,15 @@ async function loadTopFaults() {
 
 async function displayStats() {
   const container = document.getElementById('statsContent');
-  container.innerHTML = '<p class="hint">⏳ جاري تحميل الإحصائيات...</p>';
+  container.innerHTML = '<p class="hint">⏳ Loading...</p>';
   const topFaults = await loadTopFaults();
-  if (topFaults.length === 0) { container.innerHTML = '<p class="hint">لا توجد بيانات بعد. كن أول من يفحص سيارته!</p>'; return; }
-  container.innerHTML = `
-    <h4 style="margin-bottom:12px;color:#1e293b;">🔥 أكثر 10 أعطال شيوعاً:</h4>
-    <div class="dtc-list">
-      ${topFaults.map((f, i) => {
-        const info = getFaultInfo(f.code);
-        return `<div class="dtc-item" style="cursor:default;"><div class="code"><span class="system-badge">#${i + 1}</span>${f.code}<span style="margin-right:auto;color:#64748b;font-weight:700;">${f.count} مرة</span></div><div class="title">${info.title || 'غير معروف'}</div></div>`;
-      }).join('')}
-    </div>`;
+  const isAr = currentLang === 'ar';
+  if (topFaults.length === 0) { container.innerHTML = `<p class="hint">${isAr ? 'لا توجد بيانات بعد' : 'No data yet'}</p>`; return; }
+  container.innerHTML = `<h4 style="margin-bottom:12px;color:#1e293b;">🔥 ${isAr ? 'أكثر 10 أعطال شيوعاً' : 'Top 10 Common Faults'}:</h4>
+    <div class="dtc-list">${topFaults.map((f, i) => {
+      const info = getFaultInfo(f.code);
+      return `<div class="dtc-item" style="cursor:default;"><div class="code"><span class="system-badge">#${i + 1}</span>${f.code}<span style="margin-${isAr ? 'right' : 'left'}:auto;color:#64748b;font-weight:700;">${f.count}</span></div><div class="title">${info.title || 'Unknown'}</div></div>`;
+    }).join('')}</div>`;
 }
 
 /* =====================================================
@@ -1375,7 +1448,7 @@ function clearCarDisplay() {
 
 function getFaultInfo(code) {
   const clean = String(code).trim().toUpperCase();
-  return DTC_DATABASE[clean] || { zone:"engine", title:"عطل غير معروف", desc:"كود غير مسجل في قاعدة البيانات." };
+  return DTC_DATABASE[clean] || { zone:"engine", title: currentLang === 'ar' ? "عطل غير معروف" : "Unknown fault", desc: currentLang === 'ar' ? "كود غير مسجل في قاعدة البيانات." : "Code not in database." };
 }
 
 /* =====================================================
@@ -1391,11 +1464,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     if (tab.dataset.tab === 'live') {
       setTimeout(() => {
         if (!chartRpmInstance) initCharts();
-        else {
-          if (chartRpmInstance) chartRpmInstance.resize();
-          if (chartSpeedInstance) chartSpeedInstance.resize();
-          if (chartCoolantInstance) chartCoolantInstance.resize();
-        }
+        else { chartRpmInstance.resize(); chartSpeedInstance.resize(); chartCoolantInstance.resize(); }
       }, 300);
     }
   });
@@ -1410,7 +1479,9 @@ function log(msg) {
 
 function setStatus(text, connected) {
   const s = document.getElementById('status');
-  s.textContent = text;
+  if (connected) s.textContent = t('connected');
+  else if (text && (text.includes('تجريبي') || text.includes('Demo'))) s.textContent = t('demoMode');
+  else s.textContent = t('disconnected');
   s.classList.toggle('connected', !!connected);
 }
 
@@ -1424,14 +1495,14 @@ const ELM_SERVICE2 = '0000ffe0-0000-1000-8000-00805f9b34fb';
 const ELM_CHAR2 = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
 async function connectBluetooth() {
-  if (!navigator.bluetooth) { alert('متصفحك لا يدعم Bluetooth.'); return; }
+  if (!navigator.bluetooth) { alert('Browser does not support Bluetooth.'); return; }
   try {
-    log('🔍 البحث عن أجهزة OBD-II...');
+    log('🔍 Searching OBD-II...');
     device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: 'OBD' }, { namePrefix: 'ELM' }, { namePrefix: 'Vgate' }, { namePrefix: 'V-Link' }, { services: [ELM_SERVICE] }, { services: [ELM_SERVICE2] }],
       optionalServices: [ELM_SERVICE, ELM_SERVICE2]
     });
-    log('✅ تم اختيار: ' + device.name);
+    log('✅ Selected: ' + device.name);
     const server = await device.gatt.connect();
     try {
       const svc = await server.getPrimaryService(ELM_SERVICE);
@@ -1442,23 +1513,23 @@ async function connectBluetooth() {
     }
     await characteristic.startNotifications();
     characteristic.addEventListener('characteristicvaluechanged', handleData);
-    setStatus('متصل ✓', true);
-    log('🎉 متصل بـ ' + device.name);
+    setStatus('', true);
+    log('🎉 Connected to ' + device.name);
     await sendCommand('ATZ', 1500);
     await sendCommand('ATE0', 500);
     await sendCommand('ATSP0', 500);
-  } catch (e) { log('❌ خطأ: ' + e.message); setStatus('غير متصل', false); }
+  } catch (e) { log('❌ Error: ' + e.message); setStatus('', false); }
 }
 
 function disconnectBluetooth() {
-  try { if (device && device.gatt.connected) device.gatt.disconnect(); setStatus('غير متصل', false); log('🔌 تم قطع الاتصال'); } catch(e) {}
+  try { if (device && device.gatt.connected) device.gatt.disconnect(); setStatus('', false); log('🔌 Disconnected'); } catch(e) {}
 }
 
 let responseBuffer = '';
 function handleData(event) { responseBuffer += new TextDecoder().decode(event.target.value); }
 
 async function sendCommand(cmd, waitMs = 400) {
-  if (!characteristic) { log('⚠️ غير متصل'); return null; }
+  if (!characteristic) { log('⚠️ Not connected'); return null; }
   responseBuffer = '';
   const encoder = new TextEncoder();
   const full = cmd + '\r';
@@ -1472,12 +1543,12 @@ async function sendCommand(cmd, waitMs = 400) {
 ===================================================== */
 async function readDTCs() {
   const list = document.getElementById('dtcList');
-  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>'; return; }
-  log('📋 قراءة أعطال المحرك...');
+  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ ' + (currentLang === 'ar' ? 'اتصل بجهاز أولاً.' : 'Connect device first.') + '</p>'; return; }
+  log('📋 Reading engine faults...');
   await sendCommand('AT SH 7E0', 200);
   const resp = await sendCommand('03', 800);
   const codes = parseDTCs(resp);
-  const faults = codes.map(c => ({ code: c, system: 'المحرك' }));
+  const faults = codes.map(c => ({ code: c, system: currentLang === 'ar' ? 'المحرك' : 'Engine' }));
   renderFaults(faults);
   if (faults.length > 0) {
     displayFault(faults[0].code);
@@ -1513,27 +1584,33 @@ function parseDTCs(raw) {
 }
 
 const ECU_LIST = [
-  { addr: '7E0', name: 'المحرك' }, { addr: '7E1', name: 'ناقل الحركة' }, { addr: '7E2', name: 'نظام الدفع' },
-  { addr: '7E3', name: 'ABS' }, { addr: '7E4', name: 'ABS (بديل)' }, { addr: '7E5', name: 'التوجيه' },
-  { addr: '7E6', name: 'الوسائد الهوائية' }, { addr: '7E7', name: 'التكييف' }
+  { addr: '7E0', name: 'المحرك', nameEn: 'Engine' },
+  { addr: '7E1', name: 'ناقل الحركة', nameEn: 'Transmission' },
+  { addr: '7E2', name: 'نظام الدفع', nameEn: 'Drivetrain' },
+  { addr: '7E3', name: 'ABS', nameEn: 'ABS' },
+  { addr: '7E4', name: 'ABS (بديل)', nameEn: 'ABS (alt)' },
+  { addr: '7E5', name: 'التوجيه', nameEn: 'Steering' },
+  { addr: '7E6', name: 'الوسائد الهوائية', nameEn: 'Airbag' },
+  { addr: '7E7', name: 'التكييف', nameEn: 'HVAC' }
 ];
 
 async function scanAllECUs() {
   const list = document.getElementById('dtcList');
-  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>'; return; }
-  log('🚀 بدء المسح الشامل...');
-  list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات...</p>';
+  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ ' + (currentLang === 'ar' ? 'اتصل بجهاز أولاً.' : 'Connect device first.') + '</p>'; return; }
+  log('🚀 Scanning all systems...');
+  list.innerHTML = '<p class="hint">⏳ ' + (currentLang === 'ar' ? 'جاري الفحص...' : 'Scanning...') + '</p>';
   await sendCommand('AT CRA 7E8', 200);
   await sendCommand('AT CAF1', 200);
   let allFaults = [];
   for (const ecu of ECU_LIST) {
-    log(`🔍 فحص: ${ecu.name}...`);
+    const ecuName = currentLang === 'ar' ? ecu.name : ecu.nameEn;
+    log(`🔍 ${ecuName}...`);
     await sendCommand(`AT SH ${ecu.addr}`, 200);
     const resp = await sendCommand('19 02 FF', 700);
     if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
       const codes = parseUDS_Response(resp);
-      codes.forEach(c => allFaults.push({ code: c.code, system: ecu.name }));
-      if (codes.length > 0) log(`⚠️ ${codes.length} عطل في ${ecu.name}`);
+      codes.forEach(c => allFaults.push({ code: c.code, system: ecuName }));
+      if (codes.length > 0) log(`⚠️ ${codes.length} ${currentLang === 'ar' ? 'عطل في' : 'faults in'} ${ecuName}`);
     }
   }
   await sendCommand('AT SH 7E0', 200);
@@ -1541,17 +1618,14 @@ async function scanAllECUs() {
   const diagnoses = runSmartDiagnosis(allFaults.map(f => f.code));
   displaySmartDiagnosis(allFaults.map(f => f.code));
   displayHealthScore(allFaults, diagnoses);
-  log(`✅ اكتمل. إجمالي: ${allFaults.length}`);
+  log(`✅ Done. Total: ${allFaults.length}`);
   if (allFaults.length > 0) {
     displayFault(allFaults[0].code);
     showExportButton();
     const vinText = document.getElementById('vinResult')?.textContent || "unknown";
     await saveScanToCloud(allFaults, vinText, null);
     await saveScanToHistory(allFaults, vinText, diagnoses, null);
-  } else {
-    clearCarDisplay();
-    hideExportButton();
-  }
+  } else { clearCarDisplay(); hideExportButton(); }
 }
 
 function parseUDS_Response(raw) {
@@ -1572,41 +1646,33 @@ function parseUDS_Response(raw) {
 
 function renderFaults(faults) {
   const list = document.getElementById('dtcList');
-  if (!faults.length) { list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة.</p>'; return; }
+  if (!faults.length) { list.innerHTML = '<p class="hint">✅ ' + (currentLang === 'ar' ? 'لا توجد أعطال مسجلة.' : 'No faults recorded.') + '</p>'; return; }
   list.innerHTML = faults.map(f => {
     const info = getFaultInfo(f.code);
     return `
       <div class="dtc-item" data-code="${f.code}">
-        <div class="code">
-          <span class="system-badge">${f.system}</span>${f.code}
-        </div>
+        <div class="code"><span class="system-badge">${f.system}</span>${f.code}</div>
         <div class="title">${info.title}</div>
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn btn-blue" data-freeze="${f.code}" style="padding:6px 12px;font-size:12px;">❄️ بيانات التجميد</button>
+          <button class="btn btn-blue" data-freeze="${f.code}" style="padding:6px 12px;font-size:12px;">❄️ ${currentLang === 'ar' ? 'بيانات التجميد' : 'Freeze Frame'}</button>
         </div>
       </div>
     `;
   }).join('');
   list.querySelectorAll('.dtc-item').forEach(el => {
-    el.addEventListener('click', (e) => {
-      if (e.target.dataset.freeze) return;
-      displayFault(el.dataset.code);
-    });
+    el.addEventListener('click', (e) => { if (e.target.dataset.freeze) return; displayFault(el.dataset.code); });
   });
   list.querySelectorAll('[data-freeze]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      readFreezeFrame(btn.dataset.freeze);
-    });
+    btn.addEventListener('click', (e) => { e.stopPropagation(); readFreezeFrame(btn.dataset.freeze); });
   });
 }
 
 async function clearDTCs() {
-  if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
-  if (!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
-  log('🗑️ مسح الأعطال...');
+  if (!characteristic) { alert('Connect device first.'); return; }
+  if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من مسح الأعطال؟' : 'Clear all DTCs?')) return;
+  log('🗑️ Clearing DTCs...');
   await sendCommand('04', 800);
-  document.getElementById('dtcList').innerHTML = '<p class="hint">✅ تم مسح الأعطال.</p>';
+  document.getElementById('dtcList').innerHTML = '<p class="hint">✅ ' + (currentLang === 'ar' ? 'تم مسح الأعطال.' : 'DTCs cleared.') + '</p>';
   clearCarDisplay();
   displaySmartDiagnosis([]);
   document.getElementById('healthBadge').style.display = 'none';
@@ -1617,17 +1683,13 @@ async function clearDTCs() {
    قراءة VIN
 ===================================================== */
 async function readVIN() {
-  if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
-  log('🔍 قراءة VIN...');
+  if (!characteristic) { alert('Connect device first.'); return; }
+  log('🔍 Reading VIN...');
   await sendCommand('0902', 1500);
   const resp = await sendCommand('0902', 1500);
   const vin = parseVIN(resp);
-  document.getElementById('vinResult').textContent = vin || 'لم يتم استلام VIN';
-  if (vin) {
-    displayVINInfo(vin);
-    log('VIN: ' + vin);
-    await saveScanToCloud([], vin, null);
-  }
+  document.getElementById('vinResult').textContent = vin || (currentLang === 'ar' ? 'لم يتم استلام VIN' : 'No VIN received');
+  if (vin) { displayVINInfo(vin); log('VIN: ' + vin); await saveScanToCloud([], vin, null); }
 }
 
 function parseVIN(raw) {
@@ -1647,29 +1709,29 @@ function parseVIN(raw) {
 function displayVINInfo(vin) {
   const container = document.getElementById('vinInfo');
   if (!container) return;
+  const isAr = currentLang === 'ar';
   const decoded = decodeVIN(vin);
-  if (!decoded) { container.innerHTML = '<p class="hint">⚠️ رقم VIN غير صحيح (يجب أن يكون 17 حرفاً)</p>'; return; }
+  if (!decoded) { container.innerHTML = `<p class="hint">⚠️ ${isAr ? 'رقم VIN غير صحيح' : 'Invalid VIN'}</p>`; return; }
   const isValid = validateVIN(vin);
   const validBadge = isValid 
-    ? '<span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">✓ VIN صحيح</span>'
-    : '<span style="background:#fef3c7;color:#b45309;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">⚠️ Check Digit غير متوافق</span>';
+    ? `<span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">✓ ${isAr ? 'VIN صحيح' : 'Valid VIN'}</span>`
+    : `<span style="background:#fef3c7;color:#b45309;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">⚠️ ${isAr ? 'Check Digit غير متوافق' : 'Check Digit mismatch'}</span>`;
   container.innerHTML = `
     <div style="text-align:center;margin-bottom:16px;">
       <div style="font-family:monospace;font-size:18px;font-weight:700;background:#0f172a;color:#4ade80;padding:14px;border-radius:12px;letter-spacing:1px;word-break:break-all;">${decoded.vin}</div>
       <div style="margin-top:8px;">${validBadge}</div>
     </div>
     <div class="data-grid">
-      <div class="data-box"><div class="label">🌍 بلد الصنع</div><div class="value" style="font-size:14px;">${decoded.country}</div></div>
-      <div class="data-box"><div class="label">🏭 الشركة المصنعة</div><div class="value" style="font-size:14px;">${decoded.manufacturer}</div></div>
-      <div class="data-box"><div class="label">📅 سنة الموديل</div><div class="value" style="font-size:16px;">${decoded.year}</div></div>
-      <div class="data-box"><div class="label">🏭 المصنع</div><div class="value" style="font-size:14px;">${decoded.plant}</div></div>
+      <div class="data-box"><div class="label">🌍 ${isAr ? 'بلد الصنع' : 'Country'}</div><div class="value" style="font-size:14px;">${decoded.country}</div></div>
+      <div class="data-box"><div class="label">🏭 ${isAr ? 'الشركة' : 'Manufacturer'}</div><div class="value" style="font-size:14px;">${decoded.manufacturer}</div></div>
+      <div class="data-box"><div class="label">📅 ${isAr ? 'سنة الموديل' : 'Year'}</div><div class="value" style="font-size:16px;">${decoded.year}</div></div>
+      <div class="data-box"><div class="label">🏭 ${isAr ? 'المصنع' : 'Plant'}</div><div class="value" style="font-size:14px;">${decoded.plant}</div></div>
     </div>
     <div style="margin-top:16px;padding:14px;background:#f8fafc;border-radius:10px;">
-      <div style="font-size:13px;color:#64748b;font-weight:700;margin-bottom:8px;">🔍 تفاصيل إضافية:</div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">WMI</span><span style="font-family:monospace;font-weight:700;">${decoded.wmi}</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">VDS</span><span style="font-family:monospace;font-weight:700;">${decoded.vds}</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">Check Digit</span><span style="font-family:monospace;font-weight:700;">${decoded.checkDigit}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#64748b;font-size:13px;">الرقم التسلسلي</span><span style="font-family:monospace;font-weight:700;">${decoded.serial}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#64748b;font-size:13px;">${isAr ? 'الرقم التسلسلي' : 'Serial'}</span><span style="font-family:monospace;font-weight:700;">${decoded.serial}</span></div>
     </div>
   `;
 }
@@ -1733,179 +1795,4 @@ function updateLiveUI() {
   setValue('battery', lastValues.battery, v=>v.toFixed(2)); setValue('fuelLevel', lastValues.fuelLevel, v=>v.toFixed(0));
   setValue('distClr', lastValues.distClr, v=>v.toFixed(0)); setValue('distCel', lastValues.distCel, v=>v.toFixed(0));
   setValue('runtime', lastValues.runtime, v=>v.toFixed(0));
-  const fs = lastValues.fuelStatus;
-  if (fs !== undefined) {
-    const map = { 1:'محرك يعمل', 2:'إشعال فقط', 3:'حلقة مغلقة', 4:'حلقة مفتوحة - حرارة', 5:'حلقة مفتوحة - حمل' };
-    const el = document.getElementById('p-fuelStatus');
-    if (el) el.textContent = map[fs] || '—';
-  }
-  colorize('coolant', 75, 105, 'range'); colorize('battery', 12.4, 14.8, 'range');
-  ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
-  
-  if (chartRpmInstance || chartSpeedInstance || chartCoolantInstance) {
-    updateCharts(lastValues);
-  }
-}
-
-function setValue(key, val, fmt) {
-  const el = document.getElementById('p-' + key);
-  if (el) el.textContent = (val === undefined || val === null) ? '--' : fmt(val);
-}
-
-function colorize(key, min, max, mode) {
-  const box = document.getElementById('p-' + key)?.closest('.data-box');
-  if (!box) return;
-  const v = lastValues[key];
-  if (v === undefined || v === null) return;
-  box.classList.remove('good', 'warn', 'bad');
-  const val = (mode === 'abs') ? Math.abs(v) : v;
-  if (mode === 'abs') {
-    if (val <= min) box.classList.add('good'); else if (val <= max) box.classList.add('warn'); else box.classList.add('bad');
-  } else {
-    if (v >= min && v <= max) box.classList.add('good'); else if (v < min * 0.9 || v > max * 1.1) box.classList.add('bad'); else box.classList.add('warn');
-  }
-}
-
-async function liveLoop() {
-  if (!characteristic) return;
-  const pids = Object.keys(PID_DEFS);
-  for (let i = 0; i < pids.length; i += 3) {
-    const batch = pids.slice(i, i + 3);
-    await Promise.all(batch.map(async pid => {
-      const val = await readPID(pid);
-      if (val !== null && !isNaN(val)) lastValues[PID_DEFS[pid].key] = val;
-    }));
-  }
-  updateLiveUI(); runAutoAnalysis();
-  if (liveRecording) recordingData.push({ time: Date.now(), ...lastValues });
-}
-
-function startLive() { 
-  if (liveInterval) return; 
-  log('▶️ بدء القراءة الحية...'); 
-  setTimeout(() => {
-    if (!chartRpmInstance) initCharts();
-    else {
-      chartRpmInstance.resize();
-      chartSpeedInstance.resize();
-      chartCoolantInstance.resize();
-    }
-  }, 400);
-  liveInterval = setInterval(liveLoop, 2000); 
-  liveLoop(); 
-}
-function stopLive() { if (liveInterval) clearInterval(liveInterval); liveInterval = null; log('⏸️ تم إيقاف القراءة'); }
-
-function runAutoAnalysis() {
-  const el = document.getElementById('autoAnalysis');
-  if (!el) return;
-  const items = []; const v = lastValues;
-  ['stft1','ltft1','stft2','ltft2'].forEach(k => { if (v[k] !== undefined && Math.abs(v[k]) > 10) items.push({ icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — احتمال تسرب هواء` }); });
-  if (v.coolant !== undefined) {
-    if (v.coolant < 75 && v.runtime > 300) items.push({ icon:'❄️', text:`حرارة المحرك ${v.coolant}°C — ترموستات عاطل` });
-    if (v.coolant > 105) items.push({ icon:'🔥', text:`حرارة المحرك ${v.coolant}°C — ارتفاع حرارة!` });
-  }
-  if (v.battery !== undefined) {
-    if (v.battery < 12.4 && v.rpm > 500) items.push({ icon:'🔋', text:`جهد البطارية ${v.battery}V — الدينامو لا يشحن` });
-  }
-  ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => { if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` }); });
-  if (items.length === 0) el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
-  else el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
-}
-
-function exportCSV() {
-  if (!recordingData.length) { alert('لا توجد بيانات مسجلة'); return; }
-  const keys = Object.keys(recordingData[0]);
-  const csv = '\uFEFF' + keys.join(',') + '\n' + recordingData.map(r => keys.map(k => r[k] ?? '').join(',')).join('\n');
-  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `diga-log-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
-  a.click(); log('💾 تم تصدير ' + recordingData.length + ' قراءة');
-}
-
-/* =====================================================
-   الوضع التجريبي
-===================================================== */
-let demoTimer = null;
-function startDemo() {
-  log('🧪 وضع تجريبي مفعل');
-  setStatus('وضع تجريبي', true);
-  const demoDTCs = [
-    { code: 'P0301', system: 'المحرك' }, { code: 'P0171', system: 'المحرك' },
-    { code: 'P0420', system: 'العوادم' }, { code: 'C0035', system: 'ABS' },
-    { code: 'B0001', system: 'الوسائد الهوائية' }, { code: 'U0100', system: 'الكهرباء' }
-  ];
-  renderFaults(demoDTCs); displayFault(demoDTCs[0].code);
-  const diagnoses = runSmartDiagnosis(demoDTCs.map(f => f.code));
-  displaySmartDiagnosis(demoDTCs.map(f => f.code));
-  displayHealthScore(demoDTCs, diagnoses);
-  showExportButton();
-  saveScanToCloud(demoDTCs, "DEMO-VIN-123", null);
-  saveScanToHistory(demoDTCs, "DEMO-VIN-123", diagnoses, null);
-  
-  // تهيئة الرسوم البيانية
-  setTimeout(() => {
-    if (!chartRpmInstance) initCharts();
-    else {
-      chartRpmInstance.resize();
-      chartSpeedInstance.resize();
-      chartCoolantInstance.resize();
-    }
-  }, 500);
-  
-  demoTimer = setInterval(() => {
-    lastValues = {
-      rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
-      throttle: Math.random()*80, timing: 10 + Math.random()*20, torque: 10 + Math.random()*70,
-      stft1: (Math.random()*20 - 10), ltft1: (Math.random()*15 - 7),
-      stft2: (Math.random()*20 - 10), ltft2: (Math.random()*15 - 7),
-      maf: 3 + Math.random()*15, map: 30 + Math.random()*40, fuelp: 300 + Math.random()*50, fuelr: 280 + Math.random()*40,
-      o2b1s1: 0.1 + Math.random()*0.8, o2b1s2: 0.1 + Math.random()*0.8,
-      o2b2s1: 0.1 + Math.random()*0.8, o2b2s2: 0.1 + Math.random()*0.8,
-      coolant: 85 + Math.random()*10, iat: 25 + Math.random()*10, ambient: 22 + Math.random()*8,
-      oil: 90 + Math.random()*15, battery: 13.8 + Math.random()*0.6, fuelLevel: 30 + Math.random()*50,
-      distClr: 120, distCel: 45, runtime: 420, fuelStatus: 1,
-    };
-    updateLiveUI(); runAutoAnalysis();
-  }, 1000);
-}
-
-function stopDemo() { if (demoTimer) clearInterval(demoTimer); demoTimer = null; }
-
-/* =====================================================
-   ربط الأزرار
-===================================================== */
-document.getElementById('btnConnect').addEventListener('click', connectBluetooth);
-document.getElementById('btnDemo').addEventListener('click', startDemo);
-document.getElementById('btnDisconnect').addEventListener('click', () => { stopDemo(); stopLive(); disconnectBluetooth(); });
-document.getElementById('btnClear').addEventListener('click', clearDTCs);
-document.getElementById('btnReadDTC').addEventListener('click', readDTCs);
-document.getElementById('btnScanAll').addEventListener('click', scanAllECUs);
-document.getElementById('btnReadVIN').addEventListener('click', readVIN);
-document.getElementById('btnStartLive').addEventListener('click', () => { liveRecording = true; startLive(); });
-document.getElementById('btnStopLive').addEventListener('click', stopLive);
-document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
-document.getElementById('btnExportPDF').addEventListener('click', exportPDF);
-document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
-document.getElementById('btnLoadStats').addEventListener('click', displayStats);
-
-document.getElementById('btnDecodeVIN').addEventListener('click', () => {
-  const vin = document.getElementById('vinInput').value.trim().toUpperCase();
-  if (vin.length !== 17) { alert('VIN يجب أن يكون 17 حرفاً'); return; }
-  document.getElementById('vinResult').textContent = vin;
-  displayVINInfo(vin);
-  saveScanToCloud([], vin, null);
-});
-
-loadDatabase();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW registered')).catch(e => console.warn('SW failed:', e));
-  });
-}
-</script>
-
-</body>
-</html>
+  const fs = lastValues.f
