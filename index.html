@@ -53,6 +53,7 @@
   .btn-red     { background: #f87171; color: #fff; }
   .btn-orange  { background: #fbbf24; color: #78350f; }
   .btn-gray    { background: #e2e8f0; color: #334155; }
+  .btn-green   { background: #10b981; color: #fff; }
 
   .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 
@@ -103,7 +104,6 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 
-  /* ====== السيارة ====== */
   .car-container {
     position: relative;
     background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -181,6 +181,15 @@
   .dtc-item:hover { background: #fee2e2; transform: translateX(-4px); }
   .dtc-item .code { font-weight: 700; color: #b91c1c; font-family: monospace; }
   .dtc-item .title { font-size: 13px; color: #334155; margin-top: 4px; }
+  .dtc-item .system-badge {
+    font-size: 11px;
+    background: #3b82f6;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-family: 'Cairo', sans-serif;
+  }
 
   .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .data-box {
@@ -222,6 +231,46 @@
   }
 
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
+
+  /* نافذة بيانات التجميد */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+  }
+  .modal-box h3 { margin-bottom: 16px; color: #1e293b; }
+  .modal-box .close-btn {
+    background: #ef4444; color: #fff; border: none;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-weight: 700; margin-top: 16px;
+  }
+  .freeze-item {
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 8px;
+    background: #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .freeze-item span:first-child { color: #64748b; }
+  .freeze-item span:last-child { color: #0f172a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -280,7 +329,10 @@
 
   <div class="card">
     <h3 style="margin-bottom:12px;">أكواد الأعطال (DTCs)</h3>
-    <button class="btn btn-orange" id="btnReadDTC" style="width:100%;margin-bottom:12px;">📋 قراءة الأعطال</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <button class="btn btn-orange" id="btnReadDTC" style="width:100%;">📋 فحص المحرك</button>
+      <button class="btn btn-green" id="btnScanAll" style="width:100%;">🔍 فحص جميع الأنظمة</button>
+    </div>
     <div id="dtcList" class="dtc-list">
       <p class="hint">لم يتم القراءة بعد.</p>
     </div>
@@ -289,7 +341,6 @@
 
 <!-- ============ البيانات الحية ============ -->
 <div class="panel" id="panel-live">
-
   <div class="card" style="display:flex;gap:8px;flex-wrap:wrap;">
     <button class="btn btn-blue" id="btnStartLive" style="flex:1;min-width:120px;">▶️ بدء القراءة</button>
     <button class="btn btn-red" id="btnStopLive" style="flex:1;min-width:100px;">⏸️ إيقاف</button>
@@ -371,52 +422,104 @@
   </div>
 </div>
 
+<!-- ============ نافذة بيانات التجميد ============ -->
+<div class="modal-overlay" id="freezeModal">
+  <div class="modal-box">
+    <h3 id="freezeTitle">❄️ بيانات التجميد (Freeze Frame)</h3>
+    <div id="freezeContent"></div>
+    <button class="close-btn" onclick="document.getElementById('freezeModal').classList.remove('active')">إغلاق</button>
+  </div>
+</div>
+
 <script>
 /* =====================================================
-   قاعدة بيانات أكواد الأعطال
+   قاعدة بيانات أكواد الأعطال الموسعة (Fallback)
 ===================================================== */
 const DTC_MAP = {
+  // المحرك
   P0171: { zone:"fuel", title:"خليط فقير (Bank 1)", desc:"تسرب هواء أو انسداد حاقن أو عطل MAF" },
   P0172: { zone:"fuel", title:"خليط غني (Bank 1)",  desc:"حاقن يسيل أو ضغط وقود مرتفع" },
   P0174: { zone:"fuel", title:"خليط فقير (Bank 2)", desc:"تسرب هواء أو مشكلة في حساس O2" },
+  P0175: { zone:"fuel", title:"خليط غني (Bank 2)",  desc:"حاقن يسيل أو ضغط وقود مرتفع" },
   P0087: { zone:"fuel", title:"ضغط وقود منخفض",     desc:"فلتر وقود مسدود أو مضخة ضعيفة" },
-  P0562: { zone:"battery", title:"جهد النظام منخفض", desc:"بطارية ضعيفة أو دينامو لا يشحن" },
-  P0563: { zone:"battery", title:"جهد النظام مرتفع", desc:"منظم الدينامو عاطل" },
-  P0128: { zone:"cooling", title:"ترموستات عاطل",       desc:"المحرك لا يصل لحرارة التشغيل" },
-  P0118: { zone:"cooling", title:"حساس حرارة معطل",     desc:"قراءة حرارة غير منطقية" },
-  P0217: { zone:"cooling", title:"ارتفاع حرارة المحرك", desc:"أوقف السيارة فوراً" },
-  P0700: { zone:"transmission", title:"عطل في ناقل الحركة",  desc:"افحص كمبيوتر الجير" },
-  P0730: { zone:"transmission", title:"نسبة تعشيق غير صحيحة", desc:"احتمال مشكلة في الكلتشات" },
-  P0741: { zone:"transmission", title:"قفل عاكس القوة",      desc:"Torque Converter لا يقفل" },
-  C0035: { zone:"brakes", title:"حساس سرعة العجلة الأمامي", desc:"افحص حساس ABS" },
-  C0040: { zone:"abs",    title:"خلل في وحدة ABS",          desc:"لا تعطّل فرامل ABS" },
-  P0504: { zone:"brakes", title:"مفتاح الفرامل",            desc:"تأكد من مفتاح دعسة الفرامل" },
-  P0420: { zone:"exhaust", title:"كتلايزر ضعيف",        desc:"قد تحتاج استبدال الكتلايزر" },
-  P0430: { zone:"exhaust", title:"كتلايزر Bank 2 ضعيف", desc:"افحص حساسات O2 الخلفية" },
-  P0401: { zone:"exhaust", title:"تدفق EGR ضعيف",       desc:"انسداد صمام EGR" },
-  B0001: { zone:"airbag", title:"عطل في الوسائد الهوائية", desc:"لا تهمل، قد لا تفتح عند الحادث" },
-  B0100: { zone:"airbag", title:"حساس صدمة",               desc:"افحص حساس الوسادة" },
+  P0088: { zone:"fuel", title:"ضغط وقود مرتفع",     desc:"منظم ضغط الوقود معطل" },
   P0300: { zone:"engine", title:"اشتعال متقطع متعدد",       desc:"بوجيهات، كويلات، أو حاقنات" },
   P0301: { zone:"engine", title:"اشتعال متقطع - السلندر 1", desc:"استبدل البوجيه والكويل" },
   P0302: { zone:"engine", title:"اشتعال متقطع - السلندر 2", desc:"افحص السلندر الثاني" },
   P0303: { zone:"engine", title:"اشتعال متقطع - السلندر 3", desc:"افحص السلندر الثالث" },
   P0304: { zone:"engine", title:"اشتعال متقطع - السلندر 4", desc:"افحص السلندر الرابع" },
+  P0305: { zone:"engine", title:"اشتعال متقطع - السلندر 5", desc:"افحص السلندر الخامس" },
+  P0306: { zone:"engine", title:"اشتعال متقطع - السلندر 6", desc:"افحص السلندر السادس" },
   P0340: { zone:"engine", title:"حساس الكام شافت",          desc:"قد يمنع التشغيل" },
   P0335: { zone:"engine", title:"حساس الكرنك",              desc:"السبب الأشهر لعدم التشغيل" },
   P0016: { zone:"engine", title:"تزامن الكرنك والكام",      desc:"احتمال سلسلة توقيت ممدودة" },
   P0524: { zone:"engine", title:"ضغط زيت منخفض",            desc:"أوقف المحرك فوراً" },
+  P0217: { zone:"cooling", title:"ارتفاع حرارة المحرك", desc:"أوقف السيارة فوراً" },
+  P0128: { zone:"cooling", title:"ترموستات عاطل",       desc:"المحرك لا يصل لحرارة التشغيل" },
+  P0118: { zone:"cooling", title:"حساس حرارة معطل",     desc:"قراءة حرارة غير منطقية" },
+  P0562: { zone:"battery", title:"جهد النظام منخفض", desc:"بطارية ضعيفة أو دينامو لا يشحن" },
+  P0563: { zone:"battery", title:"جهد النظام مرتفع", desc:"منظم الدينامو عاطل" },
+  // ناقل الحركة
+  P0700: { zone:"transmission", title:"عطل في ناقل الحركة",  desc:"افحص كمبيوتر الجير" },
+  P0730: { zone:"transmission", title:"نسبة تعشيق غير صحيحة", desc:"احتمال مشكلة في الكلتشات" },
+  P0741: { zone:"transmission", title:"قفل عاكس القوة",      desc:"Torque Converter لا يقفل" },
+  P0705: { zone:"transmission", title:"حساس نطاق ناقل الحركة", desc:"افحص حساس الوضعية" },
+  // الفرامل ABS
+  C0035: { zone:"brakes", title:"حساس سرعة العجلة الأمامي", desc:"افحص حساس ABS" },
+  C0040: { zone:"abs",    title:"خلل في وحدة ABS",          desc:"لا تعطّل فرامل ABS" },
+  C0045: { zone:"abs",    title:"حساس سرعة العجلة الخلفية", desc:"افحص حساس ABS الخلفي" },
+  P0504: { zone:"brakes", title:"مفتاح الفرامل",            desc:"تأكد من مفتاح دعسة الفرامل" },
+  // العوادم
+  P0420: { zone:"exhaust", title:"كتلايزر ضعيف",        desc:"قد تحتاج استبدال الكتلايزر" },
+  P0430: { zone:"exhaust", title:"كتلايزر Bank 2 ضعيف", desc:"افحص حساسات O2 الخلفية" },
+  P0401: { zone:"exhaust", title:"تدفق EGR ضعيف",       desc:"انسداد صمام EGR" },
+  P0402: { zone:"exhaust", title:"تدفق EGR زائد",       desc:"صمام EGR عالق مفتوح" },
+  // الوسائد الهوائية
+  B0001: { zone:"airbag", title:"عطل في الوسائد الهوائية", desc:"لا تهمل، قد لا تفتح عند الحادث" },
+  B0100: { zone:"airbag", title:"حساس صدمة",               desc:"افحص حساس الوسادة" },
+  B1000: { zone:"airbag", title:"عطل وحدة SRS",            desc:"افحص وحدة الوسائد الهوائية" },
+  // الكهرباء والشبكة
   U0100: { zone:"electronics", title:"فقدان الاتصال بـ ECU",   desc:"مشكلة في شبكة CAN أو كمبيوتر المحرك" },
   U0121: { zone:"electronics", title:"فقدان الاتصال بـ ABS",   desc:"افحص أسلاك وحدة ABS" },
   U0155: { zone:"electronics", title:"فقدان اتصال العدادات",   desc:"افحص أسلاك العدادات" },
+  U0101: { zone:"electronics", title:"فقدان الاتصال بناقل الحركة", desc:"افحص أسلاك كمبيوتر الجير" },
+  // حساسات O2
+  P0130: { zone:"fuel", title:"حساس O2 Bank1 S1", desc:"افحص الحساس الأمامي" },
+  P0135: { zone:"fuel", title:"سخان حساس O2 Bank1 S1", desc:"افحص دائرة التسخين" },
+  P0141: { zone:"exhaust", title:"سخان حساس O2 Bank1 S2", desc:"افحص الحساس الخلفي" },
+  // VVT
+  P0010: { zone:"engine", title:"دائرة VVT Bank1", desc:"افحص صمام توقيت الصمامات" },
+  P0011: { zone:"engine", title:"توقيت VVT Bank1", desc:"صمام VVT عالق" },
+  // نظام الوقود
+  P0230: { zone:"fuel", title:"دائرة مضخة الوقود", desc:"افحص المرحل والمضخة" },
+  P0231: { zone:"fuel", title:"مضخة وقود - جهد منخفض", desc:"افحص أسلاك المضخة" },
+  P0232: { zone:"fuel", title:"مضخة وقود - جهد مرتفع", desc:"افحص المرحل" },
 };
+
+let DTC_DATABASE = { ...DTC_MAP };
 
 function getFaultInfo(code) {
   const clean = String(code).trim().toUpperCase();
-  return DTC_MAP[clean] || {
+  return DTC_DATABASE[clean] || {
     zone:"engine",
     title:"عطل غير معروف",
-    desc:"كود غير مسجل في قاعدة البيانات"
+    desc:"كود غير مسجل في قاعدة البيانات. ابحث عنه في الإنترنت."
   };
+}
+
+/* =====================================================
+   تحميل قاعدة البيانات الخارجية (اختياري)
+===================================================== */
+async function loadDatabase() {
+  try {
+    const response = await fetch('dtc_database.json');
+    if (!response.ok) throw new Error('الملف غير موجود');
+    const externalData = await response.json();
+    DTC_DATABASE = { ...DTC_MAP, ...externalData };
+    log('✅ تم تحميل قاعدة بيانات خارجية (' + Object.keys(externalData).length + ' كود إضافي)');
+  } catch (e) {
+    log('ℹ️ يتم استخدام قاعدة البيانات المحلية (' + Object.keys(DTC_MAP).length + ' كود)');
+  }
 }
 
 /* =====================================================
@@ -570,7 +673,7 @@ async function sendCommand(cmd, waitMs = 400) {
 }
 
 /* =====================================================
-   قراءة الأعطال
+   قراءة أعطال المحرك (OBD-II القياسي)
 ===================================================== */
 async function readDTCs() {
   const list = document.getElementById('dtcList');
@@ -578,11 +681,13 @@ async function readDTCs() {
     list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً أو استخدم الوضع التجريبي.</p>';
     return;
   }
-  log('📋 قراءة الأعطال...');
+  log('📋 قراءة أعطال المحرك...');
+  await sendCommand('AT SH 7E0', 200);
   const resp = await sendCommand('03', 800);
   const codes = parseDTCs(resp);
-  renderDTCs(codes);
-  if (codes.length > 0) displayFault(codes[0]);
+  const faults = codes.map(c => ({ code: c, system: 'المحرك' }));
+  renderFaults(faults);
+  if (faults.length > 0) displayFault(faults[0].code);
   else clearCarDisplay();
 }
 
@@ -602,19 +707,100 @@ function parseDTCs(raw) {
   return codes;
 }
 
-function renderDTCs(codes) {
+/* =====================================================
+   🔍 مسح جميع الأنظمة (UDS)
+===================================================== */
+const ECU_LIST = [
+  { addr: '7E0', name: 'المحرك' },
+  { addr: '7E1', name: 'ناقل الحركة' },
+  { addr: '7E2', name: 'نظام الدفع' },
+  { addr: '7E3', name: 'ABS' },
+  { addr: '7E4', name: 'ABS (بديل)' },
+  { addr: '7E5', name: 'التوجيه الكهربائي' },
+  { addr: '7E6', name: 'الوسائد الهوائية' },
+  { addr: '7E7', name: 'التكييف' }
+];
+
+async function scanAllECUs() {
   const list = document.getElementById('dtcList');
-  if (!codes.length) {
-    list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة.</p>';
+  if (!characteristic) {
+    list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>';
     return;
   }
-  list.innerHTML = codes.map(c => {
-    const info = getFaultInfo(c);
-    return `<div class="dtc-item" data-code="${c}">
-      <div class="code">${c}</div>
+  
+  log('🚀 بدء المسح الشامل لجميع الأنظمة...');
+  list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات... (قد يستغرق دقيقة)</p>';
+  
+  // إعداد الجهاز لاستقبال UDS
+  await sendCommand('AT CRA 7E8', 200);
+  await sendCommand('AT CAF1', 200);
+
+  let allFaults = [];
+  
+  for (const ecu of ECU_LIST) {
+    log(`🔍 فحص: ${ecu.name} (${ecu.addr})...`);
+    await sendCommand(`AT SH ${ecu.addr}`, 200);
+    const resp = await sendCommand('19 02 FF', 700);
+    
+    if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
+      const codes = parseUDS_Response(resp);
+      codes.forEach(c => allFaults.push({ code: c.code, system: ecu.name }));
+      if (codes.length > 0) log(`⚠️ ${codes.length} عطل في ${ecu.name}`);
+    }
+  }
+  
+  // إعادة العنوان الافتراضي
+  await sendCommand('AT SH 7E0', 200);
+  
+  renderFaults(allFaults);
+  log(`✅ اكتمل الفحص. إجمالي الأعطال المكتشفة: ${allFaults.length}`);
+  
+  if (allFaults.length > 0) displayFault(allFaults[0].code);
+  else clearCarDisplay();
+}
+
+function parseUDS_Response(raw) {
+  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
+  const match = clean.match(/5902([0-9A-F]+)/);
+  if (!match) return [];
+  const hex = match[1];
+  const codes = [];
+  for (let i = 0; i + 8 <= hex.length; i += 8) {
+    const dtcHex = hex.substring(i, i + 6);
+    const firstByte = parseInt(dtcHex.substring(0, 2), 16);
+    const secondByte = parseInt(dtcHex.substring(2, 4), 16);
+    const letter = ['P','C','B','U'][(firstByte >> 6) & 0x03];
+    const d1 = (firstByte >> 4) & 0x03;
+    const d2 = firstByte & 0x0F;
+    const d3 = (secondByte >> 4) & 0x0F;
+    const d4 = secondByte & 0x0F;
+    const code = `${letter}${d1}${d2}${d3}${d4}`;
+    if (code !== 'P0000' && dtcHex !== '000000') codes.push({ code });
+  }
+  return codes;
+}
+
+/* =====================================================
+   عرض الأعطال (مع اسم النظام)
+===================================================== */
+function renderFaults(faults) {
+  const list = document.getElementById('dtcList');
+  if (!faults.length) {
+    list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة في أي نظام.</p>';
+    return;
+  }
+  
+  list.innerHTML = faults.map(f => {
+    const info = getFaultInfo(f.code);
+    return `<div class="dtc-item" data-code="${f.code}">
+      <div class="code">
+        <span class="system-badge">${f.system}</span>
+        ${f.code}
+      </div>
       <div class="title">${info.title}</div>
     </div>`;
   }).join('');
+  
   list.querySelectorAll('.dtc-item').forEach(el => {
     el.addEventListener('click', () => displayFault(el.dataset.code));
   });
@@ -661,7 +847,7 @@ function parseVIN(raw) {
 }
 
 /* =====================================================
-   🚀 البيانات الحية الموسّعة (27 معلمة)
+   البيانات الحية (27 PID)
 ===================================================== */
 const PID_DEFS = {
   '010C': { key:'rpm',         bytes:2, calc:(a,b)=>((256*a+b)/4) },
@@ -879,15 +1065,22 @@ function exportCSV() {
 }
 
 /* =====================================================
-   وضع تجريبي
+   الوضع التجريبي
 ===================================================== */
 let demoTimer = null;
 function startDemo() {
   log('🧪 وضع تجريبي مفعّل');
   setStatus('وضع تجريبي', true);
-  const demoDTCs = ['P0301', 'P0171', 'P0420'];
-  renderDTCs(demoDTCs);
-  displayFault(demoDTCs[0]);
+  const demoDTCs = [
+    { code: 'P0301', system: 'المحرك' },
+    { code: 'P0171', system: 'المحرك' },
+    { code: 'P0420', system: 'العوادم' },
+    { code: 'C0035', system: 'ABS' },
+    { code: 'B0001', system: 'الوسائد الهوائية' },
+    { code: 'U0100', system: 'الكهرباء' }
+  ];
+  renderFaults(demoDTCs);
+  displayFault(demoDTCs[0].code);
 
   demoTimer = setInterval(() => {
     lastValues = {
@@ -940,6 +1133,7 @@ document.getElementById('btnDisconnect').addEventListener('click', () => {
 });
 document.getElementById('btnClear').addEventListener('click', clearDTCs);
 document.getElementById('btnReadDTC').addEventListener('click', readDTCs);
+document.getElementById('btnScanAll').addEventListener('click', scanAllECUs);
 document.getElementById('btnReadVIN').addEventListener('click', readVIN);
 document.getElementById('btnStartLive').addEventListener('click', () => {
   liveRecording = true;
@@ -947,6 +1141,11 @@ document.getElementById('btnStartLive').addEventListener('click', () => {
 });
 document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+
+/* =====================================================
+   تحميل قاعدة البيانات عند بدء الموقع
+===================================================== */
+loadDatabase();
 </script>
 
 </body>
