@@ -8,13 +8,8 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Cairo', sans-serif;
-    background: #f1f5f9;
-    color: #1e293b;
-    padding: 16px;
-    max-width: 900px;
-    margin: 0 auto;
-    padding-bottom: 60px;
+    font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b;
+    padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px;
   }
   h1 { text-align: center; font-size: 28px; margin-bottom: 6px; }
   .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
@@ -60,13 +55,10 @@
     margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   .car-container {
-    position: relative;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    position: relative; background: linear-gradient(135deg, #0f172a, #1e293b);
     border-radius: 20px; padding: 20px; overflow: hidden; margin-bottom: 16px;
   }
   .car-svg { width: 100%; height: auto; display: block; }
-  .car-body { transition: all 0.4s ease; }
-  .car-glass { transition: 0.3s; }
   .zone { cursor: pointer; opacity: 0; transition: opacity 0.3s; }
   .zone rect, .zone circle.brake-zone {
     fill: rgba(59,130,246,0.15); stroke: #3b82f6;
@@ -298,78 +290,152 @@ const DTC_MAP = {
 let DTC_DATABASE = { ...DTC_MAP };
 
 /* =====================================================
-   تحميل قاعدة البيانات مع ذاكرة تخزين محلية (Cache)
+   نظام تحميل متقدم بقاعدة بيانات مقسمة (Lazy Loading)
 ===================================================== */
-const DB_CACHE_KEY = 'dtc_database_v1';
-const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+const DB_VERSION = 'v3';
+const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
+const CACHE_KEY_PREFIX = 'dtc_ext_' + DB_VERSION + '_';
+const CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30 يوم
 
-async function loadDatabase() {
-  // 1. حاول جلب البيانات من الذاكرة المحلية أولاً
+const DB_FILES = {
+  P: 'dtc_p.json',
+  C: 'dtc_c.json',
+  B: 'dtc_b.json',
+  U: 'dtc_u.json'
+};
+
+const loadedCategories = new Set();
+let loadingPromise = null;
+
+function decompressEntry(entry) {
+  if (Array.isArray(entry)) {
+    return { zone: entry[0] || 'engine', title: entry[1] || '', desc: entry[2] || '' };
+  }
+  return entry;
+}
+
+async function fetchJSON(url) {
+  const response = await fetch(url + '?v=' + DB_VERSION);
+  if (!response.ok) throw new Error('HTTP ' + response.status);
+  return response.json();
+}
+
+async function saveToCache(key, data) {
   try {
-    const cached = localStorage.getItem(DB_CACHE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
-        DTC_DATABASE = { ...DTC_MAP, ...parsed.data };
-        log(`⚡ تم تحميل قاعدة البيانات من الذاكرة المحلية (${Object.keys(parsed.data).length} كود)`);
-        return;
+    if ('indexedDB' in window) {
+      const db = await openIDB();
+      const tx = db.transaction('cache', 'readwrite');
+      tx.objectStore('cache').put({ key, data, timestamp: Date.now() });
+      await tx.complete;
+    } else {
+      localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+    }
+  } catch (e) { console.warn('Cache save failed:', e); }
+}
+
+async function loadFromCache(key) {
+  try {
+    if ('indexedDB' in window) {
+      const db = await openIDB();
+      const tx = db.transaction('cache', 'readonly');
+      const result = await tx.objectStore('cache').get(key);
+      if (result && (Date.now() - result.timestamp) < CACHE_EXPIRY) return result.data;
+    } else {
+      const cached = localStorage.getItem(key);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < CACHE_EXPIRY) return parsed.data;
       }
     }
-  } catch (e) { /* تجاهل الأخطاء */ }
-
-  // 2. إذا لم توجد ذاكرة، اجلب الملف من الشبكة
-  try {
-    log('🌐 تحميل قاعدة البيانات من الخادم...');
-    const response = await fetch('dtc_database.json?v=' + Date.now());
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    const externalData = await response.json();
-    
-    DTC_DATABASE = { ...DTC_MAP, ...externalData };
-    
-    // حفظ في الذاكرة المحلية للاستخدام مستقبلاً
-    localStorage.setItem(DB_CACHE_KEY, JSON.stringify({
-      timestamp: Date.now(),
-      data: externalData
-    }));
-    
-    log(`✅ تم تحميل ${Object.keys(externalData).length} كود خارجي + ${Object.keys(DTC_MAP).length} كود محلي`);
-  } catch (e) {
-    log(`⚠️ فشل تحميل قاعدة البيانات: ${e.message}. سيتم استخدام القاعدة المحلية فقط.`);
-    DTC_DATABASE = { ...DTC_MAP };
-  }
+  } catch (e) { console.warn('Cache load failed:', e); }
+  return null;
 }
 
-function getFaultInfo(code) {
-  const clean = String(code).trim().toUpperCase();
-  return DTC_DATABASE[clean] || {
-    zone:"engine", title:"عطل غير معروف",
-    desc:"كود غير مسجل في قاعدة البيانات. ابحث عنه في الإنترنت."
-  };
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('DigaDB', 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore('cache', { keyPath: 'key' }); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 
-/* =====================================================
-   البحث الذكي في قاعدة البيانات
-===================================================== */
-function searchDTC(query) {
-  const resultsDiv = document.getElementById('searchResults');
-  const q = query.trim().toUpperCase();
-  
-  if (q.length < 2) {
-    resultsDiv.innerHTML = '';
+async function loadDatabase() {
+  const cached = await loadFromCache(CACHE_KEY_CORE);
+  if (cached) {
+    applyCompressedData(cached);
+    log(`⚡ قاعدة أساسية من الذاكرة (${Object.keys(cached).length} كود)`);
     return;
   }
-  
-  const matches = Object.entries(DTC_DATABASE).filter(([code, info]) => {
-    return code.includes(q) || 
-           (info.title && info.title.includes(query)) ||
-           (info.desc && info.desc.includes(query));
-  }).slice(0, 20);
-  
+  try {
+    log('🌐 تحميل القاعدة الأساسية...');
+    const coreData = await fetchJSON('dtc_core.json');
+    applyCompressedData(coreData);
+    await saveToCache(CACHE_KEY_CORE, coreData);
+    log(`✅ تم تحميل ${Object.keys(coreData).length} كود أساسي`);
+  } catch (e) { log('⚠️ فشل تحميل القاعدة الأساسية، استخدام المحلية'); }
+}
+
+function applyCompressedData(data) {
+  for (const [code, entry] of Object.entries(data)) {
+    DTC_DATABASE[code] = decompressEntry(entry);
+  }
+}
+
+async function loadCategory(category) {
+  if (loadedCategories.has(category) || !DB_FILES[category]) return;
+  loadingPromise = (async () => {
+    const cacheKey = CACHE_KEY_PREFIX + category;
+    let data = await loadFromCache(cacheKey);
+    if (data) {
+      applyCompressedData(data);
+      loadedCategories.add(category);
+      log(`⚡ فئة ${category} من الذاكرة (${Object.keys(data).length} كود)`);
+      return;
+    }
+    try {
+      log(`🌐 تحميل فئة ${category}...`);
+      data = await fetchJSON(DB_FILES[category]);
+      applyCompressedData(data);
+      await saveToCache(cacheKey, data);
+      loadedCategories.add(category);
+      log(`✅ فئة ${category}: ${Object.keys(data).length} كود`);
+    } catch (e) { log(`⚠️ فشل تحميل فئة ${category}`); }
+  })();
+  await loadingPromise;
+  loadingPromise = null;
+}
+
+let searchTimer = null;
+function searchDTC(query) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => performSearch(query), 200);
+}
+
+async function performSearch(query) {
+  const resultsDiv = document.getElementById('searchResults');
+  const q = query.trim().toUpperCase();
+  if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
+
+  const firstLetter = q[0];
+  if (['P','C','B','U'].includes(firstLetter) && !loadedCategories.has(firstLetter)) {
+    resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد ' + firstLetter + '...</p>';
+    await loadCategory(firstLetter);
+  }
+
+  const matches = [];
+  for (const [code, info] of Object.entries(DTC_DATABASE)) {
+    if (matches.length >= 20) break;
+    if (code.includes(q) || (info.title && info.title.includes(query)) || (info.desc && info.desc.includes(query))) {
+      matches.push([code, info]);
+    }
+  }
+
   if (matches.length === 0) {
     resultsDiv.innerHTML = `<p class="hint">لا توجد نتائج لـ "${query}"</p>`;
     return;
   }
-  
+
   resultsDiv.innerHTML = `
     <p style="font-size:13px;color:#64748b;margin-bottom:8px;">تم العثور على ${matches.length} نتيجة:</p>
     <div class="dtc-list">
@@ -381,7 +447,7 @@ function searchDTC(query) {
       `).join('')}
     </div>
   `;
-  
+
   resultsDiv.querySelectorAll('.dtc-item').forEach(el => {
     el.addEventListener('click', () => {
       displayFault(el.dataset.code);
@@ -432,7 +498,7 @@ function playAlertSound() {
 }
 
 /* =====================================================
-   التبويبات
+   التبويبات وسجل الرسائل
 ===================================================== */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -443,9 +509,6 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-/* =====================================================
-   سجل الرسائل
-===================================================== */
 function log(msg) {
   const c = document.getElementById('console');
   const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -457,6 +520,14 @@ function setStatus(text, connected) {
   const s = document.getElementById('status');
   s.textContent = text;
   s.classList.toggle('connected', !!connected);
+}
+
+function getFaultInfo(code) {
+  const clean = String(code).trim().toUpperCase();
+  return DTC_DATABASE[clean] || {
+    zone:"engine", title:"عطل غير معروف",
+    desc:"كود غير مسجل في قاعدة البيانات. ابحث عنه في الإنترنت."
+  };
 }
 
 /* =====================================================
@@ -573,46 +644,33 @@ function parseDTCs(raw) {
    مسح جميع الأنظمة (UDS)
 ===================================================== */
 const ECU_LIST = [
-  { addr: '7E0', name: 'المحرك' },
-  { addr: '7E1', name: 'ناقل الحركة' },
-  { addr: '7E2', name: 'نظام الدفع' },
-  { addr: '7E3', name: 'ABS' },
-  { addr: '7E4', name: 'ABS (بديل)' },
-  { addr: '7E5', name: 'التوجيه الكهربائي' },
-  { addr: '7E6', name: 'الوسائد الهوائية' },
-  { addr: '7E7', name: 'التكييف' }
+  { addr: '7E0', name: 'المحرك' }, { addr: '7E1', name: 'ناقل الحركة' },
+  { addr: '7E2', name: 'نظام الدفع' }, { addr: '7E3', name: 'ABS' },
+  { addr: '7E4', name: 'ABS (بديل)' }, { addr: '7E5', name: 'التوجيه الكهربائي' },
+  { addr: '7E6', name: 'الوسائد الهوائية' }, { addr: '7E7', name: 'التكييف' }
 ];
 
 async function scanAllECUs() {
   const list = document.getElementById('dtcList');
-  if (!characteristic) {
-    list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>';
-    return;
-  }
+  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>'; return; }
   log('🚀 بدء المسح الشامل لجميع الأنظمة...');
-  list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات... (قد يستغرق دقيقة)</p>';
-  
+  list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات...</p>';
   await sendCommand('AT CRA 7E8', 200);
   await sendCommand('AT CAF1', 200);
-
   let allFaults = [];
-  
   for (const ecu of ECU_LIST) {
-    log(`🔍 فحص: ${ecu.name} (${ecu.addr})...`);
+    log(`🔍 فحص: ${ecu.name}...`);
     await sendCommand(`AT SH ${ecu.addr}`, 200);
     const resp = await sendCommand('19 02 FF', 700);
-    
     if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
       const codes = parseUDS_Response(resp);
       codes.forEach(c => allFaults.push({ code: c.code, system: ecu.name }));
       if (codes.length > 0) log(`⚠️ ${codes.length} عطل في ${ecu.name}`);
     }
   }
-  
   await sendCommand('AT SH 7E0', 200);
   renderFaults(allFaults);
-  log(`✅ اكتمل الفحص. إجمالي الأعطال المكتشفة: ${allFaults.length}`);
-  
+  log(`✅ اكتمل الفحص. إجمالي الأعطال: ${allFaults.length}`);
   if (allFaults.length > 0) displayFault(allFaults[0].code);
   else clearCarDisplay();
 }
@@ -628,11 +686,7 @@ function parseUDS_Response(raw) {
     const firstByte = parseInt(dtcHex.substring(0, 2), 16);
     const secondByte = parseInt(dtcHex.substring(2, 4), 16);
     const letter = ['P','C','B','U'][(firstByte >> 6) & 0x03];
-    const d1 = (firstByte >> 4) & 0x03;
-    const d2 = firstByte & 0x0F;
-    const d3 = (secondByte >> 4) & 0x0F;
-    const d4 = secondByte & 0x0F;
-    const code = `${letter}${d1}${d2}${d3}${d4}`;
+    const code = `${letter}${(firstByte >> 4) & 0x03}${firstByte & 0x0F}${(secondByte >> 4) & 0x0F}${secondByte & 0x0F}`;
     if (code !== 'P0000' && dtcHex !== '000000') codes.push({ code });
   }
   return codes;
@@ -650,9 +704,7 @@ function renderFaults(faults) {
   list.innerHTML = faults.map(f => {
     const info = getFaultInfo(f.code);
     return `<div class="dtc-item" data-code="${f.code}">
-      <div class="code">
-        <span class="system-badge">${f.system}</span>${f.code}
-      </div>
+      <div class="code"><span class="system-badge">${f.system}</span>${f.code}</div>
       <div class="title">${info.title}</div>
     </div>`;
   }).join('');
@@ -662,7 +714,7 @@ function renderFaults(faults) {
 }
 
 /* =====================================================
-   مسح الأعطال
+   مسح الأعطال و VIN
 ===================================================== */
 async function clearDTCs() {
   if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
@@ -673,9 +725,6 @@ async function clearDTCs() {
   clearCarDisplay();
 }
 
-/* =====================================================
-   قراءة VIN
-===================================================== */
 async function readVIN() {
   if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
   log('🔍 قراءة VIN...');
@@ -691,8 +740,7 @@ function parseVIN(raw) {
   const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
   const match = clean.match(/490201([0-9A-F]{34})/);
   if (!match) return null;
-  let hex = match[1];
-  let vin = '';
+  let hex = match[1]; let vin = '';
   for (let i = 0; i < hex.length; i += 2) {
     const code = parseInt(hex.substr(i, 2), 16);
     if (code === 0) continue;
@@ -705,34 +753,20 @@ function parseVIN(raw) {
    البيانات الحية
 ===================================================== */
 const PID_DEFS = {
-  '010C': { key:'rpm',         bytes:2, calc:(a,b)=>((256*a+b)/4) },
-  '010D': { key:'speed',       bytes:1, calc:(a)=>a },
-  '0104': { key:'load',        bytes:1, calc:(a)=>a*100/255 },
-  '0111': { key:'throttle',    bytes:1, calc:(a)=>a*100/255 },
-  '010E': { key:'timing',      bytes:1, calc:(a)=>a/2-64 },
-  '0162': { key:'torque',      bytes:1, calc:(a)=>a-125 },
-  '0106': { key:'stft1',       bytes:1, calc:(a)=>(a-128)*100/128 },
-  '0107': { key:'ltft1',       bytes:1, calc:(a)=>(a-128)*100/128 },
-  '0108': { key:'stft2',       bytes:1, calc:(a)=>(a-128)*100/128 },
-  '0109': { key:'ltft2',       bytes:1, calc:(a)=>(a-128)*100/128 },
-  '0110': { key:'maf',         bytes:2, calc:(a,b)=>(256*a+b)/100 },
-  '010B': { key:'map',         bytes:1, calc:(a)=>a },
-  '010A': { key:'fuelp',       bytes:1, calc:(a)=>a*3 },
-  '0122': { key:'fuelr',       bytes:2, calc:(a,b)=>(256*a+b)*0.079 },
-  '0114': { key:'o2b1s1',      bytes:2, calc:(a)=>a/200 },
-  '0115': { key:'o2b1s2',      bytes:2, calc:(a)=>a/200 },
-  '0118': { key:'o2b2s1',      bytes:2, calc:(a)=>a/200 },
-  '0119': { key:'o2b2s2',      bytes:2, calc:(a)=>a/200 },
-  '0105': { key:'coolant',     bytes:1, calc:(a)=>a-40 },
-  '010F': { key:'iat',         bytes:1, calc:(a)=>a-40 },
-  '0146': { key:'ambient',     bytes:1, calc:(a)=>a-40 },
-  '015C': { key:'oil',         bytes:1, calc:(a)=>a-40 },
-  '0142': { key:'battery',     bytes:2, calc:(a,b)=>(256*a+b)/1000 },
-  '012F': { key:'fuelLevel',   bytes:1, calc:(a)=>a*100/255 },
-  '0131': { key:'distClr',     bytes:2, calc:(a,b)=>256*a+b },
-  '0121': { key:'distCel',     bytes:2, calc:(a,b)=>256*a+b },
-  '011F': { key:'runtime',     bytes:2, calc:(a,b)=>256*a+b },
-  '0151': { key:'fuelStatus',  bytes:1, calc:(a)=>a },
+  '010C': { key:'rpm', bytes:2, calc:(a,b)=>((256*a+b)/4) }, '010D': { key:'speed', bytes:1, calc:(a)=>a },
+  '0104': { key:'load', bytes:1, calc:(a)=>a*100/255 }, '0111': { key:'throttle', bytes:1, calc:(a)=>a*100/255 },
+  '010E': { key:'timing', bytes:1, calc:(a)=>a/2-64 }, '0162': { key:'torque', bytes:1, calc:(a)=>a-125 },
+  '0106': { key:'stft1', bytes:1, calc:(a)=>(a-128)*100/128 }, '0107': { key:'ltft1', bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0108': { key:'stft2', bytes:1, calc:(a)=>(a-128)*100/128 }, '0109': { key:'ltft2', bytes:1, calc:(a)=>(a-128)*100/128 },
+  '0110': { key:'maf', bytes:2, calc:(a,b)=>(256*a+b)/100 }, '010B': { key:'map', bytes:1, calc:(a)=>a },
+  '010A': { key:'fuelp', bytes:1, calc:(a)=>a*3 }, '0122': { key:'fuelr', bytes:2, calc:(a,b)=>(256*a+b)*0.079 },
+  '0114': { key:'o2b1s1', bytes:2, calc:(a)=>a/200 }, '0115': { key:'o2b1s2', bytes:2, calc:(a)=>a/200 },
+  '0118': { key:'o2b2s1', bytes:2, calc:(a)=>a/200 }, '0119': { key:'o2b2s2', bytes:2, calc:(a)=>a/200 },
+  '0105': { key:'coolant', bytes:1, calc:(a)=>a-40 }, '010F': { key:'iat', bytes:1, calc:(a)=>a-40 },
+  '0146': { key:'ambient', bytes:1, calc:(a)=>a-40 }, '015C': { key:'oil', bytes:1, calc:(a)=>a-40 },
+  '0142': { key:'battery', bytes:2, calc:(a,b)=>(256*a+b)/1000 }, '012F': { key:'fuelLevel', bytes:1, calc:(a)=>a*100/255 },
+  '0131': { key:'distClr', bytes:2, calc:(a,b)=>256*a+b }, '0121': { key:'distCel', bytes:2, calc:(a,b)=>256*a+b },
+  '011F': { key:'runtime', bytes:2, calc:(a,b)=>256*a+b }, '0151': { key:'fuelStatus', bytes:1, calc:(a)=>a },
 };
 
 let lastValues = {};
@@ -748,48 +782,32 @@ async function readPID(pid) {
 
 function parsePIDResponse(pid, raw) {
   const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
-  const expected = '41' + pid.substring(2);
-  const idx = clean.indexOf(expected);
+  const idx = clean.indexOf('41' + pid.substring(2));
   if (idx === -1) return null;
-  const dataHex = clean.substring(idx + expected.length);
+  const dataHex = clean.substring(idx + 4);
   const def = PID_DEFS[pid];
   if (!def) return null;
   const bytes = [];
-  for (let i = 0; i < def.bytes * 2; i += 2) {
-    bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
-  }
+  for (let i = 0; i < def.bytes * 2; i += 2) bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
   if (bytes.some(isNaN)) return null;
   return def.calc(...bytes);
 }
 
 function updateLiveUI() {
-  setValue('rpm',        lastValues.rpm,        v=>v.toFixed(0));
-  setValue('speed',      lastValues.speed,      v=>v.toFixed(0));
-  setValue('load',       lastValues.load,       v=>v.toFixed(1));
-  setValue('throttle',   lastValues.throttle,   v=>v.toFixed(1));
-  setValue('timing',     lastValues.timing,     v=>v.toFixed(1));
-  setValue('torque',     lastValues.torque,     v=>v.toFixed(0));
-  setValue('stft1',      lastValues.stft1,      v=>v.toFixed(1));
-  setValue('ltft1',      lastValues.ltft1,      v=>v.toFixed(1));
-  setValue('stft2',      lastValues.stft2,      v=>v.toFixed(1));
-  setValue('ltft2',      lastValues.ltft2,      v=>v.toFixed(1));
-  setValue('maf',        lastValues.maf,        v=>v.toFixed(2));
-  setValue('map',        lastValues.map,        v=>v.toFixed(0));
-  setValue('fuelp',      lastValues.fuelp,      v=>v.toFixed(0));
-  setValue('fuelr',      lastValues.fuelr,      v=>v.toFixed(1));
-  setValue('o2b1s1',     lastValues.o2b1s1,     v=>v.toFixed(2));
-  setValue('o2b1s2',     lastValues.o2b1s2,     v=>v.toFixed(2));
-  setValue('o2b2s1',     lastValues.o2b2s1,     v=>v.toFixed(2));
-  setValue('o2b2s2',     lastValues.o2b2s2,     v=>v.toFixed(2));
-  setValue('coolant',    lastValues.coolant,    v=>v.toFixed(0));
-  setValue('iat',        lastValues.iat,        v=>v.toFixed(0));
-  setValue('ambient',    lastValues.ambient,    v=>v.toFixed(0));
-  setValue('oil',        lastValues.oil,        v=>v.toFixed(0));
-  setValue('battery',    lastValues.battery,    v=>v.toFixed(2));
-  setValue('fuelLevel',  lastValues.fuelLevel,  v=>v.toFixed(0));
-  setValue('distClr',    lastValues.distClr,    v=>v.toFixed(0));
-  setValue('distCel',    lastValues.distCel,    v=>v.toFixed(0));
-  setValue('runtime',    lastValues.runtime,    v=>v.toFixed(0));
+  setValue('rpm', lastValues.rpm, v=>v.toFixed(0)); setValue('speed', lastValues.speed, v=>v.toFixed(0));
+  setValue('load', lastValues.load, v=>v.toFixed(1)); setValue('throttle', lastValues.throttle, v=>v.toFixed(1));
+  setValue('timing', lastValues.timing, v=>v.toFixed(1)); setValue('torque', lastValues.torque, v=>v.toFixed(0));
+  setValue('stft1', lastValues.stft1, v=>v.toFixed(1)); setValue('ltft1', lastValues.ltft1, v=>v.toFixed(1));
+  setValue('stft2', lastValues.stft2, v=>v.toFixed(1)); setValue('ltft2', lastValues.ltft2, v=>v.toFixed(1));
+  setValue('maf', lastValues.maf, v=>v.toFixed(2)); setValue('map', lastValues.map, v=>v.toFixed(0));
+  setValue('fuelp', lastValues.fuelp, v=>v.toFixed(0)); setValue('fuelr', lastValues.fuelr, v=>v.toFixed(1));
+  setValue('o2b1s1', lastValues.o2b1s1, v=>v.toFixed(2)); setValue('o2b1s2', lastValues.o2b1s2, v=>v.toFixed(2));
+  setValue('o2b2s1', lastValues.o2b2s1, v=>v.toFixed(2)); setValue('o2b2s2', lastValues.o2b2s2, v=>v.toFixed(2));
+  setValue('coolant', lastValues.coolant, v=>v.toFixed(0)); setValue('iat', lastValues.iat, v=>v.toFixed(0));
+  setValue('ambient', lastValues.ambient, v=>v.toFixed(0)); setValue('oil', lastValues.oil, v=>v.toFixed(0));
+  setValue('battery', lastValues.battery, v=>v.toFixed(2)); setValue('fuelLevel', lastValues.fuelLevel, v=>v.toFixed(0));
+  setValue('distClr', lastValues.distClr, v=>v.toFixed(0)); setValue('distCel', lastValues.distCel, v=>v.toFixed(0));
+  setValue('runtime', lastValues.runtime, v=>v.toFixed(0));
 
   const fs = lastValues.fuelStatus;
   if (fs !== undefined) {
@@ -797,16 +815,13 @@ function updateLiveUI() {
     const el = document.getElementById('p-fuelStatus');
     if (el) el.textContent = map[fs] || '—';
   }
-
-  colorize('coolant', 75, 105, 'range');
-  colorize('battery', 12.4, 14.8, 'range');
+  colorize('coolant', 75, 105, 'range'); colorize('battery', 12.4, 14.8, 'range');
   ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
 }
 
 function setValue(key, val, fmt) {
   const el = document.getElementById('p-' + key);
-  if (!el) return;
-  el.textContent = (val === undefined || val === null) ? '--' : fmt(val);
+  if (el) el.textContent = (val === undefined || val === null) ? '--' : fmt(val);
 }
 
 function colorize(key, min, max, mode) {
@@ -817,100 +832,61 @@ function colorize(key, min, max, mode) {
   box.classList.remove('good', 'warn', 'bad');
   const val = (mode === 'abs') ? Math.abs(v) : v;
   if (mode === 'abs') {
-    if (val <= min) box.classList.add('good');
-    else if (val <= max) box.classList.add('warn');
-    else box.classList.add('bad');
+    if (val <= min) box.classList.add('good'); else if (val <= max) box.classList.add('warn'); else box.classList.add('bad');
   } else {
-    if (v >= min && v <= max) box.classList.add('good');
-    else if (v < min * 0.9 || v > max * 1.1) box.classList.add('bad');
-    else box.classList.add('warn');
+    if (v >= min && v <= max) box.classList.add('good'); else if (v < min * 0.9 || v > max * 1.1) box.classList.add('bad'); else box.classList.add('warn');
   }
 }
 
 async function liveLoop() {
   if (!characteristic) return;
   const pids = Object.keys(PID_DEFS);
-  const batchSize = 3;
-  for (let i = 0; i < pids.length; i += batchSize) {
-    const batch = pids.slice(i, i + batchSize);
+  for (let i = 0; i < pids.length; i += 3) {
+    const batch = pids.slice(i, i + 3);
     await Promise.all(batch.map(async pid => {
       const val = await readPID(pid);
-      if (val !== null && val !== undefined && !isNaN(val)) {
-        lastValues[PID_DEFS[pid].key] = val;
-      }
+      if (val !== null && !isNaN(val)) lastValues[PID_DEFS[pid].key] = val;
     }));
   }
-  updateLiveUI();
-  runAutoAnalysis();
+  updateLiveUI(); runAutoAnalysis();
   if (liveRecording) recordingData.push({ time: Date.now(), ...lastValues });
 }
 
-function startLive() {
-  if (liveInterval) return;
-  log('▶️ بدء القراءة الحية...');
-  liveInterval = setInterval(liveLoop, 2000);
-  liveLoop();
-}
-
-function stopLive() {
-  if (liveInterval) clearInterval(liveInterval);
-  liveInterval = null;
-  log('⏸️ تم إيقاف القراءة');
-}
+function startLive() { if (liveInterval) return; log('▶️ بدء القراءة الحية...'); liveInterval = setInterval(liveLoop, 2000); liveLoop(); }
+function stopLive() { if (liveInterval) clearInterval(liveInterval); liveInterval = null; log('⏸️ تم إيقاف القراءة'); }
 
 function runAutoAnalysis() {
   const el = document.getElementById('autoAnalysis');
   if (!el) return;
-  const items = [];
-  const v = lastValues;
-
-  ['stft1','ltft1','stft2','ltft2'].forEach(k => {
-    if (v[k] !== undefined && Math.abs(v[k]) > 10) {
-      items.push({ icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — احتمال تسرب هواء أو مشكلة وقود` });
-    }
-  });
+  const items = []; const v = lastValues;
+  ['stft1','ltft1','stft2','ltft2'].forEach(k => { if (v[k] !== undefined && Math.abs(v[k]) > 10) items.push({ icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — احتمال تسرب هواء` }); });
   if (v.coolant !== undefined) {
-    if (v.coolant < 75 && v.runtime > 300) items.push({ icon:'❄️', text:`حرارة المحرك ${v.coolant}°C — ترموستات قد يكون عاطلاً` });
+    if (v.coolant < 75 && v.runtime > 300) items.push({ icon:'❄️', text:`حرارة المحرك ${v.coolant}°C — ترموستات عاطل` });
     if (v.coolant > 105) items.push({ icon:'🔥', text:`حرارة المحرك ${v.coolant}°C — ارتفاع حرارة!` });
   }
   if (v.battery !== undefined) {
     if (v.battery < 12.4 && v.rpm > 500) items.push({ icon:'🔋', text:`جهد البطارية ${v.battery}V — الدينامو لا يشحن` });
-    if (v.battery > 15) items.push({ icon:'⚡', text:`جهد مرتفع ${v.battery}V — منظم الدينامو` });
+    if (v.battery > 15) items.push({ icon:'⚡', text:`جهد مرتفع ${v.battery}V` });
   }
-  ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => {
-    if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) {
-      items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` });
-    }
-  });
-  if (v.maf !== undefined && v.rpm !== undefined && v.rpm > 500) {
+  ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => { if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` }); });
+  if (v.maf !== undefined && v.rpm > 500) {
     const ratio = v.maf / (v.rpm / 1000);
-    if (ratio < 1.5) items.push({ icon:'🌬️', text:`MAF منخفض نسبةً للـ RPM — تحقق من فلتر الهواء` });
-    if (ratio > 8)   items.push({ icon:'🌬️', text:`MAF مرتفع — احتمال تسرب هواء` });
+    if (ratio < 1.5) items.push({ icon:'🌬️', text:`MAF منخفض` });
+    if (ratio > 8) items.push({ icon:'🌬️', text:`MAF مرتفع — تسرب هواء` });
   }
-  if (v.map !== undefined && v.rpm < 1000 && v.map > 50) {
-    items.push({ icon:'🌫️', text:`MAP ${v.map} kPa مع RPM منخفض — احتمال مشكلة فاكيوم` });
-  }
-  if (items.length === 0) {
-    el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
-  } else {
-    el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
-  }
+  if (items.length === 0) el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
+  else el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
 }
 
 function exportCSV() {
   if (!recordingData.length) { alert('لا توجد بيانات مسجلة'); return; }
   const keys = Object.keys(recordingData[0]);
-  const header = keys.join(',');
-  const rows = recordingData.map(r => keys.map(k => r[k] ?? '').join(','));
-  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
+  const csv = '\uFEFF' + keys.join(',') + '\n' + recordingData.map(r => keys.map(k => r[k] ?? '').join(',')).join('\n');
   const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
+  a.href = URL.createObjectURL(blob);
   a.download = `diga-log-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  log('💾 تم تصدير ' + recordingData.length + ' قراءة');
+  a.click(); log('💾 تم تصدير ' + recordingData.length + ' قراءة');
 }
 
 /* =====================================================
@@ -921,66 +897,46 @@ function startDemo() {
   log('🧪 وضع تجريبي مفعّل');
   setStatus('وضع تجريبي', true);
   const demoDTCs = [
-    { code: 'P0301', system: 'المحرك' },
-    { code: 'P0171', system: 'المحرك' },
-    { code: 'P0420', system: 'العوادم' },
-    { code: 'C0035', system: 'ABS' },
-    { code: 'B0001', system: 'الوسائد الهوائية' },
-    { code: 'U0100', system: 'الكهرباء' }
+    { code: 'P0301', system: 'المحرك' }, { code: 'P0171', system: 'المحرك' },
+    { code: 'P0420', system: 'العوادم' }, { code: 'C0035', system: 'ABS' },
+    { code: 'B0001', system: 'الوسائد الهوائية' }, { code: 'U0100', system: 'الكهرباء' }
   ];
-  renderFaults(demoDTCs);
-  displayFault(demoDTCs[0].code);
+  renderFaults(demoDTCs); displayFault(demoDTCs[0].code);
 
   demoTimer = setInterval(() => {
     lastValues = {
-      rpm: 800 + Math.random()*2500, speed: Math.random()*120,
-      load: 20 + Math.random()*60, throttle: Math.random()*80,
-      timing: 10 + Math.random()*20, torque: 10 + Math.random()*70,
+      rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
+      throttle: Math.random()*80, timing: 10 + Math.random()*20, torque: 10 + Math.random()*70,
       stft1: (Math.random()*20 - 10), ltft1: (Math.random()*15 - 7),
       stft2: (Math.random()*20 - 10), ltft2: (Math.random()*15 - 7),
-      maf: 3 + Math.random()*15, map: 30 + Math.random()*40,
-      fuelp: 300 + Math.random()*50, fuelr: 280 + Math.random()*40,
+      maf: 3 + Math.random()*15, map: 30 + Math.random()*40, fuelp: 300 + Math.random()*50, fuelr: 280 + Math.random()*40,
       o2b1s1: 0.1 + Math.random()*0.8, o2b1s2: 0.1 + Math.random()*0.8,
       o2b2s1: 0.1 + Math.random()*0.8, o2b2s2: 0.1 + Math.random()*0.8,
-      coolant: 85 + Math.random()*10, iat: 25 + Math.random()*10,
-      ambient: 22 + Math.random()*8, oil: 90 + Math.random()*15,
-      battery: 13.8 + Math.random()*0.6, fuelLevel: 30 + Math.random()*50,
+      coolant: 85 + Math.random()*10, iat: 25 + Math.random()*10, ambient: 22 + Math.random()*8,
+      oil: 90 + Math.random()*15, battery: 13.8 + Math.random()*0.6, fuelLevel: 30 + Math.random()*50,
       distClr: 120, distCel: 45, runtime: 420, fuelStatus: 1,
     };
-    updateLiveUI();
-    runAutoAnalysis();
+    updateLiveUI(); runAutoAnalysis();
   }, 1000);
 }
 
-function stopDemo() {
-  if (demoTimer) clearInterval(demoTimer);
-  demoTimer = null;
-}
+function stopDemo() { if (demoTimer) clearInterval(demoTimer); demoTimer = null; }
 
 /* =====================================================
-   ربط الأزرار
+   ربط الأزرار وتشغيل التطبيق
 ===================================================== */
 document.getElementById('btnConnect').addEventListener('click', connectBluetooth);
 document.getElementById('btnDemo').addEventListener('click', startDemo);
-document.getElementById('btnDisconnect').addEventListener('click', () => {
-  stopDemo(); stopLive(); disconnectBluetooth();
-});
+document.getElementById('btnDisconnect').addEventListener('click', () => { stopDemo(); stopLive(); disconnectBluetooth(); });
 document.getElementById('btnClear').addEventListener('click', clearDTCs);
 document.getElementById('btnReadDTC').addEventListener('click', readDTCs);
 document.getElementById('btnScanAll').addEventListener('click', scanAllECUs);
 document.getElementById('btnReadVIN').addEventListener('click', readVIN);
-document.getElementById('btnStartLive').addEventListener('click', () => {
-  liveRecording = true; startLive();
-});
+document.getElementById('btnStartLive').addEventListener('click', () => { liveRecording = true; startLive(); });
 document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
 
-/* ربط البحث */
-document.getElementById('dtcSearchInput').addEventListener('input', (e) => {
-  searchDTC(e.target.value);
-});
-
-/* تحميل قاعدة البيانات */
 loadDatabase();
 </script>
 
