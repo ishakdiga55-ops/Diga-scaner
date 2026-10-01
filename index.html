@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔧 CheckDiga — أداة فحص السيارات</title>
+<meta name="theme-color" content="#3b82f6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="أداة فحص السيارات المتكاملة - قراءة الأعطال، البيانات الحية، التشخيص الذكي">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -129,7 +133,7 @@
       <button class="btn btn-orange" id="btnReadDTC" style="width:100%;">📋 فحص المحرك</button>
       <button class="btn btn-green" id="btnScanAll" style="width:100%;">🔍 فحص جميع الأنظمة</button>
     </div>
-    <input type="text" class="search-input" id="dtcSearchInput" placeholder="🔍 ابحث عن كود (مثل P0301) أو وصف..." style="margin-bottom:12px;">
+    <input type="text" class="search-input" id="dtcSearchInput" placeholder="🔍 ابحث عن كود (مثل P0301 أو P1B00)..." style="margin-bottom:12px;">
     <div id="searchResults"></div>
     <div id="dtcList" class="dtc-list">
       <p class="hint">لم يتم القراءة بعد.</p>
@@ -315,7 +319,7 @@ const VIN_WMI = {
   'YV1': 'فولفو (Volvo)', 'YV4': 'فولفو (Volvo)', 'YS3': 'ساب (Saab)',
   'LFV': 'فولكس فاجن الصين', 'LGB': 'دونغ فينغ (Dongfeng)',
   'LJD': 'جاك (JAC)', 'LSV': 'سايك موتور (SAIC)',
-  'LSV': 'سايك موتور (SAIC)', 'LGX': 'BYD', 'LDC': 'شيري (Chery)',
+  'LGX': 'BYD', 'LDC': 'شيري (Chery)',
   'MA3': 'ماروتي سوزوكي (Maruti Suzuki)', 'MAT': 'تاتا (Tata)',
   'MEE': 'ماهيندرا (Mahindra)',
   '9BD': 'فيات البرازيل', '9BW': 'فولكس فاجن البرازيل',
@@ -362,226 +366,91 @@ function validateVIN(vin) {
    🧠 قاعدة قواعد التشخيص الذكي
 ===================================================== */
 const DIAGNOSTIC_RULES = [
-  {
-    required: ['P0171', 'P0174'],
-    title: 'تسرب هواء في نظام السحب',
-    confidence: 90, severity: 'high',
+  { required: ['P0171', 'P0174'], title: 'تسرب هواء في نظام السحب', confidence: 90, severity: 'high',
     description: 'خليط فقير في البنكين معاً — السبب الأشهر هو دخول هواء غير محسوب إلى المحرك.',
-    actions: ['افحص خراطيم الفاكيوم', 'افحص حشوة مشعب السحب', 'افحص حساس MAF', 'افحص غطاء الزيت']
-  },
-  {
-    required: ['P0171'],
-    anyOf: ['P0300', 'P0301', 'P0302', 'P0303', 'P0304'],
-    title: 'تسرب هواء يسبب اشتعال متقطع',
-    confidence: 85, severity: 'high',
+    actions: ['افحص خراطيم الفاكيوم', 'افحص حشوة مشعب السحب', 'افحص حساس MAF', 'افحص غطاء الزيت'] },
+  { required: ['P0171'], anyOf: ['P0300', 'P0301', 'P0302', 'P0303', 'P0304'],
+    title: 'تسرب هواء يسبب اشتعال متقطع', confidence: 85, severity: 'high',
     description: 'الخليط الفقير أدى إلى اشتعال متقطع. المشكلة الأساسية هي تسرب الهواء وليس البواجي.',
-    actions: ['افحص تسرب الهواء أولاً', 'افحص خرطوم الفرامل', 'افحص مشعب السحب بالدخان', 'لا تستبدل البواجي قبل إصلاح التسرب']
-  },
-  {
-    required: ['P0171', 'P0101'],
-    title: 'عطل في حساس MAF',
-    confidence: 80, severity: 'high',
+    actions: ['افحص تسرب الهواء أولاً', 'افحص خرطوم الفرامل', 'افحص مشعب السحب بالدخان', 'لا تستبدل البواجي قبل إصلاح التسرب'] },
+  { required: ['P0171', 'P0101'], title: 'عطل في حساس MAF', confidence: 80, severity: 'high',
     description: 'حساس MAF يعطي قراءات غير دقيقة مما يسبب خليطاً فقيراً.',
-    actions: ['نظف حساس MAF ببخاخ مخصص', 'افحص أسلاك الحساس', 'افحص فلتر الهواء']
-  },
-  {
-    required: ['P0300'],
-    anyOf: ['P0301','P0302','P0303','P0304','P0305','P0306'],
-    title: 'مشكلة في نظام الإشعال',
-    confidence: 75, severity: 'medium',
+    actions: ['نظف حساس MAF ببخاخ مخصص', 'افحص أسلاك الحساس', 'افحص فلتر الهواء'] },
+  { required: ['P0300'], anyOf: ['P0301','P0302','P0303','P0304','P0305','P0306'],
+    title: 'مشكلة في نظام الإشعال', confidence: 75, severity: 'medium',
     description: 'اشتعال متقطع في أكثر من سلندر — غالباً بسبب البواجي أو الكويلات.',
-    actions: ['استبدل البواجي كلها', 'افحص الكويلات', 'افحص ضغط الوقود']
-  },
-  {
-    required: ['P0351'],
-    title: 'عطل في كويل السلندر A',
-    confidence: 95, severity: 'high',
+    actions: ['استبدل البواجي كلها', 'افحص الكويلات', 'افحص ضغط الوقود'] },
+  { required: ['P0351'], title: 'عطل في كويل السلندر A', confidence: 95, severity: 'high',
     description: 'كويل الإشعال لا يعمل بشكل صحيح.',
-    actions: ['استبدل الكويل A', 'افحص البوجيه', 'افحص أسلاك الكويل']
-  },
-  {
-    required: ['P0335'],
-    title: 'عطل في حساس الكرنك',
-    confidence: 95, severity: 'critical',
+    actions: ['استبدل الكويل A', 'افحص البوجيه', 'افحص أسلاك الكويل'] },
+  { required: ['P0335'], title: 'عطل في حساس الكرنك', confidence: 95, severity: 'critical',
     description: 'حساس الكرنك لا يعمل — قد يمنع تشغيل المحرك تماماً.',
-    actions: ['استبدل حساس الكرنك', 'افحص الأسلاك والموصلات', 'لا تحاول تشغيل السيارة بشكل متكرر']
-  },
-  {
-    required: ['P0016'],
-    title: 'مشكلة في سلسلة التوقيت',
-    confidence: 90, severity: 'critical',
+    actions: ['استبدل حساس الكرنك', 'افحص الأسلاك والموصلات', 'لا تحاول تشغيل السيارة بشكل متكرر'] },
+  { required: ['P0016'], title: 'مشكلة في سلسلة التوقيت', confidence: 90, severity: 'critical',
     description: 'عدم تزامن بين عمود الكرنك والكام — قد تكون السلسلة ممدودة.',
-    actions: ['افحص سلسلة التوقيت فوراً', 'لا تقد السيارة قبل الفحص', 'قد تحتاج استبدال السلسلة']
-  },
-  {
-    required: ['P0420', 'P0430'],
-    title: 'تلف الكتلايزر في البنكين',
-    confidence: 95, severity: 'high',
+    actions: ['افحص سلسلة التوقيت فوراً', 'لا تقد السيارة قبل الفحص', 'قد تحتاج استبدال السلسلة'] },
+  { required: ['P0420', 'P0430'], title: 'تلف الكتلايزر في البنكين', confidence: 95, severity: 'high',
     description: 'كفاءة المحول الحفاز منخفضة في البنكين — غالباً تلف دائم.',
-    actions: ['استبدل الكتلايزر', 'افحص حساسات O2', 'افحص سبب التلف الأصلي (اشتعال متقطع)']
-  },
-  {
-    required: ['P0420'],
-    anyOf: ['P0300','P0301','P0302','P0303','P0304'],
-    title: 'تلف الكتلايزر بسبب اشتعال متقطع',
-    confidence: 90, severity: 'high',
+    actions: ['استبدل الكتلايزر', 'افحص حساسات O2', 'افحص سبب التلف الأصلي'] },
+  { required: ['P0420'], anyOf: ['P0300','P0301','P0302','P0303','P0304'],
+    title: 'تلف الكتلايزر بسبب اشتعال متقطع', confidence: 90, severity: 'high',
     description: 'الاشتعال المتقطع أرسل وقوداً غير محترق إلى الكتلايزر وتلفه.',
-    actions: ['أصلح مشكلة الإشعال أولاً', 'ثم استبدل الكتلايزر', 'افحص حساسات O2']
-  },
-  {
-    required: ['P0401'],
-    title: 'انسداد صمام EGR',
-    confidence: 85, severity: 'medium',
+    actions: ['أصلح مشكلة الإشعال أولاً', 'ثم استبدل الكتلايزر', 'افحص حساسات O2'] },
+  { required: ['P0401'], title: 'انسداد صمام EGR', confidence: 85, severity: 'medium',
     description: 'تدفق EGR ضعيف — الصمام مسدود بالكربون.',
-    actions: ['نظف صمام EGR', 'افحص أنابيب EGR', 'استبدل الصمام إن لزم']
-  },
-  {
-    required: ['P0087'],
-    title: 'ضغط وقود منخفض',
-    confidence: 85, severity: 'high',
+    actions: ['نظف صمام EGR', 'افحص أنابيب EGR', 'استبدل الصمام إن لزم'] },
+  { required: ['P0087'], title: 'ضغط وقود منخفض', confidence: 85, severity: 'high',
     description: 'ضغط الوقود أقل من اللازم — قد يسبب فقدان قوة.',
-    actions: ['استبدل فلتر الوقود', 'افحص مضخة الوقود', 'افحص منظم الضغط']
-  },
-  {
-    required: ['P0230'],
-    title: 'عطل في مضخة الوقود',
-    confidence: 90, severity: 'high',
+    actions: ['استبدل فلتر الوقود', 'افحص مضخة الوقود', 'افحص منظم الضغط'] },
+  { required: ['P0230'], title: 'عطل في مضخة الوقود', confidence: 90, severity: 'high',
     description: 'دائرة مضخة الوقود لا تعمل بشكل صحيح.',
-    actions: ['افحص مرحل المضخة', 'افحص أسلاك المضخة', 'استبدل المضخة إن لزم']
-  },
-  {
-    required: ['P0442'],
-    title: 'تسرب صغير في نظام EVAP',
-    confidence: 80, severity: 'low',
+    actions: ['افحص مرحل المضخة', 'افحص أسلاك المضخة', 'استبدل المضخة إن لزم'] },
+  { required: ['P0442'], title: 'تسرب صغير في نظام EVAP', confidence: 80, severity: 'low',
     description: 'تسرب صغير في نظام انبعاثات البخار.',
-    actions: ['افحص غطاء الوقود', 'أعد إغلاق الغطاء جيداً', 'افحص الخراطيم']
-  },
-  {
-    required: ['P0455'],
-    title: 'تسرب كبير في نظام EVAP',
-    confidence: 90, severity: 'medium',
+    actions: ['افحص غطاء الوقود', 'أعد إغلاق الغطاء جيداً', 'افحص الخراطيم'] },
+  { required: ['P0455'], title: 'تسرب كبير في نظام EVAP', confidence: 90, severity: 'medium',
     description: 'تسرب واضح في نظام البخار — غالباً الغطاء غير محكم.',
-    actions: ['استبدل غطاء الوقود', 'افحص خراطيم EVAP', 'افحص الصمام']
-  },
-  {
-    required: ['P0128'],
-    title: 'ترموستات عاطل',
-    confidence: 90, severity: 'medium',
+    actions: ['استبدل غطاء الوقود', 'افحص خراطيم EVAP', 'افحص الصمام'] },
+  { required: ['P0128'], title: 'ترموستات عاطل', confidence: 90, severity: 'medium',
     description: 'المحرك لا يصل إلى حرارة التشغيل الطبيعية.',
-    actions: ['استبدل الترموستات', 'افحص حساس الحرارة', 'افحص مستوى سائل التبريد']
-  },
-  {
-    required: ['P0118'],
-    title: 'عطل في حساس حرارة المحرك',
-    confidence: 90, severity: 'medium',
+    actions: ['استبدل الترموستات', 'افحص حساس الحرارة', 'افحص مستوى سائل التبريد'] },
+  { required: ['P0118'], title: 'عطل في حساس حرارة المحرك', confidence: 90, severity: 'medium',
     description: 'حساس الحرارة يعطي قراءة خاطئة.',
-    actions: ['استبدل حساس الحرارة', 'افحص الأسلاك والموصلات']
-  },
-  {
-    required: ['P0217'],
-    title: 'ارتفاع حرارة المحرك',
-    confidence: 100, severity: 'critical',
+    actions: ['استبدل حساس الحرارة', 'افحص الأسلاك والموصلات'] },
+  { required: ['P0217'], title: 'ارتفاع حرارة المحرك', confidence: 100, severity: 'critical',
     description: '🚨 حرارة المحرك مرتفعة جداً — أوقف السيارة فوراً!',
-    actions: ['أوقف السيارة فوراً', 'لا تفتح غطاء الرديتر وهي ساخنة', 'افحص مستوى سائل التبريد', 'افحص مضخة الماء والمراوح']
-  },
-  {
-    required: ['P0562'],
-    title: 'جهد النظام منخفض',
-    confidence: 85, severity: 'high',
+    actions: ['أوقف السيارة فوراً', 'لا تفتح غطاء الرديتر وهي ساخنة', 'افحص مستوى سائل التبريد'] },
+  { required: ['P0562'], title: 'جهد النظام منخفض', confidence: 85, severity: 'high',
     description: 'جهد البطارية منخفض — قد لا تشتغل السيارة.',
-    actions: ['افحص البطارية', 'افحص الدينامو', 'افحص الأحزمة']
-  },
-  {
-    required: ['P0562', 'P0563'],
-    title: 'خلل في نظام الشحن',
-    confidence: 90, severity: 'high',
-    description: 'الجهد متقلب بين المرتفع والمنخفض — منظم الدينامو عاطل.',
-    actions: ['افحص منظم الدينامو', 'استبدل الدينامو إن لزم']
-  },
-  {
-    required: ['P0700'],
-    title: 'عطل في ناقل الحركة',
-    confidence: 95, severity: 'high',
-    description: 'كمبيوتر ناقل الحركة أرسل رمز عطل — يحتاج فحصاً متخصصاً.',
-    actions: ['افحص كمبيوتر الجير', 'افحص مستوى زيت الجير', 'راجع ورشة متخصصة']
-  },
-  {
-    required: ['P0730'],
-    title: 'نسبة تعشيق غير صحيحة',
-    confidence: 85, severity: 'high',
-    description: 'نسبة التعشيق لا تتوافق مع السرعة — مشكلة في الكلتشات.',
-    actions: ['افحص زيت الجير', 'افحص الكلتشات', 'راجع ورشة متخصصة']
-  },
-  {
-    required: ['P0218'],
-    title: 'ارتفاع حرارة ناقل الحركة',
-    confidence: 90, severity: 'high',
-    description: 'زيت ناقل الحركة ساخن جداً — قد يتلف الجير.',
-    actions: ['أوقف السيارة', 'افحص مستوى زيت الجير', 'افحص مبرد الجير']
-  },
-  {
-    required: ['U0100'],
-    title: 'فقدان الاتصال بكمبيوتر المحرك',
-    confidence: 90, severity: 'critical',
-    description: 'الموقع لا يستطيع التواصل مع كمبيوتر المحرك — قد لا تعمل السيارة.',
-    actions: ['افحص أسلاك الكمبيوتر', 'افحص الفيوزات', 'افحص شبكة CAN']
-  },
-  {
-    required: ['U0121'],
-    title: 'فقدان الاتصال بوحدة ABS',
-    confidence: 85, severity: 'high',
-    description: 'وحدة ABS لا تتواصل مع الكمبيوتر الرئيسي.',
-    actions: ['افحص أسلاك ABS', 'افحص الفيوزات', 'افحص وحدة ABS']
-  },
-  {
-    required: ['U0155'],
-    title: 'فقدان الاتصال بالعدادات',
-    confidence: 85, severity: 'medium',
-    description: 'لوحة العدادات لا تستقبل بيانات من الكمبيوتر.',
-    actions: ['افحص أسلاك العدادات', 'افحص الفيوزات']
-  },
-  {
-    required: ['B0001'],
-    title: 'عطل في نظام الوسائد الهوائية',
-    confidence: 90, severity: 'critical',
+    actions: ['افحص البطارية', 'افحص الدينامو', 'افحص الأحزمة'] },
+  { required: ['P0700'], title: 'عطل في ناقل الحركة', confidence: 95, severity: 'high',
+    description: 'كمبيوتر ناقل الحركة أرسل رمز عطل.',
+    actions: ['افحص كمبيوتر الجير', 'افحص مستوى زيت الجير', 'راجع ورشة متخصصة'] },
+  { required: ['U0100'], title: 'فقدان الاتصال بكمبيوتر المحرك', confidence: 90, severity: 'critical',
+    description: 'الموقع لا يستطيع التواصل مع كمبيوتر المحرك.',
+    actions: ['افحص أسلاك الكمبيوتر', 'افحص الفيوزات', 'افحص شبكة CAN'] },
+  { required: ['B0001'], title: 'عطل في نظام الوسائد الهوائية', confidence: 90, severity: 'critical',
     description: '🚨 نظام SRS معطل — الوسائد قد لا تفتح عند الحادث!',
-    actions: ['لا تهمل هذا العطل', 'افحص وحدة SRS', 'راجع ورشة متخصصة فوراً']
-  },
-  {
-    required: ['C0035'],
-    title: 'عطل في حساس سرعة العجلة',
-    confidence: 90, severity: 'high',
-    description: 'حساس سرعة العجلة الأمامي اليسار لا يعمل — ABS قد لا يعمل.',
-    actions: ['افحص حساس ABS', 'افحص الأسلاك', 'نظف حساس ABS']
-  },
-  {
-    required: ['C0040'],
-    title: 'عطل في حساس ABS الأمامي اليمين',
-    confidence: 90, severity: 'high',
-    description: 'حساس سرعة العجلة الأمامي اليمين لا يعمل.',
-    actions: ['افحص حساس ABS', 'افحص الأسلاك', 'نظف الحساس']
-  },
-  {
-    required: ['P0135'],
-    title: 'سخان حساس O2 معطل',
-    confidence: 85, severity: 'medium',
-    description: 'سخان حساس الأكسجين الأمامي لا يعمل — الحساس يبطؤ في الاستجابة.',
-    actions: ['استبدل حساس O2', 'افحص الفيوز', 'افحص الأسلاك']
-  },
-  {
-    required: ['P0010', 'P0011'],
-    title: 'عطل في نظام VVT',
-    confidence: 85, severity: 'medium',
-    description: 'نظام توقيت الصمامات المتغير لا يعمل بشكل صحيح.',
-    actions: ['افحص صمام VVT', 'تغيير الزيت', 'افحص الفلتر']
-  },
-  {
-    required: ['P0340'],
-    title: 'عطل في حساس الكام شافت',
-    confidence: 90, severity: 'high',
+    actions: ['لا تهمل هذا العطل', 'افحص وحدة SRS', 'راجع ورشة متخصصة فوراً'] },
+  { required: ['C0035'], title: 'عطل في حساس سرعة العجلة', confidence: 90, severity: 'high',
+    description: 'حساس سرعة العجلة الأمامي اليسار لا يعمل.',
+    actions: ['افحص حساس ABS', 'افحص الأسلاك', 'نظف حساس ABS'] },
+  { required: ['P0135'], title: 'سخان حساس O2 معطل', confidence: 85, severity: 'medium',
+    description: 'سخان حساس الأكسجين الأمامي لا يعمل.',
+    actions: ['استبدل حساس O2', 'افحص الفيوز', 'افحص الأسلاك'] },
+  { required: ['P0340'], title: 'عطل في حساس الكام شافت', confidence: 90, severity: 'high',
     description: 'حساس الكام شافت لا يعمل — قد يمنع التشغيل.',
-    actions: ['استبدل حساس الكام', 'افحص الأسلاك', 'افحص السلسلة']
-  }
+    actions: ['استبدل حساس الكام', 'افحص الأسلاك', 'افحص السلسلة'] },
+  // تشخيصات خاصة بالسيارات الصينية
+  { required: ['P0A80', 'P0A3F'], title: 'عطل في نظام تبريد بطارية الجر (EV)', confidence: 90, severity: 'critical',
+    description: 'بطارية الجهد العالي تعاني من ارتفاع حرارة مع خلايا منخفضة — خطر على السلامة.',
+    actions: ['أوقف الشحن فوراً', 'لا تشغل السيارة', 'راجع ورشة متخصصة في السيارات الكهربائية'] },
+  { required: ['P0AA6'], title: 'تسرب في عزل الجهد العالي (EV)', confidence: 100, severity: 'critical',
+    description: '🚨 خطر صعق كهربائي! تسرب في عزل نظام الجهد العالي.',
+    actions: ['توقف فوراً', 'لا تلمس أي أسلاك برتقالية', 'اتصل بفني كهرباء سيارات فوراً'] },
+  { required: ['B1A52'], title: 'عطل في نظام التوجيه الكهربائي', confidence: 90, severity: 'high',
+    description: 'نظام EPS يعاني من عطل — المقود قد يصبح ثقيلاً.',
+    actions: ['افحص وحدة EPS', 'افحص الفيوزات', 'راجع ورشة متخصصة'] }
 ];
 
 function runSmartDiagnosis(faultCodes) {
@@ -649,13 +518,13 @@ function displaySmartDiagnosis(faultCodes) {
 }
 
 /* =====================================================
-   نظام تحميل قاعدة البيانات
+   نظام تحميل قاعدة البيانات (مع دعم السيارات الصينية)
 ===================================================== */
-const DB_VERSION = 'v3';
+const DB_VERSION = 'v4';
 const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
 const CACHE_KEY_PREFIX = 'dtc_ext_' + DB_VERSION + '_';
 const CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000;
-const DB_FILES = { P: 'dtc_p.json', C: 'dtc_c.json', B: 'dtc_b.json', U: 'dtc_u.json' };
+const DB_FILES = { P: 'dtc_p.json', C: 'dtc_c.json', B: 'dtc_b.json', U: 'dtc_u.json', CN: 'dtc_chinese.json' };
 const loadedCategories = new Set();
 
 function decompressEntry(entry) {
@@ -759,11 +628,21 @@ async function performSearch(query) {
   const resultsDiv = document.getElementById('searchResults');
   const q = query.trim().toUpperCase();
   if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
+  
   const firstLetter = q[0];
   if (['P','C','B','U'].includes(firstLetter) && !loadedCategories.has(firstLetter)) {
     resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد ' + firstLetter + '...</p>';
     await loadCategory(firstLetter);
   }
+  
+  // تحميل الأكواد الصينية عند البحث عن P1, P2, P3
+  if (q.startsWith('P1') || q.startsWith('P2') || q.startsWith('P3')) {
+    if (!loadedCategories.has('CN')) {
+      resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد السيارات الصينية...</p>';
+      await loadCategory('CN');
+    }
+  }
+  
   const matches = [];
   for (const [code, info] of Object.entries(DTC_DATABASE)) {
     if (matches.length >= 20) break;
@@ -1130,7 +1009,7 @@ function displayVINInfo(vin) {
       </div>
     </div>
     <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:10px;font-size:12px;color:#1e40af;">
-      💡 <strong>ملاحظة:</strong> المعلومات مبنية على شيفرة VIN العالمية. للحصول على تفاصيل الموديل والمحرك بدقة، يفضل الرجوع لموقع الشركة المصنعة.
+      💡 <strong>ملاحظة:</strong> المعلومات مبنية على شيفرة VIN العالمية.
     </div>
   `;
 }
@@ -1327,6 +1206,17 @@ document.getElementById('btnDecodeVIN').addEventListener('click', () => {
 });
 
 loadDatabase();
+
+/* =====================================================
+   تسجيل Service Worker (PWA)
+===================================================== */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('✅ تم تسجيل Service Worker'))
+      .catch(err => console.warn('⚠️ فشل تسجيل Service Worker:', err));
+  });
+}
 </script>
 
 </body>
