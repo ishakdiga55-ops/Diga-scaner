@@ -9,6 +9,7 @@
 <meta name="description" content="أداة فحص السيارات المتكاملة - قراءة الأعطال، البيانات الحية، التشخيص الذكي">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b; padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px; }
@@ -70,6 +71,9 @@
   .group-title { font-size: 16px; margin-bottom: 12px; color: #1e293b; border-right: 4px solid #3b82f6; padding-right: 10px; }
   .analysis-item { padding: 8px 12px; margin: 6px 0; border-radius: 8px; background: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; font-size: 14px; }
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
+  .health-badge { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-radius:14px; margin-bottom:16px; color:#fff; font-weight:700; }
+  .health-badge .score { font-size:32px; }
+  .health-badge .label { font-size:14px; opacity:0.9; }
 </style>
 </head>
 <body>
@@ -92,11 +96,14 @@
   <button class="tab active" data-tab="faults">🛠️ الأعطال</button>
   <button class="tab" data-tab="live">📊 بيانات حية</button>
   <button class="tab" data-tab="vin">🔍 VIN</button>
+  <button class="tab" data-tab="history">📁 السجل</button>
   <button class="tab" data-tab="stats">📈 إحصائيات</button>
 </div>
 
 <!-- ============ الأعطال ============ -->
 <div class="panel active" id="panel-faults">
+  <div id="healthBadge" style="display:none;"></div>
+  
   <div class="car-container">
     <svg viewBox="0 0 800 400" class="car-svg" id="carSvg">
       <path d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
@@ -126,6 +133,16 @@
   </div>
 
   <div id="smartDiagnosis" style="display:none;"></div>
+
+  <div class="card" id="exportCard" style="display:none;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-right:4px solid #10b981;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-weight:700;color:#065f46;font-size:15px;">📄 شارك نتائج الفحص</div>
+        <div style="font-size:12px;color:#047857;margin-top:4px;">احصل على تقرير PDF احترافي</div>
+      </div>
+      <button class="btn btn-green" id="btnExportPDF" style="padding:12px 20px;">📄 تصدير PDF</button>
+    </div>
+  </div>
 
   <div class="card">
     <h3 style="margin-bottom:12px;">أكواد الأعطال (DTCs)</h3>
@@ -211,6 +228,15 @@
     <button class="btn btn-blue" id="btnDecodeVIN" style="width:100%;margin-bottom:12px;">🔎 فك الشيفرة</button>
     <div id="vinResult" style="font-family:monospace;font-size:14px;text-align:center;padding:14px;background:#f8fafc;border-radius:10px;color:#334155;margin-bottom:12px;">لم يتم القراءة بعد.</div>
     <div id="vinInfo"></div>
+  </div>
+</div>
+
+<!-- ============ السجل ============ -->
+<div class="panel" id="panel-history">
+  <div class="card">
+    <h3 class="group-title">📁 سجل الفحوصات</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px;">آخر 50 فحص محفوظ في هاتفك (يعمل بدون إنترنت).</p>
+    <div id="historyContent"><p class="hint">⏳ جاري التحميل...</p></div>
   </div>
 </div>
 
@@ -336,12 +362,7 @@ function decodeVIN(vin) {
   const year = VIN_YEARS[yearChar] || 'غير معروف';
   const plant = 'مصنع ' + v[10];
   const serial = v.substring(11, 17);
-  return {
-    vin: v, country, manufacturer, wmi, year, plant, serial,
-    region: v.substring(0, 3),
-    vds: v.substring(3, 8),
-    checkDigit: v[8]
-  };
+  return { vin: v, country, manufacturer, wmi, year, plant, serial, region: v.substring(0, 3), vds: v.substring(3, 8), checkDigit: v[8] };
 }
 
 function validateVIN(vin) {
@@ -374,23 +395,23 @@ const DIAGNOSTIC_RULES = [
     description: 'الخليط الفقير أدى إلى اشتعال متقطع. المشكلة الأساسية هي تسرب الهواء وليس البواجي.',
     actions: ['افحص تسرب الهواء أولاً', 'افحص خرطوم الفرامل', 'افحص مشعب السحب بالدخان', 'لا تستبدل البواجي قبل إصلاح التسرب'] },
   { required: ['P0171', 'P0101'], title: 'عطل في حساس MAF', confidence: 80, severity: 'high',
-    description: 'حساس MAF يعطي قراءات غير دقيقة مما يسبب خليطاً فقيراً.',
+    description: 'حساس MAF يعطي قراءات غير دقيقة.',
     actions: ['نظف حساس MAF ببخاخ مخصص', 'افحص أسلاك الحساس', 'افحص فلتر الهواء'] },
   { required: ['P0300'], anyOf: ['P0301','P0302','P0303','P0304','P0305','P0306'],
     title: 'مشكلة في نظام الإشعال', confidence: 75, severity: 'medium',
-    description: 'اشتعال متقطع في أكثر من سلندر — غالباً بسبب البواجي أو الكويلات.',
+    description: 'اشتعال متقطع في أكثر من سلندر.',
     actions: ['استبدل البواجي كلها', 'افحص الكويلات', 'افحص ضغط الوقود'] },
   { required: ['P0351'], title: 'عطل في كويل السلندر A', confidence: 95, severity: 'high',
     description: 'كويل الإشعال لا يعمل بشكل صحيح.',
     actions: ['استبدل الكويل A', 'افحص البوجيه', 'افحص أسلاك الكويل'] },
   { required: ['P0335'], title: 'عطل في حساس الكرنك', confidence: 95, severity: 'critical',
-    description: 'حساس الكرنك لا يعمل — قد يمنع تشغيل المحرك تماماً.',
+    description: 'حساس الكرنك لا يعمل — قد يمنع تشغيل المحرك.',
     actions: ['استبدل حساس الكرنك', 'افحص الأسلاك والموصلات', 'لا تحاول تشغيل السيارة بشكل متكرر'] },
   { required: ['P0016'], title: 'مشكلة في سلسلة التوقيت', confidence: 90, severity: 'critical',
-    description: 'عدم تزامن بين عمود الكرنك والكام — قد تكون السلسلة ممدودة.',
+    description: 'عدم تزامن بين عمود الكرنك والكام.',
     actions: ['افحص سلسلة التوقيت فوراً', 'لا تقد السيارة قبل الفحص', 'قد تحتاج استبدال السلسلة'] },
   { required: ['P0420', 'P0430'], title: 'تلف الكتلايزر في البنكين', confidence: 95, severity: 'high',
-    description: 'كفاءة المحول الحفاز منخفضة في البنكين — غالباً تلف دائم.',
+    description: 'كفاءة المحول الحفاز منخفضة في البنكين.',
     actions: ['استبدل الكتلايزر', 'افحص حساسات O2', 'افحص سبب التلف الأصلي'] },
   { required: ['P0420'], anyOf: ['P0300','P0301','P0302','P0303','P0304'],
     title: 'تلف الكتلايزر بسبب اشتعال متقطع', confidence: 90, severity: 'high',
@@ -400,7 +421,7 @@ const DIAGNOSTIC_RULES = [
     description: 'تدفق EGR ضعيف — الصمام مسدود بالكربون.',
     actions: ['نظف صمام EGR', 'افحص أنابيب EGR', 'استبدل الصمام إن لزم'] },
   { required: ['P0087'], title: 'ضغط وقود منخفض', confidence: 85, severity: 'high',
-    description: 'ضغط الوقود أقل من اللازم — قد يسبب فقدان قوة.',
+    description: 'ضغط الوقود أقل من اللازم.',
     actions: ['استبدل فلتر الوقود', 'افحص مضخة الوقود', 'افحص منظم الضغط'] },
   { required: ['P0230'], title: 'عطل في مضخة الوقود', confidence: 90, severity: 'high',
     description: 'دائرة مضخة الوقود لا تعمل بشكل صحيح.',
@@ -409,7 +430,7 @@ const DIAGNOSTIC_RULES = [
     description: 'تسرب صغير في نظام انبعاثات البخار.',
     actions: ['افحص غطاء الوقود', 'أعد إغلاق الغطاء جيداً', 'افحص الخراطيم'] },
   { required: ['P0455'], title: 'تسرب كبير في نظام EVAP', confidence: 90, severity: 'medium',
-    description: 'تسرب واضح في نظام البخار — غالباً الغطاء غير محكم.',
+    description: 'تسرب واضح في نظام البخار.',
     actions: ['استبدل غطاء الوقود', 'افحص خراطيم EVAP', 'افحص الصمام'] },
   { required: ['P0128'], title: 'ترموستات عاطل', confidence: 90, severity: 'medium',
     description: 'المحرك لا يصل إلى حرارة التشغيل الطبيعية.',
@@ -421,7 +442,7 @@ const DIAGNOSTIC_RULES = [
     description: '🚨 حرارة المحرك مرتفعة جداً — أوقف السيارة فوراً!',
     actions: ['أوقف السيارة فوراً', 'لا تفتح غطاء الرديتر وهي ساخنة', 'افحص مستوى سائل التبريد'] },
   { required: ['P0562'], title: 'جهد النظام منخفض', confidence: 85, severity: 'high',
-    description: 'جهد البطارية منخفض — قد لا تشتغل السيارة.',
+    description: 'جهد البطارية منخفض.',
     actions: ['افحص البطارية', 'افحص الدينامو', 'افحص الأحزمة'] },
   { required: ['P0700'], title: 'عطل في ناقل الحركة', confidence: 95, severity: 'high',
     description: 'كمبيوتر ناقل الحركة أرسل رمز عطل.',
@@ -439,11 +460,10 @@ const DIAGNOSTIC_RULES = [
     description: 'سخان حساس الأكسجين الأمامي لا يعمل.',
     actions: ['استبدل حساس O2', 'افحص الفيوز', 'افحص الأسلاك'] },
   { required: ['P0340'], title: 'عطل في حساس الكام شافت', confidence: 90, severity: 'high',
-    description: 'حساس الكام شافت لا يعمل — قد يمنع التشغيل.',
+    description: 'حساس الكام شافت لا يعمل.',
     actions: ['استبدل حساس الكام', 'افحص الأسلاك', 'افحص السلسلة'] },
-  // تشخيصات خاصة بالسيارات الصينية
   { required: ['P0A80', 'P0A3F'], title: 'عطل في نظام تبريد بطارية الجر (EV)', confidence: 90, severity: 'critical',
-    description: 'بطارية الجهد العالي تعاني من ارتفاع حرارة مع خلايا منخفضة — خطر على السلامة.',
+    description: 'بطارية الجهد العالي تعاني من ارتفاع حرارة مع خلايا منخفضة.',
     actions: ['أوقف الشحن فوراً', 'لا تشغل السيارة', 'راجع ورشة متخصصة في السيارات الكهربائية'] },
   { required: ['P0AA6'], title: 'تسرب في عزل الجهد العالي (EV)', confidence: 100, severity: 'critical',
     description: '🚨 خطر صعق كهربائي! تسرب في عزل نظام الجهد العالي.',
@@ -465,11 +485,7 @@ function runSmartDiagnosis(faultCodes) {
       anyMatch = rule.anyOf.some(code => codeSet.has(code));
     }
     if (!anyMatch) continue;
-    results.push({
-      title: rule.title, description: rule.description,
-      confidence: rule.confidence, severity: rule.severity,
-      actions: rule.actions, matchedCodes: rule.required
-    });
+    results.push({ title: rule.title, description: rule.description, confidence: rule.confidence, severity: rule.severity, actions: rule.actions, matchedCodes: rule.required });
   }
   results.sort((a, b) => b.confidence - a.confidence);
   return results.slice(0, 5);
@@ -479,25 +495,15 @@ function displaySmartDiagnosis(faultCodes) {
   const container = document.getElementById('smartDiagnosis');
   if (!container) return;
   const diagnoses = runSmartDiagnosis(faultCodes);
-  if (diagnoses.length === 0) {
-    container.innerHTML = '';
-    container.style.display = 'none';
-    return;
-  }
+  if (diagnoses.length === 0) { container.innerHTML = ''; container.style.display = 'none'; return; }
   container.style.display = 'block';
   container.innerHTML = `
     <div class="card" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-right:4px solid #8b5cf6;">
       <h3 style="margin-bottom:14px;color:#5b21b6;border-right:4px solid #8b5cf6;padding-right:10px;">🧠 التشخيص الذكي</h3>
       ${diagnoses.map(d => {
-        const color = d.severity === 'critical' ? '#dc2626' :
-                      d.severity === 'high' ? '#ef4444' :
-                      d.severity === 'medium' ? '#f59e0b' : '#10b981';
-        const bg = d.severity === 'critical' ? '#fef2f2' :
-                   d.severity === 'high' ? '#fef2f2' :
-                   d.severity === 'medium' ? '#fffbeb' : '#f0fdf4';
-        const icon = d.severity === 'critical' ? '🚨' :
-                     d.severity === 'high' ? '🔴' :
-                     d.severity === 'medium' ? '🟡' : '🟢';
+        const color = d.severity === 'critical' ? '#dc2626' : d.severity === 'high' ? '#ef4444' : d.severity === 'medium' ? '#f59e0b' : '#10b981';
+        const bg = d.severity === 'critical' ? '#fef2f2' : d.severity === 'high' ? '#fef2f2' : d.severity === 'medium' ? '#fffbeb' : '#f0fdf4';
+        const icon = d.severity === 'critical' ? '🚨' : d.severity === 'high' ? '🔴' : d.severity === 'medium' ? '🟡' : '🟢';
         return `
           <div style="background:${bg};border-right:4px solid ${color};border-radius:12px;padding:16px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
@@ -518,7 +524,320 @@ function displaySmartDiagnosis(faultCodes) {
 }
 
 /* =====================================================
-   نظام تحميل قاعدة البيانات (مع دعم السيارات الصينية)
+   🎯 مؤشر صحة السيارة
+===================================================== */
+function calculateHealthScore(faults, diagnosis) {
+  if (!faults || faults.length === 0) return 100;
+  let score = 100;
+  faults.forEach(f => {
+    const code = (f.code || '').toUpperCase();
+    if (code.startsWith('P0')) score -= 5;
+    else if (code.startsWith('P1') || code.startsWith('P2') || code.startsWith('P3')) score -= 8;
+    else if (code.startsWith('C')) score -= 10;
+    else if (code.startsWith('B')) score -= 12;
+    else if (code.startsWith('U')) score -= 15;
+    else score -= 5;
+  });
+  (diagnosis || []).forEach(d => {
+    if (d.severity === 'critical') score -= 15;
+    else if (d.severity === 'high') score -= 10;
+    else if (d.severity === 'medium') score -= 5;
+  });
+  return Math.max(0, Math.min(100, score));
+}
+
+function displayHealthScore(faults, diagnosis) {
+  const badge = document.getElementById('healthBadge');
+  if (!badge) return;
+  if (!faults || faults.length === 0) { badge.style.display = 'none'; return; }
+  const score = calculateHealthScore(faults, diagnosis);
+  const gradient = score >= 80 ? 'linear-gradient(135deg,#10b981,#059669)' : 
+                   score >= 50 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 
+                   'linear-gradient(135deg,#ef4444,#dc2626)';
+  const text = score >= 80 ? 'حالة السيارة ممتازة' :
+               score >= 60 ? 'تحتاج صيانة قريباً' :
+               score >= 40 ? 'تحتاج صيانة عاجلة' : 'خطر — لا تقد السيارة';
+  const icon = score >= 80 ? '✅' : score >= 50 ? '⚠️' : '🚨';
+  badge.style.display = 'block';
+  badge.innerHTML = `
+    <div class="health-badge" style="background:${gradient};">
+      <div>
+        <div class="label">${icon} ${text}</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:4px;">مؤشر صحة السيارة</div>
+      </div>
+      <div class="score">${score}<span style="font-size:16px;opacity:0.8;">/100</span></div>
+    </div>
+  `;
+}
+
+/* =====================================================
+   📁 سجل الفحوصات
+===================================================== */
+const HISTORY_KEY = 'scan_history_v2';
+const MAX_HISTORY = 50;
+
+async function saveScanToHistory(faults, vin, diagnosis, vehicleInfo) {
+  try {
+    const history = await loadHistory();
+    const record = {
+      id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      timestamp: Date.now(),
+      vin: vin || 'unknown',
+      faults: (faults || []).map(f => ({ code: f.code, system: f.system })),
+      diagnosisCount: (diagnosis || []).length,
+      vehicleInfo: vehicleInfo || null,
+      healthScore: calculateHealthScore(faults, diagnosis)
+    };
+    history.unshift(record);
+    if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+    await saveHistoryToStorage(history);
+    log('💾 تم حفظ الفحص في السجل المحلي');
+    return record;
+  } catch (e) { console.warn('History save failed:', e); }
+}
+
+async function loadHistory() {
+  try {
+    if ('indexedDB' in window) {
+      const db = await openIDB();
+      const tx = db.transaction('cache', 'readonly');
+      const result = await tx.objectStore('cache').get(HISTORY_KEY);
+      if (result) return result.data || [];
+    } else {
+      const cached = localStorage.getItem(HISTORY_KEY);
+      if (cached) return JSON.parse(cached) || [];
+    }
+  } catch (e) { console.warn('History load failed:', e); }
+  return [];
+}
+
+async function saveHistoryToStorage(history) {
+  try {
+    if ('indexedDB' in window) {
+      const db = await openIDB();
+      const tx = db.transaction('cache', 'readwrite');
+      tx.objectStore('cache').put({ key: HISTORY_KEY, data: history, timestamp: Date.now() });
+      await tx.complete;
+    } else {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+  } catch (e) { console.warn('History storage failed:', e); }
+}
+
+async function displayHistory() {
+  const container = document.getElementById('historyContent');
+  if (!container) return;
+  container.innerHTML = '<p class="hint">⏳ جاري التحميل...</p>';
+  const history = await loadHistory();
+  if (history.length === 0) {
+    container.innerHTML = '<p class="hint">📁 لا يوجد سجل بعد.<br>ابدأ بفحص سيارتك، وسيظهر هنا تلقائياً.</p>';
+    return;
+  }
+  container.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:14px;color:#64748b;">📊 ${history.length} فحص محفوظ</div>
+      <button class="btn btn-red" id="btnClearHistory" style="padding:8px 14px;font-size:13px;">🗑️ حذف كل السجل</button>
+    </div>
+    <div class="dtc-list">
+      ${history.map(h => {
+        const date = new Date(h.timestamp).toLocaleString('ar', {dateStyle:'short', timeStyle:'short'});
+        const health = h.healthScore || 100;
+        const healthColor = health >= 80 ? '#10b981' : health >= 50 ? '#f59e0b' : '#ef4444';
+        return `
+          <div class="dtc-item" data-id="${h.id}" style="border-right-color:${healthColor};">
+            <div class="code" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="color:#1e293b;font-family:'Cairo',sans-serif;font-size:13px;">📅 ${date}</span>
+              <span style="background:${healthColor};color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-family:'Cairo',sans-serif;">${health}/100</span>
+            </div>
+            <div class="title" style="margin-top:6px;">
+              <div>🚗 ${h.vin !== 'unknown' ? 'VIN: ' + h.vin : 'VIN غير محدد'}</div>
+              <div style="margin-top:4px;">🔧 ${h.faults.length} عطل${h.diagnosisCount > 0 ? ' • 🧠 ' + h.diagnosisCount + ' تشخيص' : ''}</div>
+              ${h.faults.length > 0 ? '<div style="margin-top:6px;font-family:monospace;font-size:11px;color:#b91c1c;">' + h.faults.slice(0, 5).map(f => f.code).join(', ') + (h.faults.length > 5 ? '...' : '') + '</div>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  container.querySelectorAll('.dtc-item').forEach(el => {
+    el.addEventListener('click', () => showHistoryDetail(el.dataset.id));
+  });
+  const btnClear = document.getElementById('btnClearHistory');
+  if (btnClear) {
+    btnClear.addEventListener('click', async () => {
+      if (!confirm('هل تريد حذف كل السجل؟')) return;
+      await saveHistoryToStorage([]);
+      displayHistory();
+      log('🗑️ تم حذف السجل بالكامل');
+    });
+  }
+}
+
+async function showHistoryDetail(id) {
+  const history = await loadHistory();
+  const record = history.find(h => h.id === id);
+  if (!record) return;
+  renderFaults(record.faults);
+  if (record.faults.length > 0) {
+    displayFault(record.faults[0].code);
+    const diagnoses = runSmartDiagnosis(record.faults.map(f => f.code));
+    displaySmartDiagnosis(record.faults.map(f => f.code));
+    displayHealthScore(record.faults, diagnoses);
+    showExportButton();
+  } else {
+    clearCarDisplay();
+    displaySmartDiagnosis([]);
+    document.getElementById('healthBadge').style.display = 'none';
+    hideExportButton();
+  }
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab[data-tab="faults"]').classList.add('active');
+  document.getElementById('panel-faults').classList.add('active');
+  const date = new Date(record.timestamp).toLocaleString('ar');
+  log(`📁 عرض فحص من ${date} — صحة: ${record.healthScore}/100`);
+}
+
+/* =====================================================
+   📄 تصدير تقرير PDF
+===================================================== */
+function buildReportHTML() {
+  const currentDate = new Date().toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' });
+  const vinText = document.getElementById('vinResult')?.textContent || 'غير محدد';
+  const vinDecoded = vinText && vinText.length === 17 ? decodeVIN(vinText) : null;
+  
+  const faultItems = document.querySelectorAll('#dtcList .dtc-item');
+  const faults = [];
+  faultItems.forEach(el => {
+    const code = el.dataset.code;
+    if (code) faults.push({ code, info: getFaultInfo(code) });
+  });
+  
+  const diagnoses = runSmartDiagnosis(faults.map(f => f.code));
+  const healthScore = calculateHealthScore(faults, diagnoses);
+  const healthColor = healthScore >= 80 ? '#10b981' : healthScore >= 50 ? '#f59e0b' : '#ef4444';
+  const healthText = healthScore >= 80 ? 'ممتازة' : healthScore >= 60 ? 'جيدة' : healthScore >= 40 ? 'تحتاج صيانة' : 'خطر';
+  
+  return `
+    <div style="padding:30px 24px;font-family:'Cairo',sans-serif;direction:rtl;background:#fff;color:#1e293b;width:700px;">
+      <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px 24px;border-radius:14px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:26px;font-weight:700;">🔧 CheckDiga</div>
+            <div style="font-size:13px;opacity:0.8;margin-top:4px;">تقرير فحص سيارة متكامل</div>
+          </div>
+          <div style="text-align:left;font-size:12px;opacity:0.9;">
+            <div>${currentDate}</div>
+            <div style="margin-top:4px;font-family:monospace;">ID: ${Date.now().toString().slice(-8)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:${healthColor};color:#fff;padding:18px 22px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:14px;opacity:0.9;">مؤشر صحة السيارة</div>
+          <div style="font-size:20px;font-weight:700;margin-top:4px;">${healthText}</div>
+        </div>
+        <div style="font-size:42px;font-weight:700;">${healthScore}<span style="font-size:16px;opacity:0.8;">/100</span></div>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #3b82f6;">
+        <div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:12px;">🚗 معلومات السيارة</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;color:#64748b;">رقم الهيكل (VIN)</td>
+            <td style="padding:8px 0;font-family:monospace;font-weight:700;text-align:left;">${vinText}</td>
+          </tr>
+          ${vinDecoded ? `
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">بلد الصنع</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.country}</td></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;color:#64748b;">الشركة المصنعة</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.manufacturer}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">سنة الموديل</td><td style="padding:8px 0;font-weight:700;text-align:left;">${vinDecoded.year}</td></tr>
+          ` : ''}
+        </table>
+      </div>
+
+      <div style="background:#fef2f2;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #ef4444;">
+        <div style="font-size:15px;font-weight:700;color:#991b1b;margin-bottom:12px;">🔧 الأعطال المكتشفة (${faults.length})</div>
+        ${faults.length === 0 ? '<div style="color:#15803d;font-size:13px;">✅ لا توجد أعطال مسجلة</div>' : 
+          faults.map((f, i) => `
+            <div style="background:#fff;padding:10px 12px;border-radius:8px;margin-bottom:8px;font-size:13px;">
+              <div style="font-weight:700;color:#b91c1c;font-family:monospace;">#${i + 1}. ${f.code}</div>
+              <div style="color:#334155;margin-top:4px;">${f.info.title}</div>
+              ${f.info.desc ? `<div style="color:#64748b;font-size:12px;margin-top:2px;">${f.info.desc}</div>` : ''}
+            </div>
+          `).join('')}
+      </div>
+
+      ${diagnoses.length > 0 ? `
+      <div style="background:#f5f3ff;border-radius:12px;padding:16px;margin-bottom:20px;border-right:4px solid #8b5cf6;">
+        <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:12px;">🧠 التشخيص الذكي</div>
+        ${diagnoses.map(d => `
+          <div style="background:#fff;padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <div style="font-weight:700;color:#1e293b;font-size:13px;">${d.title}</div>
+              <div style="background:#8b5cf6;color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">${d.confidence}%</div>
+            </div>
+            <div style="color:#475569;font-size:12px;margin-bottom:8px;">${d.description}</div>
+            <div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px;">الإجراءات المقترحة:</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+              ${d.actions.map(a => `<li style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:3px;font-size:12px;">• ${a}</li>`).join('')}
+            </ul>
+          </div>
+        `).join('')}
+      </div>
+      ` : ''}
+
+      <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">
+        <div>تم إنشاء هذا التقرير بواسطة CheckDiga — أداة فحص السيارات الذكية</div>
+        <div style="margin-top:4px;">⚠️ هذا التقرير للتشخيص المبدئي فقط، يرجى مراجعة ميكانيكي متخصص للتأكيد</div>
+      </div>
+    </div>
+  `;
+}
+
+async function exportPDF() {
+  const btn = document.getElementById('btnExportPDF');
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ جاري إنشاء التقرير...';
+  btn.disabled = true;
+  try {
+    const reportHTML = buildReportHTML();
+    const container = document.createElement('div');
+    container.innerHTML = reportHTML;
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    document.body.appendChild(container);
+    const opt = {
+      margin: 0,
+      filename: `CheckDiga-Report-${new Date().toISOString().slice(0,10)}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    await html2pdf().set(opt).from(container.firstElementChild).save();
+    document.body.removeChild(container);
+    log('📄 تم إنشاء تقرير PDF بنجاح');
+  } catch (e) {
+    log('⚠️ فشل إنشاء PDF: ' + e.message);
+    alert('فشل إنشاء التقرير: ' + e.message);
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+function showExportButton() {
+  const card = document.getElementById('exportCard');
+  if (card) card.style.display = 'block';
+}
+
+function hideExportButton() {
+  const card = document.getElementById('exportCard');
+  if (card) card.style.display = 'none';
+}
+
+/* =====================================================
+   نظام تحميل قاعدة البيانات
 ===================================================== */
 const DB_VERSION = 'v4';
 const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
@@ -628,21 +947,17 @@ async function performSearch(query) {
   const resultsDiv = document.getElementById('searchResults');
   const q = query.trim().toUpperCase();
   if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
-  
   const firstLetter = q[0];
   if (['P','C','B','U'].includes(firstLetter) && !loadedCategories.has(firstLetter)) {
     resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد ' + firstLetter + '...</p>';
     await loadCategory(firstLetter);
   }
-  
-  // تحميل الأكواد الصينية عند البحث عن P1, P2, P3
   if (q.startsWith('P1') || q.startsWith('P2') || q.startsWith('P3')) {
     if (!loadedCategories.has('CN')) {
       resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد السيارات الصينية...</p>';
       await loadCategory('CN');
     }
   }
-  
   const matches = [];
   for (const [code, info] of Object.entries(DTC_DATABASE)) {
     if (matches.length >= 20) break;
@@ -671,33 +986,26 @@ async function saveScanToCloud(faults, vin, carInfo) {
       faults: (faults || []).map(f => ({ code: f.code, system: f.system })),
       faultCodes: (faults || []).map(f => f.code),
       timestamp: serverTimestamp(),
-      carMake: carInfo?.make || "unknown",
-      carModel: carInfo?.model || "unknown",
-      carYear: carInfo?.year || "unknown",
       userAgent: navigator.userAgent.substring(0, 100),
       language: navigator.language,
       screenWidth: window.screen.width
     });
-    for (const fault of (faults || [])) await updateDTCStats(fault.code, carInfo);
+    for (const fault of (faults || [])) await updateDTCStats(fault.code);
     log('☁️ تم حفظ الفحص في السحابة');
     return true;
   } catch (e) { log('⚠️ فشل حفظ البيانات: ' + e.message); return false; }
 }
 
-async function updateDTCStats(code, carInfo) {
+async function updateDTCStats(code) {
   try {
     const statsRef = doc(db, "dtc_stats", code);
     const statsDoc = await getDoc(statsRef);
     if (statsDoc.exists()) {
-      const updates = { count: increment(1), lastSeen: serverTimestamp() };
-      if (carInfo?.make && carInfo.make !== "unknown") updates[`makes.${carInfo.make}`] = increment(1);
-      await updateDoc(statsRef, updates);
+      await updateDoc(statsRef, { count: increment(1), lastSeen: serverTimestamp() });
     } else {
-      const initialData = { code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() };
-      if (carInfo?.make && carInfo.make !== "unknown") initialData.makes = { [carInfo.make]: 1 };
-      await setDoc(statsRef, initialData);
+      await setDoc(statsRef, { code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() });
     }
-  } catch (e) { console.warn('Stats failed for', code, e); }
+  } catch (e) { console.warn('Stats failed:', e); }
 }
 
 async function loadTopFaults() {
@@ -707,7 +1015,7 @@ async function loadTopFaults() {
     const topFaults = [];
     snapshot.forEach(doc => topFaults.push(doc.data()));
     return topFaults;
-  } catch (e) { console.warn('Load top failed:', e); return []; }
+  } catch (e) { return []; }
 }
 
 async function displayStats() {
@@ -758,6 +1066,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'history') displayHistory();
   });
 });
 
@@ -841,10 +1150,20 @@ async function readDTCs() {
   renderFaults(faults);
   if (faults.length > 0) {
     displayFault(faults[0].code);
+    const diagnoses = runSmartDiagnosis(faults.map(f => f.code));
     displaySmartDiagnosis(faults.map(f => f.code));
+    displayHealthScore(faults, diagnoses);
+    showExportButton();
     const vinText = document.getElementById('vinResult')?.textContent || "unknown";
     await saveScanToCloud(faults, vinText, null);
-  } else { clearCarDisplay(); displaySmartDiagnosis([]); }
+    await saveScanToHistory(faults, vinText, diagnoses, null);
+  } else {
+    clearCarDisplay();
+    displaySmartDiagnosis([]);
+    document.getElementById('healthBadge').style.display = 'none';
+    hideExportButton();
+    await saveScanToHistory([], document.getElementById('vinResult')?.textContent || "unknown", [], null);
+  }
 }
 
 function parseDTCs(raw) {
@@ -888,13 +1207,20 @@ async function scanAllECUs() {
   }
   await sendCommand('AT SH 7E0', 200);
   renderFaults(allFaults);
+  const diagnoses = runSmartDiagnosis(allFaults.map(f => f.code));
   displaySmartDiagnosis(allFaults.map(f => f.code));
+  displayHealthScore(allFaults, diagnoses);
   log(`✅ اكتمل. إجمالي: ${allFaults.length}`);
   if (allFaults.length > 0) {
     displayFault(allFaults[0].code);
+    showExportButton();
     const vinText = document.getElementById('vinResult')?.textContent || "unknown";
     await saveScanToCloud(allFaults, vinText, null);
-  } else clearCarDisplay();
+    await saveScanToHistory(allFaults, vinText, diagnoses, null);
+  } else {
+    clearCarDisplay();
+    hideExportButton();
+  }
 }
 
 function parseUDS_Response(raw) {
@@ -933,6 +1259,8 @@ async function clearDTCs() {
   document.getElementById('dtcList').innerHTML = '<p class="hint">✅ تم مسح الأعطال.</p>';
   clearCarDisplay();
   displaySmartDiagnosis([]);
+  document.getElementById('healthBadge').style.display = 'none';
+  hideExportButton();
 }
 
 /* =====================================================
@@ -970,10 +1298,7 @@ function displayVINInfo(vin) {
   const container = document.getElementById('vinInfo');
   if (!container) return;
   const decoded = decodeVIN(vin);
-  if (!decoded) {
-    container.innerHTML = '<p class="hint">⚠️ رقم VIN غير صحيح (يجب أن يكون 17 حرفاً)</p>';
-    return;
-  }
+  if (!decoded) { container.innerHTML = '<p class="hint">⚠️ رقم VIN غير صحيح (يجب أن يكون 17 حرفاً)</p>'; return; }
   const isValid = validateVIN(vin);
   const validBadge = isValid 
     ? '<span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">✓ VIN صحيح</span>'
@@ -991,25 +1316,10 @@ function displayVINInfo(vin) {
     </div>
     <div style="margin-top:16px;padding:14px;background:#f8fafc;border-radius:10px;">
       <div style="font-size:13px;color:#64748b;font-weight:700;margin-bottom:8px;">🔍 تفاصيل إضافية:</div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
-        <span style="color:#64748b;font-size:13px;">WMI (معرف الصانع)</span>
-        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.wmi}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
-        <span style="color:#64748b;font-size:13px;">VDS (وصف السيارة)</span>
-        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.vds}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;">
-        <span style="color:#64748b;font-size:13px;">Check Digit</span>
-        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.checkDigit}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;">
-        <span style="color:#64748b;font-size:13px;">الرقم التسلسلي</span>
-        <span style="font-family:monospace;font-weight:700;color:#1e293b;">${decoded.serial}</span>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:10px;font-size:12px;color:#1e40af;">
-      💡 <strong>ملاحظة:</strong> المعلومات مبنية على شيفرة VIN العالمية.
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">WMI</span><span style="font-family:monospace;font-weight:700;">${decoded.wmi}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">VDS</span><span style="font-family:monospace;font-weight:700;">${decoded.vds}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;font-size:13px;">Check Digit</span><span style="font-family:monospace;font-weight:700;">${decoded.checkDigit}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#64748b;font-size:13px;">الرقم التسلسلي</span><span style="font-family:monospace;font-weight:700;">${decoded.serial}</span></div>
     </div>
   `;
 }
@@ -1160,8 +1470,12 @@ function startDemo() {
     { code: 'B0001', system: 'الوسائد الهوائية' }, { code: 'U0100', system: 'الكهرباء' }
   ];
   renderFaults(demoDTCs); displayFault(demoDTCs[0].code);
+  const diagnoses = runSmartDiagnosis(demoDTCs.map(f => f.code));
   displaySmartDiagnosis(demoDTCs.map(f => f.code));
+  displayHealthScore(demoDTCs, diagnoses);
+  showExportButton();
   saveScanToCloud(demoDTCs, "DEMO-VIN-123", null);
+  saveScanToHistory(demoDTCs, "DEMO-VIN-123", diagnoses, null);
   demoTimer = setInterval(() => {
     lastValues = {
       rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
@@ -1194,6 +1508,7 @@ document.getElementById('btnReadVIN').addEventListener('click', readVIN);
 document.getElementById('btnStartLive').addEventListener('click', () => { liveRecording = true; startLive(); });
 document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+document.getElementById('btnExportPDF').addEventListener('click', exportPDF);
 document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
 document.getElementById('btnLoadStats').addEventListener('click', displayStats);
 
@@ -1207,14 +1522,9 @@ document.getElementById('btnDecodeVIN').addEventListener('click', () => {
 
 loadDatabase();
 
-/* =====================================================
-   تسجيل Service Worker (PWA)
-===================================================== */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('✅ تم تسجيل Service Worker'))
-      .catch(err => console.warn('⚠️ فشل تسجيل Service Worker:', err));
+    navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW registered')).catch(e => console.warn('SW failed:', e));
   });
 }
 </script>
