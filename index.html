@@ -15,17 +15,190 @@
   body { font-family: 'Cairo', sans-serif; }
   .scrollbar-thin::-webkit-scrollbar { width: 6px; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-  .zone rect, .zone circle.brake-zone { fill: rgba(59,130,246,0.15); stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 4 4; }
-  .zone text { fill: #fbbf24; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; font-weight: 700; }
-  .zone { opacity: 0; transition: opacity 0.3s; cursor: pointer; }
-  .zone.active { opacity: 1; animation: pulse 1.5s infinite; }
-  .zone.active rect, .zone.active circle.brake-zone { fill: rgba(239,68,68,0.5); stroke: #ef4444; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444); }
-  .zone.active text { fill: #fff; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
   .fade-in { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
   .spinner { border: 3px solid #334155; border-top-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ 3D Car CSS ============ */
+  .car-3d-stage {
+    perspective: 1200px;
+    perspective-origin: 50% 40%;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center bottom, rgba(59,130,246,0.15) 0%, transparent 70%);
+    overflow: hidden;
+    position: relative;
+  }
+  .car-3d-stage::after {
+    content: '';
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(59,130,246,0.4), transparent 70%);
+    filter: blur(10px);
+  }
+  .car-3d {
+    width: 260px;
+    height: 140px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(-25deg) rotateX(8deg);
+    animation: carIdle 4s ease-in-out infinite;
+  }
+  .car-3d.spinning {
+    animation: carSpin 4s linear infinite;
+  }
+  @keyframes carIdle {
+    0%,100% { transform: rotateY(-25deg) rotateX(8deg) translateY(0); }
+    50% { transform: rotateY(-25deg) rotateX(8deg) translateY(-4px); }
+  }
+  @keyframes carSpin {
+    0% { transform: rotateY(0deg) rotateX(8deg); }
+    100% { transform: rotateY(360deg) rotateX(8deg); }
+  }
+  .car-3d .body-3d {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    height: 70px;
+    background: linear-gradient(180deg, #64748b 0%, #334155 50%, #1e293b 100%);
+    border-radius: 20px 30px 12px 12px;
+    box-shadow: 
+      inset 0 -6px 12px rgba(0,0,0,0.4),
+      inset 0 4px 8px rgba(255,255,255,0.15),
+      0 10px 20px rgba(0,0,0,0.5);
+    transform: translateZ(30px);
+  }
+  .car-3d .body-3d::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: 25%;
+    width: 55%;
+    height: 40px;
+    background: linear-gradient(180deg, #475569, #334155);
+    border-radius: 30px 30px 0 0;
+    box-shadow: inset 0 3px 6px rgba(255,255,255,0.1);
+  }
+  .car-3d .window-3d {
+    position: absolute;
+    top: -22px;
+    left: 28%;
+    width: 50%;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(56,189,248,0.9) 0%, rgba(14,116,144,0.7) 100%);
+    border-radius: 20px 20px 0 0;
+    box-shadow: inset 0 0 15px rgba(255,255,255,0.4);
+    transform: translateZ(32px);
+  }
+  .car-3d .headlight-3d {
+    position: absolute;
+    right: 5px;
+    bottom: 45px;
+    width: 16px;
+    height: 12px;
+    background: radial-gradient(ellipse, #fff 0%, #fbbf24 40%, #b45309 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px #fbbf24, 0 0 40px rgba(251,191,36,0.5);
+    transform: translateZ(35px);
+    animation: lightPulse 2s ease-in-out infinite;
+  }
+  .car-3d .taillight-3d {
+    position: absolute;
+    left: 5px;
+    bottom: 45px;
+    width: 12px;
+    height: 16px;
+    background: radial-gradient(ellipse, #fecaca 0%, #dc2626 60%, #7f1d1d 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 15px #dc2626;
+    transform: translateZ(35px);
+    animation: lightPulse 2s ease-in-out infinite 0.5s;
+  }
+  @keyframes lightPulse {
+    0%,100% { opacity: 0.7; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.6); }
+  }
+  .car-3d .wheel-3d {
+    position: absolute;
+    bottom: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #94a3b8 0%, #475569 30%, #1e293b 70%, #0f172a 100%);
+    border: 3px solid #1e293b;
+    box-shadow: 
+      inset 0 0 10px rgba(0,0,0,0.8),
+      0 6px 12px rgba(0,0,0,0.6);
+    transform: translateZ(30px) rotateX(75deg);
+    transform-style: preserve-3d;
+  }
+  .car-3d .wheel-3d::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #cbd5e1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 4px rgba(203,213,225,0.8);
+  }
+  .car-3d .wheel-3d::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, #94a3b8, transparent);
+    transform: translateX(-50%);
+  }
+  .car-3d .wheel-3d.front { right: 25px; }
+  .car-3d .wheel-3d.rear { left: 25px; }
+  .car-3d.spinning .wheel-3d {
+    animation: wheelSpin 1s linear infinite;
+  }
+  @keyframes wheelSpin {
+    from { transform: translateZ(30px) rotateX(75deg) rotateZ(0deg); }
+    to { transform: translateZ(30px) rotateX(75deg) rotateZ(360deg); }
+  }
+  .zone-3d {
+    position: absolute;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 8px;
+    transition: all 0.3s;
+    background: rgba(59,130,246,0.05);
+    border: 1px dashed transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    font-weight: 700;
+  }
+  .zone-3d:hover {
+    background: rgba(59,130,246,0.2);
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+  .zone-3d.active {
+    background: rgba(239,68,68,0.4);
+    border: 2px solid #ef4444;
+    color: #fff;
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 20px rgba(239,68,68,0.8);
+    z-index: 20;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
@@ -96,74 +269,32 @@
   <div id="panel-faults" class="panel space-y-4">
     <div id="healthBadge" class="hidden"></div>
 
-    <!-- 🚗 SUV Car -->
-    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-3">
-      <svg viewBox="0 0 800 400" class="w-full h-auto" id="carSvg">
-        <defs>
-          <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#64748b"/>
-            <stop offset="100%" stop-color="#1e293b"/>
-          </linearGradient>
-          <linearGradient id="glassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0.6"/>
-          </linearGradient>
-          <radialGradient id="wheelGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#94a3b8"/>
-            <stop offset="70%" stop-color="#334155"/>
-            <stop offset="100%" stop-color="#0f172a"/>
-          </radialGradient>
-          <filter id="carShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
-          </filter>
-        </defs>
-        <ellipse cx="400" cy="358" rx="330" ry="12" fill="#000" opacity="0.5"/>
-        <g filter="url(#carShadow)">
-          <path d="M90,265 Q85,240 110,235 L155,230 L185,175 Q200,155 240,150 L310,148 L360,110 Q380,95 420,95 L500,100 Q540,105 555,130 L595,150 L665,155 Q700,160 715,190 L725,240 Q730,260 720,270 Q710,280 690,280 L110,280 Q95,280 90,265 Z" fill="url(#bodyGrad)" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="330" y1="95" x2="520" y2="100" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
-          <path d="M365,115 Q380,105 420,102 L465,105 L470,148 L355,150 Z" fill="url(#glassGrad)" opacity="0.85"/>
-          <path d="M515,108 L550,125 L585,155 L545,158 L510,155 Z" fill="url(#glassGrad)" opacity="0.7"/>
-          <path d="M475,108 Q500,110 510,120 L510,150 L475,150 Z" fill="url(#glassGrad)" opacity="0.6"/>
-          <line x1="480" y1="160" x2="480" y2="270" stroke="#0f172a" stroke-width="1.5" opacity="0.6"/>
-          <rect x="488" y="185" width="18" height="5" rx="2" fill="#94a3b8" opacity="0.7"/>
-          <rect x="380" y="185" width="18" height="5" rx="2" fill="#94a3b8" opacity="0.7"/>
-          <rect x="200" y="255" width="420" height="12" rx="3" fill="#0f172a" opacity="0.8"/>
-          <ellipse cx="710" cy="215" rx="18" ry="14" fill="#fef3c7" opacity="0.9"/>
-          <ellipse cx="710" cy="215" rx="10" ry="8" fill="#fbbf24"/>
-          <rect x="88" y="205" width="14" height="20" rx="3" fill="#dc2626" opacity="0.9"/>
-          <path d="M710,240 L735,245 Q745,255 740,270 L700,275 L705,240 Z" fill="#334155"/>
-          <g>
-            <circle cx="220" cy="310" r="48" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
-            <circle cx="220" cy="310" r="38" fill="url(#wheelGrad)"/>
-            <circle cx="220" cy="310" r="20" fill="#475569"/>
-            <circle cx="220" cy="310" r="8" fill="#94a3b8"/>
-            <line x1="220" y1="280" x2="220" y2="340" stroke="#1e293b" stroke-width="2"/>
-            <line x1="190" y1="310" x2="250" y2="310" stroke="#1e293b" stroke-width="2"/>
-            <line x1="199" y1="289" x2="241" y2="331" stroke="#1e293b" stroke-width="2"/>
-            <line x1="199" y1="331" x2="241" y2="289" stroke="#1e293b" stroke-width="2"/>
-          </g>
-          <g>
-            <circle cx="600" cy="310" r="48" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
-            <circle cx="600" cy="310" r="38" fill="url(#wheelGrad)"/>
-            <circle cx="600" cy="310" r="20" fill="#475569"/>
-            <circle cx="600" cy="310" r="8" fill="#94a3b8"/>
-            <line x1="600" y1="280" x2="600" y2="340" stroke="#1e293b" stroke-width="2"/>
-            <line x1="570" y1="310" x2="630" y2="310" stroke="#1e293b" stroke-width="2"/>
-            <line x1="579" y1="289" x2="621" y2="331" stroke="#1e293b" stroke-width="2"/>
-            <line x1="579" y1="331" x2="621" y2="289" stroke="#1e293b" stroke-width="2"/>
-          </g>
-        </g>
-        <g class="zone" data-zone="engine"><rect x="620" y="150" width="100" height="75" rx="10"/><text x="670" y="192">المحرك</text></g>
-        <g class="zone" data-zone="battery"><rect x="545" y="180" width="70" height="50" rx="8"/><text x="580" y="212">بطارية</text></g>
-        <g class="zone" data-zone="transmission"><rect x="400" y="210" width="120" height="55" rx="10"/><text x="460" y="245">ناقل الحركة</text></g>
-        <g class="zone" data-zone="brakes"><circle cx="220" cy="310" r="65" class="brake-zone"/><text x="220" y="385">فرامل</text></g>
-        <g class="zone" data-zone="fuel"><rect x="290" y="200" width="95" height="55" rx="8"/><text x="337" y="235">وقود</text></g>
-        <g class="zone" data-zone="exhaust"><rect x="100" y="215" width="85" height="55" rx="8"/><text x="142" y="250">عوادم</text></g>
-        <g class="zone" data-zone="cooling"><rect x="710" y="200" width="60" height="60" rx="8"/><text x="740" y="237" style="font-size:12px;">تبريد</text></g>
-        <g class="zone" data-zone="abs"><rect x="500" y="230" width="70" height="45" rx="8"/><text x="535" y="260">ABS</text></g>
-        <g class="zone" data-zone="airbag"><rect x="330" y="105" width="95" height="45" rx="8"/><text x="377" y="135" style="font-size:12px;">وسائد</text></g>
-        <g class="zone" data-zone="electronics"><rect x="480" y="155" width="55" height="45" rx="8"/><text x="507" y="183" style="font-size:11px;">كهرباء</text></g>
-      </svg>
+    <!-- 🚗 3D Animated Car -->
+    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-3 relative">
+      <div class="car-3d-stage">
+        <div class="car-3d" id="car3d">
+          <div class="body-3d"></div>
+          <div class="window-3d"></div>
+          <div class="headlight-3d"></div>
+          <div class="taillight-3d"></div>
+          <div class="wheel-3d front"></div>
+          <div class="wheel-3d rear"></div>
+          
+          <div class="zone-3d" data-zone="engine" style="top:15px;right:5px;width:60px;height:55px;">المحرك</div>
+          <div class="zone-3d" data-zone="battery" style="top:25px;right:65px;width:35px;height:30px;">بطارية</div>
+          <div class="zone-3d" data-zone="transmission" style="top:65px;left:50px;width:60px;height:35px;">ناقل الحركة</div>
+          <div class="zone-3d" data-zone="brakes" style="top:85px;right:5px;width:50px;height:50px;">فرامل</div>
+          <div class="zone-3d" data-zone="fuel" style="top:55px;left:65px;width:55px;height:40px;">وقود</div>
+          <div class="zone-3d" data-zone="exhaust" style="top:65px;left:5px;width:55px;height:30px;">عوادم</div>
+          <div class="zone-3d" data-zone="cooling" style="top:55px;right:25px;width:35px;height:35px;">تبريد</div>
+          <div class="zone-3d" data-zone="abs" style="top:75px;left:115px;width:40px;height:25px;">ABS</div>
+          <div class="zone-3d" data-zone="airbag" style="top:15px;left:80px;width:55px;height:30px;">وسائد</div>
+          <div class="zone-3d" data-zone="electronics" style="top:35px;left:50px;width:35px;height:30px;">كهرباء</div>
+        </div>
+      </div>
+      <button id="btnSpinCar" class="absolute top-3 left-3 bg-gray-800/80 hover:bg-gray-700 border border-blue-500 text-blue-400 text-xs px-3 py-1.5 rounded-lg font-bold z-30">
+        <i class="fa-solid fa-rotate"></i> تدوير
+      </button>
     </div>
 
     <div id="smartDiagnosis" class="hidden"></div>
@@ -457,7 +588,7 @@ function setStatus(state){
   else{s.textContent=t('disconnected');s.className='text-sm font-bold text-red-400';d.className='w-3 h-3 rounded-full bg-red-500 animate-pulse';}
 }
 function displayFault(code){
-  document.querySelectorAll('.zone.active').forEach(z=>z.classList.remove('active'));
+  document.querySelectorAll('.zone-3d.active').forEach(z=>z.classList.remove('active'));
   const info=getFaultInfo(code);
   const z=document.querySelector(`[data-zone="${info.zone}"]`);
   if(z)z.classList.add('active');
@@ -663,7 +794,9 @@ function updateDashboard(rpm,speed,coolant){
 }
 function initChart(){
   if(chartInstance)return;
-  const ctx=document.getElementById('liveChart').getContext('2d');
+  const canvas=document.getElementById('liveChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
   chartInstance=new Chart(ctx,{
     type:'line',
     data:{labels:[],datasets:[
@@ -682,6 +815,7 @@ function initChart(){
 }
 function updateChart(rpm,speed,coolant){
   if(!chartInstance)initChart();
+  if(!chartInstance)return;
   const time=new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   if(chartData.labels.length>20){chartData.labels.shift();chartData.rpm.shift();chartData.speed.shift();}
   chartData.labels.push(time);
@@ -1136,6 +1270,11 @@ document.getElementById('btnDecodeVIN').onclick=()=>{
   displayVINInfo(v);
 };
 document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
+document.getElementById('btnSpinCar').onclick=()=>{
+  const car=document.getElementById('car3d');
+  car.classList.toggle('spinning');
+  if(car.classList.contains('spinning'))log('🚗 Car spinning...');
+};
 
 /* ============ Init ============ */
 applyLanguage();
