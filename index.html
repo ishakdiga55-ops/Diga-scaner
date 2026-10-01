@@ -16,11 +16,11 @@
   .scrollbar-thin::-webkit-scrollbar { width: 6px; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
   .zone rect, .zone circle.brake-zone { fill: rgba(59,130,246,0.15); stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 4 4; }
-  .zone text { fill: #cbd5e1; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; }
-  .zone { opacity: 0; transition: opacity 0.3s; }
+  .zone text { fill: #fbbf24; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; font-weight: 700; }
+  .zone { opacity: 0; transition: opacity 0.3s; cursor: pointer; }
   .zone.active { opacity: 1; animation: pulse 1.5s infinite; }
-  .zone.active rect, .zone.active circle.brake-zone { fill: rgba(239,68,68,0.4); stroke: #ef4444; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444); }
-  .zone.active text { fill: #fecaca; font-weight: 700; }
+  .zone.active rect, .zone.active circle.brake-zone { fill: rgba(239,68,68,0.5); stroke: #ef4444; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444); }
+  .zone.active text { fill: #fff; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
   .fade-in { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
@@ -95,27 +95,77 @@
   <!-- Panel: Faults -->
   <div id="panel-faults" class="panel space-y-4">
     <div id="healthBadge" class="hidden"></div>
-    <div class="bg-gray-800 rounded-2xl p-3">
-      <svg viewBox="0 0 800 400" class="w-full h-auto">
-        <path d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
-        <path d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
-        <path d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
-        <circle cx="180" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
-        <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
-        <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
-        <circle cx="620" cy="320" r="20" fill="#94a3b8"/>
-        <g class="zone" data-zone="engine"><rect x="620" y="180" width="120" height="90" rx="12"/><text x="680" y="230">المحرك</text></g>
-        <g class="zone" data-zone="battery"><rect x="560" y="200" width="55" height="55" rx="8"/><text x="587" y="235">بطارية</text></g>
-        <g class="zone" data-zone="transmission"><rect x="440" y="230" width="120" height="60" rx="10"/><text x="500" y="265">ناقل الحركة</text></g>
-        <g class="zone" data-zone="brakes"><circle cx="180" cy="320" r="55" class="brake-zone"/><text x="180" y="385">فرامل</text></g>
-        <g class="zone" data-zone="fuel"><rect x="320" y="240" width="100" height="55" rx="8"/><text x="370" y="273">وقود</text></g>
-        <g class="zone" data-zone="exhaust"><rect x="60" y="240" width="80" height="50" rx="8"/><text x="100" y="270">عوادم</text></g>
-        <g class="zone" data-zone="cooling"><rect x="700" y="220" width="60" height="60" rx="8"/><text x="730" y="255">تبريد</text></g>
-        <g class="zone" data-zone="abs"><rect x="240" y="230" width="70" height="50" rx="8"/><text x="275" y="260">ABS</text></g>
-        <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد</text></g>
-        <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
+
+    <!-- 🚗 SUV Car -->
+    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-3">
+      <svg viewBox="0 0 800 400" class="w-full h-auto" id="carSvg">
+        <defs>
+          <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#64748b"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="glassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0.6"/>
+          </linearGradient>
+          <radialGradient id="wheelGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#94a3b8"/>
+            <stop offset="70%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+          </radialGradient>
+          <filter id="carShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+          </filter>
+        </defs>
+        <ellipse cx="400" cy="358" rx="330" ry="12" fill="#000" opacity="0.5"/>
+        <g filter="url(#carShadow)">
+          <path d="M90,265 Q85,240 110,235 L155,230 L185,175 Q200,155 240,150 L310,148 L360,110 Q380,95 420,95 L500,100 Q540,105 555,130 L595,150 L665,155 Q700,160 715,190 L725,240 Q730,260 720,270 Q710,280 690,280 L110,280 Q95,280 90,265 Z" fill="url(#bodyGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="330" y1="95" x2="520" y2="100" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+          <path d="M365,115 Q380,105 420,102 L465,105 L470,148 L355,150 Z" fill="url(#glassGrad)" opacity="0.85"/>
+          <path d="M515,108 L550,125 L585,155 L545,158 L510,155 Z" fill="url(#glassGrad)" opacity="0.7"/>
+          <path d="M475,108 Q500,110 510,120 L510,150 L475,150 Z" fill="url(#glassGrad)" opacity="0.6"/>
+          <line x1="480" y1="160" x2="480" y2="270" stroke="#0f172a" stroke-width="1.5" opacity="0.6"/>
+          <rect x="488" y="185" width="18" height="5" rx="2" fill="#94a3b8" opacity="0.7"/>
+          <rect x="380" y="185" width="18" height="5" rx="2" fill="#94a3b8" opacity="0.7"/>
+          <rect x="200" y="255" width="420" height="12" rx="3" fill="#0f172a" opacity="0.8"/>
+          <ellipse cx="710" cy="215" rx="18" ry="14" fill="#fef3c7" opacity="0.9"/>
+          <ellipse cx="710" cy="215" rx="10" ry="8" fill="#fbbf24"/>
+          <rect x="88" y="205" width="14" height="20" rx="3" fill="#dc2626" opacity="0.9"/>
+          <path d="M710,240 L735,245 Q745,255 740,270 L700,275 L705,240 Z" fill="#334155"/>
+          <g>
+            <circle cx="220" cy="310" r="48" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
+            <circle cx="220" cy="310" r="38" fill="url(#wheelGrad)"/>
+            <circle cx="220" cy="310" r="20" fill="#475569"/>
+            <circle cx="220" cy="310" r="8" fill="#94a3b8"/>
+            <line x1="220" y1="280" x2="220" y2="340" stroke="#1e293b" stroke-width="2"/>
+            <line x1="190" y1="310" x2="250" y2="310" stroke="#1e293b" stroke-width="2"/>
+            <line x1="199" y1="289" x2="241" y2="331" stroke="#1e293b" stroke-width="2"/>
+            <line x1="199" y1="331" x2="241" y2="289" stroke="#1e293b" stroke-width="2"/>
+          </g>
+          <g>
+            <circle cx="600" cy="310" r="48" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
+            <circle cx="600" cy="310" r="38" fill="url(#wheelGrad)"/>
+            <circle cx="600" cy="310" r="20" fill="#475569"/>
+            <circle cx="600" cy="310" r="8" fill="#94a3b8"/>
+            <line x1="600" y1="280" x2="600" y2="340" stroke="#1e293b" stroke-width="2"/>
+            <line x1="570" y1="310" x2="630" y2="310" stroke="#1e293b" stroke-width="2"/>
+            <line x1="579" y1="289" x2="621" y2="331" stroke="#1e293b" stroke-width="2"/>
+            <line x1="579" y1="331" x2="621" y2="289" stroke="#1e293b" stroke-width="2"/>
+          </g>
+        </g>
+        <g class="zone" data-zone="engine"><rect x="620" y="150" width="100" height="75" rx="10"/><text x="670" y="192">المحرك</text></g>
+        <g class="zone" data-zone="battery"><rect x="545" y="180" width="70" height="50" rx="8"/><text x="580" y="212">بطارية</text></g>
+        <g class="zone" data-zone="transmission"><rect x="400" y="210" width="120" height="55" rx="10"/><text x="460" y="245">ناقل الحركة</text></g>
+        <g class="zone" data-zone="brakes"><circle cx="220" cy="310" r="65" class="brake-zone"/><text x="220" y="385">فرامل</text></g>
+        <g class="zone" data-zone="fuel"><rect x="290" y="200" width="95" height="55" rx="8"/><text x="337" y="235">وقود</text></g>
+        <g class="zone" data-zone="exhaust"><rect x="100" y="215" width="85" height="55" rx="8"/><text x="142" y="250">عوادم</text></g>
+        <g class="zone" data-zone="cooling"><rect x="710" y="200" width="60" height="60" rx="8"/><text x="740" y="237" style="font-size:12px;">تبريد</text></g>
+        <g class="zone" data-zone="abs"><rect x="500" y="230" width="70" height="45" rx="8"/><text x="535" y="260">ABS</text></g>
+        <g class="zone" data-zone="airbag"><rect x="330" y="105" width="95" height="45" rx="8"/><text x="377" y="135" style="font-size:12px;">وسائد</text></g>
+        <g class="zone" data-zone="electronics"><rect x="480" y="155" width="55" height="45" rx="8"/><text x="507" y="183" style="font-size:11px;">كهرباء</text></g>
       </svg>
     </div>
+
     <div id="smartDiagnosis" class="hidden"></div>
     <div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
       <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -379,10 +429,13 @@ function calcHealth(faults,diag){
   if(!faults||faults.length===0)return 100;
   let sc=100;
   faults.forEach(f=>{const c=(f.code||'').toUpperCase();
-    if(c.startsWith('P0'))sc-=5;else if(c.startsWith('P1')||c.startsWith('P2')||c.startsWith('P3'))sc-=8;
-    else if(c.startsWith('C'))sc-=10;else if(c.startsWith('B'))sc-=12;else if(c.startsWith('U'))sc-=15;});
-  (diag||[]).forEach(d=>{if(d.severity==='critical')sc-=15;else if(d.severity==='high')sc-=10;else if(d.severity==='medium')sc-=5;});
-  return Math.max(0,Math.min(100,sc));
+    if(c.startsWith('P0'))sc-=3;
+    else if(c.startsWith('P1')||c.startsWith('P2')||c.startsWith('P3'))sc-=4;
+    else if(c.startsWith('C'))sc-=5;
+    else if(c.startsWith('B'))sc-=6;
+    else if(c.startsWith('U'))sc-=7;});
+  (diag||[]).forEach(d=>{if(d.severity==='critical')sc-=8;else if(d.severity==='high')sc-=5;else if(d.severity==='medium')sc-=3;});
+  return Math.max(15,Math.min(100,sc));
 }
 function getFaultInfo(code){
   const c=String(code).trim().toUpperCase();
@@ -460,12 +513,17 @@ function handleNotification(e){
     const res=curResolve;curResolve=null;res(r);
   }
 }
-function sendCmd(cmd,timeout=3000){
+window.sendCmd=function(cmd,timeout=3000){
   return new Promise((resolve,reject)=>{
-    cmdQueue.push({cmd,resolve,reject,timeout});
+    cmdQueue.push({
+      cmd,
+      resolve:(r)=>{resolve(r);isProcessing=false;processQueue();},
+      reject:(e)=>{reject(e);isProcessing=false;processQueue();},
+      timeout
+    });
     processQueue();
   });
-}
+};
 async function processQueue(){
   if(isProcessing||cmdQueue.length===0||!uartChar)return;
   isProcessing=true;
@@ -485,17 +543,6 @@ async function processQueue(){
     item.reject(e);curResolve=null;isProcessing=false;processQueue();
   }
 }
-window.sendCmd=function(cmd,timeout=3000){
-  return new Promise((resolve,reject)=>{
-    cmdQueue.push({
-      cmd,
-      resolve:(r)=>{resolve(r);isProcessing=false;processQueue();},
-      reject:(e)=>{reject(e);isProcessing=false;processQueue();},
-      timeout
-    });
-    processQueue();
-  });
-};
 
 async function connectOBD(){
   if(!navigator.bluetooth){alert('No Bluetooth');return;}
@@ -942,12 +989,8 @@ function startDemo(){
   const dbtn=document.getElementById('disconnect-btn');
   dbtn.classList.remove('hidden');dbtn.classList.add('flex');
   log('🧪 Demo mode ON');
-  
-  // عرض VIN وهمي
   document.getElementById('vin-display').textContent='VIN: 1HGCG5655WA123456';
   document.getElementById('vinResult').textContent='1HGCG5655WA123456';
-  
-  // عرض أعطال تجريبية فوراً
   const demoFaults=[
     {code:'P0301',system:currentLang==='ar'?'المحرك':'Engine'},
     {code:'P0171',system:currentLang==='ar'?'المحرك':'Engine'},
@@ -962,15 +1005,9 @@ function startDemo(){
   displayHealth(demoFaults,diag);
   showExport();
   displayFault(demoFaults[0].code);
-  
-  // Firebase + history
   saveCloud(demoFaults,'1HGCG5655WA123456');
   saveHistory(demoFaults,'1HGCG5655WA123456',diag);
-  
-  // بدء الرسوم
   setTimeout(()=>{if(!chartInstance)initChart();},300);
-  
-  // بيانات حية متجددة
   if(demoTimer)clearInterval(demoTimer);
   demoTimer=setInterval(()=>{
     const rpm=Math.floor(900+Math.random()*2000);
@@ -978,8 +1015,6 @@ function startDemo(){
     const coolant=85+Math.floor(Math.random()*10);
     updateDashboard(rpm,speed,coolant);
   },1500);
-  
-  // أول تحديث فوري
   setTimeout(()=>updateDashboard(2500,60,90),100);
 }
 function stopDemo(){
