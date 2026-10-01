@@ -10,6 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b; padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px; }
@@ -74,6 +75,10 @@
   .health-badge { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-radius:14px; margin-bottom:16px; color:#fff; font-weight:700; }
   .health-badge .score { font-size:32px; }
   .health-badge .label { font-size:14px; opacity:0.9; }
+  .chart-container { position:relative; height:220px; margin-top:8px; }
+  .chart-stats { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
+  .chart-stats .stat { display:flex; align-items:center; gap:6px; font-size:13px; }
+  .chart-stats .stat strong { font-family:monospace; font-size:16px; }
 </style>
 </head>
 <body>
@@ -165,6 +170,40 @@
     <button class="btn btn-red" id="btnStopLive" style="flex:1;min-width:100px;">⏸️ إيقاف</button>
     <button class="btn btn-gray" id="btnExportCSV" style="flex:1;min-width:120px;">💾 تصدير CSV</button>
   </div>
+
+  <!-- 📈 الرسوم البيانية -->
+  <div class="card">
+    <h3 class="group-title">📈 الرسوم البيانية الحية</h3>
+    <p style="font-size:12px;color:#64748b;margin-bottom:14px;">تحديث تلقائي كل ثانيتين — آخر 30 قراءة</p>
+    
+    <!-- RPM Chart -->
+    <div style="margin-bottom:20px;">
+      <div class="chart-stats">
+        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span><strong>RPM</strong><span style="color:#64748b;">سرعة المحرك</span></div>
+        <div class="stat"><strong id="chart-rpm-current" style="color:#ef4444;">--</strong><span style="color:#64748b;">دورة/دقيقة</span></div>
+      </div>
+      <div class="chart-container"><canvas id="chartRpm"></canvas></div>
+    </div>
+    
+    <!-- Speed Chart -->
+    <div style="margin-bottom:20px;">
+      <div class="chart-stats">
+        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#3b82f6;display:inline-block;"></span><strong>السرعة</strong><span style="color:#64748b;">كم/س</span></div>
+        <div class="stat"><strong id="chart-speed-current" style="color:#3b82f6;">--</strong><span style="color:#64748b;">كم/س</span></div>
+      </div>
+      <div class="chart-container"><canvas id="chartSpeed"></canvas></div>
+    </div>
+    
+    <!-- Coolant Chart -->
+    <div>
+      <div class="chart-stats">
+        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;"></span><strong>حرارة المحرك</strong><span style="color:#64748b;">°C</span></div>
+        <div class="stat"><strong id="chart-coolant-current" style="color:#f59e0b;">--</strong><span style="color:#64748b;">°C</span></div>
+      </div>
+      <div class="chart-container"><canvas id="chartCoolant"></canvas></div>
+    </div>
+  </div>
+
   <div class="card"><h3 class="group-title">⚙️ المحرك والأداء</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">RPM</div><div class="value" id="p-rpm">--</div><div class="unit">دورة/دقيقة</div></div>
@@ -715,14 +754,12 @@ function buildReportHTML() {
   const currentDate = new Date().toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' });
   const vinText = document.getElementById('vinResult')?.textContent || 'غير محدد';
   const vinDecoded = vinText && vinText.length === 17 ? decodeVIN(vinText) : null;
-  
   const faultItems = document.querySelectorAll('#dtcList .dtc-item');
   const faults = [];
   faultItems.forEach(el => {
     const code = el.dataset.code;
     if (code) faults.push({ code, info: getFaultInfo(code) });
   });
-  
   const diagnoses = runSmartDiagnosis(faults.map(f => f.code));
   const healthScore = calculateHealthScore(faults, diagnoses);
   const healthColor = healthScore >= 80 ? '#10b981' : healthScore >= 50 ? '#f59e0b' : '#ef4444';
@@ -850,7 +887,6 @@ function hideExportButton() {
    ❄️ Freeze Frame (بيانات التجميد)
 ===================================================== */
 const FREEZE_PIDS = {
-  '02': { name: 'DTC الذي تسبب في التجميد', bytes: 2, calc:(a,b)=>{ const l=['P','C','B','U'][(a>>6)&0x03]; return `${l}${(a>>4)&0x03}${a&0x0F}${(b>>4)&0x0F}${b&0x0F}`; } },
   '03': { name: 'حالة الوقود', bytes: 1, calc:(a)=>{ const m={1:'حلقة مفتوحة - حرارة',2:'حلقة مغلقة',4:'حلقة مفتوحة - حمل',8:'حلقة مفتوحة - خطأ'}; return m[a] || 'حالة ' + a; } },
   '04': { name: 'حمل المحرك', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
   '05': { name: 'حرارة المحرك', bytes: 1, calc:(a)=>`${a-40} °C` },
@@ -886,16 +922,12 @@ async function readFreezeFrame(dtcCode) {
     `;
     return; 
   }
-  
   document.getElementById('freezeModal').style.display = 'block';
   document.getElementById('freezeCode').textContent = dtcCode;
   document.getElementById('freezeContent').innerHTML = '<p style="color:#64748b;">⏳ جاري قراءة بيانات التجميد...</p>';
-  
   log(`❄️ قراءة Freeze Frame للعطل ${dtcCode}...`);
-  
   const results = {};
   const pidsToRead = ['03','04','05','06','07','0B','0C','0D','0E','0F','10','11','1F','21','23','2F','31','42','46','5C'];
-  
   for (const pid of pidsToRead) {
     const def = FREEZE_PIDS[pid];
     if (!def) continue;
@@ -917,7 +949,6 @@ async function readFreezeFrame(dtcCode) {
       }
     } catch(e) {}
   }
-  
   if (Object.keys(results).length === 0) {
     document.getElementById('freezeContent').innerHTML = `
       <p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">
@@ -927,7 +958,6 @@ async function readFreezeFrame(dtcCode) {
     `;
     return;
   }
-  
   document.getElementById('freezeContent').innerHTML = `
     <p style="font-size:12px;color:#64748b;margin-bottom:12px;background:#eff6ff;padding:10px;border-radius:8px;">
       💡 هذه هي حالة المحرك <strong>بالضبط لحظة حدوث العطل</strong>.
@@ -944,8 +974,167 @@ async function readFreezeFrame(dtcCode) {
       PID: ${Object.keys(results).join(', ')}
     </div>
   `;
-  
   log(`✅ تم قراءة ${Object.keys(results).length} معلمة من بيانات التجميد`);
+}
+
+/* =====================================================
+   📈 الرسوم البيانية (Charts)
+===================================================== */
+const chartData = {
+  rpm: [],
+  speed: [],
+  coolant: [],
+  labels: []
+};
+const MAX_CHART_POINTS = 30;
+let chartRpmInstance = null;
+let chartSpeedInstance = null;
+let chartCoolantInstance = null;
+
+function initCharts() {
+  const commonOptions = (color, unit, suggestedMax) => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 300 },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f172a',
+        titleColor: '#fff',
+        bodyColor: '#4ade80',
+        borderColor: color,
+        borderWidth: 1,
+        padding: 10,
+        displayColors: false,
+        callbacks: {
+          label: (context) => `${context.parsed.y.toFixed(1)} ${unit}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        display: false,
+        grid: { display: false }
+      },
+      y: {
+        beginAtZero: true,
+        suggestedMax: suggestedMax,
+        grid: { color: 'rgba(226,232,240,0.5)', drawBorder: false },
+        ticks: {
+          color: '#94a3b8',
+          font: { size: 10, family: 'Cairo' },
+          maxTicksLimit: 5
+        }
+      }
+    },
+    elements: {
+      point: { radius: 0, hoverRadius: 5 },
+      line: { tension: 0.4, borderWidth: 2 }
+    }
+  });
+
+  const createGradient = (ctx, color) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, color + '40');
+    gradient.addColorStop(1, color + '00');
+    return gradient;
+  };
+
+  // RPM Chart
+  const rpmCtx = document.getElementById('chartRpm').getContext('2d');
+  chartRpmInstance = new Chart(rpmCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: '#ef4444',
+        backgroundColor: createGradient(rpmCtx, '#ef4444'),
+        fill: true
+      }]
+    },
+    options: commonOptions('#ef4444', 'RPM', 7000)
+  });
+
+  // Speed Chart
+  const speedCtx = document.getElementById('chartSpeed').getContext('2d');
+  chartSpeedInstance = new Chart(speedCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: '#3b82f6',
+        backgroundColor: createGradient(speedCtx, '#3b82f6'),
+        fill: true
+      }]
+    },
+    options: commonOptions('#3b82f6', 'كم/س', 180)
+  });
+
+  // Coolant Chart
+  const coolantCtx = document.getElementById('chartCoolant').getContext('2d');
+  chartCoolantInstance = new Chart(coolantCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: '#f59e0b',
+        backgroundColor: createGradient(coolantCtx, '#f59e0b'),
+        fill: true
+      }]
+    },
+    options: commonOptions('#f59e0b', '°C', 120)
+  });
+  
+  log('📈 تم تهيئة الرسوم البيانية');
+}
+
+function updateCharts(values) {
+  const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  
+  // RPM
+  if (values.rpm !== undefined && !isNaN(values.rpm)) {
+    chartData.rpm.push(values.rpm);
+    if (chartData.rpm.length > MAX_CHART_POINTS) chartData.rpm.shift();
+    document.getElementById('chart-rpm-current').textContent = values.rpm.toFixed(0);
+  }
+  
+  // Speed
+  if (values.speed !== undefined && !isNaN(values.speed)) {
+    chartData.speed.push(values.speed);
+    if (chartData.speed.length > MAX_CHART_POINTS) chartData.speed.shift();
+    document.getElementById('chart-speed-current').textContent = values.speed.toFixed(0);
+  }
+  
+  // Coolant
+  if (values.coolant !== undefined && !isNaN(values.coolant)) {
+    chartData.coolant.push(values.coolant);
+    if (chartData.coolant.length > MAX_CHART_POINTS) chartData.coolant.shift();
+    document.getElementById('chart-coolant-current').textContent = values.coolant.toFixed(0);
+  }
+  
+  // Labels
+  chartData.labels.push(time);
+  if (chartData.labels.length > MAX_CHART_POINTS) chartData.labels.shift();
+  
+  // تحديث الرسوم
+  if (chartRpmInstance) {
+    chartRpmInstance.data.labels = [...chartData.labels];
+    chartRpmInstance.data.datasets[0].data = [...chartData.rpm];
+    chartRpmInstance.update('none');
+  }
+  if (chartSpeedInstance) {
+    chartSpeedInstance.data.labels = [...chartData.labels];
+    chartSpeedInstance.data.datasets[0].data = [...chartData.speed];
+    chartSpeedInstance.update('none');
+  }
+  if (chartCoolantInstance) {
+    chartCoolantInstance.data.labels = [...chartData.labels];
+    chartCoolantInstance.data.datasets[0].data = [...chartData.coolant];
+    chartCoolantInstance.update('none');
+  }
 }
 
 /* =====================================================
@@ -1179,6 +1368,9 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'history') displayHistory();
+    if (tab.dataset.tab === 'live' && !chartRpmInstance) {
+      setTimeout(() => initCharts(), 100);
+    }
   });
 });
 
@@ -1522,6 +1714,9 @@ function updateLiveUI() {
   }
   colorize('coolant', 75, 105, 'range'); colorize('battery', 12.4, 14.8, 'range');
   ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
+  
+  // 📈 تحديث الرسوم البيانية
+  if (chartRpmInstance) updateCharts(lastValues);
 }
 
 function setValue(key, val, fmt) {
@@ -1557,7 +1752,13 @@ async function liveLoop() {
   if (liveRecording) recordingData.push({ time: Date.now(), ...lastValues });
 }
 
-function startLive() { if (liveInterval) return; log('▶️ بدء القراءة الحية...'); liveInterval = setInterval(liveLoop, 2000); liveLoop(); }
+function startLive() { 
+  if (liveInterval) return; 
+  log('▶️ بدء القراءة الحية...'); 
+  if (!chartRpmInstance) initCharts();
+  liveInterval = setInterval(liveLoop, 2000); 
+  liveLoop(); 
+}
 function stopLive() { if (liveInterval) clearInterval(liveInterval); liveInterval = null; log('⏸️ تم إيقاف القراءة'); }
 
 function runAutoAnalysis() {
@@ -1607,6 +1808,12 @@ function startDemo() {
   showExportButton();
   saveScanToCloud(demoDTCs, "DEMO-VIN-123", null);
   saveScanToHistory(demoDTCs, "DEMO-VIN-123", diagnoses, null);
+  
+  // تهيئة الرسوم البيانية
+  if (!chartRpmInstance) {
+    setTimeout(() => initCharts(), 200);
+  }
+  
   demoTimer = setInterval(() => {
     lastValues = {
       rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
