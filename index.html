@@ -7,133 +7,64 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b;
-    padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px;
-  }
+  body { font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b; padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px; }
   h1 { text-align: center; font-size: 28px; margin-bottom: 6px; }
   .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
-  .status {
-    display: block; width: fit-content; margin: 0 auto 16px;
-    padding: 8px 20px; border-radius: 20px; font-weight: 700;
-    background: #fee2e2; color: #b91c1c; transition: 0.3s;
-  }
+  .status { display: block; width: fit-content; margin: 0 auto 16px; padding: 8px 20px; border-radius: 20px; font-weight: 700; background: #fee2e2; color: #b91c1c; transition: 0.3s; }
   .status.connected { background: #dcfce7; color: #15803d; }
-  .btn {
-    border: none; border-radius: 12px; padding: 14px 20px;
-    font-family: inherit; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: 0.2s;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  }
+  .btn { border: none; border-radius: 12px; padding: 14px 20px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
   .btn:active { transform: scale(0.97); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-blue    { background: #3b82f6; color: #fff; }
-  .btn-purple  { background: #8b5cf6; color: #fff; }
-  .btn-red     { background: #f87171; color: #fff; }
-  .btn-orange  { background: #fbbf24; color: #78350f; }
-  .btn-gray    { background: #e2e8f0; color: #334155; }
-  .btn-green   { background: #10b981; color: #fff; }
+  .btn-blue { background: #3b82f6; color: #fff; }
+  .btn-purple { background: #8b5cf6; color: #fff; }
+  .btn-red { background: #f87171; color: #fff; }
+  .btn-orange { background: #fbbf24; color: #78350f; }
+  .btn-gray { background: #e2e8f0; color: #334155; }
+  .btn-green { background: #10b981; color: #fff; }
   .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .console {
-    background: #0f172a; color: #4ade80; padding: 16px;
-    border-radius: 14px; font-family: 'Courier New', monospace;
-    font-size: 13px; min-height: 120px; max-height: 220px;
-    overflow-y: auto; margin-bottom: 16px; line-height: 1.7;
-    direction: ltr; text-align: left; white-space: pre-wrap;
-  }
+  .console { background: #0f172a; color: #4ade80; padding: 16px; border-radius: 14px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 120px; max-height: 220px; overflow-y: auto; margin-bottom: 16px; line-height: 1.7; direction: ltr; text-align: left; white-space: pre-wrap; }
   .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
-  .tab {
-    padding: 10px 18px; background: #e2e8f0; border: none;
-    border-radius: 10px; font-family: inherit; font-weight: 700;
-    cursor: pointer; white-space: nowrap; font-size: 14px;
-  }
+  .tab { padding: 10px 18px; background: #e2e8f0; border: none; border-radius: 10px; font-family: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; font-size: 14px; }
   .tab.active { background: #3b82f6; color: #fff; }
   .panel { display: none; }
   .panel.active { display: block; }
-  .card {
-    background: #fff; border-radius: 14px; padding: 18px;
-    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  .car-container {
-    position: relative; background: linear-gradient(135deg, #0f172a, #1e293b);
-    border-radius: 20px; padding: 20px; overflow: hidden; margin-bottom: 16px;
-  }
+  .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .car-container { position: relative; background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 20px; padding: 20px; overflow: hidden; margin-bottom: 16px; }
   .car-svg { width: 100%; height: auto; display: block; }
   .zone { cursor: pointer; opacity: 0; transition: opacity 0.3s; }
-  .zone rect, .zone circle.brake-zone {
-    fill: rgba(59,130,246,0.15); stroke: #3b82f6;
-    stroke-width: 2; stroke-dasharray: 4 4;
-  }
-  .zone text {
-    fill: #cbd5e1; font-size: 13px; text-anchor: middle;
-    font-family: 'Cairo', sans-serif; pointer-events: none;
-  }
+  .zone rect, .zone circle.brake-zone { fill: rgba(59,130,246,0.15); stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 4 4; }
+  .zone text { fill: #cbd5e1; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; }
   .zone.active { opacity: 1; animation: pulseZone 1.5s infinite; }
-  .zone.active rect, .zone.active circle.brake-zone {
-    fill: rgba(239,68,68,0.4); stroke: #ef4444;
-    stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444);
-  }
+  .zone.active rect, .zone.active circle.brake-zone { fill: rgba(239,68,68,0.4); stroke: #ef4444; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444); }
   .zone.active text { fill: #fecaca; font-weight: 700; }
   @keyframes pulseZone { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
-  .fault-card {
-    position: absolute; top: 14px; right: 14px;
-    background: rgba(15,23,42,0.96); border: 1px solid #ef4444;
-    border-radius: 14px; padding: 14px 16px; max-width: 250px;
-    color: #f1f5f9; box-shadow: 0 0 25px rgba(239,68,68,0.5);
-    animation: slideIn 0.5s ease;
-  }
+  .fault-card { position: absolute; top: 14px; right: 14px; background: rgba(15,23,42,0.96); border: 1px solid #ef4444; border-radius: 14px; padding: 14px 16px; max-width: 250px; color: #f1f5f9; box-shadow: 0 0 25px rgba(239,68,68,0.5); animation: slideIn 0.5s ease; }
   .fault-card.hidden { display: none; }
   .fault-icon { font-size: 24px; margin-bottom: 4px; }
   .fault-card h3 { margin: 4px 0; color: #f87171; font-size: 15px; }
-  .fault-card p  { font-size: 12px; color: #cbd5e1; line-height: 1.5; }
-  .fault-code {
-    display: inline-block; background: #ef4444; color: #fff;
-    padding: 3px 10px; border-radius: 6px;
-    font-family: monospace; margin-top: 6px; font-size: 12px;
-  }
+  .fault-card p { font-size: 12px; color: #cbd5e1; line-height: 1.5; }
+  .fault-code { display: inline-block; background: #ef4444; color: #fff; padding: 3px 10px; border-radius: 6px; font-family: monospace; margin-top: 6px; font-size: 12px; }
   @keyframes slideIn { from{transform:translateX(30px);opacity:0;} to{transform:translateX(0);opacity:1;} }
   .dtc-list { display: flex; flex-direction: column; gap: 10px; }
-  .dtc-item {
-    background: #fef2f2; border-right: 4px solid #ef4444;
-    border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: 0.2s;
-  }
+  .dtc-item { background: #fef2f2; border-right: 4px solid #ef4444; border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: 0.2s; }
   .dtc-item:hover { background: #fee2e2; transform: translateX(-4px); }
-  .dtc-item .code { font-weight: 700; color: #b91c1c; font-family: monospace; }
+  .dtc-item .code { font-weight: 700; color: #b91c1c; font-family: monospace; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .dtc-item .title { font-size: 13px; color: #334155; margin-top: 4px; }
-  .dtc-item .system-badge {
-    font-size: 11px; background: #3b82f6; color: #fff;
-    padding: 2px 8px; border-radius: 4px;
-    margin-right: 8px; font-family: 'Cairo', sans-serif;
-  }
-  .search-input {
-    width: 100%; padding: 12px 16px;
-    border: 2px solid #e2e8f0; border-radius: 12px;
-    font-family: inherit; font-size: 14px; outline: none; transition: 0.2s;
-  }
+  .system-badge { font-size: 11px; background: #3b82f6; color: #fff; padding: 2px 8px; border-radius: 4px; font-family: 'Cairo', sans-serif; }
+  .search-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 14px; outline: none; transition: 0.2s; }
   .search-input:focus { border-color: #3b82f6; }
   .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .data-box {
-    background: #f8fafc; border-radius: 10px; padding: 12px;
-    text-align: center; border: 1px solid #e2e8f0; transition: 0.3s;
-  }
+  .data-box { background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; transition: 0.3s; }
   .data-box .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
   .data-box .value { font-size: 20px; font-weight: 700; color: #0f172a; }
   .data-box .unit { font-size: 11px; color: #94a3b8; }
   .data-box.good { background:#dcfce7; border-color:#16a34a; }
   .data-box.warn { background:#fef3c7; border-color:#f59e0b; }
-  .data-box.bad  { background:#fee2e2; border-color:#dc2626; }
+  .data-box.bad { background:#fee2e2; border-color:#dc2626; }
   .data-box.good .value { color:#15803d; }
   .data-box.warn .value { color:#b45309; }
-  .data-box.bad  .value { color:#b91c1c; }
-  .group-title {
-    font-size: 16px; margin-bottom: 12px; color: #1e293b;
-    border-right: 4px solid #3b82f6; padding-right: 10px;
-  }
-  .analysis-item {
-    padding: 8px 12px; margin: 6px 0; border-radius: 8px;
-    background: rgba(255,255,255,0.6);
-    display: flex; align-items: center; gap: 8px; font-size: 14px;
-  }
+  .data-box.bad .value { color:#b91c1c; }
+  .group-title { font-size: 16px; margin-bottom: 12px; color: #1e293b; border-right: 4px solid #3b82f6; padding-right: 10px; }
+  .analysis-item { padding: 8px 12px; margin: 6px 0; border-radius: 8px; background: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; font-size: 14px; }
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
 </style>
 </head>
@@ -157,15 +88,16 @@
   <button class="tab active" data-tab="faults">🛠️ الأعطال</button>
   <button class="tab" data-tab="live">📊 بيانات حية</button>
   <button class="tab" data-tab="vin">🔍 VIN</button>
+  <button class="tab" data-tab="stats">📈 إحصائيات</button>
 </div>
 
 <!-- ============ الأعطال ============ -->
 <div class="panel active" id="panel-faults">
   <div class="car-container">
     <svg viewBox="0 0 800 400" class="car-svg" id="carSvg">
-      <path class="car-body" d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
-      <path class="car-glass" d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
-      <path class="car-glass" d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
+      <path d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+      <path d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
+      <path d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
       <circle cx="180" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
       <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
       <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
@@ -178,7 +110,7 @@
       <g class="zone" data-zone="exhaust"><rect x="60" y="240" width="80" height="50" rx="8"/><text x="100" y="270">عوادم</text></g>
       <g class="zone" data-zone="cooling"><rect x="700" y="220" width="60" height="60" rx="8"/><text x="730" y="255">تبريد</text></g>
       <g class="zone" data-zone="abs"><rect x="240" y="230" width="70" height="50" rx="8"/><text x="275" y="260">ABS</text></g>
-      <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد هوائية</text></g>
+      <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد</text></g>
       <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
     </svg>
     <div class="fault-card hidden" id="faultCard">
@@ -273,7 +205,36 @@
   </div>
 </div>
 
-<script>
+<!-- ============ الإحصائيات ============ -->
+<div class="panel" id="panel-stats">
+  <div class="card">
+    <h3 class="group-title">📊 إحصائيات حية من جميع المستخدمين</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px;">البيانات مجمعة بشكل مجهول من فحوصات المستخدمين.</p>
+    <button class="btn btn-blue" id="btnLoadStats" style="width:100%;margin-bottom:12px;">🔄 تحديث الإحصائيات</button>
+    <div id="statsContent"><p class="hint">اضغط "تحديث الإحصائيات" لعرض البيانات.</p></div>
+  </div>
+</div>
+
+<script type="module">
+/* =====================================================
+   Firebase
+===================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit, doc, getDoc, setDoc, increment, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEIqVSzAdu-hBQqhhda3E7A05oVOHDkFc",
+  authDomain: "checkdiga-f9be7.firebaseapp.com",
+  projectId: "checkdiga-f9be7",
+  storageBucket: "checkdiga-f9be7.firebasestorage.app",
+  messagingSenderId: "429788177002",
+  appId: "1:429788177002:web:be7ff0ca219ccfc0372013",
+  measurementId: "G-DVV4Y7NHQB"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
 /* =====================================================
    قاعدة بيانات محلية احتياطية
 ===================================================== */
@@ -290,27 +251,18 @@ const DTC_MAP = {
 let DTC_DATABASE = { ...DTC_MAP };
 
 /* =====================================================
-   نظام تحميل متقدم بقاعدة بيانات مقسمة (Lazy Loading)
+   نظام تحميل متقدم بقاعدة بيانات مقسمة
 ===================================================== */
 const DB_VERSION = 'v3';
 const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
 const CACHE_KEY_PREFIX = 'dtc_ext_' + DB_VERSION + '_';
-const CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30 يوم
+const CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000;
 
-const DB_FILES = {
-  P: 'dtc_p.json',
-  C: 'dtc_c.json',
-  B: 'dtc_b.json',
-  U: 'dtc_u.json'
-};
-
+const DB_FILES = { P: 'dtc_p.json', C: 'dtc_c.json', B: 'dtc_b.json', U: 'dtc_u.json' };
 const loadedCategories = new Set();
-let loadingPromise = null;
 
 function decompressEntry(entry) {
-  if (Array.isArray(entry)) {
-    return { zone: entry[0] || 'engine', title: entry[1] || '', desc: entry[2] || '' };
-  }
+  if (Array.isArray(entry)) return { zone: entry[0] || 'engine', title: entry[1] || '', desc: entry[2] || '' };
   return entry;
 }
 
@@ -373,37 +325,31 @@ async function loadDatabase() {
     applyCompressedData(coreData);
     await saveToCache(CACHE_KEY_CORE, coreData);
     log(`✅ تم تحميل ${Object.keys(coreData).length} كود أساسي`);
-  } catch (e) { log('⚠️ فشل تحميل القاعدة الأساسية، استخدام المحلية'); }
+  } catch (e) { log('⚠️ فشل تحميل القاعدة الأساسية'); }
 }
 
 function applyCompressedData(data) {
-  for (const [code, entry] of Object.entries(data)) {
-    DTC_DATABASE[code] = decompressEntry(entry);
-  }
+  for (const [code, entry] of Object.entries(data)) DTC_DATABASE[code] = decompressEntry(entry);
 }
 
 async function loadCategory(category) {
   if (loadedCategories.has(category) || !DB_FILES[category]) return;
-  loadingPromise = (async () => {
-    const cacheKey = CACHE_KEY_PREFIX + category;
-    let data = await loadFromCache(cacheKey);
-    if (data) {
-      applyCompressedData(data);
-      loadedCategories.add(category);
-      log(`⚡ فئة ${category} من الذاكرة (${Object.keys(data).length} كود)`);
-      return;
-    }
-    try {
-      log(`🌐 تحميل فئة ${category}...`);
-      data = await fetchJSON(DB_FILES[category]);
-      applyCompressedData(data);
-      await saveToCache(cacheKey, data);
-      loadedCategories.add(category);
-      log(`✅ فئة ${category}: ${Object.keys(data).length} كود`);
-    } catch (e) { log(`⚠️ فشل تحميل فئة ${category}`); }
-  })();
-  await loadingPromise;
-  loadingPromise = null;
+  const cacheKey = CACHE_KEY_PREFIX + category;
+  let data = await loadFromCache(cacheKey);
+  if (data) {
+    applyCompressedData(data);
+    loadedCategories.add(category);
+    log(`⚡ فئة ${category} من الذاكرة (${Object.keys(data).length} كود)`);
+    return;
+  }
+  try {
+    log(`🌐 تحميل فئة ${category}...`);
+    data = await fetchJSON(DB_FILES[category]);
+    applyCompressedData(data);
+    await saveToCache(cacheKey, data);
+    loadedCategories.add(category);
+    log(`✅ فئة ${category}: ${Object.keys(data).length} كود`);
+  } catch (e) { log(`⚠️ فشل تحميل فئة ${category}`); }
 }
 
 let searchTimer = null;
@@ -416,13 +362,11 @@ async function performSearch(query) {
   const resultsDiv = document.getElementById('searchResults');
   const q = query.trim().toUpperCase();
   if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
-
   const firstLetter = q[0];
   if (['P','C','B','U'].includes(firstLetter) && !loadedCategories.has(firstLetter)) {
     resultsDiv.innerHTML = '<p class="hint">⏳ جاري تحميل قاعدة أكواد ' + firstLetter + '...</p>';
     await loadCategory(firstLetter);
   }
-
   const matches = [];
   for (const [code, info] of Object.entries(DTC_DATABASE)) {
     if (matches.length >= 20) break;
@@ -430,53 +374,94 @@ async function performSearch(query) {
       matches.push([code, info]);
     }
   }
-
-  if (matches.length === 0) {
-    resultsDiv.innerHTML = `<p class="hint">لا توجد نتائج لـ "${query}"</p>`;
-    return;
-  }
-
+  if (matches.length === 0) { resultsDiv.innerHTML = `<p class="hint">لا توجد نتائج لـ "${query}"</p>`; return; }
   resultsDiv.innerHTML = `
     <p style="font-size:13px;color:#64748b;margin-bottom:8px;">تم العثور على ${matches.length} نتيجة:</p>
     <div class="dtc-list">
-      ${matches.map(([code, info]) => `
-        <div class="dtc-item" data-code="${code}">
-          <div class="code">${code}</div>
-          <div class="title">${info.title || 'غير معروف'}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-
+      ${matches.map(([code, info]) => `<div class="dtc-item" data-code="${code}"><div class="code">${code}</div><div class="title">${info.title || 'غير معروف'}</div></div>`).join('')}
+    </div>`;
   resultsDiv.querySelectorAll('.dtc-item').forEach(el => {
-    el.addEventListener('click', () => {
-      displayFault(el.dataset.code);
-      document.getElementById('dtcSearchInput').value = '';
-      resultsDiv.innerHTML = '';
-    });
+    el.addEventListener('click', () => { displayFault(el.dataset.code); document.getElementById('dtcSearchInput').value = ''; resultsDiv.innerHTML = ''; });
   });
 }
 
 /* =====================================================
-   عرض العطل على السيارة
+   Firebase: حفظ البيانات
+===================================================== */
+async function saveScanToCloud(faults, vin, carInfo) {
+  if (!faults || faults.length === 0) return;
+  try {
+    await addDoc(collection(db, "scans"), {
+      vin: vin || "unknown",
+      faults: faults.map(f => ({ code: f.code, system: f.system })),
+      faultCodes: faults.map(f => f.code),
+      timestamp: serverTimestamp(),
+      carMake: carInfo?.make || "unknown",
+      carModel: carInfo?.model || "unknown",
+      carYear: carInfo?.year || "unknown",
+      userAgent: navigator.userAgent.substring(0, 100),
+      language: navigator.language,
+      screenWidth: window.screen.width
+    });
+    for (const fault of faults) await updateDTCStats(fault.code, carInfo);
+    log('☁️ تم حفظ الفحص في السحابة');
+    return true;
+  } catch (e) { log('⚠️ فشل حفظ البيانات: ' + e.message); return false; }
+}
+
+async function updateDTCStats(code, carInfo) {
+  try {
+    const statsRef = doc(db, "dtc_stats", code);
+    const statsDoc = await getDoc(statsRef);
+    if (statsDoc.exists()) {
+      const updates = { count: increment(1), lastSeen: serverTimestamp() };
+      if (carInfo?.make && carInfo.make !== "unknown") updates[`makes.${carInfo.make}`] = increment(1);
+      await updateDoc(statsRef, updates);
+    } else {
+      const initialData = { code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() };
+      if (carInfo?.make && carInfo.make !== "unknown") initialData.makes = { [carInfo.make]: 1 };
+      await setDoc(statsRef, initialData);
+    }
+  } catch (e) { console.warn('Stats failed for', code, e); }
+}
+
+async function loadTopFaults() {
+  try {
+    const q = query(collection(db, "dtc_stats"), orderBy("count", "desc"), limit(10));
+    const snapshot = await getDocs(q);
+    const topFaults = [];
+    snapshot.forEach(doc => topFaults.push(doc.data()));
+    return topFaults;
+  } catch (e) { console.warn('Load top failed:', e); return []; }
+}
+
+async function displayStats() {
+  const container = document.getElementById('statsContent');
+  container.innerHTML = '<p class="hint">⏳ جاري تحميل الإحصائيات...</p>';
+  const topFaults = await loadTopFaults();
+  if (topFaults.length === 0) { container.innerHTML = '<p class="hint">لا توجد بيانات بعد. كن أول من يفحص سيارته!</p>'; return; }
+  container.innerHTML = `
+    <h4 style="margin-bottom:12px;color:#1e293b;">🔥 أكثر 10 أعطال شيوعاً:</h4>
+    <div class="dtc-list">
+      ${topFaults.map((f, i) => {
+        const info = getFaultInfo(f.code);
+        return `<div class="dtc-item" style="cursor:default;"><div class="code"><span class="system-badge">#${i + 1}</span>${f.code}<span style="margin-right:auto;color:#64748b;font-weight:700;">${f.count} مرة</span></div><div class="title">${info.title || 'غير معروف'}</div></div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* =====================================================
+   عرض العطل
 ===================================================== */
 function displayFault(dtcCode) {
   document.querySelectorAll('.zone.active').forEach(z => z.classList.remove('active'));
   const info = getFaultInfo(dtcCode);
   const zoneEl = document.querySelector(`[data-zone="${info.zone}"]`);
-  if (zoneEl) {
-    zoneEl.classList.add('active');
-    const car = document.getElementById('carSvg');
-    car.animate([
-      { transform:'translateX(0)' }, { transform:'translateX(-4px)' },
-      { transform:'translateX(4px)' }, { transform:'translateX(0)' }
-    ], { duration:400 });
-  }
+  if (zoneEl) zoneEl.classList.add('active');
   document.getElementById('faultTitle').textContent = info.title;
-  document.getElementById('faultDesc').textContent  = info.desc;
-  document.getElementById('faultCode').textContent  = dtcCode;
+  document.getElementById('faultDesc').textContent = info.desc;
+  document.getElementById('faultCode').textContent = dtcCode;
   document.getElementById('faultCard').classList.remove('hidden');
-  playAlertSound();
 }
 
 function clearCarDisplay() {
@@ -484,21 +469,13 @@ function clearCarDisplay() {
   document.getElementById('faultCard').classList.add('hidden');
 }
 
-function playAlertSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.value = 880; osc.type = 'sine';
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime + 0.35);
-  } catch(e) {}
+function getFaultInfo(code) {
+  const clean = String(code).trim().toUpperCase();
+  return DTC_DATABASE[clean] || { zone:"engine", title:"عطل غير معروف", desc:"كود غير مسجل في قاعدة البيانات." };
 }
 
 /* =====================================================
-   التبويبات وسجل الرسائل
+   التبويبات والسجل
 ===================================================== */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -522,36 +499,21 @@ function setStatus(text, connected) {
   s.classList.toggle('connected', !!connected);
 }
 
-function getFaultInfo(code) {
-  const clean = String(code).trim().toUpperCase();
-  return DTC_DATABASE[clean] || {
-    zone:"engine", title:"عطل غير معروف",
-    desc:"كود غير مسجل في قاعدة البيانات. ابحث عنه في الإنترنت."
-  };
-}
-
 /* =====================================================
    Bluetooth
 ===================================================== */
 let device = null, characteristic = null;
-const ELM_SERVICE  = '0000fff0-0000-1000-8000-00805f9b34fb';
-const ELM_CHAR     = '0000fff1-0000-1000-8000-00805f9b34fb';
+const ELM_SERVICE = '0000fff0-0000-1000-8000-00805f9b34fb';
+const ELM_CHAR = '0000fff1-0000-1000-8000-00805f9b34fb';
 const ELM_SERVICE2 = '0000ffe0-0000-1000-8000-00805f9b34fb';
-const ELM_CHAR2    = '0000ffe1-0000-1000-8000-00805f9b34fb';
+const ELM_CHAR2 = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
 async function connectBluetooth() {
-  if (!navigator.bluetooth) {
-    alert('متصفحك لا يدعم Bluetooth. استخدم Chrome على Android.');
-    return;
-  }
+  if (!navigator.bluetooth) { alert('متصفحك لا يدعم Bluetooth.'); return; }
   try {
     log('🔍 البحث عن أجهزة OBD-II...');
     device = await navigator.bluetooth.requestDevice({
-      filters: [
-        { namePrefix: 'OBD' }, { namePrefix: 'ELM' },
-        { namePrefix: 'Vgate' }, { namePrefix: 'V-Link' },
-        { services: [ELM_SERVICE] }, { services: [ELM_SERVICE2] },
-      ],
+      filters: [{ namePrefix: 'OBD' }, { namePrefix: 'ELM' }, { namePrefix: 'Vgate' }, { namePrefix: 'V-Link' }, { services: [ELM_SERVICE] }, { services: [ELM_SERVICE2] }],
       optionalServices: [ELM_SERVICE, ELM_SERVICE2]
     });
     log('✅ تم اختيار: ' + device.name);
@@ -570,58 +532,43 @@ async function connectBluetooth() {
     await sendCommand('ATZ', 1500);
     await sendCommand('ATE0', 500);
     await sendCommand('ATSP0', 500);
-  } catch (e) {
-    log('❌ خطأ: ' + e.message);
-    setStatus('غير متصل', false);
-  }
+  } catch (e) { log('❌ خطأ: ' + e.message); setStatus('غير متصل', false); }
 }
 
 function disconnectBluetooth() {
-  try {
-    if (device && device.gatt.connected) device.gatt.disconnect();
-    setStatus('غير متصل', false);
-    log('🔌 تم قطع الاتصال');
-  } catch(e) { log('خطأ: ' + e.message); }
+  try { if (device && device.gatt.connected) device.gatt.disconnect(); setStatus('غير متصل', false); log('🔌 تم قطع الاتصال'); } catch(e) {}
 }
 
-/* =====================================================
-   إرسال الأوامر
-===================================================== */
 let responseBuffer = '';
-function handleData(event) {
-  const decoder = new TextDecoder();
-  responseBuffer += decoder.decode(event.target.value);
-}
+function handleData(event) { responseBuffer += new TextDecoder().decode(event.target.value); }
 
 async function sendCommand(cmd, waitMs = 400) {
   if (!characteristic) { log('⚠️ غير متصل'); return null; }
   responseBuffer = '';
   const encoder = new TextEncoder();
   const full = cmd + '\r';
-  for (let i = 0; i < full.length; i += 20) {
-    await characteristic.writeValue(encoder.encode(full.substring(i, i + 20)));
-  }
+  for (let i = 0; i < full.length; i += 20) await characteristic.writeValue(encoder.encode(full.substring(i, i + 20)));
   await new Promise(r => setTimeout(r, waitMs));
   return responseBuffer;
 }
 
 /* =====================================================
-   قراءة أعطال المحرك (OBD-II)
+   قراءة الأعطال
 ===================================================== */
 async function readDTCs() {
   const list = document.getElementById('dtcList');
-  if (!characteristic) {
-    list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً أو استخدم الوضع التجريبي.</p>';
-    return;
-  }
+  if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>'; return; }
   log('📋 قراءة أعطال المحرك...');
   await sendCommand('AT SH 7E0', 200);
   const resp = await sendCommand('03', 800);
   const codes = parseDTCs(resp);
   const faults = codes.map(c => ({ code: c, system: 'المحرك' }));
   renderFaults(faults);
-  if (faults.length > 0) displayFault(faults[0].code);
-  else clearCarDisplay();
+  if (faults.length > 0) {
+    displayFault(faults[0].code);
+    const vinText = document.getElementById('vinResult')?.textContent || "unknown";
+    await saveScanToCloud(faults, vinText, null);
+  } else clearCarDisplay();
 }
 
 function parseDTCs(raw) {
@@ -629,8 +576,7 @@ function parseDTCs(raw) {
   const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
   const match = clean.match(/43([0-9A-F]+)/);
   if (!match) return [];
-  const hex = match[1];
-  const codes = [];
+  const hex = match[1]; const codes = [];
   for (let i = 0; i + 4 <= hex.length; i += 4) {
     const pair = hex.substring(i, i + 4);
     if (pair === '0000') continue;
@@ -640,20 +586,16 @@ function parseDTCs(raw) {
   return codes;
 }
 
-/* =====================================================
-   مسح جميع الأنظمة (UDS)
-===================================================== */
 const ECU_LIST = [
-  { addr: '7E0', name: 'المحرك' }, { addr: '7E1', name: 'ناقل الحركة' },
-  { addr: '7E2', name: 'نظام الدفع' }, { addr: '7E3', name: 'ABS' },
-  { addr: '7E4', name: 'ABS (بديل)' }, { addr: '7E5', name: 'التوجيه الكهربائي' },
+  { addr: '7E0', name: 'المحرك' }, { addr: '7E1', name: 'ناقل الحركة' }, { addr: '7E2', name: 'نظام الدفع' },
+  { addr: '7E3', name: 'ABS' }, { addr: '7E4', name: 'ABS (بديل)' }, { addr: '7E5', name: 'التوجيه' },
   { addr: '7E6', name: 'الوسائد الهوائية' }, { addr: '7E7', name: 'التكييف' }
 ];
 
 async function scanAllECUs() {
   const list = document.getElementById('dtcList');
   if (!characteristic) { list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>'; return; }
-  log('🚀 بدء المسح الشامل لجميع الأنظمة...');
+  log('🚀 بدء المسح الشامل...');
   list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات...</p>';
   await sendCommand('AT CRA 7E8', 200);
   await sendCommand('AT CAF1', 200);
@@ -670,17 +612,19 @@ async function scanAllECUs() {
   }
   await sendCommand('AT SH 7E0', 200);
   renderFaults(allFaults);
-  log(`✅ اكتمل الفحص. إجمالي الأعطال: ${allFaults.length}`);
-  if (allFaults.length > 0) displayFault(allFaults[0].code);
-  else clearCarDisplay();
+  log(`✅ اكتمل. إجمالي: ${allFaults.length}`);
+  if (allFaults.length > 0) {
+    displayFault(allFaults[0].code);
+    const vinText = document.getElementById('vinResult')?.textContent || "unknown";
+    await saveScanToCloud(allFaults, vinText, null);
+  } else clearCarDisplay();
 }
 
 function parseUDS_Response(raw) {
   const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
   const match = clean.match(/5902([0-9A-F]+)/);
   if (!match) return [];
-  const hex = match[1];
-  const codes = [];
+  const hex = match[1]; const codes = [];
   for (let i = 0; i + 8 <= hex.length; i += 8) {
     const dtcHex = hex.substring(i, i + 6);
     const firstByte = parseInt(dtcHex.substring(0, 2), 16);
@@ -692,30 +636,18 @@ function parseUDS_Response(raw) {
   return codes;
 }
 
-/* =====================================================
-   عرض الأعطال
-===================================================== */
 function renderFaults(faults) {
   const list = document.getElementById('dtcList');
-  if (!faults.length) {
-    list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة في أي نظام.</p>';
-    return;
-  }
+  if (!faults.length) { list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة.</p>'; return; }
   list.innerHTML = faults.map(f => {
     const info = getFaultInfo(f.code);
-    return `<div class="dtc-item" data-code="${f.code}">
-      <div class="code"><span class="system-badge">${f.system}</span>${f.code}</div>
-      <div class="title">${info.title}</div>
-    </div>`;
+    return `<div class="dtc-item" data-code="${f.code}"><div class="code"><span class="system-badge">${f.system}</span>${f.code}</div><div class="title">${info.title}</div></div>`;
   }).join('');
   list.querySelectorAll('.dtc-item').forEach(el => {
     el.addEventListener('click', () => displayFault(el.dataset.code));
   });
 }
 
-/* =====================================================
-   مسح الأعطال و VIN
-===================================================== */
 async function clearDTCs() {
   if (!characteristic) { alert('اتصل بجهاز أولاً.'); return; }
   if (!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
@@ -808,7 +740,6 @@ function updateLiveUI() {
   setValue('battery', lastValues.battery, v=>v.toFixed(2)); setValue('fuelLevel', lastValues.fuelLevel, v=>v.toFixed(0));
   setValue('distClr', lastValues.distClr, v=>v.toFixed(0)); setValue('distCel', lastValues.distCel, v=>v.toFixed(0));
   setValue('runtime', lastValues.runtime, v=>v.toFixed(0));
-
   const fs = lastValues.fuelStatus;
   if (fs !== undefined) {
     const map = { 1:'محرك يعمل', 2:'إشعال فقط', 3:'حلقة مغلقة', 4:'حلقة مفتوحة - حرارة', 5:'حلقة مفتوحة - حمل' };
@@ -866,14 +797,8 @@ function runAutoAnalysis() {
   }
   if (v.battery !== undefined) {
     if (v.battery < 12.4 && v.rpm > 500) items.push({ icon:'🔋', text:`جهد البطارية ${v.battery}V — الدينامو لا يشحن` });
-    if (v.battery > 15) items.push({ icon:'⚡', text:`جهد مرتفع ${v.battery}V` });
   }
   ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => { if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` }); });
-  if (v.maf !== undefined && v.rpm > 500) {
-    const ratio = v.maf / (v.rpm / 1000);
-    if (ratio < 1.5) items.push({ icon:'🌬️', text:`MAF منخفض` });
-    if (ratio > 8) items.push({ icon:'🌬️', text:`MAF مرتفع — تسرب هواء` });
-  }
   if (items.length === 0) el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
   else el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
 }
@@ -902,7 +827,7 @@ function startDemo() {
     { code: 'B0001', system: 'الوسائد الهوائية' }, { code: 'U0100', system: 'الكهرباء' }
   ];
   renderFaults(demoDTCs); displayFault(demoDTCs[0].code);
-
+  saveScanToCloud(demoDTCs, "DEMO-VIN-123", null);
   demoTimer = setInterval(() => {
     lastValues = {
       rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
@@ -923,7 +848,7 @@ function startDemo() {
 function stopDemo() { if (demoTimer) clearInterval(demoTimer); demoTimer = null; }
 
 /* =====================================================
-   ربط الأزرار وتشغيل التطبيق
+   ربط الأزرار
 ===================================================== */
 document.getElementById('btnConnect').addEventListener('click', connectBluetooth);
 document.getElementById('btnDemo').addEventListener('click', startDemo);
@@ -936,6 +861,7 @@ document.getElementById('btnStartLive').addEventListener('click', () => { liveRe
 document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
 document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
+document.getElementById('btnLoadStats').addEventListener('click', displayStats);
 
 loadDatabase();
 </script>
