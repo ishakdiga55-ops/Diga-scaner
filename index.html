@@ -3,300 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔧 CheckDiga — أداة فحص السيارات</title>
-<meta name="theme-color" content="#3b82f6">
+<title>🔧 CheckDiga — نظام الفحص الهندسي المتقدم</title>
+<meta name="theme-color" content="#1e293b">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="description" content="أداة فحص السيارات المتكاملة">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #1e293b; padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 60px; }
-  h1 { text-align: center; font-size: 28px; margin-bottom: 6px; }
-  .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
-  .status { display: block; width: fit-content; margin: 0 auto 16px; padding: 8px 20px; border-radius: 20px; font-weight: 700; background: #fee2e2; color: #b91c1c; transition: 0.3s; }
-  .status.connected { background: #dcfce7; color: #15803d; }
-  .btn { border: none; border-radius: 12px; padding: 14px 20px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn:active { transform: scale(0.97); }
-  .btn-blue { background: #3b82f6; color: #fff; }
-  .btn-purple { background: #8b5cf6; color: #fff; }
-  .btn-red { background: #f87171; color: #fff; }
-  .btn-orange { background: #fbbf24; color: #78350f; }
-  .btn-gray { background: #e2e8f0; color: #334155; }
-  .btn-green { background: #10b981; color: #fff; }
-  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .console { background: #0f172a; color: #4ade80; padding: 16px; border-radius: 14px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 120px; max-height: 220px; overflow-y: auto; margin-bottom: 16px; line-height: 1.7; direction: ltr; text-align: left; white-space: pre-wrap; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
-  .tab { padding: 10px 18px; background: #e2e8f0; border: none; border-radius: 10px; font-family: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; font-size: 14px; }
-  .tab.active { background: #3b82f6; color: #fff; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .car-container { position: relative; background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 20px; padding: 20px; overflow: hidden; margin-bottom: 16px; }
-  .car-svg { width: 100%; height: auto; display: block; }
-  .zone { cursor: pointer; opacity: 0; transition: opacity 0.3s; }
-  .zone rect, .zone circle.brake-zone { fill: rgba(59,130,246,0.15); stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 4 4; }
-  .zone text { fill: #cbd5e1; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; }
-  .zone.active { opacity: 1; animation: pulseZone 1.5s infinite; }
+  body { font-family: 'Cairo', sans-serif; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+  .tab-active { background: #3b82f6 !important; color: #fff !important; }
   .zone.active rect, .zone.active circle.brake-zone { fill: rgba(239,68,68,0.4); stroke: #ef4444; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444); }
   .zone.active text { fill: #fecaca; font-weight: 700; }
-  @keyframes pulseZone { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
-  .fault-card { position: absolute; top: 14px; right: 14px; background: rgba(15,23,42,0.96); border: 1px solid #ef4444; border-radius: 14px; padding: 14px 16px; max-width: 250px; color: #f1f5f9; box-shadow: 0 0 25px rgba(239,68,68,0.5); animation: slideIn 0.5s ease; }
-  .fault-card.hidden { display: none; }
-  .fault-icon { font-size: 24px; margin-bottom: 4px; }
-  .fault-card h3 { margin: 4px 0; color: #f87171; font-size: 15px; }
-  .fault-card p { font-size: 12px; color: #cbd5e1; line-height: 1.5; }
-  .fault-code { display: inline-block; background: #ef4444; color: #fff; padding: 3px 10px; border-radius: 6px; font-family: monospace; margin-top: 6px; font-size: 12px; }
-  @keyframes slideIn { from{transform:translateX(30px);opacity:0;} to{transform:translateX(0);opacity:1;} }
-  .dtc-list { display: flex; flex-direction: column; gap: 10px; }
-  .dtc-item { background: #fef2f2; border-right: 4px solid #ef4444; border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: 0.2s; }
-  .dtc-item:hover { background: #fee2e2; transform: translateX(-4px); }
-  .dtc-item .code { font-weight: 700; color: #b91c1c; font-family: monospace; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .dtc-item .title { font-size: 13px; color: #334155; margin-top: 4px; }
-  .system-badge { font-size: 11px; background: #3b82f6; color: #fff; padding: 2px 8px; border-radius: 4px; font-family: 'Cairo', sans-serif; }
-  .search-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 14px; outline: none; transition: 0.2s; }
-  .search-input:focus { border-color: #3b82f6; }
-  .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .data-box { background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; transition: 0.3s; }
-  .data-box .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
-  .data-box .value { font-size: 20px; font-weight: 700; color: #0f172a; }
-  .data-box .unit { font-size: 11px; color: #94a3b8; }
-  .data-box.good { background:#dcfce7; border-color:#16a34a; }
-  .data-box.warn { background:#fef3c7; border-color:#f59e0b; }
-  .data-box.bad { background:#fee2e2; border-color:#dc2626; }
-  .data-box.good .value { color:#15803d; }
-  .data-box.warn .value { color:#b45309; }
-  .data-box.bad .value { color:#b91c1c; }
-  .group-title { font-size: 16px; margin-bottom: 12px; color: #1e293b; border-right: 4px solid #3b82f6; padding-right: 10px; }
-  body[dir="ltr"] .group-title { border-right: none; border-left: 4px solid #3b82f6; padding-right: 0; padding-left: 10px; }
-  .analysis-item { padding: 8px 12px; margin: 6px 0; border-radius: 8px; background: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; font-size: 14px; }
-  .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
-  .health-badge { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-radius:14px; margin-bottom:16px; color:#fff; font-weight:700; }
-  .health-badge .score { font-size:32px; }
-  .health-badge .label { font-size:14px; opacity:0.9; }
-  .chart-container { position: relative; height: 220px; width: 100%; margin-top: 8px; min-height: 220px; }
-  .chart-container canvas { display: block !important; width: 100% !important; height: 100% !important; }
-  .chart-stats { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
-  .chart-stats .stat { display:flex; align-items:center; gap:6px; font-size:13px; }
-  .chart-stats .stat strong { font-family:monospace; font-size:16px; }
-  .lang-toggle { position: fixed; top: 12px; left: 12px; background: #fff; border: 2px solid #3b82f6; border-radius: 20px; padding: 6px 12px; font-family: inherit; font-weight: 700; cursor: pointer; z-index: 1000; font-size: 13px; color: #3b82f6; box-shadow: 0 2px 8px rgba(59,130,246,0.2); display: inline-flex; align-items: center; gap: 6px; }
-  .lang-toggle:active { transform: scale(0.95); }
-  body[dir="ltr"] .dtc-item { border-right: none; border-left: 4px solid #ef4444; }
-  body[dir="ltr"] .dtc-item:hover { transform: translateX(4px); }
+  .zone rect, .zone circle.brake-zone { fill: rgba(59,130,246,0.15); stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 4 4; }
+  .zone text { fill: #cbd5e1; font-size: 13px; text-anchor: middle; font-family: 'Cairo', sans-serif; pointer-events: none; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+  .zone.active { animation: pulse 1.5s infinite; opacity: 1; }
+  .zone { opacity: 0; transition: opacity 0.3s; }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
 </style>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
 
-<button class="lang-toggle" id="btnLang">🌐 English</button>
+<div class="max-w-4xl mx-auto p-3 space-y-4">
 
-<h1>🔧 CheckDiga</h1>
-<p class="subtitle">أداة فحص السيارات المتكاملة عبر المتصفح</p>
-
-<div class="status" id="status">غير متصل</div>
-
-<div class="controls">
-  <button class="btn btn-blue" id="btnConnect">🔗 اتصال بلوتوث</button>
-  <button class="btn btn-purple" id="btnDemo">🧪 وضع تجريبي</button>
-  <button class="btn btn-red" id="btnDisconnect">🔌 قطع</button>
-  <button class="btn btn-red" id="btnClear">🗑️ مسح الأعطال</button>
-</div>
-
-<div class="console" id="console">- OBD-II مرحباً! اضغط "اتصال بلوتوث" للاتصال بجهاز، أو "وضع تجريبي" لتجربة الموقع بدون جهاز.</div>
-
-<div class="tabs">
-  <button class="tab active" data-tab="faults">🛠️ الأعطال</button>
-  <button class="tab" data-tab="live">📊 بيانات حية</button>
-  <button class="tab" data-tab="vin">🔍 VIN</button>
-  <button class="tab" data-tab="history">📁 السجل</button>
-  <button class="tab" data-tab="stats">📈 إحصائيات</button>
-</div>
-
-<div class="panel active" id="panel-faults">
-  <div id="healthBadge" style="display:none;"></div>
-  
-  <div class="car-container">
-    <svg viewBox="0 0 800 400" class="car-svg" id="carSvg">
-      <path d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
-      <path d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
-      <path d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
-      <circle cx="180" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
-      <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
-      <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
-      <circle cx="620" cy="320" r="20" fill="#94a3b8"/>
-      <g class="zone" data-zone="engine"><rect x="620" y="180" width="120" height="90" rx="12"/><text x="680" y="230">المحرك</text></g>
-      <g class="zone" data-zone="battery"><rect x="560" y="200" width="55" height="55" rx="8"/><text x="587" y="235">بطارية</text></g>
-      <g class="zone" data-zone="transmission"><rect x="440" y="230" width="120" height="60" rx="10"/><text x="500" y="265">ناقل الحركة</text></g>
-      <g class="zone" data-zone="brakes"><circle cx="180" cy="320" r="55" class="brake-zone"/><text x="180" y="385">فرامل</text></g>
-      <g class="zone" data-zone="fuel"><rect x="320" y="240" width="100" height="55" rx="8"/><text x="370" y="273">وقود</text></g>
-      <g class="zone" data-zone="exhaust"><rect x="60" y="240" width="80" height="50" rx="8"/><text x="100" y="270">عوادم</text></g>
-      <g class="zone" data-zone="cooling"><rect x="700" y="220" width="60" height="60" rx="8"/><text x="730" y="255">تبريد</text></g>
-      <g class="zone" data-zone="abs"><rect x="240" y="230" width="70" height="50" rx="8"/><text x="275" y="260">ABS</text></g>
-      <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد</text></g>
-      <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
-    </svg>
-    <div class="fault-card hidden" id="faultCard">
-      <div class="fault-icon">⚠️</div>
-      <h3 id="faultTitle">—</h3>
-      <p id="faultDesc">—</p>
-      <span class="fault-code" id="faultCode">—</span>
+  <!-- زر اللغة -->
+  <div class="flex justify-between items-center pt-2">
+    <button id="btnLang" class="bg-gray-800 hover:bg-gray-700 border-2 border-blue-500 text-blue-400 px-3 py-1.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
+      <i class="fa-solid fa-globe"></i> <span id="langText">English</span>
+    </button>
+    <div class="text-right">
+      <h1 class="text-xl font-bold flex items-center gap-2 justify-end">
+        <i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga
+      </h1>
+      <p id="subtitleText" class="text-xs text-gray-400">أداة فحص السيارات المتكاملة</p>
     </div>
   </div>
 
-  <div id="smartDiagnosis" style="display:none;"></div>
-
-  <div class="card" id="exportCard" style="display:none;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-right:4px solid #10b981;">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-      <div>
-        <div style="font-weight:700;color:#065f46;font-size:15px;">📄 شارك نتائج الفحص</div>
-        <div style="font-size:12px;color:#047857;margin-top:4px;">احصل على تقرير PDF احترافي</div>
+  <!-- حالة الاتصال + VIN -->
+  <header class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3 flex-1">
+        <div id="statusDot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+        <div>
+          <p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
+          <p id="vin-display" class="text-xs text-gray-500 mt-0.5">VIN: --</p>
+        </div>
       </div>
-      <button class="btn btn-green" id="btnExportPDF" style="padding:12px 20px;">📄 تصدير PDF</button>
     </div>
+    <div class="grid grid-cols-2 gap-2">
+      <button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-flask"></i> <span data-t="demo">وضع تجريبي</span>
+      </button>
+      <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-bluetooth-b"></i> <span data-t="connect">اتصال</span>
+      </button>
+      <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2">
+        <i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span>
+      </button>
+      <button id="clear-btn" class="bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 col-span-2">
+        <i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- التبويبات -->
+  <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
+    <button class="tab tab-active bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="faults">
+      <i class="fa-solid fa-screwdriver-wrench"></i> <span data-t="tabFaults">الأعطال</span>
+    </button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="live">
+      <i class="fa-solid fa-chart-line"></i> <span data-t="tabLive">بيانات حية</span>
+    </button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="vin">
+      <i class="fa-solid fa-magnifying-glass"></i> <span data-t="tabVin">VIN</span>
+    </button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="history">
+      <i class="fa-solid fa-folder"></i> <span data-t="tabHistory">السجل</span>
+    </button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="stats">
+      <i class="fa-solid fa-chart-pie"></i> <span data-t="tabStats">إحصائيات</span>
+    </button>
   </div>
 
-  <div class="card">
-    <h3 style="margin-bottom:12px;">أكواد الأعطال (DTCs)</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-      <button class="btn btn-orange" id="btnReadDTC" style="width:100%;">📋 فحص المحرك</button>
-      <button class="btn btn-green" id="btnScanAll" style="width:100%;">🔍 فحص جميع الأنظمة</button>
-    </div>
-    <input type="text" class="search-input" id="dtcSearchInput" placeholder="🔍 ابحث عن كود (مثل P0301 أو P1B00)..." style="margin-bottom:12px;">
-    <div id="searchResults"></div>
-    <div id="dtcList" class="dtc-list">
-      <p class="hint">لم يتم القراءة بعد.</p>
-    </div>
-  </div>
-</div>
+  <!-- Console Log -->
+  <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left;white-space:pre-wrap;">> OBD-II مرحباً! اضغط "اتصال" أو "وضع تجريبي".</div>
 
-<div class="panel" id="panel-live">
-  <div class="card" style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn btn-blue" id="btnStartLive" style="flex:1;min-width:120px;">▶️ بدء القراءة</button>
-    <button class="btn btn-red" id="btnStopLive" style="flex:1;min-width:100px;">⏸️ إيقاف</button>
-    <button class="btn btn-gray" id="btnExportCSV" style="flex:1;min-width:120px;">💾 تصدير CSV</button>
-  </div>
+  <!-- ============ تبويب الأعطال ============ -->
+  <div id="panel-faults" class="panel space-y-4">
+    <div id="healthBadge" class="hidden"></div>
 
-  <div class="card">
-    <h3 class="group-title">📈 الرسوم البيانية الحية</h3>
-    <p style="font-size:12px;color:#64748b;margin-bottom:14px;">تحديث تلقائي كل ثانيتين — آخر 30 قراءة</p>
-    
-    <div style="margin-bottom:20px;">
-      <div class="chart-stats">
-        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span><strong>RPM</strong><span style="color:#64748b;">سرعة المحرك</span></div>
-        <div class="stat"><strong id="chart-rpm-current" style="color:#ef4444;">--</strong><span style="color:#64748b;">دورة/دقيقة</span></div>
+    <div class="bg-gray-800 rounded-2xl p-3">
+      <svg viewBox="0 0 800 400" class="w-full h-auto">
+        <path d="M80,260 L120,180 Q140,150 200,150 L560,150 Q620,150 660,180 L720,260 L740,260 Q760,260 760,280 L760,300 Q760,320 740,320 L60,320 Q40,320 40,300 L40,280 Q40,260 60,260 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <path d="M180,160 L240,160 L220,210 L160,210 Z" fill="#0ea5e9" opacity="0.4"/>
+        <path d="M540,160 L620,160 L640,210 L560,210 Z" fill="#0ea5e9" opacity="0.4"/>
+        <circle cx="180" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+        <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+        <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
+        <circle cx="620" cy="320" r="20" fill="#94a3b8"/>
+        <g class="zone" data-zone="engine"><rect x="620" y="180" width="120" height="90" rx="12"/><text x="680" y="230">المحرك</text></g>
+        <g class="zone" data-zone="battery"><rect x="560" y="200" width="55" height="55" rx="8"/><text x="587" y="235">بطارية</text></g>
+        <g class="zone" data-zone="transmission"><rect x="440" y="230" width="120" height="60" rx="10"/><text x="500" y="265">ناقل الحركة</text></g>
+        <g class="zone" data-zone="brakes"><circle cx="180" cy="320" r="55" class="brake-zone"/><text x="180" y="385">فرامل</text></g>
+        <g class="zone" data-zone="fuel"><rect x="320" y="240" width="100" height="55" rx="8"/><text x="370" y="273">وقود</text></g>
+        <g class="zone" data-zone="exhaust"><rect x="60" y="240" width="80" height="50" rx="8"/><text x="100" y="270">عوادم</text></g>
+        <g class="zone" data-zone="cooling"><rect x="700" y="220" width="60" height="60" rx="8"/><text x="730" y="255">تبريد</text></g>
+        <g class="zone" data-zone="abs"><rect x="240" y="230" width="70" height="50" rx="8"/><text x="275" y="260">ABS</text></g>
+        <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد</text></g>
+        <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
+      </svg>
+    </div>
+
+    <div id="smartDiagnosis" class="hidden"></div>
+
+    <div id="exportCard" class="hidden bg-gradient-to-l from-emerald-900/50 to-emerald-800/30 border-r-4 border-emerald-500 rounded-2xl p-3">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div class="font-bold text-emerald-300 text-sm">📄 <span data-t="shareReport">شارك نتائج الفحص</span></div>
+          <div class="text-xs text-emerald-400/80 mt-1" data-t="shareDesc">احصل على تقرير PDF احترافي</div>
+        </div>
+        <button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
       </div>
-      <div class="chart-container"><canvas id="chartRpm"></canvas></div>
     </div>
-    
-    <div style="margin-bottom:20px;">
-      <div class="chart-stats">
-        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#3b82f6;display:inline-block;"></span><strong>السرعة</strong><span style="color:#64748b;">كم/س</span></div>
-        <div class="stat"><strong id="chart-speed-current" style="color:#3b82f6;">--</strong><span style="color:#64748b;">كم/س</span></div>
+
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span data-t="dtcTitle">أكواد الأعطال (DTCs)</span></h3>
       </div>
-      <div class="chart-container"><canvas id="chartSpeed"></canvas></div>
-    </div>
-    
-    <div>
-      <div class="chart-stats">
-        <div class="stat"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;"></span><strong>حرارة المحرك</strong><span style="color:#64748b;">°C</span></div>
-        <div class="stat"><strong id="chart-coolant-current" style="color:#f59e0b;">--</strong><span style="color:#64748b;">°C</span></div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span>
+        </button>
+        <button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-radar"></i> <span data-t="readAll">فحص الكل</span>
+        </button>
       </div>
-      <div class="chart-container"><canvas id="chartCoolant"></canvas></div>
+      <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none transition" placeholder="🔍 ابحث عن كود (مثل P0301)...">
+      <div id="searchResults"></div>
+      <div id="dtcList" class="space-y-2 text-sm">
+        <p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p>
+      </div>
     </div>
   </div>
 
-  <div class="card"><h3 class="group-title">⚙️ المحرك والأداء</h3>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">RPM</div><div class="value" id="p-rpm">--</div><div class="unit">دورة/دقيقة</div></div>
-      <div class="data-box"><div class="label">السرعة</div><div class="value" id="p-speed">--</div><div class="unit">كم/س</div></div>
-      <div class="data-box"><div class="label">حمل المحرك</div><div class="value" id="p-load">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">موضع الخانق</div><div class="value" id="p-throttle">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">توقيت الإشعال</div><div class="value" id="p-timing">--</div><div class="unit">°</div></div>
-      <div class="data-box"><div class="label">عزم المحرك</div><div class="value" id="p-torque">--</div><div class="unit">%</div></div>
+  <!-- ============ تبويب البيانات الحية ============ -->
+  <div id="panel-live" class="panel hidden space-y-4">
+    <div class="grid grid-cols-3 gap-2">
+      <button id="btnStartLive" class="bg-blue-600 hover:bg-blue-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
+        <i class="fa-solid fa-play"></i> <span data-t="startLive">بدء</span>
+      </button>
+      <button id="btnStopLive" class="bg-red-600 hover:bg-red-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
+        <i class="fa-solid fa-pause"></i> <span data-t="stopLive">إيقاف</span>
+      </button>
+      <button id="btnExportCSV" class="bg-gray-700 hover:bg-gray-600 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
+        <i class="fa-solid fa-download"></i> CSV
+      </button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div class="bg-gray-800 p-3 rounded-2xl shadow border-t-4 border-blue-500 text-center">
+        <h3 class="text-gray-400 text-xs mb-1">RPM</h3>
+        <span id="rpm-value" class="text-2xl font-bold text-blue-400">0</span>
+      </div>
+      <div class="bg-gray-800 p-3 rounded-2xl shadow border-t-4 border-green-500 text-center">
+        <h3 class="text-gray-400 text-xs mb-1">السرعة</h3>
+        <span id="speed-value" class="text-2xl font-bold text-green-400">0</span>
+      </div>
+      <div class="bg-gray-800 p-3 rounded-2xl shadow border-t-4 border-yellow-500 text-center">
+        <h3 class="text-gray-400 text-xs mb-1">الحرارة</h3>
+        <span id="coolant-value" class="text-2xl font-bold text-yellow-400">0</span>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 p-4 rounded-2xl shadow">
+      <h3 class="text-base font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> <span data-t="charts">الرسوم البيانية</span></h3>
+      <div class="h-56"><canvas id="liveChart"></canvas></div>
+    </div>
+
+    <div id="liveDataGrid" class="grid grid-cols-2 gap-2"></div>
+
+    <div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4">
+      <h3 class="text-amber-200 font-bold text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-brain"></i> <span data-t="autoAnalysis">التحليل التلقائي</span></h3>
+      <div id="autoAnalysis" class="text-amber-100 text-sm">اضغط "بدء" لعرض التحليل.</div>
     </div>
   </div>
-  <div class="card"><h3 class="group-title">⛽ الوقود والهواء</h3>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">STFT Bank 1</div><div class="value" id="p-stft1">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">LTFT Bank 1</div><div class="value" id="p-ltft1">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">STFT Bank 2</div><div class="value" id="p-stft2">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">LTFT Bank 2</div><div class="value" id="p-ltft2">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">MAF</div><div class="value" id="p-maf">--</div><div class="unit">g/s</div></div>
-      <div class="data-box"><div class="label">MAP</div><div class="value" id="p-map">--</div><div class="unit">kPa</div></div>
-      <div class="data-box"><div class="label">ضغط الوقود</div><div class="value" id="p-fuelp">--</div><div class="unit">kPa</div></div>
-      <div class="data-box"><div class="label">ضغط الوقود النسبي</div><div class="value" id="p-fuelr">--</div><div class="unit">kPa</div></div>
+
+  <!-- ============ تبويب VIN ============ -->
+  <div id="panel-vin" class="panel hidden space-y-4">
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> <span data-t="vinTitle">رقم الهيكل (VIN)</span></h3>
+      <button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-satellite-dish"></i> <span data-t="readVin">قراءة من السيارة</span>
+      </button>
+      <input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase transition" placeholder="أدخل VIN يدوياً (17 حرفاً)">
+      <button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-magnifying-glass"></i> <span data-t="decodeVin">فك الشيفرة</span>
+      </button>
+      <div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة بعد.</div>
+      <div id="vinInfo"></div>
     </div>
   </div>
-  <div class="card"><h3 class="group-title">💨 حساسات الأكسجين (O2)</h3>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">O2 Bank1 S1</div><div class="value" id="p-o2b1s1">--</div><div class="unit">V</div></div>
-      <div class="data-box"><div class="label">O2 Bank1 S2</div><div class="value" id="p-o2b1s2">--</div><div class="unit">V</div></div>
-      <div class="data-box"><div class="label">O2 Bank2 S1</div><div class="value" id="p-o2b2s1">--</div><div class="unit">V</div></div>
-      <div class="data-box"><div class="label">O2 Bank2 S2</div><div class="value" id="p-o2b2s2">--</div><div class="unit">V</div></div>
+
+  <!-- ============ تبويب السجل ============ -->
+  <div id="panel-history" class="panel hidden">
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder text-blue-400"></i> <span data-t="historyTitle">سجل الفحوصات</span></h3>
+      <p class="text-xs text-gray-400" data-t="historyDesc">آخر 50 فحص محفوظ في هاتفك.</p>
+      <div id="historyContent"><p class="text-center text-gray-500 py-4">⏳...</p></div>
     </div>
   </div>
-  <div class="card"><h3 class="group-title">🌡️ الحرارة والبيئة</h3>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">حرارة المحرك</div><div class="value" id="p-coolant">--</div><div class="unit">°C</div></div>
-      <div class="data-box"><div class="label">حرارة الهواء</div><div class="value" id="p-iat">--</div><div class="unit">°C</div></div>
-      <div class="data-box"><div class="label">حرارة البيئة</div><div class="value" id="p-ambient">--</div><div class="unit">°C</div></div>
-      <div class="data-box"><div class="label">حرارة الزيت</div><div class="value" id="p-oil">--</div><div class="unit">°C</div></div>
+
+  <!-- ============ تبويب الإحصائيات ============ -->
+  <div id="panel-stats" class="panel hidden">
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> <span data-t="statsTitle">إحصائيات حية</span></h3>
+      <p class="text-xs text-gray-400" data-t="statsDesc">بيانات مجهولة من جميع المستخدمين.</p>
+      <button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-rotate"></i> <span data-t="refreshStats">تحديث الإحصائيات</span>
+      </button>
+      <div id="statsContent"><p class="text-center text-gray-500 py-4">اضغط "تحديث الإحصائيات".</p></div>
     </div>
   </div>
-  <div class="card"><h3 class="group-title">🔋 الكهرباء والصيانة</h3>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">جهد البطارية</div><div class="value" id="p-battery">--</div><div class="unit">V</div></div>
-      <div class="data-box"><div class="label">مستوى الوقود</div><div class="value" id="p-fuelLevel">--</div><div class="unit">%</div></div>
-      <div class="data-box"><div class="label">مسافة مع CEL</div><div class="value" id="p-distCel">--</div><div class="unit">كم</div></div>
-      <div class="data-box"><div class="label">مسافة منذ مسح DTC</div><div class="value" id="p-distClr">--</div><div class="unit">كم</div></div>
-      <div class="data-box"><div class="label">زمن تشغيل المحرك</div><div class="value" id="p-runtime">--</div><div class="unit">ثانية</div></div>
-      <div class="data-box"><div class="label">حالة الوقود</div><div class="value" id="p-fuelStatus" style="font-size:13px;">--</div><div class="unit"></div></div>
-    </div>
-  </div>
-  <div class="card" style="background:#fffbeb;border-right:4px solid #f59e0b;">
-    <h3 class="group-title" style="color:#92400e;border-color:#f59e0b;">🧠 التحليل التلقائي</h3>
-    <div id="autoAnalysis" style="line-height:1.9;color:#78350f;">اضغط "بدء القراءة" لتظهر التحليلات هنا.</div>
+
+</div>
+
+<!-- Freeze Frame Modal -->
+<div id="freezeModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto">
+  <div class="max-w-lg mx-auto mt-10 bg-gray-800 rounded-2xl p-5 relative">
+    <button id="btnCloseFreeze" class="absolute top-3 left-3 bg-red-600 hover:bg-red-700 w-8 h-8 rounded-full text-sm font-bold">×</button>
+    <h2 class="text-center font-bold text-lg mb-4 flex items-center justify-center gap-2"><i class="fa-solid fa-snowflake text-blue-400"></i> Freeze Frame</h2>
+    <div id="freezeCode" class="text-center font-mono font-bold text-red-400 text-lg mb-3">—</div>
+    <div id="freezeContent" class="text-center text-gray-400 py-4">⏳...</div>
   </div>
 </div>
 
-<div class="panel" id="panel-vin">
-  <div class="card">
-    <h3 style="margin-bottom:12px;">🔍 رقم الهيكل (VIN)</h3>
-    <button class="btn btn-orange" id="btnReadVIN" style="width:100%;margin-bottom:12px;">🔍 قراءة VIN من السيارة</button>
-    <input type="text" class="search-input" id="vinInput" placeholder="أو أدخل VIN يدوياً (17 حرفاً)..." maxlength="17" style="margin-bottom:12px;font-family:monospace;text-transform:uppercase;">
-    <button class="btn btn-blue" id="btnDecodeVIN" style="width:100%;margin-bottom:12px;">🔎 فك الشيفرة</button>
-    <div id="vinResult" style="font-family:monospace;font-size:14px;text-align:center;padding:14px;background:#f8fafc;border-radius:10px;color:#334155;margin-bottom:12px;">لم يتم القراءة بعد.</div>
-    <div id="vinInfo"></div>
-  </div>
-</div>
-
-<div class="panel" id="panel-history">
-  <div class="card">
-    <h3 class="group-title">📁 سجل الفحوصات</h3>
-    <p style="font-size:13px;color:#64748b;margin-bottom:12px;">آخر 50 فحص محفوظ في هاتفك (يعمل بدون إنترنت).</p>
-    <div id="historyContent"><p class="hint">⏳ جاري التحميل...</p></div>
-  </div>
-</div>
-
-<div class="panel" id="panel-stats">
-  <div class="card">
-    <h3 class="group-title">📊 إحصائيات حية من جميع المستخدمين</h3>
-    <p style="font-size:13px;color:#64748b;margin-bottom:12px;">البيانات مجمعة بشكل مجهول.</p>
-    <button class="btn btn-blue" id="btnLoadStats" style="width:100%;margin-bottom:12px;">🔄 تحديث الإحصائيات</button>
-    <div id="statsContent"><p class="hint">اضغط "تحديث الإحصائيات" لعرض البيانات.</p></div>
-  </div>
-</div>
-
-<div id="freezeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;padding:20px;overflow-y:auto;">
-  <div style="max-width:600px;margin:20px auto;background:#fff;border-radius:16px;padding:20px;position:relative;">
-    <button id="btnCloseFreeze" style="position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;">×</button>
-    <h2 style="margin-bottom:16px;color:#1e293b;text-align:center;">❄️ Freeze Frame</h2>
-    <div id="freezeCode" style="text-align:center;font-family:monospace;font-weight:700;color:#b91c1c;font-size:18px;margin-bottom:12px;">—</div>
-    <div id="freezeContent" style="text-align:center;padding:20px;color:#64748b;">⏳...</div>
-  </div>
-</div>
-
+<!-- Firebase + Main Script -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit, doc, getDoc, setDoc, increment, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
@@ -307,1216 +256,18 @@ const firebaseConfig = {
   projectId: "checkdiga-f9be7",
   storageBucket: "checkdiga-f9be7.firebasestorage.app",
   messagingSenderId: "429788177002",
-  appId: "1:429788177002:web:be7ff0ca219ccfc0372013",
-  measurementId: "G-DVV4Y7NHQB"
+  appId: "1:429788177002:web:be7ff0ca219ccfc0372013"
 };
+const db = getFirestore(initializeApp(firebaseConfig));
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
+window.__checkdiga = { db };
 
-/* =============================================
-   i18n (Language System)
-============================================= */
-const TRANSLATIONS = {
-  ar: {
-    title: 'أداة فحص السيارات المتكاملة عبر المتصفح',
-    connected: 'متصل ✓', disconnected: 'غير متصل', demoMode: 'وضع تجريبي',
-    connect: '🔗 اتصال بلوتوث', demo: '🧪 وضع تجريبي', disconnect: '🔌 قطع', clear: '🗑️ مسح الأعطال',
-    tabFaults: '🛠️ الأعطال', tabLive: '📊 بيانات حية', tabVin: '🔍 VIN', tabHistory: '📁 السجل', tabStats: '📈 إحصائيات',
-    readEngine: '📋 فحص المحرك', readAll: '🔍 فحص جميع الأنظمة',
-    searchPlaceholder: '🔍 ابحث عن كود (مثل P0301 أو P1B00)...',
-    startLive: '▶️ بدء القراءة', stopLive: '⏸️ إيقاف', exportCsv: '💾 تصدير CSV'
-  },
-  en: {
-    title: 'Complete Car Diagnostic Tool',
-    connected: 'Connected ✓', disconnected: 'Disconnected', demoMode: 'Demo Mode',
-    connect: '🔗 Bluetooth Connect', demo: '🧪 Demo Mode', disconnect: '🔌 Disconnect', clear: '🗑️ Clear DTCs',
-    tabFaults: '🛠️ Faults', tabLive: '📊 Live Data', tabVin: '🔍 VIN', tabHistory: '📁 History', tabStats: '📈 Statistics',
-    readEngine: '📋 Read Engine', readAll: '🔍 Scan All Systems',
-    searchPlaceholder: '🔍 Search code (e.g. P0301 or P1B00)...',
-    startLive: '▶️ Start', stopLive: '⏸️ Stop', exportCsv: '💾 Export CSV'
-  }
-};
+// ⚠️ باقي JavaScript في الجزء 2 (سأرسله في الرسالة التالية)
+</script>
 
-let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
-
-function t(key) {
-  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS['ar'][key] || key;
-}
-
-function toggleLanguage() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
-  localStorage.setItem('checkdiga_lang', currentLang);
-  applyLanguage();
-}
-
-function applyLanguage() {
-  const isAr = currentLang === 'ar';
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
-  document.body.dir = isAr ? 'rtl' : 'ltr';
-  
-  const btn = document.getElementById('btnLang');
-  if (btn) btn.textContent = isAr ? '🌐 English' : '🌐 العربية';
-  
-  const subtitle = document.querySelector('.subtitle');
-  if (subtitle) subtitle.textContent = t('title');
-  
-  const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
-  setText('btnConnect', 'connect');
-  setText('btnDemo', 'demo');
-  setText('btnDisconnect', 'disconnect');
-  setText('btnClear', 'clear');
-  setText('btnReadDTC', 'readEngine');
-  setText('btnScanAll', 'readAll');
-  setText('btnStartLive', 'startLive');
-  setText('btnStopLive', 'stopLive');
-  setText('btnExportCSV', 'exportCsv');
-  
-  const tabKeys = ['tabFaults', 'tabLive', 'tabVin', 'tabHistory', 'tabStats'];
-  document.querySelectorAll('.tab').forEach((tab, i) => { if (tabKeys[i]) tab.textContent = t(tabKeys[i]); });
-  
-  const search = document.getElementById('dtcSearchInput');
-  if (search) search.placeholder = t('searchPlaceholder');
-  
-  const status = document.getElementById('status');
-  if (status) {
-    const isConnected = status.classList.contains('connected');
-    if (isConnected && !status.textContent.includes('تجريبي') && !status.textContent.includes('Demo')) status.textContent = t('connected');
-    else if (!isConnected) status.textContent = t('disconnected');
-  }
-}
-
-// 🔧 تصدير الدوال للنطاق العام ليتم استدعاؤها من onclick
-window.toggleLanguage = toggleLanguage;
-window.applyLanguage = applyLanguage;
-
-/* =============================================
-   Database & Core
-============================================= */
-const DTC_MAP = {
-  P0171: { zone:"fuel", title:"خليط فقير (Bank 1)", desc:"تسرب هواء أو انسداد حاقن" },
-  P0300: { zone:"engine", title:"اشتعال متقطع متعدد", desc:"بوجيهات، كويلات، أو حاقنات" },
-  P0301: { zone:"engine", title:"اشتعال متقطع - السلندر 1", desc:"استبدل البوجيه والكويل" },
-  P0420: { zone:"exhaust", title:"كتلايزر ضعيف", desc:"قد تحتاج استبدال الكتلايزر" },
-  C0035: { zone:"brakes", title:"حساس سرعة العجلة", desc:"افحص حساس ABS" },
-  B0001: { zone:"airbag", title:"عطل في الوسائد الهوائية", desc:"لا تهمل، قد لا تفتح" },
-  U0100: { zone:"electronics", title:"فقدان الاتصال بـ ECU", desc:"مشكلة في شبكة CAN" }
-};
-
-let DTC_DATABASE = { ...DTC_MAP };
-
-const VIN_COUNTRY_CODES = {
-  '1':'🇺🇸 USA','4':'🇺🇸 USA','5':'🇺🇸 USA','2':'🇨🇦 Canada','3':'🇲🇽 Mexico',
-  'J':'🇯🇵 Japan','K':'🇰🇷 Korea','L':'🇨🇳 China','S':'🇬🇧 UK','V':'🇫🇷 France',
-  'W':'🇩🇪 Germany','Y':'🇸🇪 Sweden','Z':'🇮🇹 Italy','9':'🇧🇷 Brazil','8':'🇦🇷 Argentina',
-  'M':'🇮🇳 India','T':'🇨🇭 Switzerland','6':'🇦🇺 Australia','7':'🇳🇿 New Zealand'
-};
-
-const VIN_YEARS = {
-  'A':'1980/2010','B':'1981/2011','C':'1982/2012','D':'1983/2013','E':'1984/2014','F':'1985/2015',
-  'G':'1986/2016','H':'1987/2017','J':'1988/2018','K':'1989/2019','L':'1990/2020','M':'1991/2021',
-  'N':'1992/2022','P':'1993/2023','R':'1994/2024','S':'1995/2025','T':'1996/2026','V':'1997/2027',
-  'W':'1998/2028','X':'1999/2029','Y':'2000/2030','1':'2001/2031','2':'2002/2032','3':'2003/2033',
-  '4':'2004/2034','5':'2005/2035','6':'2006/2036','7':'2007/2037','8':'2008/2038','9':'2009/2039'
-};
-
-const VIN_WMI = {
-  'JHM':'Honda','JHL':'Honda','JHG':'Honda','JT2':'Toyota','JTD':'Toyota','JTE':'Toyota','JTN':'Toyota',
-  'JTH':'Lexus','JTJ':'Lexus','JN1':'Nissan','JN6':'Nissan','JN8':'Nissan','JM1':'Mazda','JM3':'Mazda',
-  'JMB':'Mitsubishi','JA3':'Mitsubishi','JF1':'Subaru','JF2':'Subaru','JS2':'Suzuki','JS3':'Suzuki','JSK':'Suzuki',
-  'WBA':'BMW','WBS':'BMW M','WBY':'BMW i','WDB':'Mercedes','WDD':'Mercedes','WDC':'Mercedes',
-  'WVW':'Volkswagen','WV1':'Volkswagen','WV2':'Volkswagen','WAU':'Audi','WA1':'Audi','TRU':'Audi',
-  'WP0':'Porsche','WP1':'Porsche','W0L':'Opel','W0V':'Opel','1FA':'Ford','1FB':'Ford','1FC':'Ford',
-  '1FD':'Ford','1FM':'Ford','1FT':'Ford','1F1':'Ford','1G1':'Chevrolet','1G4':'Buick','1G6':'Cadillac',
-  '1GC':'Chevrolet','1GT':'GMC','1GK':'GMC','1HG':'Honda','1J4':'Jeep','1C4':'Chrysler','1C3':'Chrysler',
-  '1B3':'Dodge','1D7':'Dodge','4T1':'Toyota','4T3':'Toyota','4S3':'Subaru','5YJ':'Tesla','5N1':'Nissan',
-  '5NP':'Hyundai','KMH':'Hyundai','KM8':'Hyundai','KNA':'Kia','KND':'Kia','KNC':'Kia','KPT':'SsangYong',
-  'VF1':'Renault','VF3':'Peugeot','VF7':'Citroën','ZAR':'Alfa Romeo','ZFA':'Fiat','ZFF':'Ferrari',
-  'ZHW':'Lamborghini','ZAM':'Maserati','SAJ':'Jaguar','SAL':'Land Rover','SCF':'Aston Martin',
-  'SCB':'Bentley','SCA':'Rolls-Royce','SCC':'Lotus','YV1':'Volvo','YV4':'Volvo','YS3':'Saab',
-  'LFV':'VW China','LGB':'Dongfeng','LJD':'JAC','LSV':'SAIC','LGX':'BYD','LDC':'Chery',
-  'MA3':'Maruti Suzuki','MAT':'Tata','MEE':'Mahindra','9BD':'Fiat Brazil','9BW':'VW Brazil',
-  'XTA':'Lada','XWB':'AvtoVAZ'
-};
-
-function decodeVIN(vin) {
-  if (!vin || vin.length !== 17) return null;
-  const v = vin.toUpperCase();
-  return {
-    vin: v,
-    country: VIN_COUNTRY_CODES[v[0]] || 'Unknown',
-    wmi: v.substring(0,3),
-    manufacturer: VIN_WMI[v.substring(0,3)] || VIN_WMI[v.substring(0,2)+'0'] || 'Unknown',
-    year: VIN_YEARS[v[9]] || 'Unknown',
-    plant: 'Plant ' + v[10],
-    serial: v.substring(11,17),
-    vds: v.substring(3,8),
-    checkDigit: v[8]
-  };
-}
-
-function validateVIN(vin) {
-  if (!vin || vin.length !== 17) return false;
-  const trans = { A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9 };
-  const weights = [8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
-  let sum = 0;
-  for (let i = 0; i < 17; i++) {
-    const c = vin[i];
-    let val = 0;
-    if (/[0-9]/.test(c)) val = parseInt(c);
-    else if (trans[c]) val = trans[c];
-    else return false;
-    sum += val * weights[i];
-  }
-  const r = sum % 11;
-  const cd = r === 10 ? 'X' : String(r);
-  return cd === vin[8];
-}
-
-const DIAGNOSTIC_RULES = [
-  { required:['P0171','P0174'], title:'تسرب هواء في نظام السحب', confidence:90, severity:'high',
-    description:'خليط فقير في البنكين معاً — تسرب هواء.', actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص حساس MAF'] },
-  { required:['P0171'], anyOf:['P0300','P0301','P0302','P0303','P0304'], title:'تسرب هواء يسبب اشتعال متقطع',
-    confidence:85, severity:'high', description:'الخليط الفقير أدى إلى اشتعال متقطع.',
-    actions:['افحص تسرب الهواء أولاً','افحص مشعب السحب بالدخان','لا تستبدل البواجي قبل إصلاح التسرب'] },
-  { required:['P0300'], anyOf:['P0301','P0302','P0303','P0304'], title:'مشكلة في نظام الإشعال',
-    confidence:75, severity:'medium', description:'اشتعال متقطع في أكثر من سلندر.',
-    actions:['استبدل البواجي كلها','افحص الكويلات','افحص ضغط الوقود'] },
-  { required:['P0420'], anyOf:['P0300','P0301','P0302','P0303','P0304'], title:'تلف الكتلايزر بسبب اشتعال متقطع',
-    confidence:90, severity:'high', description:'الاشتعال المتقطع أتلف الكتلايزر.',
-    actions:['أصلح مشكلة الإشعال أولاً','ثم استبدل الكتلايزر','افحص حساسات O2'] },
-  { required:['P0335'], title:'عطل في حساس الكرنك', confidence:95, severity:'critical',
-    description:'حساس الكرنك لا يعمل — قد يمنع التشغيل.', actions:['استبدل حساس الكرنك','افحص الأسلاك'] },
-  { required:['P0217'], title:'ارتفاع حرارة المحرك', confidence:100, severity:'critical',
-    description:'🚨 حرارة المحرك مرتفعة جداً — أوقف السيارة فوراً!', actions:['أوقف السيارة فوراً','افحص سائل التبريد'] },
-  { required:['U0100'], title:'فقدان الاتصال بكمبيوتر المحرك', confidence:90, severity:'critical',
-    description:'لا يوجد تواصل مع كمبيوتر المحرك.', actions:['افحص الأسلاك','افحص الفيوزات'] },
-  { required:['B0001'], title:'عطل في نظام الوسائد الهوائية', confidence:90, severity:'critical',
-    description:'🚨 نظام SRS معطل!', actions:['لا تهمل هذا العطل','افحص وحدة SRS'] },
-  { required:['P0128'], title:'ترموستات عاطل', confidence:90, severity:'medium',
-    description:'المحرك لا يصل لحرارة التشغيل.', actions:['استبدل الترموستات'] },
-  { required:['P0700'], title:'عطل في ناقل الحركة', confidence:95, severity:'high',
-    description:'كمبيوتر ناقل الحركة أرسل رمز عطل.', actions:['افحص كمبيوتر الجير','راجع ورشة متخصصة'] }
-];
-
-function runSmartDiagnosis(codes) {
-  if (!codes || codes.length === 0) return [];
-  const set = new Set(codes.map(c => String(c).toUpperCase()));
-  const results = [];
-  for (const rule of DIAGNOSTIC_RULES) {
-    if (!rule.required.every(c => set.has(c))) continue;
-    if (rule.anyOf && rule.anyOf.length > 0 && !rule.anyOf.some(c => set.has(c))) continue;
-    results.push({ ...rule, matchedCodes: rule.required });
-  }
-  return results.sort((a,b) => b.confidence - a.confidence).slice(0,5);
-}
-
-function displaySmartDiagnosis(codes) {
-  const container = document.getElementById('smartDiagnosis');
-  if (!container) return;
-  const diagnoses = runSmartDiagnosis(codes);
-  if (diagnoses.length === 0) { container.innerHTML = ''; container.style.display = 'none'; return; }
-  container.style.display = 'block';
-  const title = currentLang === 'ar' ? '🧠 التشخيص الذكي' : '🧠 Smart Diagnosis';
-  container.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-right:4px solid #8b5cf6;">
-    <h3 style="margin-bottom:14px;color:#5b21b6;">${title}</h3>
-    ${diagnoses.map(d => {
-      const color = d.severity==='critical'?'#dc2626':d.severity==='high'?'#ef4444':d.severity==='medium'?'#f59e0b':'#10b981';
-      const icon = d.severity==='critical'?'🚨':d.severity==='high'?'🔴':d.severity==='medium'?'🟡':'🟢';
-      return `<div style="background:#fff;border-right:4px solid ${color};border-radius:12px;padding:14px;margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;">
-          <div style="font-weight:700;font-size:14px;">${icon} ${d.title}</div>
-          <div style="background:${color};color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${d.confidence}%</div>
-        </div>
-        <p style="color:#475569;font-size:13px;margin-bottom:8px;">${d.description}</p>
-        <ul style="list-style:none;padding:0;margin:0;">
-          ${d.actions.map(a => `<li style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:3px;font-size:12px;">• ${a}</li>`).join('')}
-        </ul>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-
-function calculateHealthScore(faults, diagnosis) {
-  if (!faults || faults.length === 0) return 100;
-  let score = 100;
-  faults.forEach(f => {
-    const c = (f.code||'').toUpperCase();
-    if (c.startsWith('P0')) score -= 5;
-    else if (c.startsWith('P1')||c.startsWith('P2')||c.startsWith('P3')) score -= 8;
-    else if (c.startsWith('C')) score -= 10;
-    else if (c.startsWith('B')) score -= 12;
-    else if (c.startsWith('U')) score -= 15;
-  });
-  (diagnosis||[]).forEach(d => {
-    if (d.severity==='critical') score -= 15;
-    else if (d.severity==='high') score -= 10;
-    else if (d.severity==='medium') score -= 5;
-  });
-  return Math.max(0, Math.min(100, score));
-}
-
-function displayHealthScore(faults, diagnosis) {
-  const badge = document.getElementById('healthBadge');
-  if (!badge) return;
-  if (!faults || faults.length === 0) { badge.style.display = 'none'; return; }
-  const score = calculateHealthScore(faults, diagnosis);
-  const gradient = score>=80?'linear-gradient(135deg,#10b981,#059669)':score>=50?'linear-gradient(135deg,#f59e0b,#d97706)':'linear-gradient(135deg,#ef4444,#dc2626)';
-  const isAr = currentLang === 'ar';
-  const text = score>=80?(isAr?'حالة السيارة ممتازة':'Excellent'):score>=60?(isAr?'تحتاج صيانة قريباً':'Needs service soon'):score>=40?(isAr?'تحتاج صيانة عاجلة':'Urgent service'):(isAr?'خطر — لا تقد':'Danger');
-  const icon = score>=80?'✅':score>=50?'⚠️':'🚨';
-  const label = isAr?'مؤشر صحة السيارة':'Vehicle Health';
-  badge.style.display = 'block';
-  badge.innerHTML = `<div class="health-badge" style="background:${gradient};"><div><div class="label">${icon} ${text}</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">${label}</div></div><div class="score">${score}<span style="font-size:16px;opacity:0.8;">/100</span></div></div>`;
-}
-
-const HISTORY_KEY = 'scan_history_v2';
-const MAX_HISTORY = 50;
-
-async function saveScanToHistory(faults, vin, diagnosis) {
-  try {
-    const history = await loadHistory();
-    history.unshift({
-      id: Date.now()+'_'+Math.random().toString(36).substr(2,6),
-      timestamp: Date.now(), vin: vin||'unknown',
-      faults: (faults||[]).map(f=>({code:f.code,system:f.system})),
-      diagnosisCount: (diagnosis||[]).length,
-      healthScore: calculateHealthScore(faults, diagnosis)
-    });
-    if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
-    await saveHistoryToStorage(history);
-    log('💾 Saved to history');
-  } catch (e) { console.warn(e); }
-}
-
-async function loadHistory() {
-  try {
-    if ('indexedDB' in window) {
-      const db = await openIDB();
-      const tx = db.transaction('cache','readonly');
-      const r = await tx.objectStore('cache').get(HISTORY_KEY);
-      if (r) return r.data || [];
-    } else {
-      const c = localStorage.getItem(HISTORY_KEY);
-      if (c) return JSON.parse(c) || [];
-    }
-  } catch(e){}
-  return [];
-}
-
-async function saveHistoryToStorage(history) {
-  try {
-    if ('indexedDB' in window) {
-      const db = await openIDB();
-      const tx = db.transaction('cache','readwrite');
-      tx.objectStore('cache').put({key:HISTORY_KEY,data:history,timestamp:Date.now()});
-      await tx.complete;
-    } else localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  } catch(e){}
-}
-
-async function displayHistory() {
-  const container = document.getElementById('historyContent');
-  if (!container) return;
-  container.innerHTML = '<p class="hint">⏳...</p>';
-  const history = await loadHistory();
-  const isAr = currentLang === 'ar';
-  if (history.length === 0) {
-    container.innerHTML = `<p class="hint">${isAr?'📁 لا يوجد سجل بعد.':'📁 No history yet.'}</p>`;
-    return;
-  }
-  container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:14px;color:#64748b;">📊 ${history.length} ${isAr?'فحص':'scans'}</div>
-      <button class="btn btn-red" id="btnClearHistory" style="padding:8px 14px;font-size:13px;">${isAr?'🗑️ حذف السجل':'🗑️ Clear'}</button>
-    </div>
-    <div class="dtc-list">${history.map(h => {
-      const date = new Date(h.timestamp).toLocaleString(isAr?'ar':'en');
-      const hc = h.healthScore>=80?'#10b981':h.healthScore>=50?'#f59e0b':'#ef4444';
-      return `<div class="dtc-item" data-id="${h.id}" style="border-right-color:${hc};">
-        <div class="code" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <span style="color:#1e293b;font-family:Cairo;font-size:13px;">📅 ${date}</span>
-          <span style="background:${hc};color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;">${h.healthScore}/100</span>
-        </div>
-        <div class="title" style="margin-top:6px;">
-          <div>🚗 ${h.vin!=='unknown'?'VIN: '+h.vin:(isAr?'VIN غير محدد':'No VIN')}</div>
-          <div>🔧 ${h.faults.length} ${isAr?'عطل':'faults'}${h.diagnosisCount>0?' • 🧠 '+h.diagnosisCount:''}</div>
-        </div>
-      </div>`;
-    }).join('')}</div>`;
-  container.querySelectorAll('.dtc-item').forEach(el => el.addEventListener('click', () => showHistoryDetail(el.dataset.id)));
-  const btn = document.getElementById('btnClearHistory');
-  if (btn) btn.onclick = async () => {
-    if (!confirm(isAr?'حذف كل السجل؟':'Delete all history?')) return;
-    await saveHistoryToStorage([]);
-    displayHistory();
-  };
-}
-
-async function showHistoryDetail(id) {
-  const history = await loadHistory();
-  const rec = history.find(h => h.id === id);
-  if (!rec) return;
-  renderFaults(rec.faults);
-  if (rec.faults.length > 0) {
-    displayFault(rec.faults[0].code);
-    const diag = runSmartDiagnosis(rec.faults.map(f => f.code));
-    displaySmartDiagnosis(rec.faults.map(f => f.code));
-    displayHealthScore(rec.faults, diag);
-    showExportButton();
-  }
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelector('.tab[data-tab="faults"]').classList.add('active');
-  document.getElementById('panel-faults').classList.add('active');
-}
-
-function buildReportHTML() {
-  const isAr = currentLang === 'ar';
-  const date = new Date().toLocaleString(isAr?'ar-EG':'en-US');
-  const vinText = document.getElementById('vinResult')?.textContent || '-';
-  const vinDecoded = vinText && vinText.length === 17 ? decodeVIN(vinText) : null;
-  const faultItems = document.querySelectorAll('#dtcList .dtc-item');
-  const faults = [];
-  faultItems.forEach(el => { const c = el.dataset.code; if (c) faults.push({code:c, info:getFaultInfo(c)}); });
-  const diagnoses = runSmartDiagnosis(faults.map(f => f.code));
-  const hs = calculateHealthScore(faults, diagnoses);
-  const hc = hs>=80?'#10b981':hs>=50?'#f59e0b':'#ef4444';
-  
-  return `<div style="padding:30px;font-family:Cairo;direction:${isAr?'rtl':'ltr'};background:#fff;width:700px;">
-    <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px;border-radius:14px;margin-bottom:20px;">
-      <div style="font-size:26px;font-weight:700;">🔧 CheckDiga</div>
-      <div style="font-size:12px;opacity:0.8;">${date}</div>
-    </div>
-    <div style="background:${hc};color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-size:14px;">${isAr?'مؤشر صحة السيارة':'Health Score'}</div></div>
-      <div style="font-size:42px;font-weight:700;">${hs}/100</div>
-    </div>
-    <div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;margin-bottom:12px;">🚗 ${isAr?'معلومات السيارة':'Vehicle Info'}</div>
-      <div>VIN: <strong style="font-family:monospace;">${vinText}</strong></div>
-      ${vinDecoded?`<div>${vinDecoded.manufacturer} • ${vinDecoded.year} • ${vinDecoded.country}</div>`:''}
-    </div>
-    <div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;color:#991b1b;margin-bottom:12px;">🔧 ${isAr?'الأعطال':'Faults'} (${faults.length})</div>
-      ${faults.map((f,i)=>`<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px;">
-        <div style="font-weight:700;color:#b91c1c;font-family:monospace;">#${i+1}. ${f.code}</div>
-        <div>${f.info.title}</div>
-      </div>`).join('')}
-    </div>
-    ${diagnoses.length>0?`<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;color:#5b21b6;margin-bottom:12px;">🧠 ${isAr?'التشخيص الذكي':'Diagnosis'}</div>
-      ${diagnoses.map(d=>`<div style="background:#fff;padding:12px;border-radius:8px;margin-bottom:10px;font-size:13px;">
-        <div style="font-weight:700;">${d.title} (${d.confidence}%)</div>
-        <div style="color:#475569;margin-top:4px;">${d.description}</div>
-      </div>`).join('')}
-    </div>`:''}
-    <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">
-      Generated by CheckDiga
-    </div>
-  </div>`;
-}
-
-async function exportPDF() {
-  const btn = document.getElementById('btnExportPDF');
-  const orig = btn.textContent;
-  btn.textContent = '⏳...';
-  btn.disabled = true;
-  try {
-    const c = document.createElement('div');
-    c.innerHTML = buildReportHTML();
-    c.style.position = 'fixed'; c.style.left = '-9999px';
-    document.body.appendChild(c);
-    await html2pdf().set({
-      margin: 0,
-      filename: `CheckDiga-${new Date().toISOString().slice(0,10)}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(c.firstElementChild).save();
-    document.body.removeChild(c);
-    log('📄 PDF created');
-  } catch (e) { log('⚠️ PDF failed'); }
-  finally { btn.textContent = orig; btn.disabled = false; }
-}
-
-function showExportButton() { const c = document.getElementById('exportCard'); if (c) c.style.display = 'block'; }
-function hideExportButton() { const c = document.getElementById('exportCard'); if (c) c.style.display = 'none'; }
-
-/* =============================================
-   Database Loading
-============================================= */
-const DB_VERSION = 'v4';
-const CACHE_KEY_CORE = 'dtc_core_' + DB_VERSION;
-const CACHE_KEY_PREFIX = 'dtc_ext_' + DB_VERSION + '_';
-const CACHE_EXPIRY = 30*24*60*60*1000;
-const DB_FILES = { P:'dtc_p.json', C:'dtc_c.json', B:'dtc_b.json', U:'dtc_u.json', CN:'dtc_chinese.json' };
-const loadedCategories = new Set();
-
-function decompressEntry(e) {
-  return Array.isArray(e) ? { zone: e[0]||'engine', title: e[1]||'', desc: e[2]||'' } : e;
-}
-
-async function fetchJSON(url) {
-  const r = await fetch(url + '?v=' + DB_VERSION);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return r.json();
-}
-
-async function saveToCache(k, d) {
-  try {
-    if ('indexedDB' in window) {
-      const db = await openIDB();
-      const tx = db.transaction('cache','readwrite');
-      tx.objectStore('cache').put({key:k,data:d,timestamp:Date.now()});
-      await tx.complete;
-    } else localStorage.setItem(k, JSON.stringify({data:d,timestamp:Date.now()}));
-  } catch(e){}
-}
-
-async function loadFromCache(k) {
-  try {
-    if ('indexedDB' in window) {
-      const db = await openIDB();
-      const tx = db.transaction('cache','readonly');
-      const r = await tx.objectStore('cache').get(k);
-      if (r && Date.now()-r.timestamp < CACHE_EXPIRY) return r.data;
-    } else {
-      const c = localStorage.getItem(k);
-      if (c) { const p = JSON.parse(c); if (Date.now()-p.timestamp < CACHE_EXPIRY) return p.data; }
-    }
-  } catch(e){}
-  return null;
-}
-
-function openIDB() {
-  return new Promise((res, rej) => {
-    const r = indexedDB.open('DigaDB', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('cache', {keyPath:'key'});
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
-}
-
-async function loadDatabase() {
-  const c = await loadFromCache(CACHE_KEY_CORE);
-  if (c) { applyCompressedData(c); log(`⚡ Base from cache (${Object.keys(c).length})`); return; }
-  try {
-    log('🌐 Loading base...');
-    const d = await fetchJSON('dtc_core.json');
-    applyCompressedData(d);
-    await saveToCache(CACHE_KEY_CORE, d);
-    log(`✅ Loaded ${Object.keys(d).length} core codes`);
-  } catch(e) { log('⚠️ Base failed'); }
-}
-
-function applyCompressedData(d) {
-  for (const [k,v] of Object.entries(d)) DTC_DATABASE[k] = decompressEntry(v);
-}
-
-async function loadCategory(cat) {
-  if (loadedCategories.has(cat) || !DB_FILES[cat]) return;
-  const ck = CACHE_KEY_PREFIX + cat;
-  let d = await loadFromCache(ck);
-  if (d) { applyCompressedData(d); loadedCategories.add(cat); log(`⚡ ${cat} cached`); return; }
-  try {
-    log(`🌐 Loading ${cat}...`);
-    d = await fetchJSON(DB_FILES[cat]);
-    applyCompressedData(d);
-    await saveToCache(ck, d);
-    loadedCategories.add(cat);
-    log(`✅ ${cat}: ${Object.keys(d).length}`);
-  } catch(e) { log(`⚠️ ${cat} failed`); }
-}
-
-let searchTimer = null;
-function searchDTC(q) { clearTimeout(searchTimer); searchTimer = setTimeout(() => performSearch(q), 200); }
-
-async function performSearch(query) {
-  const div = document.getElementById('searchResults');
-  const q = query.trim().toUpperCase();
-  if (q.length < 2) { div.innerHTML = ''; return; }
-  const fl = q[0];
-  if (['P','C','B','U'].includes(fl) && !loadedCategories.has(fl)) {
-    div.innerHTML = `<p class="hint">⏳ Loading ${fl}...</p>`;
-    await loadCategory(fl);
-  }
-  if (q.startsWith('P1')||q.startsWith('P2')||q.startsWith('P3')) {
-    if (!loadedCategories.has('CN')) {
-      div.innerHTML = `<p class="hint">⏳ Loading Chinese...</p>`;
-      await loadCategory('CN');
-    }
-  }
-  const matches = [];
-  for (const [code, info] of Object.entries(DTC_DATABASE)) {
-    if (matches.length >= 20) break;
-    if (code.includes(q) || (info.title && info.title.includes(query)) || (info.desc && info.desc.includes(query))) matches.push([code, info]);
-  }
-  if (matches.length === 0) { div.innerHTML = `<p class="hint">No results for "${query}"</p>`; return; }
-  div.innerHTML = `<p style="font-size:13px;color:#64748b;margin-bottom:8px;">${matches.length} results:</p>
-    <div class="dtc-list">${matches.map(([c,i])=>`<div class="dtc-item" data-code="${c}"><div class="code">${c}</div><div class="title">${i.title||'Unknown'}</div></div>`).join('')}</div>`;
-  div.querySelectorAll('.dtc-item').forEach(el => el.onclick = () => {
-    displayFault(el.dataset.code);
-    document.getElementById('dtcSearchInput').value = '';
-    div.innerHTML = '';
-  });
-}
-
-/* =============================================
-   Firebase
-============================================= */
-async function saveScanToCloud(faults, vin) {
-  try {
-    await addDoc(collection(db, "scans"), {
-      vin: vin || "unknown",
-      faults: (faults||[]).map(f => ({code:f.code, system:f.system})),
-      faultCodes: (faults||[]).map(f => f.code),
-      timestamp: serverTimestamp(),
-      userAgent: navigator.userAgent.substring(0,100),
-      language: navigator.language
-    });
-    for (const f of (faults||[])) await updateDTCStats(f.code);
-    log('☁️ Saved to cloud');
-  } catch(e) { log('⚠️ Cloud failed'); }
-}
-
-async function updateDTCStats(code) {
-  try {
-    const r = doc(db, "dtc_stats", code);
-    const d = await getDoc(r);
-    if (d.exists()) await updateDoc(r, {count: increment(1), lastSeen: serverTimestamp()});
-    else await setDoc(r, {code, count: 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp()});
-  } catch(e){}
-}
-
-async function loadTopFaults() {
-  try {
-    const q = query(collection(db, "dtc_stats"), orderBy("count", "desc"), limit(10));
-    const s = await getDocs(q);
-    const arr = [];
-    s.forEach(d => arr.push(d.data()));
-    return arr;
-  } catch(e) { return []; }
-}
-
-async function displayStats() {
-  const c = document.getElementById('statsContent');
-  c.innerHTML = '<p class="hint">⏳...</p>';
-  const tf = await loadTopFaults();
-  const isAr = currentLang === 'ar';
-  if (tf.length === 0) { c.innerHTML = `<p class="hint">${isAr?'لا توجد بيانات':'No data'}</p>`; return; }
-  c.innerHTML = `<h4 style="margin-bottom:12px;">🔥 ${isAr?'أكثر الأعطال شيوعاً':'Top Faults'}</h4>
-    <div class="dtc-list">${tf.map((f,i) => {
-      const info = getFaultInfo(f.code);
-      return `<div class="dtc-item" style="cursor:default;"><div class="code"><span class="system-badge">#${i+1}</span>${f.code}<span style="margin-right:auto;color:#64748b;font-weight:700;">${f.count}</span></div><div class="title">${info.title||'Unknown'}</div></div>`;
-    }).join('')}</div>`;
-}
-
-function displayFault(code) {
-  document.querySelectorAll('.zone.active').forEach(z => z.classList.remove('active'));
-  const info = getFaultInfo(code);
-  const z = document.querySelector(`[data-zone="${info.zone}"]`);
-  if (z) z.classList.add('active');
-  document.getElementById('faultTitle').textContent = info.title;
-  document.getElementById('faultDesc').textContent = info.desc;
-  document.getElementById('faultCode').textContent = code;
-  document.getElementById('faultCard').classList.remove('hidden');
-}
-
-function clearCarDisplay() {
-  document.querySelectorAll('.zone.active').forEach(z => z.classList.remove('active'));
-  document.getElementById('faultCard').classList.add('hidden');
-}
-
-function getFaultInfo(code) {
-  const c = String(code).trim().toUpperCase();
-  return DTC_DATABASE[c] || { zone:"engine", title: currentLang==='ar'?"عطل غير معروف":"Unknown", desc: currentLang==='ar'?"كود غير مسجل.":"Code not registered." };
-}
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === 'history') displayHistory();
-    if (tab.dataset.tab === 'live') {
-      setTimeout(() => {
-        if (!chartRpmInstance) initCharts();
-        else { chartRpmInstance.resize(); chartSpeedInstance.resize(); chartCoolantInstance.resize(); }
-      }, 300);
-    }
-  };
-});
-
-function log(msg) {
-  const c = document.getElementById('console');
-  const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  c.textContent += `\n[${time}] ${msg}`;
-  c.scrollTop = c.scrollHeight;
-}
-
-function setStatus(text, connected) {
-  const s = document.getElementById('status');
-  if (connected) s.textContent = t('connected');
-  else if (text && (text.includes('تجريبي')||text.includes('Demo'))) s.textContent = t('demoMode');
-  else s.textContent = t('disconnected');
-  s.classList.toggle('connected', !!connected);
-}
-
-/* =============================================
-   Bluetooth
-============================================= */
-let device = null, characteristic = null;
-const ELM_SERVICE = '0000fff0-0000-1000-8000-00805f9b34fb';
-const ELM_CHAR = '0000fff1-0000-1000-8000-00805f9b34fb';
-const ELM_SERVICE2 = '0000ffe0-0000-1000-8000-00805f9b34fb';
-const ELM_CHAR2 = '0000ffe1-0000-1000-8000-00805f9b34fb';
-
-async function connectBluetooth() {
-  if (!navigator.bluetooth) { alert('No Bluetooth support'); return; }
-  try {
-    log('🔍 Searching...');
-    device = await navigator.bluetooth.requestDevice({
-      filters: [{namePrefix:'OBD'},{namePrefix:'ELM'},{namePrefix:'Vgate'},{namePrefix:'V-Link'},{services:[ELM_SERVICE]},{services:[ELM_SERVICE2]}],
-      optionalServices: [ELM_SERVICE, ELM_SERVICE2]
-    });
-    log('✅ Selected: ' + device.name);
-    const server = await device.gatt.connect();
-    try {
-      const svc = await server.getPrimaryService(ELM_SERVICE);
-      characteristic = await svc.getCharacteristic(ELM_CHAR);
-    } catch {
-      const svc = await server.getPrimaryService(ELM_SERVICE2);
-      characteristic = await svc.getCharacteristic(ELM_CHAR2);
-    }
-    await characteristic.startNotifications();
-    characteristic.addEventListener('characteristicvaluechanged', handleData);
-    setStatus('', true);
-    log('🎉 Connected');
-    await sendCommand('ATZ', 1500);
-    await sendCommand('ATE0', 500);
-    await sendCommand('ATSP0', 500);
-  } catch(e) { log('❌ ' + e.message); setStatus('', false); }
-}
-
-function disconnectBluetooth() {
-  try { if (device && device.gatt.connected) device.gatt.disconnect(); setStatus('', false); log('🔌 Disconnected'); } catch(e){}
-}
-
-let responseBuffer = '';
-function handleData(e) { responseBuffer += new TextDecoder().decode(e.target.value); }
-
-async function sendCommand(cmd, waitMs = 400) {
-  if (!characteristic) { log('⚠️ Not connected'); return null; }
-  responseBuffer = '';
-  const enc = new TextEncoder();
-  const full = cmd + '\r';
-  for (let i = 0; i < full.length; i += 20) await characteristic.writeValue(enc.encode(full.substring(i, i+20)));
-  await new Promise(r => setTimeout(r, waitMs));
-  return responseBuffer;
-}
-
-async function readDTCs() {
-  const list = document.getElementById('dtcList');
-  if (!characteristic) { list.innerHTML = `<p class="hint">⚠️ ${currentLang==='ar'?'اتصل بجهاز أولاً':'Connect device'}</p>`; return; }
-  log('📋 Reading...');
-  await sendCommand('AT SH 7E0', 200);
-  const resp = await sendCommand('03', 800);
-  const codes = parseDTCs(resp);
-  const faults = codes.map(c => ({code:c, system: currentLang==='ar'?'المحرك':'Engine'}));
-  renderFaults(faults);
-  if (faults.length > 0) {
-    displayFault(faults[0].code);
-    const diag = runSmartDiagnosis(faults.map(f => f.code));
-    displaySmartDiagnosis(faults.map(f => f.code));
-    displayHealthScore(faults, diag);
-    showExportButton();
-    await saveScanToCloud(faults, document.getElementById('vinResult')?.textContent || 'unknown');
-    await saveScanToHistory(faults, document.getElementById('vinResult')?.textContent || 'unknown', diag);
-  } else {
-    clearCarDisplay();
-    displaySmartDiagnosis([]);
-    document.getElementById('healthBadge').style.display = 'none';
-    hideExportButton();
-  }
-}
-
-function parseDTCs(raw) {
-  if (!raw) return [];
-  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
-  const m = clean.match(/43([0-9A-F]+)/);
-  if (!m) return [];
-  const hex = m[1]; const codes = [];
-  for (let i = 0; i + 4 <= hex.length; i += 4) {
-    const p = hex.substring(i, i+4);
-    if (p === '0000') continue;
-    const l = ['P','C','B','U'][parseInt(p[0],16) >> 2];
-    codes.push(l + p.substring(1));
-  }
-  return codes;
-}
-
-const ECU_LIST = [
-  {addr:'7E0', name:'المحرك', nameEn:'Engine'},
-  {addr:'7E1', name:'ناقل الحركة', nameEn:'Transmission'},
-  {addr:'7E2', name:'نظام الدفع', nameEn:'Drivetrain'},
-  {addr:'7E3', name:'ABS', nameEn:'ABS'},
-  {addr:'7E4', name:'ABS (بديل)', nameEn:'ABS (alt)'},
-  {addr:'7E5', name:'التوجيه', nameEn:'Steering'},
-  {addr:'7E6', name:'الوسائد', nameEn:'Airbag'},
-  {addr:'7E7', name:'التكييف', nameEn:'HVAC'}
-];
-
-async function scanAllECUs() {
-  const list = document.getElementById('dtcList');
-  if (!characteristic) { list.innerHTML = `<p class="hint">⚠️ ${currentLang==='ar'?'اتصل بجهاز':'Connect device'}</p>`; return; }
-  log('🚀 Scanning all...');
-  list.innerHTML = `<p class="hint">⏳ ${currentLang==='ar'?'جاري الفحص':'Scanning'}</p>`;
-  await sendCommand('AT CRA 7E8', 200);
-  await sendCommand('AT CAF1', 200);
-  let allFaults = [];
-  for (const ecu of ECU_LIST) {
-    const n = currentLang==='ar'?ecu.name:ecu.nameEn;
-    log(`🔍 ${n}...`);
-    await sendCommand(`AT SH ${ecu.addr}`, 200);
-    const resp = await sendCommand('19 02 FF', 700);
-    if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
-      const codes = parseUDS_Response(resp);
-      codes.forEach(c => allFaults.push({code:c.code, system:n}));
-      if (codes.length > 0) log(`⚠️ ${codes.length} in ${n}`);
-    }
-  }
-  await sendCommand('AT SH 7E0', 200);
-  renderFaults(allFaults);
-  const diag = runSmartDiagnosis(allFaults.map(f => f.code));
-  displaySmartDiagnosis(allFaults.map(f => f.code));
-  displayHealthScore(allFaults, diag);
-  log(`✅ Total: ${allFaults.length}`);
-  if (allFaults.length > 0) {
-    displayFault(allFaults[0].code);
-    showExportButton();
-    await saveScanToCloud(allFaults, document.getElementById('vinResult')?.textContent || 'unknown');
-    await saveScanToHistory(allFaults, document.getElementById('vinResult')?.textContent || 'unknown', diag);
-  } else { clearCarDisplay(); hideExportButton(); }
-}
-
-function parseUDS_Response(raw) {
-  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
-  const m = clean.match(/5902([0-9A-F]+)/);
-  if (!m) return [];
-  const hex = m[1]; const codes = [];
-  for (let i = 0; i + 8 <= hex.length; i += 8) {
-    const d = hex.substring(i, i+6);
-    const b1 = parseInt(d.substring(0,2),16);
-    const b2 = parseInt(d.substring(2,4),16);
-    const l = ['P','C','B','U'][(b1 >> 6) & 0x03];
-    const code = `${l}${(b1>>4)&0x03}${b1&0x0F}${(b2>>4)&0x0F}${b2&0x0F}`;
-    if (code !== 'P0000' && d !== '000000') codes.push({code});
-  }
-  return codes;
-}
-
-function renderFaults(faults) {
-  const list = document.getElementById('dtcList');
-  if (!faults.length) { list.innerHTML = `<p class="hint">✅ ${currentLang==='ar'?'لا توجد أعطال':'No faults'}</p>`; return; }
-  list.innerHTML = faults.map(f => {
-    const info = getFaultInfo(f.code);
-    return `<div class="dtc-item" data-code="${f.code}">
-      <div class="code"><span class="system-badge">${f.system}</span>${f.code}</div>
-      <div class="title">${info.title}</div>
-      <div style="margin-top:8px;"><button class="btn btn-blue" data-freeze="${f.code}" style="padding:6px 12px;font-size:12px;">❄️ ${currentLang==='ar'?'بيانات التجميد':'Freeze Frame'}</button></div>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.dtc-item').forEach(el => el.onclick = (e) => { if (e.target.dataset.freeze) return; displayFault(el.dataset.code); });
-  list.querySelectorAll('[data-freeze]').forEach(btn => btn.onclick = (e) => { e.stopPropagation(); readFreezeFrame(btn.dataset.freeze); });
-}
-
-async function clearDTCs() {
-  if (!characteristic) { alert('Connect device'); return; }
-  if (!confirm(currentLang==='ar'?'مسح الأعطال؟':'Clear DTCs?')) return;
-  log('🗑️ Clearing...');
-  await sendCommand('04', 800);
-  document.getElementById('dtcList').innerHTML = `<p class="hint">✅ ${currentLang==='ar'?'تم المسح':'Cleared'}</p>`;
-  clearCarDisplay();
-  displaySmartDiagnosis([]);
-  document.getElementById('healthBadge').style.display = 'none';
-  hideExportButton();
-}
-
-async function readVIN() {
-  if (!characteristic) { alert('Connect device'); return; }
-  log('🔍 Reading VIN...');
-  await sendCommand('0902', 1500);
-  const resp = await sendCommand('0902', 1500);
-  const vin = parseVIN(resp);
-  document.getElementById('vinResult').textContent = vin || (currentLang==='ar'?'لم يتم استلام VIN':'No VIN');
-  if (vin) { displayVINInfo(vin); await saveScanToCloud([], vin); }
-}
-
-function parseVIN(raw) {
-  if (!raw) return null;
-  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
-  const m = clean.match(/490201([0-9A-F]{34})/);
-  if (!m) return null;
-  let hex = m[1]; let vin = '';
-  for (let i = 0; i < hex.length; i += 2) {
-    const c = parseInt(hex.substr(i,2), 16);
-    if (c === 0) continue;
-    vin += String.fromCharCode(c);
-  }
-  return vin.trim();
-}
-
-function displayVINInfo(vin) {
-  const c = document.getElementById('vinInfo');
-  if (!c) return;
-  const isAr = currentLang === 'ar';
-  const d = decodeVIN(vin);
-  if (!d) { c.innerHTML = `<p class="hint">⚠️ ${isAr?'رقم غير صحيح':'Invalid VIN'}</p>`; return; }
-  const valid = validateVIN(vin);
-  const badge = valid ? `<span style="background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">✓ ${isAr?'VIN صحيح':'Valid'}</span>` : `<span style="background:#fef3c7;color:#b45309;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">⚠️ Check Digit</span>`;
-  c.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px;">
-      <div style="font-family:monospace;font-size:18px;font-weight:700;background:#0f172a;color:#4ade80;padding:14px;border-radius:12px;word-break:break-all;">${d.vin}</div>
-      <div style="margin-top:8px;">${badge}</div>
-    </div>
-    <div class="data-grid">
-      <div class="data-box"><div class="label">🌍 ${isAr?'بلد الصنع':'Country'}</div><div class="value" style="font-size:14px;">${d.country}</div></div>
-      <div class="data-box"><div class="label">🏭 ${isAr?'الشركة':'Manufacturer'}</div><div class="value" style="font-size:14px;">${d.manufacturer}</div></div>
-      <div class="data-box"><div class="label">📅 ${isAr?'السنة':'Year'}</div><div class="value" style="font-size:16px;">${d.year}</div></div>
-      <div class="data-box"><div class="label">🏭 ${isAr?'المصنع':'Plant'}</div><div class="value" style="font-size:14px;">${d.plant}</div></div>
-    </div>`;
-}
-
-/* =============================================
-   Live Data
-============================================= */
-const PID_DEFS = {
-  '010C':{key:'rpm',bytes:2,calc:(a,b)=>((256*a+b)/4)}, '010D':{key:'speed',bytes:1,calc:(a)=>a},
-  '0104':{key:'load',bytes:1,calc:(a)=>a*100/255}, '0111':{key:'throttle',bytes:1,calc:(a)=>a*100/255},
-  '010E':{key:'timing',bytes:1,calc:(a)=>a/2-64}, '0162':{key:'torque',bytes:1,calc:(a)=>a-125},
-  '0106':{key:'stft1',bytes:1,calc:(a)=>(a-128)*100/128}, '0107':{key:'ltft1',bytes:1,calc:(a)=>(a-128)*100/128},
-  '0108':{key:'stft2',bytes:1,calc:(a)=>(a-128)*100/128}, '0109':{key:'ltft2',bytes:1,calc:(a)=>(a-128)*100/128},
-  '0110':{key:'maf',bytes:2,calc:(a,b)=>(256*a+b)/100}, '010B':{key:'map',bytes:1,calc:(a)=>a},
-  '010A':{key:'fuelp',bytes:1,calc:(a)=>a*3}, '0122':{key:'fuelr',bytes:2,calc:(a,b)=>(256*a+b)*0.079},
-  '0114':{key:'o2b1s1',bytes:2,calc:(a)=>a/200}, '0115':{key:'o2b1s2',bytes:2,calc:(a)=>a/200},
-  '0118':{key:'o2b2s1',bytes:2,calc:(a)=>a/200}, '0119':{key:'o2b2s2',bytes:2,calc:(a)=>a/200},
-  '0105':{key:'coolant',bytes:1,calc:(a)=>a-40}, '010F':{key:'iat',bytes:1,calc:(a)=>a-40},
-  '0146':{key:'ambient',bytes:1,calc:(a)=>a-40}, '015C':{key:'oil',bytes:1,calc:(a)=>a-40},
-  '0142':{key:'battery',bytes:2,calc:(a,b)=>(256*a+b)/1000}, '012F':{key:'fuelLevel',bytes:1,calc:(a)=>a*100/255},
-  '0131':{key:'distClr',bytes:2,calc:(a,b)=>256*a+b}, '0121':{key:'distCel',bytes:2,calc:(a,b)=>256*a+b},
-  '011F':{key:'runtime',bytes:2,calc:(a,b)=>256*a+b}, '0151':{key:'fuelStatus',bytes:1,calc:(a)=>a}
-};
-
-let lastValues = {};
-let liveInterval = null;
-let liveRecording = false;
-let recordingData = [];
-
-async function readPID(pid) {
-  const r = await sendCommand(pid, 200);
-  if (!r) return null;
-  return parsePIDResponse(pid, r);
-}
-
-function parsePIDResponse(pid, raw) {
-  const clean = raw.replace(/[\s\r\n>]/g, '').toUpperCase();
-  const idx = clean.indexOf('41' + pid.substring(2));
-  if (idx === -1) return null;
-  const dataHex = clean.substring(idx + 4);
-  const def = PID_DEFS[pid];
-  if (!def) return null;
-  const bytes = [];
-  for (let i = 0; i < def.bytes * 2; i += 2) bytes.push(parseInt(dataHex.substring(i, i+2), 16));
-  if (bytes.some(isNaN)) return null;
-  return def.calc(...bytes);
-}
-
-function updateLiveUI() {
-  setValue('rpm', lastValues.rpm, v=>v.toFixed(0)); setValue('speed', lastValues.speed, v=>v.toFixed(0));
-  setValue('load', lastValues.load, v=>v.toFixed(1)); setValue('throttle', lastValues.throttle, v=>v.toFixed(1));
-  setValue('timing', lastValues.timing, v=>v.toFixed(1)); setValue('torque', lastValues.torque, v=>v.toFixed(0));
-  setValue('stft1', lastValues.stft1, v=>v.toFixed(1)); setValue('ltft1', lastValues.ltft1, v=>v.toFixed(1));
-  setValue('stft2', lastValues.stft2, v=>v.toFixed(1)); setValue('ltft2', lastValues.ltft2, v=>v.toFixed(1));
-  setValue('maf', lastValues.maf, v=>v.toFixed(2)); setValue('map', lastValues.map, v=>v.toFixed(0));
-  setValue('fuelp', lastValues.fuelp, v=>v.toFixed(0)); setValue('fuelr', lastValues.fuelr, v=>v.toFixed(1));
-  setValue('o2b1s1', lastValues.o2b1s1, v=>v.toFixed(2)); setValue('o2b1s2', lastValues.o2b1s2, v=>v.toFixed(2));
-  setValue('o2b2s1', lastValues.o2b2s1, v=>v.toFixed(2)); setValue('o2b2s2', lastValues.o2b2s2, v=>v.toFixed(2));
-  setValue('coolant', lastValues.coolant, v=>v.toFixed(0)); setValue('iat', lastValues.iat, v=>v.toFixed(0));
-  setValue('ambient', lastValues.ambient, v=>v.toFixed(0)); setValue('oil', lastValues.oil, v=>v.toFixed(0));
-  setValue('battery', lastValues.battery, v=>v.toFixed(2)); setValue('fuelLevel', lastValues.fuelLevel, v=>v.toFixed(0));
-  setValue('distClr', lastValues.distClr, v=>v.toFixed(0)); setValue('distCel', lastValues.distCel, v=>v.toFixed(0));
-  setValue('runtime', lastValues.runtime, v=>v.toFixed(0));
-  colorize('coolant', 75, 105, 'range'); colorize('battery', 12.4, 14.8, 'range');
-  ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
-  if (chartRpmInstance) updateCharts(lastValues);
-}
-
-function setValue(key, val, fmt) {
-  const el = document.getElementById('p-' + key);
-  if (el) el.textContent = (val===undefined||val===null)?'--':fmt(val);
-}
-
-function colorize(key, min, max, mode) {
-  const box = document.getElementById('p-' + key)?.closest('.data-box');
-  if (!box) return;
-  const v = lastValues[key];
-  if (v===undefined||v===null) return;
-  box.classList.remove('good','warn','bad');
-  const val = mode==='abs'?Math.abs(v):v;
-  if (mode==='abs') { if (val<=min) box.classList.add('good'); else if (val<=max) box.classList.add('warn'); else box.classList.add('bad'); }
-  else { if (v>=min && v<=max) box.classList.add('good'); else if (v<min*0.9||v>max*1.1) box.classList.add('bad'); else box.classList.add('warn'); }
-}
-
-async function liveLoop() {
-  if (!characteristic) return;
-  const pids = Object.keys(PID_DEFS);
-  for (let i = 0; i < pids.length; i += 3) {
-    const batch = pids.slice(i, i+3);
-    await Promise.all(batch.map(async pid => {
-      const val = await readPID(pid);
-      if (val!==null && !isNaN(val)) lastValues[PID_DEFS[pid].key] = val;
-    }));
-  }
-  updateLiveUI();
-  runAutoAnalysis();
-  if (liveRecording) recordingData.push({time: Date.now(), ...lastValues});
-}
-
-function startLive() {
-  if (liveInterval) return;
-  log('▶️ Live started');
-  setTimeout(() => { if (!chartRpmInstance) initCharts(); else { chartRpmInstance.resize(); chartSpeedInstance.resize(); chartCoolantInstance.resize(); } }, 400);
-  liveInterval = setInterval(liveLoop, 2000);
-  liveLoop();
-}
-
-function stopLive() { if (liveInterval) clearInterval(liveInterval); liveInterval = null; log('⏸️ Live stopped'); }
-
-function runAutoAnalysis() {
-  const el = document.getElementById('autoAnalysis');
-  if (!el) return;
-  const items = []; const v = lastValues;
-  const isAr = currentLang === 'ar';
-  ['stft1','ltft1','stft2','ltft2'].forEach(k => { if (v[k]!==undefined && Math.abs(v[k])>10) items.push({icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — ${isAr?'احتمال تسرب هواء':'Possible air leak'}`}); });
-  if (v.coolant!==undefined) {
-    if (v.coolant<75 && v.runtime>300) items.push({icon:'❄️', text:`${isAr?'حرارة منخفضة':'Low temp'} ${v.coolant}°C`});
-    if (v.coolant>105) items.push({icon:'🔥', text:`${isAr?'ارتفاع حرارة!':'Overheating!'} ${v.coolant}°C`});
-  }
-  if (v.battery!==undefined && v.battery<12.4 && v.rpm>500) items.push({icon:'🔋', text:`${isAr?'جهد منخفض':'Low voltage'} ${v.battery}V`});
-  ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => { if (v[k]!==undefined && (v[k]<0.05||v[k]>1.2)) items.push({icon:'💨', text:`${k.toUpperCase()} ${v[k].toFixed(2)}V`}); });
-  if (items.length===0) el.innerHTML = `<div class="analysis-item" style="color:#15803d;">✅ ${isAr?'كل القيم طبيعية':'All values normal'}</div>`;
-  else el.innerHTML = items.map(i => `<div class="analysis-item">${i.icon}<span>${i.text}</span></div>`).join('');
-}
-
-function exportCSV() {
-  if (!recordingData.length) { alert('No data'); return; }
-  const keys = Object.keys(recordingData[0]);
-  const csv = '\uFEFF' + keys.join(',') + '\n' + recordingData.map(r => keys.map(k => r[k] ?? '').join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `diga-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
-  a.click();
-  log('💾 CSV exported');
-}
-
-/* =============================================
-   Freeze Frame
-============================================= */
-const FREEZE_PIDS = {
-  '03':{name:'Fuel Status',bytes:1,calc:(a)=>a}, '04':{name:'Load',bytes:1,calc:(a)=>`${(a*100/255).toFixed(1)}%`},
-  '05':{name:'Coolant',bytes:1,calc:(a)=>`${a-40}°C`}, '06':{name:'STFT B1',bytes:1,calc:(a)=>`${((a-128)*100/128).toFixed(1)}%`},
-  '07':{name:'LTFT B1',bytes:1,calc:(a)=>`${((a-128)*100/128).toFixed(1)}%`}, '0B':{name:'MAP',bytes:1,calc:(a)=>`${a}kPa`},
-  '0C':{name:'RPM',bytes:2,calc:(a,b)=>`${((256*a+b)/4).toFixed(0)}`}, '0D':{name:'Speed',bytes:1,calc:(a)=>`${a}km/h`},
-  '0E':{name:'Timing',bytes:1,calc:(a)=>`${(a/2-64).toFixed(1)}°`}, '0F':{name:'IAT',bytes:1,calc:(a)=>`${a-40}°C`},
-  '10':{name:'MAF',bytes:2,calc:(a,b)=>`${((256*a+b)/100).toFixed(2)}g/s`}, '11':{name:'Throttle',bytes:1,calc:(a)=>`${(a*100/255).toFixed(1)}%`},
-  '1F':{name:'Runtime',bytes:2,calc:(a,b)=>`${256*a+b}s`}, '42':{name:'Module Voltage',bytes:2,calc:(a,b)=>`${((256*a+b)/1000).toFixed(2)}V`},
-  '46':{name:'Ambient',bytes:1,calc:(a)=>`${a-40}°C`}, '5C':{name:'Oil Temp',bytes:1,calc:(a)=>`${a-40}°C`}
-};
-
-async function readFreezeFrame(code) {
-  const modal = document.getElementById('freezeModal');
-  modal.style.display = 'block';
-  document.getElementById('freezeCode').textContent = code;
-  if (!characteristic) {
-    document.getElementById('freezeContent').innerHTML = `<p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">⚠️ ${currentLang==='ar'?'يجب توصيل جهاز OBD-II':'Connect OBD-II device'}</p>`;
-    return;
-  }
-  document.getElementById('freezeContent').innerHTML = '<p>⏳...</p>';
-  const results = {};
-  const pids = ['03','04','05','06','07','0B','0C','0D','0E','0F','10','11','1F','42','46','5C'];
-  for (const pid of pids) {
-    const def = FREEZE_PIDS[pid];
-    if (!def) continue;
-    try {
-      const r = await sendCommand(`02 ${pid} 00`, 400);
-      if (r && !r.includes('NO DATA') && !r.includes('ERROR')) {
-        const clean = r.replace(/[\s\r\n>]/g, '').toUpperCase();
-        const idx = clean.indexOf('42' + pid);
-        if (idx !== -1) {
-          const dh = clean.substring(idx+4);
-          const bytes = [];
-          for (let i = 0; i < def.bytes*2; i += 2) bytes.push(parseInt(dh.substring(i, i+2), 16));
-          if (!bytes.some(isNaN)) results[pid] = {name:def.name, value:def.calc(...bytes)};
-        }
-      }
-    } catch(e){}
-  }
-  if (Object.keys(results).length === 0) {
-    document.getElementById('freezeContent').innerHTML = `<p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">⚠️ ${currentLang==='ar'?'لا توجد بيانات':'No data'}</p>`;
-    return;
-  }
-  document.getElementById('freezeContent').innerHTML = `<div style="display:grid;gap:8px;">
-    ${Object.entries(results).map(([pid, d]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:#f8fafc;border-radius:8px;"><span>${d.name}</span><strong style="font-family:monospace;">${d.value}</strong></div>`).join('')}
-  </div>`;
-}
-
-/* =============================================
-   Charts
-============================================= */
-const chartData = {rpm:[], speed:[], coolant:[], labels:[]};
-const MAX_CHART_POINTS = 30;
-let chartRpmInstance = null, chartSpeedInstance = null, chartCoolantInstance = null;
-
-function initCharts() {
-  if (chartRpmInstance) { chartRpmInstance.destroy(); chartRpmInstance = null; }
-  if (chartSpeedInstance) { chartSpeedInstance.destroy(); chartSpeedInstance = null; }
-  if (chartCoolantInstance) { chartCoolantInstance.destroy(); chartCoolantInstance = null; }
-
-  const opts = (sMax) => ({
-    responsive: true, maintainAspectRatio: false, animation: {duration:300},
-    plugins: { legend: {display:false}, tooltip: { backgroundColor:'#0f172a', padding:10, displayColors:false } },
-    scales: {
-      x: {display:false, grid:{display:false}},
-      y: { beginAtZero:true, suggestedMax:sMax, grid:{color:'rgba(226,232,240,0.5)', drawBorder:false},
-        ticks: {color:'#94a3b8', font:{size:10}, maxTicksLimit:5} }
-    },
-    elements: { point:{radius:0, hoverRadius:5}, line:{tension:0.4, borderWidth:2} }
-  });
-
-  const grad = (ctx, color) => {
-    const g = ctx.createLinearGradient(0, 0, 0, 220);
-    g.addColorStop(0, color + '40'); g.addColorStop(1, color + '00');
-    return g;
-  };
-
-  const rc = document.getElementById('chartRpm');
-  const sc = document.getElementById('chartSpeed');
-  const cc = document.getElementById('chartCoolant');
-  if (!rc || !sc || !cc) return;
-
-  const rCtx = rc.getContext('2d');
-  chartRpmInstance = new Chart(rCtx, { type:'line',
-    data:{labels:[], datasets:[{data:[], borderColor:'#ef4444', backgroundColor:grad(rCtx,'#ef4444'), fill:true}]},
-    options: opts(7000) });
-
-  const sCtx = sc.getContext('2d');
-  chartSpeedInstance = new Chart(sCtx, { type:'line',
-    data:{labels:[], datasets:[{data:[], borderColor:'#3b82f6', backgroundColor:grad(sCtx,'#3b82f6'), fill:true}]},
-    options: opts(180) });
-
-  const cCtx = cc.getContext('2d');
-  chartCoolantInstance = new Chart(cCtx, { type:'line',
-    data:{labels:[], datasets:[{data:[], borderColor:'#f59e0b', backgroundColor:grad(cCtx,'#f59e0b'), fill:true}]},
-    options: opts(120) });
-}
-
-function updateCharts(v) {
-  const time = new Date().toLocaleTimeString();
-  if (v.rpm !== undefined && !isNaN(v.rpm)) { chartData.rpm.push(v.rpm); if (chartData.rpm.length > MAX_CHART_POINTS) chartData.rpm.shift(); const e = document.getElementById('chart-rpm-current'); if (e) e.textContent = v.rpm.toFixed(0); }
-  if (v.speed !== undefined && !isNaN(v.speed)) { chartData.speed.push(v.speed); if (chartData.speed.length > MAX_CHART_POINTS) chartData.speed.shift(); const e = document.getElementById('chart-speed-current'); if (e) e.textContent = v.speed.toFixed(0); }
-  if (v.coolant !== undefined && !isNaN(v.coolant)) { chartData.coolant.push(v.coolant); if (chartData.coolant.length > MAX_CHART_POINTS) chartData.coolant.shift(); const e = document.getElementById('chart-coolant-current'); if (e) e.textContent = v.coolant.toFixed(0); }
-  chartData.labels.push(time);
-  if (chartData.labels.length > MAX_CHART_POINTS) chartData.labels.shift();
-  if (chartRpmInstance) { chartRpmInstance.data.labels = [...chartData.labels]; chartRpmInstance.data.datasets[0].data = [...chartData.rpm]; chartRpmInstance.update('none'); }
-  if (chartSpeedInstance) { chartSpeedInstance.data.labels = [...chartData.labels]; chartSpeedInstance.data.datasets[0].data = [...chartData.speed]; chartSpeedInstance.update('none'); }
-  if (chartCoolantInstance) { chartCoolantInstance.data.labels = [...chartData.labels]; chartCoolantInstance.data.datasets[0].data = [...chartData.coolant]; chartCoolantInstance.update('none'); }
-}
-
-/* =============================================
-   Demo
-============================================= */
-let demoTimer = null;
-
-function startDemo() {
-  log('🧪 Demo mode');
-  setStatus('demo', true);
-  const demoDTCs = [
-    {code:'P0301', system: currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0171', system: currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0420', system: currentLang==='ar'?'العوادم':'Exhaust'},
-    {code:'C0035', system:'ABS'},
-    {code:'B0001', system: currentLang==='ar'?'الوسائد':'Airbag'},
-    {code:'U0100', system: currentLang==='ar'?'الكهرباء':'Electrical'}
-  ];
-  renderFaults(demoDTCs);
-  displayFault(demoDTCs[0].code);
-  const diag = runSmartDiagnosis(demoDTCs.map(f => f.code));
-  displaySmartDiagnosis(demoDTCs.map(f => f.code));
-  displayHealthScore(demoDTCs, diag);
-  showExportButton();
-  saveScanToCloud(demoDTCs, 'DEMO-123');
-  saveScanToHistory(demoDTCs, 'DEMO-123', diag);
-  setTimeout(() => { if (!chartRpmInstance) initCharts(); else { chartRpmInstance.resize(); chartSpeedInstance.resize(); chartCoolantInstance.resize(); } }, 500);
-  demoTimer = setInterval(() => {
-    lastValues = {
-      rpm: 800 + Math.random()*2500, speed: Math.random()*120, load: 20 + Math.random()*60,
-      throttle: Math.random()*80, timing: 10 + Math.random()*20, torque: 10 + Math.random()*70,
-      stft1: (Math.random()*20-10), ltft1: (Math.random()*15-7),
-      stft2: (Math.random()*20-10), ltft2: (Math.random()*15-7),
-      maf: 3 + Math.random()*15, map: 30 + Math.random()*40,
-      fuelp: 300 + Math.random()*50, fuelr: 280 + Math.random()*40,
-      o2b1s1: 0.1 + Math.random()*0.8, o2b1s2: 0.1 + Math.random()*0.8,
-      o2b2s1: 0.1 + Math.random()*0.8, o2b2s2: 0.1 + Math.random()*0.8,
-      coolant: 85 + Math.random()*10, iat: 25 + Math.random()*10,
-      ambient: 22 + Math.random()*8, oil: 90 + Math.random()*15,
-      battery: 13.8 + Math.random()*0.6, fuelLevel: 30 + Math.random()*50,
-      distClr: 120, distCel: 45, runtime: 420, fuelStatus: 1
-    };
-    updateLiveUI();
-    runAutoAnalysis();
-  }, 1000);
-}
-
-function stopDemo() { if (demoTimer) clearInterval(demoTimer); demoTimer = null; }
-
-/* =============================================
-   Buttons
-============================================= */
-document.getElementById('btnLang').onclick = toggleLanguage;
-document.getElementById('btnConnect').onclick = connectBluetooth;
-document.getElementById('btnDemo').onclick = startDemo;
-document.getElementById('btnDisconnect').onclick = () => { stopDemo(); stopLive(); disconnectBluetooth(); };
-document.getElementById('btnClear').onclick = clearDTCs;
-document.getElementById('btnReadDTC').onclick = readDTCs;
-document.getElementById('btnScanAll').onclick = scanAllECUs;
-document.getElementById('btnReadVIN').onclick = readVIN;
-document.getElementById('btnStartLive').onclick = () => { liveRecording = true; startLive(); };
-document.getElementById('btnStopLive').onclick = stopLive;
-document.getElementById('btnExportCSV').onclick = exportCSV;
-document.getElementById('btnExportPDF').onclick = exportPDF;
-document.getElementById('btnLoadStats').onclick = displayStats;
-document.getElementById('dtcSearchInput').addEventListener('input', (e) => searchDTC(e.target.value));
-document.getElementById('btnDecodeVIN').onclick = () => {
-  const vin = document.getElementById('vinInput').value.trim().toUpperCase();
-  if (vin.length !== 17) { alert('VIN must be 17 chars'); return; }
-  document.getElementById('vinResult').textContent = vin;
-  displayVINInfo(vin);
-  saveScanToCloud([], vin);
-};
-document.getElementById('btnCloseFreeze').onclick = () => document.getElementById('freezeModal').style.display = 'none';
-
-loadDatabase();
-applyLanguage();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW')).catch(e => console.warn('SW fail:', e));
-  });
-}
+<script>
+// ⚠️ الملف الرئيسي - سيتم استبداله في الجزء 2
+console.log('Loading main script...');
 </script>
 
 </body>
