@@ -20,126 +20,65 @@
   .spinner { border: 3px solid #334155; border-top-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============ Gauge Dashboard ============ */
-  .gauge-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+  /* Gauges */
+  .gauge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .gauge-box {
     background: linear-gradient(145deg, #1e293b, #0f172a);
-    border-radius: 20px;
-    padding: 14px;
+    border-radius: 20px; padding: 14px;
     border: 1px solid #334155;
     box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .gauge-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: var(--gauge-color, #3b82f6);
     box-shadow: 0 0 12px var(--gauge-color, #3b82f6);
   }
-  .gauge-label {
-    font-size: 11px;
-    color: #94a3b8;
-    text-align: center;
-    margin-bottom: 6px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .gauge-svg {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .gauge-value {
-    font-size: 22px;
-    font-weight: 800;
-    text-align: center;
-    margin-top: 4px;
-    font-family: 'Cairo', monospace;
-    color: #fff;
-    text-shadow: 0 0 12px var(--gauge-color, #3b82f6);
-  }
-  .gauge-unit {
-    font-size: 10px;
-    color: #64748b;
-    text-align: center;
-    margin-top: -2px;
-  }
-  .gauge-arc {
-    transition: stroke-dashoffset 0.6s ease-out;
-    filter: drop-shadow(0 0 6px currentColor);
-  }
-  .gauge-needle {
-    transform-origin: 100px 100px;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 0 4px rgba(255,255,255,0.6));
-  }
+  .gauge-label { font-size: 11px; color: #94a3b8; text-align: center; margin-bottom: 6px; font-weight: 700; }
+  .gauge-svg { width: 100%; height: auto; display: block; }
+  .gauge-value { font-size: 22px; font-weight: 800; text-align: center; margin-top: 4px; font-family: 'Cairo', monospace; color: #fff; text-shadow: 0 0 12px var(--gauge-color, #3b82f6); }
+  .gauge-unit { font-size: 10px; color: #64748b; text-align: center; margin-top: -2px; }
+  .gauge-arc { transition: stroke-dashoffset 0.6s ease-out; filter: drop-shadow(0 0 6px currentColor); }
+  .gauge-needle { transform-origin: 100px 100px; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
 
-  /* ============ System Status Grid ============ */
-  .system-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-  }
+  /* System Grid */
+  .system-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .sys-item {
     background: linear-gradient(145deg, #1e293b, #0f172a);
-    border: 1.5px solid #334155;
-    border-radius: 14px;
-    padding: 10px 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
+    border: 1.5px solid #334155; border-radius: 14px;
+    padding: 10px 4px; display: flex; flex-direction: column;
+    align-items: center; gap: 4px; transition: all 0.3s ease;
+    cursor: pointer; position: relative;
   }
-  .sys-item .sys-icon {
-    font-size: 18px;
-    color: #64748b;
-    transition: all 0.3s;
-  }
-  .sys-item .sys-label {
-    font-size: 9px;
-    color: #64748b;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.1;
-  }
-  .sys-item:hover {
-    transform: translateY(-2px);
-    border-color: #3b82f6;
-  }
-  .sys-item.good {
-    border-color: #10b981;
-    background: linear-gradient(145deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05));
-  }
+  .sys-item .sys-icon { font-size: 18px; color: #64748b; transition: all 0.3s; }
+  .sys-item .sys-label { font-size: 9px; color: #64748b; font-weight: 700; text-align: center; line-height: 1.1; }
+  .sys-item:hover { transform: translateY(-2px); border-color: #3b82f6; }
+  .sys-item.good { border-color: #10b981; background: linear-gradient(145deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05)); }
   .sys-item.good .sys-icon { color: #10b981; filter: drop-shadow(0 0 6px #10b981); }
   .sys-item.good .sys-label { color: #6ee7b7; }
-  .sys-item.bad {
-    border-color: #ef4444;
-    background: linear-gradient(145deg, rgba(239,68,68,0.2), rgba(185,28,28,0.05));
-    animation: sysAlert 1.5s ease-in-out infinite;
-  }
+  .sys-item.bad { border-color: #ef4444; background: linear-gradient(145deg, rgba(239,68,68,0.2), rgba(185,28,28,0.05)); animation: sysAlert 1.5s ease-in-out infinite; }
   .sys-item.bad .sys-icon { color: #ef4444; filter: drop-shadow(0 0 8px #ef4444); }
   .sys-item.bad .sys-label { color: #fca5a5; }
-  @keyframes sysAlert {
-    0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
-    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
-  }
+  @keyframes sysAlert { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
+
+  /* DTC Type Badges */
+  .dtc-type-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .dtc-type-confirmed { background: #dc2626; color: #fff; }
+  .dtc-type-pending { background: #f59e0b; color: #fff; }
+  .dtc-type-permanent { background: #7c3aed; color: #fff; }
+  .dtc-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 8px 10px; background: rgba(15,23,42,0.6); border-radius: 10px; border: 1px solid #334155; font-size: 10px; margin-bottom: 10px; }
+  .dtc-legend-item { display: flex; align-items: center; gap: 5px; color: #94a3b8; font-weight: 700; }
+  .dtc-legend-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 6px currentColor; }
+  .dtc-item-pending { background: rgba(245,158,11,0.15) !important; border-right-color: #f59e0b !important; }
+  .dtc-item-permanent { background: rgba(124,58,237,0.15) !important; border-right-color: #7c3aed !important; }
+  .dtc-item-pending .text-red-300 { color: #fcd34d !important; }
+  .dtc-item-permanent .text-red-300 { color: #c4b5fd !important; }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
 
 <div class="max-w-4xl mx-auto p-3 space-y-4">
 
-  <!-- Header -->
   <div class="flex justify-between items-center pt-2">
     <div class="text-right flex-1">
       <h1 class="text-xl font-bold flex items-center gap-2">
@@ -152,7 +91,6 @@
     </button>
   </div>
 
-  <!-- Connection -->
   <header class="bg-gray-800 p-4 rounded-2xl shadow-lg">
     <div class="flex items-center gap-3 mb-3">
       <div id="statusDot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
@@ -177,7 +115,6 @@
     </div>
   </header>
 
-  <!-- Tabs -->
   <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
     <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="faults">
       <i class="fa-solid fa-screwdriver-wrench"></i> <span data-t="tabFaults">الأعطال</span>
@@ -196,111 +133,59 @@
     </button>
   </div>
 
-  <!-- Console -->
   <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left;white-space:pre-wrap;">> مرحباً! اضغط "اتصال" أو "وضع تجريبي".</div>
 
-  <!-- Panel: Faults -->
   <div id="panel-faults" class="panel space-y-4">
     <div id="healthBadge" class="hidden"></div>
 
-    <!-- 🎯 DASHBOARD -->
     <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4 border border-slate-700">
-
-      <!-- 4 Circular Gauges -->
       <div class="gauge-grid">
-        <!-- RPM Gauge -->
         <div class="gauge-box" style="--gauge-color: #ef4444;">
           <div class="gauge-label">RPM × 1000</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
-            <defs>
-              <linearGradient id="rpmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#10b981"/>
-                <stop offset="50%" stop-color="#f59e0b"/>
-                <stop offset="100%" stop-color="#ef4444"/>
-              </linearGradient>
-            </defs>
-            <!-- Background arc -->
+            <defs><linearGradient id="rpmGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#10b981"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
             <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-            <!-- Value arc -->
-            <path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#rpmGrad)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="220" stroke-dashoffset="220" style="color:#ef4444;"/>
-            <!-- Needle -->
-            <g class="gauge-needle" id="rpmNeedle">
-              <line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>
-            </g>
-            <!-- Center text -->
+            <path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#rpmGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" style="color:#ef4444;"/>
+            <g class="gauge-needle" id="rpmNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/></g>
             <text x="100" y="85" text-anchor="middle" fill="#64748b" font-size="8" font-family="Cairo" font-weight="700">RPM</text>
           </svg>
           <div class="gauge-value" style="--gauge-color:#ef4444;" id="gauge-rpm">0</div>
           <div class="gauge-unit" data-t="rpmUnit">دورة/دقيقة</div>
         </div>
 
-        <!-- Speed Gauge -->
         <div class="gauge-box" style="--gauge-color: #3b82f6;">
           <div class="gauge-label">SPEED</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
-            <defs>
-              <linearGradient id="spdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#3b82f6"/>
-                <stop offset="100%" stop-color="#8b5cf6"/>
-              </linearGradient>
-            </defs>
+            <defs><linearGradient id="spdGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs>
             <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-            <path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#spdGrad)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="220" stroke-dashoffset="220" style="color:#3b82f6;"/>
-            <g class="gauge-needle" id="spdNeedle">
-              <line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/>
-            </g>
+            <path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#spdGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" style="color:#3b82f6;"/>
+            <g class="gauge-needle" id="spdNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/></g>
             <text x="100" y="85" text-anchor="middle" fill="#64748b" font-size="8" font-family="Cairo" font-weight="700">KM/H</text>
           </svg>
           <div class="gauge-value" style="--gauge-color:#3b82f6;" id="gauge-speed">0</div>
           <div class="gauge-unit" data-t="kmhUnit">كم/ساعة</div>
         </div>
 
-        <!-- Coolant Gauge -->
         <div class="gauge-box" style="--gauge-color: #f59e0b;">
           <div class="gauge-label">TEMP</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
-            <defs>
-              <linearGradient id="colGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#06b6d4"/>
-                <stop offset="50%" stop-color="#10b981"/>
-                <stop offset="100%" stop-color="#ef4444"/>
-              </linearGradient>
-            </defs>
+            <defs><linearGradient id="colGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
             <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-            <path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#colGrad)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="220" stroke-dashoffset="220" style="color:#f59e0b;"/>
-            <g class="gauge-needle" id="colNeedle">
-              <line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
-            </g>
+            <path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#colGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" style="color:#f59e0b;"/>
+            <g class="gauge-needle" id="colNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/></g>
             <text x="100" y="85" text-anchor="middle" fill="#64748b" font-size="8" font-family="Cairo" font-weight="700">°C</text>
           </svg>
           <div class="gauge-value" style="--gauge-color:#f59e0b;" id="gauge-coolant">0</div>
           <div class="gauge-unit" data-t="celsiusUnit">درجة مئوية</div>
         </div>
 
-        <!-- Fuel Gauge -->
         <div class="gauge-box" style="--gauge-color: #10b981;">
           <div class="gauge-label">FUEL</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
-            <defs>
-              <linearGradient id="fuelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#ef4444"/>
-                <stop offset="50%" stop-color="#f59e0b"/>
-                <stop offset="100%" stop-color="#10b981"/>
-              </linearGradient>
-            </defs>
+            <defs><linearGradient id="fuelGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ef4444"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs>
             <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-            <path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#fuelGrad)" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="220" stroke-dashoffset="220" style="color:#10b981;"/>
-            <g class="gauge-needle" id="fuelNeedle">
-              <line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/>
-            </g>
+            <path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#fuelGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" style="color:#10b981;"/>
+            <g class="gauge-needle" id="fuelNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/></g>
             <text x="100" y="85" text-anchor="middle" fill="#64748b" font-size="8" font-family="Cairo" font-weight="700">%</text>
           </svg>
           <div class="gauge-value" style="--gauge-color:#10b981;" id="gauge-fuel">0</div>
@@ -308,53 +193,22 @@
         </div>
       </div>
 
-      <!-- System Status Grid -->
       <div>
         <div class="flex items-center gap-2 mb-2 px-1">
           <i class="fa-solid fa-microchip text-blue-400 text-sm"></i>
           <span class="text-xs font-bold text-gray-400" data-t="sysStatusTitle">حالة الأنظمة</span>
         </div>
         <div class="system-grid">
-          <div class="sys-item" data-sys="engine">
-            <i class="fa-solid fa-gear sys-icon"></i>
-            <span class="sys-label" data-t="sysEngine">المحرك</span>
-          </div>
-          <div class="sys-item" data-sys="transmission">
-            <i class="fa-solid fa-cogs sys-icon"></i>
-            <span class="sys-label" data-t="sysTrans">الجير</span>
-          </div>
-          <div class="sys-item" data-sys="abs">
-            <i class="fa-solid fa-circle-exclamation sys-icon"></i>
-            <span class="sys-label">ABS</span>
-          </div>
-          <div class="sys-item" data-sys="brakes">
-            <i class="fa-solid fa-hand sys-icon"></i>
-            <span class="sys-label" data-t="sysBrakes">الفرامل</span>
-          </div>
-          <div class="sys-item" data-sys="airbag">
-            <i class="fa-solid fa-shield-halved sys-icon"></i>
-            <span class="sys-label" data-t="sysAirbag">الوسائد</span>
-          </div>
-          <div class="sys-item" data-sys="fuel">
-            <i class="fa-solid fa-gas-pump sys-icon"></i>
-            <span class="sys-label" data-t="sysFuel">الوقود</span>
-          </div>
-          <div class="sys-item" data-sys="exhaust">
-            <i class="fa-solid fa-smog sys-icon"></i>
-            <span class="sys-label" data-t="sysExhaust">العوادم</span>
-          </div>
-          <div class="sys-item" data-sys="cooling">
-            <i class="fa-solid fa-temperature-half sys-icon"></i>
-            <span class="sys-label" data-t="sysCooling">التبريد</span>
-          </div>
-          <div class="sys-item" data-sys="battery">
-            <i class="fa-solid fa-car-battery sys-icon"></i>
-            <span class="sys-label" data-t="sysBattery">البطارية</span>
-          </div>
-          <div class="sys-item" data-sys="electronics">
-            <i class="fa-solid fa-bolt sys-icon"></i>
-            <span class="sys-label" data-t="sysElectronics">الكهرباء</span>
-          </div>
+          <div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear sys-icon"></i><span class="sys-label" data-t="sysEngine">المحرك</span></div>
+          <div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs sys-icon"></i><span class="sys-label" data-t="sysTrans">الجير</span></div>
+          <div class="sys-item" data-sys="abs"><i class="fa-solid fa-circle-exclamation sys-icon"></i><span class="sys-label">ABS</span></div>
+          <div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand sys-icon"></i><span class="sys-label" data-t="sysBrakes">الفرامل</span></div>
+          <div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved sys-icon"></i><span class="sys-label" data-t="sysAirbag">الوسائد</span></div>
+          <div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump sys-icon"></i><span class="sys-label" data-t="sysFuel">الوقود</span></div>
+          <div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog sys-icon"></i><span class="sys-label" data-t="sysExhaust">العوادم</span></div>
+          <div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half sys-icon"></i><span class="sys-label" data-t="sysCooling">التبريد</span></div>
+          <div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery sys-icon"></i><span class="sys-label" data-t="sysBattery">البطارية</span></div>
+          <div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt sys-icon"></i><span class="sys-label" data-t="sysElectronics">الكهرباء</span></div>
         </div>
       </div>
     </div>
@@ -371,8 +225,16 @@
         </button>
       </div>
     </div>
+
     <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
       <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span data-t="dtcTitle">أكواد الأعطال</span></h3>
+
+      <div class="dtc-legend">
+        <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#dc2626;color:#dc2626;"></div><span data-t="legendConfirmed">مؤكد</span></div>
+        <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#f59e0b;color:#f59e0b;"></div><span data-t="legendPending">مؤقت</span></div>
+        <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#7c3aed;color:#7c3aed;"></div><span data-t="legendPermanent">دائم</span></div>
+      </div>
+
       <div class="grid grid-cols-2 gap-2">
         <button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span>
@@ -389,18 +251,11 @@
     </div>
   </div>
 
-  <!-- Panel: Live -->
   <div id="panel-live" class="panel hidden space-y-4">
     <div class="grid grid-cols-3 gap-2">
-      <button id="btnStartLive" class="bg-blue-600 hover:bg-blue-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
-        <i class="fa-solid fa-play"></i> <span data-t="startLive">بدء</span>
-      </button>
-      <button id="btnStopLive" class="bg-red-600 hover:bg-red-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
-        <i class="fa-solid fa-pause"></i> <span data-t="stopLive">إيقاف</span>
-      </button>
-      <button id="btnExportCSV" class="bg-gray-700 hover:bg-gray-600 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1">
-        <i class="fa-solid fa-download"></i> CSV
-      </button>
+      <button id="btnStartLive" class="bg-blue-600 hover:bg-blue-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1"><i class="fa-solid fa-play"></i> <span data-t="startLive">بدء</span></button>
+      <button id="btnStopLive" class="bg-red-600 hover:bg-red-700 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1"><i class="fa-solid fa-pause"></i> <span data-t="stopLive">إيقاف</span></button>
+      <button id="btnExportCSV" class="bg-gray-700 hover:bg-gray-600 px-2 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-1"><i class="fa-solid fa-download"></i> CSV</button>
     </div>
     <div class="bg-gray-800 p-4 rounded-2xl">
       <h3 class="text-base font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> <span data-t="charts">الرسوم البيانية</span></h3>
@@ -412,23 +267,17 @@
     </div>
   </div>
 
-  <!-- Panel: VIN -->
   <div id="panel-vin" class="panel hidden space-y-4">
     <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
       <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> <span data-t="vinTitle">رقم الهيكل</span></h3>
-      <button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-satellite-dish"></i> <span data-t="readVin">قراءة من السيارة</span>
-      </button>
+      <button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-satellite-dish"></i> <span data-t="readVin">قراءة من السيارة</span></button>
       <input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase transition" placeholder="VIN يدوي (17 حرفاً)">
-      <button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-magnifying-glass"></i> <span data-t="decodeVin">فك الشيفرة</span>
-      </button>
+      <button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> <span data-t="decodeVin">فك الشيفرة</span></button>
       <div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة.</div>
       <div id="vinInfo"></div>
     </div>
   </div>
 
-  <!-- Panel: History -->
   <div id="panel-history" class="panel hidden">
     <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
       <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder text-blue-400"></i> <span data-t="historyTitle">سجل الفحوصات</span></h3>
@@ -436,19 +285,15 @@
     </div>
   </div>
 
-  <!-- Panel: Stats -->
   <div id="panel-stats" class="panel hidden">
     <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
       <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> <span data-t="statsTitle">إحصائيات حية</span></h3>
-      <button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-rotate"></i> <span data-t="refreshStats">تحديث</span>
-      </button>
+      <button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> <span data-t="refreshStats">تحديث</span></button>
       <div id="statsContent"><p class="text-center text-gray-500 py-4">اضغط "تحديث".</p></div>
     </div>
   </div>
 </div>
 
-<!-- Freeze Modal -->
 <div id="freezeModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto">
   <div class="max-w-lg mx-auto mt-10 bg-gray-800 rounded-2xl p-5 relative">
     <button id="btnCloseFreeze" class="absolute top-3 left-3 bg-red-600 hover:bg-red-700 w-8 h-8 rounded-full text-sm font-bold">×</button>
@@ -471,7 +316,6 @@ const db = getFirestore(initializeApp({
   appId: "1:429788177002:web:be7ff0ca219ccfc0372013"
 }));
 
-/* ============ i18n ============ */
 const TR = {
   ar: { subtitle:'أداة فحص السيارات المتكاملة', disconnected:'غير متصل', connected:'متصل ✓', demoMode:'وضع تجريبي',
     connect:'اتصال', demo:'وضع تجريبي', disconnect:'قطع', clear:'مسح الأعطال',
@@ -487,7 +331,9 @@ const TR = {
     rpmUnit:'دورة/دقيقة', kmhUnit:'كم/ساعة', celsiusUnit:'درجة مئوية', percentUnit:'نسبة مئوية',
     sysStatusTitle:'حالة الأنظمة',
     sysEngine:'المحرك', sysTrans:'الجير', sysBrakes:'الفرامل', sysAirbag:'الوسائد',
-    sysFuel:'الوقود', sysExhaust:'العوادم', sysCooling:'التبريد', sysBattery:'البطارية', sysElectronics:'الكهرباء' },
+    sysFuel:'الوقود', sysExhaust:'العوادم', sysCooling:'التبريد', sysBattery:'البطارية', sysElectronics:'الكهرباء',
+    legendConfirmed:'مؤكد', legendPending:'مؤقت', legendPermanent:'دائم',
+    typeConfirmed:'مؤكد', typePending:'مؤقت', typePermanent:'دائم' },
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
     connect:'Connect', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
@@ -502,7 +348,9 @@ const TR = {
     rpmUnit:'RPM', kmhUnit:'km/h', celsiusUnit:'Celsius', percentUnit:'Percent',
     sysStatusTitle:'System Status',
     sysEngine:'Engine', sysTrans:'Trans.', sysBrakes:'Brakes', sysAirbag:'Airbag',
-    sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electrical' }
+    sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electrical',
+    legendConfirmed:'Confirmed', legendPending:'Pending', legendPermanent:'Permanent',
+    typeConfirmed:'Confirmed', typePending:'Pending', typePermanent:'Permanent' }
 };
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
@@ -522,7 +370,6 @@ function applyLanguage(){
 }
 window.toggleLanguage = toggleLanguage;
 
-/* ============ Database ============ */
 const DTC_MAP = {
   P0171:{zone:"fuel",title:"خليط فقير (Bank 1)",desc:"تسرب هواء"},
   P0300:{zone:"engine",title:"اشتعال متقطع متعدد",desc:"بوجيهات أو كويلات"},
@@ -540,16 +387,9 @@ const loadedCats = new Set();
 function decompress(e){return Array.isArray(e)?{zone:e[0]||'engine',title:e[1]||'',desc:e[2]||''}:e;}
 function applyData(d){for(const[k,v]of Object.entries(d))DTC_DATABASE[k]=decompress(v);}
 
-function openIDB(){
-  return new Promise((res,rej)=>{const r=indexedDB.open('DigaDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('cache',{keyPath:'key'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
-}
-async function saveCache(k,d){
-  try{if('indexedDB'in window){const db2=await openIDB();const tx=db2.transaction('cache','readwrite');tx.objectStore('cache').put({key:k,data:d,timestamp:Date.now()});await tx.complete;}}catch(e){}
-}
-async function loadCache(k){
-  try{if('indexedDB'in window){const db2=await openIDB();const tx=db2.transaction('cache','readonly');const r=await tx.objectStore('cache').get(k);if(r&&Date.now()-r.timestamp<2592000000)return r.data;}}catch(e){}
-  return null;
-}
+function openIDB(){return new Promise((res,rej)=>{const r=indexedDB.open('DigaDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('cache',{keyPath:'key'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function saveCache(k,d){try{if('indexedDB'in window){const db2=await openIDB();const tx=db2.transaction('cache','readwrite');tx.objectStore('cache').put({key:k,data:d,timestamp:Date.now()});await tx.complete;}}catch(e){}}
+async function loadCache(k){try{if('indexedDB'in window){const db2=await openIDB();const tx=db2.transaction('cache','readonly');const r=await tx.objectStore('cache').get(k);if(r&&Date.now()-r.timestamp<2592000000)return r.data;}}catch(e){}return null;}
 async function fetchJSON(url){const r=await fetch(url+'?v='+DB_VERSION);if(!r.ok)throw new Error('HTTP');return r.json();}
 
 async function loadDatabase(){
@@ -567,7 +407,6 @@ async function loadCat(cat){
   catch(e){log(`⚠️ ${cat} failed`);}
 }
 
-/* ============ VIN ============ */
 const VIN_COUNTRY = {'1':'🇺🇸 USA','2':'🇨🇦 Canada','3':'🇲🇽 Mexico','4':'🇺🇸 USA','5':'🇺🇸 USA','J':'🇯🇵 Japan','K':'🇰🇷 Korea','L':'🇨🇳 China','S':'🇬🇧 UK','V':'🇫🇷 France','W':'🇩🇪 Germany','Y':'🇸🇪 Sweden','Z':'🇮🇹 Italy','9':'🇧🇷 Brazil','M':'🇮🇳 India','T':'🇨🇭 Switzerland'};
 const VIN_YEARS = {'A':'1980/2010','B':'1981/2011','C':'1982/2012','D':'1983/2013','E':'1984/2014','F':'1985/2015','G':'1986/2016','H':'1987/2017','J':'1988/2018','K':'1989/2019','L':'1990/2020','M':'1991/2021','N':'1992/2022','P':'1993/2023','R':'1994/2024','S':'1995/2025','T':'1996/2026','V':'1997/2027','W':'1998/2028','X':'1999/2029','Y':'2000/2030','1':'2001/2031','2':'2002/2032','3':'2003/2033','4':'2004/2034','5':'2005/2035','6':'2006/2036','7':'2007/2037','8':'2008/2038','9':'2009/2039'};
 const VIN_WMI = {'JHM':'Honda','JHL':'Honda','JT2':'Toyota','JTD':'Toyota','JTE':'Toyota','JTN':'Toyota','JTH':'Lexus','JN1':'Nissan','JN6':'Nissan','JN8':'Nissan','JM1':'Mazda','JM3':'Mazda','JMB':'Mitsubishi','JA3':'Mitsubishi','JF1':'Subaru','JF2':'Subaru','JS2':'Suzuki','JS3':'Suzuki','WBA':'BMW','WBS':'BMW M','WDB':'Mercedes','WDD':'Mercedes','WVW':'Volkswagen','WV1':'Volkswagen','WV2':'Volkswagen','WAU':'Audi','WA1':'Audi','WP0':'Porsche','WP1':'Porsche','W0L':'Opel','W0V':'Opel','1FA':'Ford','1FB':'Ford','1FC':'Ford','1FD':'Ford','1FM':'Ford','1FT':'Ford','1G1':'Chevrolet','1G4':'Buick','1G6':'Cadillac','1GC':'Chevrolet','1GT':'GMC','1GK':'GMC','1HG':'Honda','1J4':'Jeep','1C4':'Chrysler','1C3':'Chrysler','1B3':'Dodge','1D7':'Dodge','4T1':'Toyota','4T3':'Toyota','4S3':'Subaru','5YJ':'Tesla','5N1':'Nissan','5NP':'Hyundai','KMH':'Hyundai','KM8':'Hyundai','KNA':'Kia','KND':'Kia','KNC':'Kia','KPT':'SsangYong','VF1':'Renault','VF3':'Peugeot','VF7':'Citroën','ZAR':'Alfa Romeo','ZFA':'Fiat','ZFF':'Ferrari','ZHW':'Lamborghini','ZAM':'Maserati','SAJ':'Jaguar','SAL':'Land Rover','SCF':'Aston Martin','SCB':'Bentley','SCA':'Rolls-Royce','SCC':'Lotus','YV1':'Volvo','YV4':'Volvo','YS3':'Saab','LFV':'VW China','LGB':'Dongfeng','LJD':'JAC','LSV':'SAIC','LGX':'BYD','LDC':'Chery','MA3':'Maruti Suzuki','MAT':'Tata','XTA':'Lada'};
@@ -587,7 +426,6 @@ function validateVIN(vin){
   return (r===10?'X':String(r))===vin[8];
 }
 
-/* ============ Smart Diagnosis ============ */
 const RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',confidence:90,severity:'high',description:'خليط فقير في البنكين.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF']},
   {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',actions:['افحص تسرب الهواء أولاً','افحص مشعب السحب']},
@@ -629,7 +467,6 @@ function getFaultInfo(code){
   return DTC_DATABASE[c]||{zone:'engine',title:currentLang==='ar'?'عطل غير معروف':'Unknown',desc:''};
 }
 
-/* ============ UI ============ */
 function log(msg){
   const c=document.getElementById('console');
   const time=new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -644,62 +481,34 @@ function setStatus(state){
   else{s.textContent=t('disconnected');s.className='text-sm font-bold text-red-400';d.className='w-3 h-3 rounded-full bg-red-500 animate-pulse';}
 }
 
-/* ============ Gauge Updates ============ */
 function updateGauge(arcId, needleId, valueId, value, max){
-  const arc = document.getElementById(arcId);
-  const needle = document.getElementById(needleId);
-  const valEl = document.getElementById(valueId);
-  if (!arc || !needle || !valEl) return;
-  
-  const clampedVal = Math.max(0, Math.min(max, value));
-  const pct = clampedVal / max;
-  const dashLen = 220;
-  arc.setAttribute('stroke-dashoffset', dashLen * (1 - pct));
-  
-  // Needle rotation: -90° (start) to +90° (end) — total 180°
-  const angle = -90 + (pct * 180);
-  needle.style.transform = `rotate(${angle}deg)`;
-  
-  valEl.textContent = Math.round(clampedVal);
+  const arc=document.getElementById(arcId);
+  const needle=document.getElementById(needleId);
+  const valEl=document.getElementById(valueId);
+  if(!arc||!needle||!valEl)return;
+  const clampedVal=Math.max(0,Math.min(max,value));
+  const pct=clampedVal/max;
+  const dashLen=220;
+  arc.setAttribute('stroke-dashoffset',dashLen*(1-pct));
+  const angle=-90+(pct*180);
+  needle.style.transform=`rotate(${angle}deg)`;
+  valEl.textContent=Math.round(clampedVal);
 }
-
 function updateAllGauges(v){
-  const rpm = v.rpm || 0;
-  const speed = v.speed || 0;
-  const coolant = v.coolant || 0;
-  const fuel = v.fuelLevel !== undefined ? v.fuelLevel : 75;
-  
-  updateGauge('rpmArc', 'rpmNeedle', 'gauge-rpm', rpm, 8000);
-  updateGauge('spdArc', 'spdNeedle', 'gauge-speed', speed, 220);
-  updateGauge('colArc', 'colNeedle', 'gauge-coolant', coolant, 130);
-  updateGauge('fuelArc', 'fuelNeedle', 'gauge-fuel', fuel, 100);
+  updateGauge('rpmArc','rpmNeedle','gauge-rpm',v.rpm||0,8000);
+  updateGauge('spdArc','spdNeedle','gauge-speed',v.speed||0,220);
+  updateGauge('colArc','colNeedle','gauge-coolant',v.coolant||0,130);
+  updateGauge('fuelArc','fuelNeedle','gauge-fuel',v.fuelLevel!==undefined?v.fuelLevel:75,100);
 }
 
-/* ============ System Status Grid ============ */
-function resetSystemGrid(){
-  document.querySelectorAll('.sys-item').forEach(el => el.classList.remove('good','bad'));
-}
-function markSystem(zone, status){
-  const el = document.querySelector(`.sys-item[data-sys="${zone}"]`);
-  if (el) {
-    el.classList.remove('good','bad');
-    if (status) el.classList.add(status);
-  }
-}
+function resetSystemGrid(){document.querySelectorAll('.sys-item').forEach(el=>el.classList.remove('good','bad'));}
 function updateSystemGrid(faults){
   resetSystemGrid();
-  if (!faults || faults.length === 0) {
-    document.querySelectorAll('.sys-item').forEach(el => el.classList.add('good'));
-    return;
-  }
-  const affectedZones = new Set();
-  faults.forEach(f => {
-    const info = getFaultInfo(f.code);
-    affectedZones.add(info.zone);
-  });
-  document.querySelectorAll('.sys-item').forEach(el => {
-    const zone = el.dataset.sys;
-    if (affectedZones.has(zone)) el.classList.add('bad');
+  if(!faults||faults.length===0){document.querySelectorAll('.sys-item').forEach(el=>el.classList.add('good'));return;}
+  const affected=new Set();
+  faults.forEach(f=>{const info=getFaultInfo(f.code);affected.add(info.zone);});
+  document.querySelectorAll('.sys-item').forEach(el=>{
+    if(affected.has(el.dataset.sys))el.classList.add('bad');
     else el.classList.add('good');
   });
 }
@@ -741,7 +550,6 @@ function displayHealth(faults,diag){
 function showExport(){document.getElementById('exportCard').classList.remove('hidden');}
 function hideExport(){document.getElementById('exportCard').classList.add('hidden');}
 
-/* ============ Bluetooth ============ */
 let btDevice=null,btServer=null,uartChar=null,isConnected=false,isDemo=false;
 let recvBuf='',cmdQueue=[],isProcessing=false,curResolve=null,curTimeout=null;
 const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb'];
@@ -863,14 +671,14 @@ function parseCoolant(res){const b=parseHexBytes(res);for(let i=0;i<b.length-1;i
 function parseFuelLevel(res){const b=parseHexBytes(res);for(let i=0;i<b.length-1;i++){if(b[i]===0x41&&b[i+1]===0x2F&&b.length>=i+3)return Math.round(b[i+2]*100/255);}return 75;}
 function parseDTCsFromBytes(bytes){
   const codes=[];
-  for(let i=0;i<bytes.length;i++){
-    if(bytes[i]===0x43){
+  for(let i=0;i<bytes.length-1;i++){
+    if(bytes[i]===0x43||bytes[i]===0x47||bytes[i]===0x4A){
       for(let j=i+1;j<bytes.length-1;j+=2){
         const b1=bytes[j],b2=bytes[j+1];
         if(b1===undefined||b2===undefined)break;
         const letter=['P','C','B','U'][(b1&0xC0)>>6];
         const code=`${letter}${((b1&0x30)>>4).toString(16)}${(b1&0x0F).toString(16)}${(b2>>4).toString(16)}${(b2&0x0F).toString(16)}`;
-        if(code!=='P0000')codes.push(code);
+        if(code!=='P0000'&&b1!==0)codes.push(code);
       }
       break;
     }
@@ -878,7 +686,6 @@ function parseDTCsFromBytes(bytes){
   return codes;
 }
 
-/* ============ Live Loop ============ */
 let liveTimer=null,chartInstance=null;
 let chartData={labels:[],rpm:[],speed:[]};
 
@@ -896,10 +703,7 @@ async function startRealLiveLoop(){
   },1500);
 }
 function updateDashboard(rpm,speed,coolant,fuel){
-  // Update gauges
-  updateAllGauges({rpm, speed, coolant, fuelLevel: fuel});
-  
-  // Update chart
+  updateAllGauges({rpm,speed,coolant,fuelLevel:fuel});
   try{updateChart(rpm,speed,coolant);}catch(e){}
   runAutoAnalysis({rpm,speed,coolant,runtime:420});
 }
@@ -948,18 +752,38 @@ function runAutoAnalysis(v){
   else el.innerHTML=items.map(i=>`<div class="bg-amber-900/40 rounded-lg p-2 mb-1">${i.icon} ${i.text}</div>`).join('');
 }
 
-/* ============ DTC Scanning ============ */
 async function readDTCs(){
   const list=document.getElementById('dtcList');
   if(!isConnected&&!isDemo){list.innerHTML=`<p class="text-amber-400 text-center py-4">⚠️ ${currentLang==='ar'?'اتصل بجهاز أولاً':'Connect device'}</p>`;return;}
   list.innerHTML=`<p class="text-blue-400 text-center py-4"><span class="spinner"></span> ${t('scanning')}</p>`;
-  log('📋 Reading DTCs...');
+  log('📋 Reading DTCs (03, 07, 0A)...');
   if(isDemo){await runDemoScan();return;}
   try{
-    const res=await window.sendCmd('03',5000);
-    const bytes=parseHexBytes(res);
-    const codes=parseDTCsFromBytes(bytes);
-    if(codes.length===0){
+    let allFaults=[];
+    const systemName=currentLang==='ar'?'المحرك':'Engine';
+    
+    const res03=await window.sendCmd('03',5000);
+    const codes03=parseDTCsFromBytes(parseHexBytes(res03));
+    codes03.forEach(c=>allFaults.push({code:c,system:systemName,type:'confirmed'}));
+    log(`📋 Confirmed: ${codes03.length}`);
+    
+    await window.sendCmd('AT SH 7E0',200);
+    const res07=await window.sendCmd('07',5000);
+    const codes07=parseDTCsFromBytes(parseHexBytes(res07));
+    codes07.forEach(c=>{
+      if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'pending'});
+    });
+    log(`🟡 Pending: ${codes07.length}`);
+    
+    await window.sendCmd('AT SH 7E0',200);
+    const res0A=await window.sendCmd('0A',5000);
+    const codes0A=parseDTCsFromBytes(parseHexBytes(res0A));
+    codes0A.forEach(c=>{
+      if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'permanent'});
+    });
+    log(`🟣 Permanent: ${codes0A.length}`);
+    
+    if(allFaults.length===0){
       list.innerHTML=`<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">✅ ${currentLang==='ar'?'السيارة سليمة':'No faults'}</div>`;
       document.getElementById('smartDiagnosis').classList.add('hidden');
       document.getElementById('healthBadge').classList.add('hidden');
@@ -967,15 +791,14 @@ async function readDTCs(){
       updateSystemGrid([]);
       return;
     }
-    const faults=codes.map(c=>({code:c,system:currentLang==='ar'?'المحرك':'Engine'}));
-    renderFaults(faults);
-    const diag=runDiagnosis(codes);
-    displaySmartDiagnosis(codes);
-    displayHealth(faults,diag);
-    updateSystemGrid(faults);
+    renderFaults(allFaults);
+    const diag=runDiagnosis(allFaults.map(f=>f.code));
+    displaySmartDiagnosis(allFaults.map(f=>f.code));
+    displayHealth(allFaults,diag);
+    updateSystemGrid(allFaults);
     showExport();
-    await saveCloud(faults,document.getElementById('vinResult').textContent||'unknown');
-    await saveHistory(faults,document.getElementById('vinResult').textContent||'unknown',diag);
+    await saveCloud(allFaults,document.getElementById('vinResult').textContent||'unknown');
+    await saveHistory(allFaults,document.getElementById('vinResult').textContent||'unknown',diag);
   }catch(e){log('❌ '+e.message);}
 }
 async function scanAllSystems(){
@@ -983,7 +806,12 @@ async function scanAllSystems(){
   if(!isConnected&&!isDemo){list.innerHTML=`<p class="text-amber-400 text-center py-4">⚠️ ${currentLang==='ar'?'اتصل':'Connect'}</p>`;return;}
   list.innerHTML=`<p class="text-blue-400 text-center py-4"><span class="spinner"></span> ${t('scanning')}</p>`;
   if(isDemo){await runDemoScan();return;}
-  const ecus=[{addr:'7E0',name:currentLang==='ar'?'المحرك':'Engine'},{addr:'7E1',name:currentLang==='ar'?'ناقل الحركة':'Transmission'},{addr:'7E3',name:'ABS'},{addr:'7E6',name:currentLang==='ar'?'الوسائد':'Airbag'}];
+  const ecus=[
+    {addr:'7E0',name:currentLang==='ar'?'المحرك':'Engine',zone:'engine'},
+    {addr:'7E1',name:currentLang==='ar'?'ناقل الحركة':'Transmission',zone:'transmission'},
+    {addr:'7E3',name:'ABS',zone:'abs'},
+    {addr:'7E6',name:currentLang==='ar'?'الوسائد':'Airbag',zone:'airbag'}
+  ];
   let allFaults=[];
   for(const ecu of ecus){
     log(`🔍 ${ecu.name}...`);
@@ -998,7 +826,7 @@ async function scanAllSystems(){
             if(b1===undefined||b2===undefined)break;
             const letter=['P','C','B','U'][(b1&0xC0)>>6];
             const code=`${letter}${((b1&0x30)>>4).toString(16)}${(b1&0x0F).toString(16)}${(b2>>4).toString(16)}${(b2&0x0F).toString(16)}`;
-            if(code!=='P0000'&&b1!==0)allFaults.push({code,system:ecu.name});
+            if(code!=='P0000'&&b1!==0)allFaults.push({code,system:ecu.name,type:'confirmed'});
           }
           break;
         }
@@ -1020,13 +848,14 @@ async function scanAllSystems(){
   await saveHistory(allFaults,document.getElementById('vinResult').textContent||'unknown',diag);
 }
 async function runDemoScan(){
+  const sys=currentLang==='ar'?'المحرك':'Engine';
   const demoFaults=[
-    {code:'P0301',system:currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0171',system:currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust'},
-    {code:'C0035',system:'ABS'},
-    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag'},
-    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical'}
+    {code:'P0301',system:sys,type:'confirmed'},
+    {code:'P0171',system:sys,type:'confirmed'},
+    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust',type:'pending'},
+    {code:'C0035',system:'ABS',type:'confirmed'},
+    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag',type:'permanent'},
+    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'pending'}
   ];
   renderFaults(demoFaults);
   const diag=runDiagnosis(demoFaults.map(f=>f.code));
@@ -1034,17 +863,24 @@ async function runDemoScan(){
   displayHealth(demoFaults,diag);
   updateSystemGrid(demoFaults);
   showExport();
-  log('✅ Demo scan complete');
+  log('✅ Demo scan complete (3 types)');
 }
 function renderFaults(faults){
   const list=document.getElementById('dtcList');
   if(!faults.length){list.innerHTML=`<p class="text-gray-500 text-center py-4">${t('noFaults')}</p>`;return;}
   list.innerHTML=faults.map(f=>{
     const info=getFaultInfo(f.code);
-    return `<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in" data-code="${f.code}">
-      <div class="flex items-center gap-2 mb-1">
+    const type=f.type||'confirmed';
+    const typeLabel=type==='pending'?t('typePending'):type==='permanent'?t('typePermanent'):t('typeConfirmed');
+    const typeIcon=type==='pending'?'⏳':type==='permanent'?'🔒':'✅';
+    const typeClass=type==='pending'?'dtc-type-pending':type==='permanent'?'dtc-type-permanent':'dtc-type-confirmed';
+    const itemClass=type==='pending'?'dtc-item-pending':type==='permanent'?'dtc-item-permanent':'';
+    
+    return `<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in ${itemClass}" data-code="${f.code}">
+      <div class="flex items-center gap-2 mb-1 flex-wrap">
         <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">${f.system}</span>
         <span class="font-mono font-bold text-red-300">${f.code}</span>
+        <span class="dtc-type-badge ${typeClass}">${typeIcon} ${typeLabel}</span>
       </div>
       <div class="text-xs text-gray-300 mb-2">${info.title}</div>
       <button class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1.5 rounded-lg font-bold" data-freeze="${f.code}">
@@ -1067,7 +903,6 @@ async function clearDTCs(){
   resetSystemGrid();
 }
 
-/* ============ Freeze Frame ============ */
 const FREEZE_PIDS={'05':{name:'Coolant',bytes:1,calc:a=>`${a-40}°C`},'0C':{name:'RPM',bytes:2,calc:(a,b)=>`${((a*256+b)/4).toFixed(0)}`},'0D':{name:'Speed',bytes:1,calc:a=>`${a}km/h`},'0E':{name:'Timing',bytes:1,calc:a=>`${(a/2-64).toFixed(1)}°`},'04':{name:'Load',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`},'11':{name:'Throttle',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`}};
 async function readFreezeFrame(code){
   const modal=document.getElementById('freezeModal');
@@ -1099,12 +934,11 @@ async function readFreezeFrame(code){
   </div>`;
 }
 
-/* ============ Firebase ============ */
 async function saveCloud(faults,vin){
   try{
     await addDoc(collection(db,'scans'),{
       vin:vin||'unknown',
-      faults:(faults||[]).map(f=>({code:f.code,system:f.system})),
+      faults:(faults||[]).map(f=>({code:f.code,system:f.system,type:f.type})),
       faultCodes:(faults||[]).map(f=>f.code),
       timestamp:serverTimestamp(),
       language:navigator.language
@@ -1124,7 +958,7 @@ async function saveHistory(faults,vin,diag){
     hist.unshift({
       id:Date.now()+'_'+Math.random().toString(36).substr(2,5),
       timestamp:Date.now(),vin:vin||'unknown',
-      faults:(faults||[]).map(f=>({code:f.code,system:f.system})),
+      faults:(faults||[]).map(f=>({code:f.code,system:f.system,type:f.type})),
       diagnosisCount:(diag||[]).length,
       healthScore:calcHealth(faults,diag)
     });
@@ -1205,7 +1039,6 @@ async function loadStats(){
   }catch(e){c.innerHTML='<p class="text-red-400 text-center py-4">Error</p>';}
 }
 
-/* ============ VIN UI ============ */
 function displayVINInfo(vin){
   const c=document.getElementById('vinInfo');
   const d=decodeVIN(vin);
@@ -1225,7 +1058,6 @@ function displayVINInfo(vin){
   </div>`;
 }
 
-/* ============ Demo Mode ============ */
 let demoTimer=null;
 function startDemo(){
   isDemo=true;isConnected=true;
@@ -1237,13 +1069,14 @@ function startDemo(){
   log('🧪 Demo mode ON');
   document.getElementById('vin-display').textContent='VIN: 1HGCG5655WA123456';
   document.getElementById('vinResult').textContent='1HGCG5655WA123456';
+  const sys=currentLang==='ar'?'المحرك':'Engine';
   const demoFaults=[
-    {code:'P0301',system:currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0171',system:currentLang==='ar'?'المحرك':'Engine'},
-    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust'},
-    {code:'C0035',system:'ABS'},
-    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag'},
-    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical'}
+    {code:'P0301',system:sys,type:'confirmed'},
+    {code:'P0171',system:sys,type:'confirmed'},
+    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust',type:'pending'},
+    {code:'C0035',system:'ABS',type:'confirmed'},
+    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag',type:'permanent'},
+    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'pending'}
   ];
   renderFaults(demoFaults);
   const diag=runDiagnosis(demoFaults.map(f=>f.code));
@@ -1269,7 +1102,6 @@ function stopDemo(){
   demoTimer=null;isDemo=false;isConnected=false;
 }
 
-/* ============ Search ============ */
 let searchTimer=null;
 document.getElementById('dtcSearchInput').addEventListener('input',(e)=>{
   clearTimeout(searchTimer);
@@ -1292,7 +1124,6 @@ async function searchDTC(query){
   div.querySelectorAll('[data-code]').forEach(el=>el.onclick=()=>{document.getElementById('dtcSearchInput').value='';div.innerHTML='';});
 }
 
-/* ============ PDF ============ */
 function buildReport(){
   const isAr=currentLang==='ar';
   const date=new Date().toLocaleString(isAr?'ar-EG':'en-US');
@@ -1344,7 +1175,6 @@ async function exportPDF(){
   finally{btn.innerHTML=orig;btn.disabled=false;}
 }
 
-/* ============ Events ============ */
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.onclick=()=>{
     document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
@@ -1384,10 +1214,8 @@ document.getElementById('btnDecodeVIN').onclick=()=>{
 };
 document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
 
-/* ============ Init ============ */
 applyLanguage();
 loadDatabase();
-// Initialize gauges
 setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
 
 if('serviceWorker'in navigator){
