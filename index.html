@@ -18,33 +18,17 @@
   }
   h1 { text-align: center; font-size: 28px; margin-bottom: 6px; }
   .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
-
   .status {
-    display: block;
-    width: fit-content;
-    margin: 0 auto 16px;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    background: #fee2e2;
-    color: #b91c1c;
-    transition: 0.3s;
+    display: block; width: fit-content; margin: 0 auto 16px;
+    padding: 8px 20px; border-radius: 20px; font-weight: 700;
+    background: #fee2e2; color: #b91c1c; transition: 0.3s;
   }
   .status.connected { background: #dcfce7; color: #15803d; }
-
   .btn {
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    border: none; border-radius: 12px; padding: 14px 20px;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: 0.2s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -54,103 +38,56 @@
   .btn-orange  { background: #fbbf24; color: #78350f; }
   .btn-gray    { background: #e2e8f0; color: #334155; }
   .btn-green   { background: #10b981; color: #fff; }
-
   .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-
   .console {
-    background: #0f172a;
-    color: #4ade80;
-    padding: 16px;
-    border-radius: 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    min-height: 120px;
-    max-height: 220px;
-    overflow-y: auto;
-    margin-bottom: 16px;
-    line-height: 1.7;
-    direction: ltr;
-    text-align: left;
-    white-space: pre-wrap;
+    background: #0f172a; color: #4ade80; padding: 16px;
+    border-radius: 14px; font-family: 'Courier New', monospace;
+    font-size: 13px; min-height: 120px; max-height: 220px;
+    overflow-y: auto; margin-bottom: 16px; line-height: 1.7;
+    direction: ltr; text-align: left; white-space: pre-wrap;
   }
-
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    overflow-x: auto;
-  }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
   .tab {
-    padding: 10px 18px;
-    background: #e2e8f0;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    font-size: 14px;
+    padding: 10px 18px; background: #e2e8f0; border: none;
+    border-radius: 10px; font-family: inherit; font-weight: 700;
+    cursor: pointer; white-space: nowrap; font-size: 14px;
   }
   .tab.active { background: #3b82f6; color: #fff; }
-
   .panel { display: none; }
   .panel.active { display: block; }
-
   .card {
-    background: #fff;
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: #fff; border-radius: 14px; padding: 18px;
+    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-
   .car-container {
     position: relative;
     background: linear-gradient(135deg, #0f172a, #1e293b);
-    border-radius: 20px;
-    padding: 20px;
-    overflow: hidden;
-    margin-bottom: 16px;
+    border-radius: 20px; padding: 20px; overflow: hidden; margin-bottom: 16px;
   }
   .car-svg { width: 100%; height: auto; display: block; }
   .car-body { transition: all 0.4s ease; }
   .car-glass { transition: 0.3s; }
-
   .zone { cursor: pointer; opacity: 0; transition: opacity 0.3s; }
   .zone rect, .zone circle.brake-zone {
-    fill: rgba(59,130,246,0.15);
-    stroke: #3b82f6;
-    stroke-width: 2;
-    stroke-dasharray: 4 4;
+    fill: rgba(59,130,246,0.15); stroke: #3b82f6;
+    stroke-width: 2; stroke-dasharray: 4 4;
   }
   .zone text {
-    fill: #cbd5e1;
-    font-size: 13px;
-    text-anchor: middle;
-    font-family: 'Cairo', sans-serif;
-    pointer-events: none;
+    fill: #cbd5e1; font-size: 13px; text-anchor: middle;
+    font-family: 'Cairo', sans-serif; pointer-events: none;
   }
   .zone.active { opacity: 1; animation: pulseZone 1.5s infinite; }
   .zone.active rect, .zone.active circle.brake-zone {
-    fill: rgba(239,68,68,0.4);
-    stroke: #ef4444;
-    stroke-dasharray: none;
-    filter: drop-shadow(0 0 10px #ef4444);
+    fill: rgba(239,68,68,0.4); stroke: #ef4444;
+    stroke-dasharray: none; filter: drop-shadow(0 0 10px #ef4444);
   }
   .zone.active text { fill: #fecaca; font-weight: 700; }
   @keyframes pulseZone { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
-
   .fault-card {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    background: rgba(15,23,42,0.96);
-    border: 1px solid #ef4444;
-    border-radius: 14px;
-    padding: 14px 16px;
-    max-width: 250px;
-    color: #f1f5f9;
-    box-shadow: 0 0 25px rgba(239,68,68,0.5);
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(15,23,42,0.96); border: 1px solid #ef4444;
+    border-radius: 14px; padding: 14px 16px; max-width: 250px;
+    color: #f1f5f9; box-shadow: 0 0 25px rgba(239,68,68,0.5);
     animation: slideIn 0.5s ease;
   }
   .fault-card.hidden { display: none; }
@@ -158,119 +95,54 @@
   .fault-card h3 { margin: 4px 0; color: #f87171; font-size: 15px; }
   .fault-card p  { font-size: 12px; color: #cbd5e1; line-height: 1.5; }
   .fault-code {
-    display: inline-block;
-    background: #ef4444;
-    color: #fff;
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-family: monospace;
-    margin-top: 6px;
-    font-size: 12px;
+    display: inline-block; background: #ef4444; color: #fff;
+    padding: 3px 10px; border-radius: 6px;
+    font-family: monospace; margin-top: 6px; font-size: 12px;
   }
   @keyframes slideIn { from{transform:translateX(30px);opacity:0;} to{transform:translateX(0);opacity:1;} }
-
   .dtc-list { display: flex; flex-direction: column; gap: 10px; }
   .dtc-item {
-    background: #fef2f2;
-    border-right: 4px solid #ef4444;
-    border-radius: 10px;
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: 0.2s;
+    background: #fef2f2; border-right: 4px solid #ef4444;
+    border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: 0.2s;
   }
   .dtc-item:hover { background: #fee2e2; transform: translateX(-4px); }
   .dtc-item .code { font-weight: 700; color: #b91c1c; font-family: monospace; }
   .dtc-item .title { font-size: 13px; color: #334155; margin-top: 4px; }
   .dtc-item .system-badge {
-    font-size: 11px;
-    background: #3b82f6;
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-right: 8px;
-    font-family: 'Cairo', sans-serif;
+    font-size: 11px; background: #3b82f6; color: #fff;
+    padding: 2px 8px; border-radius: 4px;
+    margin-right: 8px; font-family: 'Cairo', sans-serif;
   }
-
+  .search-input {
+    width: 100%; padding: 12px 16px;
+    border: 2px solid #e2e8f0; border-radius: 12px;
+    font-family: inherit; font-size: 14px; outline: none; transition: 0.2s;
+  }
+  .search-input:focus { border-color: #3b82f6; }
   .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .data-box {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-    border: 1px solid #e2e8f0;
-    transition: 0.3s;
+    background: #f8fafc; border-radius: 10px; padding: 12px;
+    text-align: center; border: 1px solid #e2e8f0; transition: 0.3s;
   }
   .data-box .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
   .data-box .value { font-size: 20px; font-weight: 700; color: #0f172a; }
   .data-box .unit { font-size: 11px; color: #94a3b8; }
-
   .data-box.good { background:#dcfce7; border-color:#16a34a; }
   .data-box.warn { background:#fef3c7; border-color:#f59e0b; }
   .data-box.bad  { background:#fee2e2; border-color:#dc2626; }
   .data-box.good .value { color:#15803d; }
   .data-box.warn .value { color:#b45309; }
   .data-box.bad  .value { color:#b91c1c; }
-
   .group-title {
-    font-size: 16px;
-    margin-bottom: 12px;
-    color: #1e293b;
-    border-right: 4px solid #3b82f6;
-    padding-right: 10px;
+    font-size: 16px; margin-bottom: 12px; color: #1e293b;
+    border-right: 4px solid #3b82f6; padding-right: 10px;
   }
-
   .analysis-item {
-    padding: 8px 12px;
-    margin: 6px 0;
-    border-radius: 8px;
+    padding: 8px 12px; margin: 6px 0; border-radius: 8px;
     background: rgba(255,255,255,0.6);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
+    display: flex; align-items: center; gap: 8px; font-size: 14px;
   }
-
   .hint { font-size: 13px; color: #64748b; text-align: center; padding: 10px; }
-
-  /* نافذة بيانات التجميد */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal-box {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-    animation: slideIn 0.3s ease;
-  }
-  .modal-box h3 { margin-bottom: 16px; color: #1e293b; }
-  .modal-box .close-btn {
-    background: #ef4444; color: #fff; border: none;
-    padding: 8px 16px; border-radius: 8px; cursor: pointer;
-    font-family: inherit; font-weight: 700; margin-top: 16px;
-  }
-  .freeze-item {
-    padding: 8px 12px;
-    margin: 6px 0;
-    border-radius: 8px;
-    background: #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-  }
-  .freeze-item span:first-child { color: #64748b; }
-  .freeze-item span:last-child { color: #0f172a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -306,7 +178,6 @@
       <circle cx="620" cy="320" r="45" fill="#0f172a" stroke="#475569" stroke-width="3"/>
       <circle cx="180" cy="320" r="20" fill="#94a3b8"/>
       <circle cx="620" cy="320" r="20" fill="#94a3b8"/>
-
       <g class="zone" data-zone="engine"><rect x="620" y="180" width="120" height="90" rx="12"/><text x="680" y="230">المحرك</text></g>
       <g class="zone" data-zone="battery"><rect x="560" y="200" width="55" height="55" rx="8"/><text x="587" y="235">بطارية</text></g>
       <g class="zone" data-zone="transmission"><rect x="440" y="230" width="120" height="60" rx="10"/><text x="500" y="265">ناقل الحركة</text></g>
@@ -318,7 +189,6 @@
       <g class="zone" data-zone="airbag"><rect x="380" y="160" width="90" height="45" rx="8"/><text x="425" y="188">وسائد هوائية</text></g>
       <g class="zone" data-zone="electronics"><rect x="500" y="180" width="45" height="45" rx="8"/><text x="522" y="207" style="font-size:11px;">كهرباء</text></g>
     </svg>
-
     <div class="fault-card hidden" id="faultCard">
       <div class="fault-icon">⚠️</div>
       <h3 id="faultTitle">—</h3>
@@ -333,6 +203,8 @@
       <button class="btn btn-orange" id="btnReadDTC" style="width:100%;">📋 فحص المحرك</button>
       <button class="btn btn-green" id="btnScanAll" style="width:100%;">🔍 فحص جميع الأنظمة</button>
     </div>
+    <input type="text" class="search-input" id="dtcSearchInput" placeholder="🔍 ابحث عن كود (مثل P0301) أو وصف..." style="margin-bottom:12px;">
+    <div id="searchResults"></div>
     <div id="dtcList" class="dtc-list">
       <p class="hint">لم يتم القراءة بعد.</p>
     </div>
@@ -346,9 +218,7 @@
     <button class="btn btn-red" id="btnStopLive" style="flex:1;min-width:100px;">⏸️ إيقاف</button>
     <button class="btn btn-gray" id="btnExportCSV" style="flex:1;min-width:120px;">💾 تصدير CSV</button>
   </div>
-
-  <div class="card">
-    <h3 class="group-title">⚙️ المحرك والأداء</h3>
+  <div class="card"><h3 class="group-title">⚙️ المحرك والأداء</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">RPM</div><div class="value" id="p-rpm">--</div><div class="unit">دورة/دقيقة</div></div>
       <div class="data-box"><div class="label">السرعة</div><div class="value" id="p-speed">--</div><div class="unit">كم/س</div></div>
@@ -358,9 +228,7 @@
       <div class="data-box"><div class="label">عزم المحرك</div><div class="value" id="p-torque">--</div><div class="unit">%</div></div>
     </div>
   </div>
-
-  <div class="card">
-    <h3 class="group-title">⛽ الوقود والهواء</h3>
+  <div class="card"><h3 class="group-title">⛽ الوقود والهواء</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">STFT Bank 1</div><div class="value" id="p-stft1">--</div><div class="unit">%</div></div>
       <div class="data-box"><div class="label">LTFT Bank 1</div><div class="value" id="p-ltft1">--</div><div class="unit">%</div></div>
@@ -372,9 +240,7 @@
       <div class="data-box"><div class="label">ضغط الوقود النسبي</div><div class="value" id="p-fuelr">--</div><div class="unit">kPa</div></div>
     </div>
   </div>
-
-  <div class="card">
-    <h3 class="group-title">💨 حساسات الأكسجين (O2)</h3>
+  <div class="card"><h3 class="group-title">💨 حساسات الأكسجين (O2)</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">O2 Bank1 S1</div><div class="value" id="p-o2b1s1">--</div><div class="unit">V</div></div>
       <div class="data-box"><div class="label">O2 Bank1 S2</div><div class="value" id="p-o2b1s2">--</div><div class="unit">V</div></div>
@@ -382,9 +248,7 @@
       <div class="data-box"><div class="label">O2 Bank2 S2</div><div class="value" id="p-o2b2s2">--</div><div class="unit">V</div></div>
     </div>
   </div>
-
-  <div class="card">
-    <h3 class="group-title">🌡️ الحرارة والبيئة</h3>
+  <div class="card"><h3 class="group-title">🌡️ الحرارة والبيئة</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">حرارة المحرك</div><div class="value" id="p-coolant">--</div><div class="unit">°C</div></div>
       <div class="data-box"><div class="label">حرارة الهواء</div><div class="value" id="p-iat">--</div><div class="unit">°C</div></div>
@@ -392,9 +256,7 @@
       <div class="data-box"><div class="label">حرارة الزيت</div><div class="value" id="p-oil">--</div><div class="unit">°C</div></div>
     </div>
   </div>
-
-  <div class="card">
-    <h3 class="group-title">🔋 الكهرباء والصيانة</h3>
+  <div class="card"><h3 class="group-title">🔋 الكهرباء والصيانة</h3>
     <div class="data-grid">
       <div class="data-box"><div class="label">جهد البطارية</div><div class="value" id="p-battery">--</div><div class="unit">V</div></div>
       <div class="data-box"><div class="label">مستوى الوقود</div><div class="value" id="p-fuelLevel">--</div><div class="unit">%</div></div>
@@ -404,12 +266,9 @@
       <div class="data-box"><div class="label">حالة الوقود</div><div class="value" id="p-fuelStatus" style="font-size:13px;">--</div><div class="unit"></div></div>
     </div>
   </div>
-
   <div class="card" style="background:#fffbeb;border-right:4px solid #f59e0b;">
     <h3 class="group-title" style="color:#92400e;border-color:#f59e0b;">🧠 التحليل التلقائي</h3>
-    <div id="autoAnalysis" style="line-height:1.9;color:#78350f;">
-      اضغط "بدء القراءة" لتظهر التحليلات هنا.
-    </div>
+    <div id="autoAnalysis" style="line-height:1.9;color:#78350f;">اضغط "بدء القراءة" لتظهر التحليلات هنا.</div>
   </div>
 </div>
 
@@ -422,104 +281,114 @@
   </div>
 </div>
 
-<!-- ============ نافذة بيانات التجميد ============ -->
-<div class="modal-overlay" id="freezeModal">
-  <div class="modal-box">
-    <h3 id="freezeTitle">❄️ بيانات التجميد (Freeze Frame)</h3>
-    <div id="freezeContent"></div>
-    <button class="close-btn" onclick="document.getElementById('freezeModal').classList.remove('active')">إغلاق</button>
-  </div>
-</div>
-
 <script>
 /* =====================================================
-   قاعدة بيانات أكواد الأعطال الموسعة (Fallback)
+   قاعدة بيانات محلية احتياطية
 ===================================================== */
 const DTC_MAP = {
-  // المحرك
-  P0171: { zone:"fuel", title:"خليط فقير (Bank 1)", desc:"تسرب هواء أو انسداد حاقن أو عطل MAF" },
-  P0172: { zone:"fuel", title:"خليط غني (Bank 1)",  desc:"حاقن يسيل أو ضغط وقود مرتفع" },
-  P0174: { zone:"fuel", title:"خليط فقير (Bank 2)", desc:"تسرب هواء أو مشكلة في حساس O2" },
-  P0175: { zone:"fuel", title:"خليط غني (Bank 2)",  desc:"حاقن يسيل أو ضغط وقود مرتفع" },
-  P0087: { zone:"fuel", title:"ضغط وقود منخفض",     desc:"فلتر وقود مسدود أو مضخة ضعيفة" },
-  P0088: { zone:"fuel", title:"ضغط وقود مرتفع",     desc:"منظم ضغط الوقود معطل" },
-  P0300: { zone:"engine", title:"اشتعال متقطع متعدد",       desc:"بوجيهات، كويلات، أو حاقنات" },
+  P0171: { zone:"fuel", title:"خليط فقير (Bank 1)", desc:"تسرب هواء أو انسداد حاقن" },
+  P0300: { zone:"engine", title:"اشتعال متقطع متعدد", desc:"بوجيهات، كويلات، أو حاقنات" },
   P0301: { zone:"engine", title:"اشتعال متقطع - السلندر 1", desc:"استبدل البوجيه والكويل" },
-  P0302: { zone:"engine", title:"اشتعال متقطع - السلندر 2", desc:"افحص السلندر الثاني" },
-  P0303: { zone:"engine", title:"اشتعال متقطع - السلندر 3", desc:"افحص السلندر الثالث" },
-  P0304: { zone:"engine", title:"اشتعال متقطع - السلندر 4", desc:"افحص السلندر الرابع" },
-  P0305: { zone:"engine", title:"اشتعال متقطع - السلندر 5", desc:"افحص السلندر الخامس" },
-  P0306: { zone:"engine", title:"اشتعال متقطع - السلندر 6", desc:"افحص السلندر السادس" },
-  P0340: { zone:"engine", title:"حساس الكام شافت",          desc:"قد يمنع التشغيل" },
-  P0335: { zone:"engine", title:"حساس الكرنك",              desc:"السبب الأشهر لعدم التشغيل" },
-  P0016: { zone:"engine", title:"تزامن الكرنك والكام",      desc:"احتمال سلسلة توقيت ممدودة" },
-  P0524: { zone:"engine", title:"ضغط زيت منخفض",            desc:"أوقف المحرك فوراً" },
-  P0217: { zone:"cooling", title:"ارتفاع حرارة المحرك", desc:"أوقف السيارة فوراً" },
-  P0128: { zone:"cooling", title:"ترموستات عاطل",       desc:"المحرك لا يصل لحرارة التشغيل" },
-  P0118: { zone:"cooling", title:"حساس حرارة معطل",     desc:"قراءة حرارة غير منطقية" },
-  P0562: { zone:"battery", title:"جهد النظام منخفض", desc:"بطارية ضعيفة أو دينامو لا يشحن" },
-  P0563: { zone:"battery", title:"جهد النظام مرتفع", desc:"منظم الدينامو عاطل" },
-  // ناقل الحركة
-  P0700: { zone:"transmission", title:"عطل في ناقل الحركة",  desc:"افحص كمبيوتر الجير" },
-  P0730: { zone:"transmission", title:"نسبة تعشيق غير صحيحة", desc:"احتمال مشكلة في الكلتشات" },
-  P0741: { zone:"transmission", title:"قفل عاكس القوة",      desc:"Torque Converter لا يقفل" },
-  P0705: { zone:"transmission", title:"حساس نطاق ناقل الحركة", desc:"افحص حساس الوضعية" },
-  // الفرامل ABS
-  C0035: { zone:"brakes", title:"حساس سرعة العجلة الأمامي", desc:"افحص حساس ABS" },
-  C0040: { zone:"abs",    title:"خلل في وحدة ABS",          desc:"لا تعطّل فرامل ABS" },
-  C0045: { zone:"abs",    title:"حساس سرعة العجلة الخلفية", desc:"افحص حساس ABS الخلفي" },
-  P0504: { zone:"brakes", title:"مفتاح الفرامل",            desc:"تأكد من مفتاح دعسة الفرامل" },
-  // العوادم
-  P0420: { zone:"exhaust", title:"كتلايزر ضعيف",        desc:"قد تحتاج استبدال الكتلايزر" },
-  P0430: { zone:"exhaust", title:"كتلايزر Bank 2 ضعيف", desc:"افحص حساسات O2 الخلفية" },
-  P0401: { zone:"exhaust", title:"تدفق EGR ضعيف",       desc:"انسداد صمام EGR" },
-  P0402: { zone:"exhaust", title:"تدفق EGR زائد",       desc:"صمام EGR عالق مفتوح" },
-  // الوسائد الهوائية
-  B0001: { zone:"airbag", title:"عطل في الوسائد الهوائية", desc:"لا تهمل، قد لا تفتح عند الحادث" },
-  B0100: { zone:"airbag", title:"حساس صدمة",               desc:"افحص حساس الوسادة" },
-  B1000: { zone:"airbag", title:"عطل وحدة SRS",            desc:"افحص وحدة الوسائد الهوائية" },
-  // الكهرباء والشبكة
-  U0100: { zone:"electronics", title:"فقدان الاتصال بـ ECU",   desc:"مشكلة في شبكة CAN أو كمبيوتر المحرك" },
-  U0121: { zone:"electronics", title:"فقدان الاتصال بـ ABS",   desc:"افحص أسلاك وحدة ABS" },
-  U0155: { zone:"electronics", title:"فقدان اتصال العدادات",   desc:"افحص أسلاك العدادات" },
-  U0101: { zone:"electronics", title:"فقدان الاتصال بناقل الحركة", desc:"افحص أسلاك كمبيوتر الجير" },
-  // حساسات O2
-  P0130: { zone:"fuel", title:"حساس O2 Bank1 S1", desc:"افحص الحساس الأمامي" },
-  P0135: { zone:"fuel", title:"سخان حساس O2 Bank1 S1", desc:"افحص دائرة التسخين" },
-  P0141: { zone:"exhaust", title:"سخان حساس O2 Bank1 S2", desc:"افحص الحساس الخلفي" },
-  // VVT
-  P0010: { zone:"engine", title:"دائرة VVT Bank1", desc:"افحص صمام توقيت الصمامات" },
-  P0011: { zone:"engine", title:"توقيت VVT Bank1", desc:"صمام VVT عالق" },
-  // نظام الوقود
-  P0230: { zone:"fuel", title:"دائرة مضخة الوقود", desc:"افحص المرحل والمضخة" },
-  P0231: { zone:"fuel", title:"مضخة وقود - جهد منخفض", desc:"افحص أسلاك المضخة" },
-  P0232: { zone:"fuel", title:"مضخة وقود - جهد مرتفع", desc:"افحص المرحل" },
+  P0420: { zone:"exhaust", title:"كتلايزر ضعيف", desc:"قد تحتاج استبدال الكتلايزر" },
+  C0035: { zone:"brakes", title:"حساس سرعة العجلة", desc:"افحص حساس ABS" },
+  B0001: { zone:"airbag", title:"عطل في الوسائد الهوائية", desc:"لا تهمل، قد لا تفتح" },
+  U0100: { zone:"electronics", title:"فقدان الاتصال بـ ECU", desc:"مشكلة في شبكة CAN" }
 };
 
 let DTC_DATABASE = { ...DTC_MAP };
 
+/* =====================================================
+   تحميل قاعدة البيانات مع ذاكرة تخزين محلية (Cache)
+===================================================== */
+const DB_CACHE_KEY = 'dtc_database_v1';
+const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+
+async function loadDatabase() {
+  // 1. حاول جلب البيانات من الذاكرة المحلية أولاً
+  try {
+    const cached = localStorage.getItem(DB_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
+        DTC_DATABASE = { ...DTC_MAP, ...parsed.data };
+        log(`⚡ تم تحميل قاعدة البيانات من الذاكرة المحلية (${Object.keys(parsed.data).length} كود)`);
+        return;
+      }
+    }
+  } catch (e) { /* تجاهل الأخطاء */ }
+
+  // 2. إذا لم توجد ذاكرة، اجلب الملف من الشبكة
+  try {
+    log('🌐 تحميل قاعدة البيانات من الخادم...');
+    const response = await fetch('dtc_database.json?v=' + Date.now());
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const externalData = await response.json();
+    
+    DTC_DATABASE = { ...DTC_MAP, ...externalData };
+    
+    // حفظ في الذاكرة المحلية للاستخدام مستقبلاً
+    localStorage.setItem(DB_CACHE_KEY, JSON.stringify({
+      timestamp: Date.now(),
+      data: externalData
+    }));
+    
+    log(`✅ تم تحميل ${Object.keys(externalData).length} كود خارجي + ${Object.keys(DTC_MAP).length} كود محلي`);
+  } catch (e) {
+    log(`⚠️ فشل تحميل قاعدة البيانات: ${e.message}. سيتم استخدام القاعدة المحلية فقط.`);
+    DTC_DATABASE = { ...DTC_MAP };
+  }
+}
+
 function getFaultInfo(code) {
   const clean = String(code).trim().toUpperCase();
   return DTC_DATABASE[clean] || {
-    zone:"engine",
-    title:"عطل غير معروف",
+    zone:"engine", title:"عطل غير معروف",
     desc:"كود غير مسجل في قاعدة البيانات. ابحث عنه في الإنترنت."
   };
 }
 
 /* =====================================================
-   تحميل قاعدة البيانات الخارجية (اختياري)
+   البحث الذكي في قاعدة البيانات
 ===================================================== */
-async function loadDatabase() {
-  try {
-    const response = await fetch('dtc_database.json');
-    if (!response.ok) throw new Error('الملف غير موجود');
-    const externalData = await response.json();
-    DTC_DATABASE = { ...DTC_MAP, ...externalData };
-    log('✅ تم تحميل قاعدة بيانات خارجية (' + Object.keys(externalData).length + ' كود إضافي)');
-  } catch (e) {
-    log('ℹ️ يتم استخدام قاعدة البيانات المحلية (' + Object.keys(DTC_MAP).length + ' كود)');
+function searchDTC(query) {
+  const resultsDiv = document.getElementById('searchResults');
+  const q = query.trim().toUpperCase();
+  
+  if (q.length < 2) {
+    resultsDiv.innerHTML = '';
+    return;
   }
+  
+  const matches = Object.entries(DTC_DATABASE).filter(([code, info]) => {
+    return code.includes(q) || 
+           (info.title && info.title.includes(query)) ||
+           (info.desc && info.desc.includes(query));
+  }).slice(0, 20);
+  
+  if (matches.length === 0) {
+    resultsDiv.innerHTML = `<p class="hint">لا توجد نتائج لـ "${query}"</p>`;
+    return;
+  }
+  
+  resultsDiv.innerHTML = `
+    <p style="font-size:13px;color:#64748b;margin-bottom:8px;">تم العثور على ${matches.length} نتيجة:</p>
+    <div class="dtc-list">
+      ${matches.map(([code, info]) => `
+        <div class="dtc-item" data-code="${code}">
+          <div class="code">${code}</div>
+          <div class="title">${info.title || 'غير معروف'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  resultsDiv.querySelectorAll('.dtc-item').forEach(el => {
+    el.addEventListener('click', () => {
+      displayFault(el.dataset.code);
+      document.getElementById('dtcSearchInput').value = '';
+      resultsDiv.innerHTML = '';
+    });
+  });
 }
 
 /* =====================================================
@@ -533,10 +402,8 @@ function displayFault(dtcCode) {
     zoneEl.classList.add('active');
     const car = document.getElementById('carSvg');
     car.animate([
-      { transform:'translateX(0)' },
-      { transform:'translateX(-4px)' },
-      { transform:'translateX(4px)' },
-      { transform:'translateX(0)' }
+      { transform:'translateX(0)' }, { transform:'translateX(-4px)' },
+      { transform:'translateX(4px)' }, { transform:'translateX(0)' }
     ], { duration:400 });
   }
   document.getElementById('faultTitle').textContent = info.title;
@@ -556,13 +423,11 @@ function playAlertSound() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.frequency.value = 880;
-    osc.type = 'sine';
+    osc.frequency.value = 880; osc.type = 'sine';
     gain.gain.setValueAtTime(0.12, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
     osc.connect(gain).connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.35);
+    osc.start(); osc.stop(ctx.currentTime + 0.35);
   } catch(e) {}
 }
 
@@ -612,12 +477,9 @@ async function connectBluetooth() {
     log('🔍 البحث عن أجهزة OBD-II...');
     device = await navigator.bluetooth.requestDevice({
       filters: [
-        { namePrefix: 'OBD' },
-        { namePrefix: 'ELM' },
-        { namePrefix: 'Vgate' },
-        { namePrefix: 'V-Link' },
-        { services: [ELM_SERVICE] },
-        { services: [ELM_SERVICE2] },
+        { namePrefix: 'OBD' }, { namePrefix: 'ELM' },
+        { namePrefix: 'Vgate' }, { namePrefix: 'V-Link' },
+        { services: [ELM_SERVICE] }, { services: [ELM_SERVICE2] },
       ],
       optionalServices: [ELM_SERVICE, ELM_SERVICE2]
     });
@@ -673,7 +535,7 @@ async function sendCommand(cmd, waitMs = 400) {
 }
 
 /* =====================================================
-   قراءة أعطال المحرك (OBD-II القياسي)
+   قراءة أعطال المحرك (OBD-II)
 ===================================================== */
 async function readDTCs() {
   const list = document.getElementById('dtcList');
@@ -708,7 +570,7 @@ function parseDTCs(raw) {
 }
 
 /* =====================================================
-   🔍 مسح جميع الأنظمة (UDS)
+   مسح جميع الأنظمة (UDS)
 ===================================================== */
 const ECU_LIST = [
   { addr: '7E0', name: 'المحرك' },
@@ -727,11 +589,9 @@ async function scanAllECUs() {
     list.innerHTML = '<p class="hint">⚠️ اتصل بجهاز أولاً.</p>';
     return;
   }
-  
   log('🚀 بدء المسح الشامل لجميع الأنظمة...');
   list.innerHTML = '<p class="hint">⏳ جاري فحص جميع الوحدات... (قد يستغرق دقيقة)</p>';
   
-  // إعداد الجهاز لاستقبال UDS
   await sendCommand('AT CRA 7E8', 200);
   await sendCommand('AT CAF1', 200);
 
@@ -749,9 +609,7 @@ async function scanAllECUs() {
     }
   }
   
-  // إعادة العنوان الافتراضي
   await sendCommand('AT SH 7E0', 200);
-  
   renderFaults(allFaults);
   log(`✅ اكتمل الفحص. إجمالي الأعطال المكتشفة: ${allFaults.length}`);
   
@@ -781,7 +639,7 @@ function parseUDS_Response(raw) {
 }
 
 /* =====================================================
-   عرض الأعطال (مع اسم النظام)
+   عرض الأعطال
 ===================================================== */
 function renderFaults(faults) {
   const list = document.getElementById('dtcList');
@@ -789,18 +647,15 @@ function renderFaults(faults) {
     list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة في أي نظام.</p>';
     return;
   }
-  
   list.innerHTML = faults.map(f => {
     const info = getFaultInfo(f.code);
     return `<div class="dtc-item" data-code="${f.code}">
       <div class="code">
-        <span class="system-badge">${f.system}</span>
-        ${f.code}
+        <span class="system-badge">${f.system}</span>${f.code}
       </div>
       <div class="title">${info.title}</div>
     </div>`;
   }).join('');
-  
   list.querySelectorAll('.dtc-item').forEach(el => {
     el.addEventListener('click', () => displayFault(el.dataset.code));
   });
@@ -847,7 +702,7 @@ function parseVIN(raw) {
 }
 
 /* =====================================================
-   البيانات الحية (27 PID)
+   البيانات الحية
 ===================================================== */
 const PID_DEFS = {
   '010C': { key:'rpm',         bytes:2, calc:(a,b)=>((256*a+b)/4) },
@@ -1014,33 +869,27 @@ function runAutoAnalysis() {
       items.push({ icon:'⚠️', text:`${k.toUpperCase()}: ${v[k].toFixed(1)}% — احتمال تسرب هواء أو مشكلة وقود` });
     }
   });
-
   if (v.coolant !== undefined) {
     if (v.coolant < 75 && v.runtime > 300) items.push({ icon:'❄️', text:`حرارة المحرك ${v.coolant}°C — ترموستات قد يكون عاطلاً` });
     if (v.coolant > 105) items.push({ icon:'🔥', text:`حرارة المحرك ${v.coolant}°C — ارتفاع حرارة!` });
   }
-
   if (v.battery !== undefined) {
     if (v.battery < 12.4 && v.rpm > 500) items.push({ icon:'🔋', text:`جهد البطارية ${v.battery}V — الدينامو لا يشحن` });
     if (v.battery > 15) items.push({ icon:'⚡', text:`جهد مرتفع ${v.battery}V — منظم الدينامو` });
   }
-
   ['o2b1s1','o2b1s2','o2b2s1','o2b2s2'].forEach(k => {
     if (v[k] !== undefined && (v[k] < 0.05 || v[k] > 1.2)) {
       items.push({ icon:'💨', text:`${k.toUpperCase()} قراءة شاذة: ${v[k].toFixed(2)}V` });
     }
   });
-
   if (v.maf !== undefined && v.rpm !== undefined && v.rpm > 500) {
     const ratio = v.maf / (v.rpm / 1000);
     if (ratio < 1.5) items.push({ icon:'🌬️', text:`MAF منخفض نسبةً للـ RPM — تحقق من فلتر الهواء` });
     if (ratio > 8)   items.push({ icon:'🌬️', text:`MAF مرتفع — احتمال تسرب هواء` });
   }
-
   if (v.map !== undefined && v.rpm < 1000 && v.map > 50) {
     items.push({ icon:'🌫️', text:`MAP ${v.map} kPa مع RPM منخفض — احتمال مشكلة فاكيوم` });
   }
-
   if (items.length === 0) {
     el.innerHTML = '<div class="analysis-item" style="color:#15803d;">✅ كل القيم ضمن المدى الطبيعي</div>';
   } else {
@@ -1084,34 +933,19 @@ function startDemo() {
 
   demoTimer = setInterval(() => {
     lastValues = {
-      rpm: 800 + Math.random()*2500,
-      speed: Math.random()*120,
-      load: 20 + Math.random()*60,
-      throttle: Math.random()*80,
-      timing: 10 + Math.random()*20,
-      torque: 10 + Math.random()*70,
-      stft1: (Math.random()*20 - 10),
-      ltft1: (Math.random()*15 - 7),
-      stft2: (Math.random()*20 - 10),
-      ltft2: (Math.random()*15 - 7),
-      maf: 3 + Math.random()*15,
-      map: 30 + Math.random()*40,
-      fuelp: 300 + Math.random()*50,
-      fuelr: 280 + Math.random()*40,
-      o2b1s1: 0.1 + Math.random()*0.8,
-      o2b1s2: 0.1 + Math.random()*0.8,
-      o2b2s1: 0.1 + Math.random()*0.8,
-      o2b2s2: 0.1 + Math.random()*0.8,
-      coolant: 85 + Math.random()*10,
-      iat: 25 + Math.random()*10,
-      ambient: 22 + Math.random()*8,
-      oil: 90 + Math.random()*15,
-      battery: 13.8 + Math.random()*0.6,
-      fuelLevel: 30 + Math.random()*50,
-      distClr: 120,
-      distCel: 45,
-      runtime: 420,
-      fuelStatus: 1,
+      rpm: 800 + Math.random()*2500, speed: Math.random()*120,
+      load: 20 + Math.random()*60, throttle: Math.random()*80,
+      timing: 10 + Math.random()*20, torque: 10 + Math.random()*70,
+      stft1: (Math.random()*20 - 10), ltft1: (Math.random()*15 - 7),
+      stft2: (Math.random()*20 - 10), ltft2: (Math.random()*15 - 7),
+      maf: 3 + Math.random()*15, map: 30 + Math.random()*40,
+      fuelp: 300 + Math.random()*50, fuelr: 280 + Math.random()*40,
+      o2b1s1: 0.1 + Math.random()*0.8, o2b1s2: 0.1 + Math.random()*0.8,
+      o2b2s1: 0.1 + Math.random()*0.8, o2b2s2: 0.1 + Math.random()*0.8,
+      coolant: 85 + Math.random()*10, iat: 25 + Math.random()*10,
+      ambient: 22 + Math.random()*8, oil: 90 + Math.random()*15,
+      battery: 13.8 + Math.random()*0.6, fuelLevel: 30 + Math.random()*50,
+      distClr: 120, distCel: 45, runtime: 420, fuelStatus: 1,
     };
     updateLiveUI();
     runAutoAnalysis();
@@ -1136,15 +970,17 @@ document.getElementById('btnReadDTC').addEventListener('click', readDTCs);
 document.getElementById('btnScanAll').addEventListener('click', scanAllECUs);
 document.getElementById('btnReadVIN').addEventListener('click', readVIN);
 document.getElementById('btnStartLive').addEventListener('click', () => {
-  liveRecording = true;
-  startLive();
+  liveRecording = true; startLive();
 });
 document.getElementById('btnStopLive').addEventListener('click', stopLive);
 document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
 
-/* =====================================================
-   تحميل قاعدة البيانات عند بدء الموقع
-===================================================== */
+/* ربط البحث */
+document.getElementById('dtcSearchInput').addEventListener('input', (e) => {
+  searchDTC(e.target.value);
+});
+
+/* تحميل قاعدة البيانات */
 loadDatabase();
 </script>
 
