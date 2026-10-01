@@ -1,74 +1,107 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head><meta charset="UTF-8"><title>أداة تقسيم قاعدة البيانات</title>
-<style>body{font-family:Cairo,sans-serif;padding:20px;background:#f1f5f9;}
-button{padding:15px 30px;font-size:16px;background:#3b82f6;color:#fff;border:none;border-radius:10px;cursor:pointer;margin:5px;}
-button:hover{background:#2563eb;}
-pre{background:#0f172a;color:#4ade80;padding:15px;border-radius:10px;overflow:auto;max-height:400px;}</style>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أداة تقسيم قاعدة البيانات</title>
+<style>
+  body{font-family:'Cairo',sans-serif;padding:20px;background:#f1f5f9;max-width:600px;margin:0 auto;}
+  h1{font-size:22px;text-align:center;margin-bottom:10px;}
+  p{text-align:center;color:#64748b;font-size:14px;margin-bottom:20px;}
+  .btn{display:block;width:100%;padding:16px;font-size:16px;background:#3b82f6;color:#fff;border:none;border-radius:12px;cursor:pointer;margin-bottom:12px;font-family:inherit;font-weight:700;}
+  .btn:hover{background:#2563eb;}
+  .btn-green{background:#10b981;}
+  .btn-green:hover{background:#059669;}
+  .link-box{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .link-box a{display:block;padding:14px;background:#f8fafc;border-radius:8px;text-decoration:none;color:#1e293b;font-weight:700;text-align:center;border:2px solid #e2e8f0;margin-bottom:8px;transition:0.2s;}
+  .link-box a:hover{background:#e0f2fe;border-color:#3b82f6;}
+  .link-box a:last-child{margin-bottom:0;}
+  .status{background:#0f172a;color:#4ade80;padding:16px;border-radius:12px;font-family:monospace;font-size:13px;direction:ltr;text-align:left;white-space:pre-wrap;max-height:300px;overflow:auto;margin-top:20px;}
+  .hidden{display:none;}
+  .info{background:#fef3c7;border-right:4px solid #f59e0b;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#78350f;line-height:1.6;}
+</style>
 </head>
 <body>
+
 <h1>🔧 أداة تقسيم قاعدة البيانات</h1>
-<p>تضع ملفك القديم، وتحمّل 5 ملفات جديدة مقسمة ومضغوطة.</p>
-<button onclick="split()">🚀 ابدأ التقسيم</button>
-<pre id="output">اضغط الزر لبدء العملية...</pre>
+<p>اضغط الزر لتحليل الملف الأصلي، ثم نزّل الملفات الخمسة واحداً تلو الآخر.</p>
+
+<div class="info">
+  ⚠️ <strong>ملاحظة:</strong> بعد تنزيل كل ملف، ارجع إلى هذه الصفحة لتنزيل الملف التالي.
+</div>
+
+<button class="btn" id="btnSplit" onclick="split()">🚀 ابدأ التحليل</button>
+
+<div id="linksContainer" class="hidden">
+  <h3 style="text-align:center;margin-bottom:16px;">📥 روابط التنزيل</h3>
+  <div class="link-box" id="linkBox"></div>
+</div>
+
+<div id="output" class="status hidden">جاهز...</div>
 
 <script>
 async function split() {
   const out = document.getElementById('output');
-  out.textContent = 'جاري تحميل الملف القديم...\n';
-  
-  // حمّل الملف القديم
-  const response = await fetch('dtc_database.json');
-  const oldData = await response.json();
-  out.textContent += `تم تحميل ${Object.keys(oldData).length} كود\n\n`;
-  
-  // ضغط وتقسيم
-  const buckets = { P: {}, C: {}, B: {}, U: {} };
-  for (const [code, info] of Object.entries(oldData)) {
-    const letter = code[0].toUpperCase();
-    if (!buckets[letter]) buckets[letter] = {};
-    buckets[letter][code] = [info.zone || 'engine', info.title || '', info.desc || ''];
+  out.classList.remove('hidden');
+  out.textContent = '⏳ جاري تحميل الملف القديم...\n';
+
+  try {
+    const response = await fetch('dtc_database.json');
+    if (!response.ok) throw new Error('لم يتم العثور على dtc_database.json');
+    const oldData = await response.json();
+    out.textContent += `✅ تم تحميل ${Object.keys(oldData).length} كود\n`;
+    out.textContent += '⏳ جاري التقسيم والضغط...\n';
+
+    // تقسيم الأكواد حسب الحرف الأول
+    const buckets = { P: {}, C: {}, B: {}, U: {} };
+    for (const [code, info] of Object.entries(oldData)) {
+      const letter = code[0].toUpperCase();
+      if (!buckets[letter]) buckets[letter] = {};
+      buckets[letter][code] = [info.zone || 'engine', info.title || '', info.desc || ''];
+    }
+
+    // الأكواد الأساسية (الأكثر شيوعاً)
+    const commonCodes = ['P0171','P0172','P0174','P0175','P0300','P0301','P0302','P0303','P0304','P0305',
+      'P0306','P0307','P0308','P0420','P0430','P0440','P0442','P0455','P0456','P0500','P0505','P0562',
+      'P0563','P0601','P0606','P0700','P0730','P0741','P0750','P0755','C0035','C0040','C0045','C0050',
+      'B0001','B0012','B0013','B0100','B1000','U0100','U0101','U0121','U0155','P0010','P0011','P0016',
+      'P0017','P0101','P0102','P0103','P0115','P0118','P0128','P0130','P0135','P0141','P0325','P0335',
+      'P0340','P0351','P0352'];
+
+    const core = {};
+    for (const code of commonCodes) {
+      if (oldData[code]) core[code] = [oldData[code].zone, oldData[code].title, oldData[code].desc];
+    }
+
+    // تحويل كل قسم إلى Blob URL
+    const files = {
+      'dtc_core.json': core,
+      'dtc_p.json': buckets.P || {},
+      'dtc_c.json': buckets.C || {},
+      'dtc_b.json': buckets.B || {},
+      'dtc_u.json': buckets.U || {}
+    };
+
+    const linkBox = document.getElementById('linkBox');
+    linkBox.innerHTML = '';
+    for (const [filename, data] of Object.entries(files)) {
+      const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.textContent = `📄 ${filename} (${Object.keys(data).length} كود)`;
+      linkBox.appendChild(a);
+    }
+
+    document.getElementById('linksContainer').classList.remove('hidden');
+    out.textContent += '✅ اكتمل التحليل! انزل الملفات من الروابط أعلاه.\n';
+    out.textContent += '⚠️ بعد تنزيل كل ملف، ارجع واضغط على الرابط التالي.';
+  } catch (e) {
+    out.textContent += '❌ خطأ: ' + e.message;
   }
-  
-  // اختر الأكواد الأكثر شيوعاً للـ Core
-  const commonCodes = ['P0171','P0172','P0174','P0175','P0300','P0301','P0302','P0303','P0304','P0305',
-    'P0306','P0307','P0308','P0420','P0430','P0440','P0442','P0455','P0456','P0500','P0505','P0562',
-    'P0563','P0601','P0606','P0700','P0730','P0741','P0750','P0755','C0035','C0040','C0045','C0050',
-    'B0001','B0012','B0013','B0100','B1000','U0100','U0101','U0121','U0155','P0010','P0011','P0016',
-    'P0017','P0101','P0102','P0103','P0115','P0118','P0128','P0130','P0135','P0141','P0325','P0335',
-    'P0340','P0351','P0352'];
-  
-  const core = {};
-  for (const code of commonCodes) {
-    if (oldData[code]) core[code] = [oldData[code].zone, oldData[code].title, oldData[code].desc];
-  }
-  
-  // أنشئ الروابط
-  const files = { 'dtc_core.json': core, ...buckets };
-  
-  out.textContent += '📊 إحصائيات الملفات:\n';
-  out.textContent += `- dtc_core.json: ${Object.keys(core).length} كود\n`;
-  for (const [letter, data] of Object.entries(buckets)) {
-    out.textContent += `- dtc_${letter.toLowerCase()}.json: ${Object.keys(data).length} كود\n`;
-  }
-  out.textContent += '\n⬇️ جاري تنزيل الملفات...\n\n';
-  
-  // نزّل كل ملف
-  let i = 0;
-  for (const [filename, data] of Object.entries(files)) {
-    await new Promise(r => setTimeout(r, 500));
-    const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    out.textContent += `✅ تم تنزيل: ${filename}\n`;
-    i++;
-  }
-  
-  out.textContent += '\n🎉 اكتمل! ارفع الملفات الخمسة إلى GitHub.';
 }
 </script>
+
 </body>
 </html>
