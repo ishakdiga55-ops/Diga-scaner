@@ -75,7 +75,8 @@
   .health-badge { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-radius:14px; margin-bottom:16px; color:#fff; font-weight:700; }
   .health-badge .score { font-size:32px; }
   .health-badge .label { font-size:14px; opacity:0.9; }
-  .chart-container { position:relative; height:220px; margin-top:8px; }
+  .chart-container { position: relative; height: 220px; width: 100%; margin-top: 8px; min-height: 220px; }
+  .chart-container canvas { display: block !important; width: 100% !important; height: 100% !important; }
   .chart-stats { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
   .chart-stats .stat { display:flex; align-items:center; gap:6px; font-size:13px; }
   .chart-stats .stat strong { font-family:monospace; font-size:16px; }
@@ -992,6 +993,10 @@ let chartSpeedInstance = null;
 let chartCoolantInstance = null;
 
 function initCharts() {
+  if (chartRpmInstance) { chartRpmInstance.destroy(); chartRpmInstance = null; }
+  if (chartSpeedInstance) { chartSpeedInstance.destroy(); chartSpeedInstance = null; }
+  if (chartCoolantInstance) { chartCoolantInstance.destroy(); chartCoolantInstance = null; }
+
   const commonOptions = (color, unit, suggestedMax) => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -1012,10 +1017,7 @@ function initCharts() {
       }
     },
     scales: {
-      x: {
-        display: false,
-        grid: { display: false }
-      },
+      x: { display: false, grid: { display: false } },
       y: {
         beginAtZero: true,
         suggestedMax: suggestedMax,
@@ -1040,8 +1042,16 @@ function initCharts() {
     return gradient;
   };
 
-  // RPM Chart
-  const rpmCtx = document.getElementById('chartRpm').getContext('2d');
+  const rpmCanvas = document.getElementById('chartRpm');
+  const speedCanvas = document.getElementById('chartSpeed');
+  const coolantCanvas = document.getElementById('chartCoolant');
+  
+  if (!rpmCanvas || !speedCanvas || !coolantCanvas) {
+    console.warn('Canvas elements not found');
+    return;
+  }
+
+  const rpmCtx = rpmCanvas.getContext('2d');
   chartRpmInstance = new Chart(rpmCtx, {
     type: 'line',
     data: {
@@ -1056,8 +1066,7 @@ function initCharts() {
     options: commonOptions('#ef4444', 'RPM', 7000)
   });
 
-  // Speed Chart
-  const speedCtx = document.getElementById('chartSpeed').getContext('2d');
+  const speedCtx = speedCanvas.getContext('2d');
   chartSpeedInstance = new Chart(speedCtx, {
     type: 'line',
     data: {
@@ -1072,8 +1081,7 @@ function initCharts() {
     options: commonOptions('#3b82f6', 'كم/س', 180)
   });
 
-  // Coolant Chart
-  const coolantCtx = document.getElementById('chartCoolant').getContext('2d');
+  const coolantCtx = coolantCanvas.getContext('2d');
   chartCoolantInstance = new Chart(coolantCtx, {
     type: 'line',
     data: {
@@ -1088,38 +1096,50 @@ function initCharts() {
     options: commonOptions('#f59e0b', '°C', 120)
   });
   
+  if (chartData.labels.length > 0) {
+    chartRpmInstance.data.labels = [...chartData.labels];
+    chartRpmInstance.data.datasets[0].data = [...chartData.rpm];
+    chartRpmInstance.update('none');
+    
+    chartSpeedInstance.data.labels = [...chartData.labels];
+    chartSpeedInstance.data.datasets[0].data = [...chartData.speed];
+    chartSpeedInstance.update('none');
+    
+    chartCoolantInstance.data.labels = [...chartData.labels];
+    chartCoolantInstance.data.datasets[0].data = [...chartData.coolant];
+    chartCoolantInstance.update('none');
+  }
+  
   log('📈 تم تهيئة الرسوم البيانية');
 }
 
 function updateCharts(values) {
   const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
   
-  // RPM
   if (values.rpm !== undefined && !isNaN(values.rpm)) {
     chartData.rpm.push(values.rpm);
     if (chartData.rpm.length > MAX_CHART_POINTS) chartData.rpm.shift();
-    document.getElementById('chart-rpm-current').textContent = values.rpm.toFixed(0);
+    const el = document.getElementById('chart-rpm-current');
+    if (el) el.textContent = values.rpm.toFixed(0);
   }
   
-  // Speed
   if (values.speed !== undefined && !isNaN(values.speed)) {
     chartData.speed.push(values.speed);
     if (chartData.speed.length > MAX_CHART_POINTS) chartData.speed.shift();
-    document.getElementById('chart-speed-current').textContent = values.speed.toFixed(0);
+    const el = document.getElementById('chart-speed-current');
+    if (el) el.textContent = values.speed.toFixed(0);
   }
   
-  // Coolant
   if (values.coolant !== undefined && !isNaN(values.coolant)) {
     chartData.coolant.push(values.coolant);
     if (chartData.coolant.length > MAX_CHART_POINTS) chartData.coolant.shift();
-    document.getElementById('chart-coolant-current').textContent = values.coolant.toFixed(0);
+    const el = document.getElementById('chart-coolant-current');
+    if (el) el.textContent = values.coolant.toFixed(0);
   }
   
-  // Labels
   chartData.labels.push(time);
   if (chartData.labels.length > MAX_CHART_POINTS) chartData.labels.shift();
   
-  // تحديث الرسوم
   if (chartRpmInstance) {
     chartRpmInstance.data.labels = [...chartData.labels];
     chartRpmInstance.data.datasets[0].data = [...chartData.rpm];
@@ -1368,8 +1388,15 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'history') displayHistory();
-    if (tab.dataset.tab === 'live' && !chartRpmInstance) {
-      setTimeout(() => initCharts(), 100);
+    if (tab.dataset.tab === 'live') {
+      setTimeout(() => {
+        if (!chartRpmInstance) initCharts();
+        else {
+          if (chartRpmInstance) chartRpmInstance.resize();
+          if (chartSpeedInstance) chartSpeedInstance.resize();
+          if (chartCoolantInstance) chartCoolantInstance.resize();
+        }
+      }, 300);
     }
   });
 });
@@ -1715,8 +1742,9 @@ function updateLiveUI() {
   colorize('coolant', 75, 105, 'range'); colorize('battery', 12.4, 14.8, 'range');
   ['stft1','ltft1','stft2','ltft2'].forEach(k => colorize(k, 10, 15, 'abs'));
   
-  // 📈 تحديث الرسوم البيانية
-  if (chartRpmInstance) updateCharts(lastValues);
+  if (chartRpmInstance || chartSpeedInstance || chartCoolantInstance) {
+    updateCharts(lastValues);
+  }
 }
 
 function setValue(key, val, fmt) {
@@ -1755,7 +1783,14 @@ async function liveLoop() {
 function startLive() { 
   if (liveInterval) return; 
   log('▶️ بدء القراءة الحية...'); 
-  if (!chartRpmInstance) initCharts();
+  setTimeout(() => {
+    if (!chartRpmInstance) initCharts();
+    else {
+      chartRpmInstance.resize();
+      chartSpeedInstance.resize();
+      chartCoolantInstance.resize();
+    }
+  }, 400);
   liveInterval = setInterval(liveLoop, 2000); 
   liveLoop(); 
 }
@@ -1810,9 +1845,14 @@ function startDemo() {
   saveScanToHistory(demoDTCs, "DEMO-VIN-123", diagnoses, null);
   
   // تهيئة الرسوم البيانية
-  if (!chartRpmInstance) {
-    setTimeout(() => initCharts(), 200);
-  }
+  setTimeout(() => {
+    if (!chartRpmInstance) initCharts();
+    else {
+      chartRpmInstance.resize();
+      chartSpeedInstance.resize();
+      chartCoolantInstance.resize();
+    }
+  }, 500);
   
   demoTimer = setInterval(() => {
     lastValues = {
