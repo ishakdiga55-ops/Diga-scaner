@@ -250,6 +250,16 @@
   </div>
 </div>
 
+<!-- ============ نافذة Freeze Frame ============ -->
+<div id="freezeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;padding:20px;overflow-y:auto;">
+  <div style="max-width:600px;margin:20px auto;background:#fff;border-radius:16px;padding:20px;position:relative;">
+    <button onclick="document.getElementById('freezeModal').style.display='none'" style="position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer;">×</button>
+    <h2 style="margin-bottom:16px;color:#1e293b;text-align:center;">❄️ بيانات التجميد (Freeze Frame)</h2>
+    <div id="freezeCode" style="text-align:center;font-family:monospace;font-weight:700;color:#b91c1c;font-size:18px;margin-bottom:12px;">—</div>
+    <div id="freezeContent" style="text-align:center;padding:20px;color:#64748b;">⏳ جاري القراءة...</div>
+  </div>
+</div>
+
 <script type="module">
 /* =====================================================
    Firebase
@@ -837,6 +847,108 @@ function hideExportButton() {
 }
 
 /* =====================================================
+   ❄️ Freeze Frame (بيانات التجميد)
+===================================================== */
+const FREEZE_PIDS = {
+  '02': { name: 'DTC الذي تسبب في التجميد', bytes: 2, calc:(a,b)=>{ const l=['P','C','B','U'][(a>>6)&0x03]; return `${l}${(a>>4)&0x03}${a&0x0F}${(b>>4)&0x0F}${b&0x0F}`; } },
+  '03': { name: 'حالة الوقود', bytes: 1, calc:(a)=>{ const m={1:'حلقة مفتوحة - حرارة',2:'حلقة مغلقة',4:'حلقة مفتوحة - حمل',8:'حلقة مفتوحة - خطأ'}; return m[a] || 'حالة ' + a; } },
+  '04': { name: 'حمل المحرك', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
+  '05': { name: 'حرارة المحرك', bytes: 1, calc:(a)=>`${a-40} °C` },
+  '06': { name: 'STFT Bank 1', bytes: 1, calc:(a)=>`${((a-128)*100/128).toFixed(1)} %` },
+  '07': { name: 'LTFT Bank 1', bytes: 1, calc:(a)=>`${((a-128)*100/128).toFixed(1)} %` },
+  '0B': { name: 'ضغط مشعب السحب (MAP)', bytes: 1, calc:(a)=>`${a} kPa` },
+  '0C': { name: 'سرعة المحرك (RPM)', bytes: 2, calc:(a,b)=>`${((256*a+b)/4).toFixed(0)} دورة/دقيقة` },
+  '0D': { name: 'السرعة', bytes: 1, calc:(a)=>`${a} كم/س` },
+  '0E': { name: 'توقيت الإشعال', bytes: 1, calc:(a)=>`${(a/2-64).toFixed(1)} °` },
+  '0F': { name: 'حرارة هواء السحب', bytes: 1, calc:(a)=>`${a-40} °C` },
+  '10': { name: 'معدل تدفق الهواء (MAF)', bytes: 2, calc:(a,b)=>`${((256*a+b)/100).toFixed(2)} g/s` },
+  '11': { name: 'موضع الخانق', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
+  '1F': { name: 'زمن التشغيل', bytes: 2, calc:(a,b)=>`${256*a+b} ثانية` },
+  '21': { name: 'المسافة مع CEL', bytes: 2, calc:(a,b)=>`${256*a+b} كم` },
+  '23': { name: 'ضغط سكة الوقود', bytes: 2, calc:(a,b)=>`${((256*a+b)*10).toFixed(0)} kPa` },
+  '2F': { name: 'مستوى الوقود', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(0)} %` },
+  '31': { name: 'المسافة منذ مسح الأعطال', bytes: 2, calc:(a,b)=>`${256*a+b} كم` },
+  '42': { name: 'جهد وحدة التحكم', bytes: 2, calc:(a,b)=>`${((256*a+b)/1000).toFixed(2)} V` },
+  '45': { name: 'موضع صمام EGR', bytes: 1, calc:(a)=>`${(a*100/255).toFixed(1)} %` },
+  '46': { name: 'حرارة البيئة', bytes: 1, calc:(a)=>`${a-40} °C` },
+  '5C': { name: 'حرارة زيت المحرك', bytes: 1, calc:(a)=>`${a-40} °C` }
+};
+
+async function readFreezeFrame(dtcCode) {
+  if (!characteristic) { 
+    document.getElementById('freezeModal').style.display = 'block';
+    document.getElementById('freezeCode').textContent = dtcCode;
+    document.getElementById('freezeContent').innerHTML = `
+      <p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">
+        ⚠️ يجب توصيل جهاز OBD-II بسيارة حقيقية لقراءة بيانات التجميد.<br>
+        <span style="font-size:12px;">الوضع التجريبي لا يمكنه محاكاة هذه البيانات.</span>
+      </p>
+    `;
+    return; 
+  }
+  
+  document.getElementById('freezeModal').style.display = 'block';
+  document.getElementById('freezeCode').textContent = dtcCode;
+  document.getElementById('freezeContent').innerHTML = '<p style="color:#64748b;">⏳ جاري قراءة بيانات التجميد...</p>';
+  
+  log(`❄️ قراءة Freeze Frame للعطل ${dtcCode}...`);
+  
+  const results = {};
+  const pidsToRead = ['03','04','05','06','07','0B','0C','0D','0E','0F','10','11','1F','21','23','2F','31','42','46','5C'];
+  
+  for (const pid of pidsToRead) {
+    const def = FREEZE_PIDS[pid];
+    if (!def) continue;
+    try {
+      const resp = await sendCommand(`02 ${pid} 00`, 400);
+      if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR')) {
+        const clean = resp.replace(/[\s\r\n>]/g, '').toUpperCase();
+        const idx = clean.indexOf('42' + pid);
+        if (idx !== -1) {
+          const dataHex = clean.substring(idx + 4);
+          const bytes = [];
+          for (let i = 0; i < def.bytes * 2; i += 2) {
+            bytes.push(parseInt(dataHex.substring(i, i + 2), 16));
+          }
+          if (!bytes.some(isNaN)) {
+            results[pid] = { name: def.name, value: def.calc(...bytes) };
+          }
+        }
+      }
+    } catch(e) {}
+  }
+  
+  if (Object.keys(results).length === 0) {
+    document.getElementById('freezeContent').innerHTML = `
+      <p style="color:#b45309;background:#fef3c7;padding:12px;border-radius:8px;">
+        ⚠️ لا توجد بيانات تجميد مسجلة لهذا العطل.<br>
+        <span style="font-size:12px;">قد لا يدعم كمبيوتر سيارتك هذا النوع من البيانات، أو تم مسح الأعطال مؤخراً.</span>
+      </p>
+    `;
+    return;
+  }
+  
+  document.getElementById('freezeContent').innerHTML = `
+    <p style="font-size:12px;color:#64748b;margin-bottom:12px;background:#eff6ff;padding:10px;border-radius:8px;">
+      💡 هذه هي حالة المحرك <strong>بالضبط لحظة حدوث العطل</strong>.
+    </p>
+    <div style="display:grid;gap:8px;text-align:right;">
+      ${Object.entries(results).map(([pid, data]) => `
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-radius:8px;border-right:3px solid #3b82f6;">
+          <span style="color:#475569;font-size:13px;">${data.name}</span>
+          <span style="font-weight:700;color:#0f172a;font-family:monospace;">${data.value}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:#94a3b8;text-align:center;">
+      PID: ${Object.keys(results).join(', ')}
+    </div>
+  `;
+  
+  log(`✅ تم قراءة ${Object.keys(results).length} معلمة من بيانات التجميد`);
+}
+
+/* =====================================================
    نظام تحميل قاعدة البيانات
 ===================================================== */
 const DB_VERSION = 'v4';
@@ -1244,10 +1356,29 @@ function renderFaults(faults) {
   if (!faults.length) { list.innerHTML = '<p class="hint">✅ لا توجد أعطال مسجلة.</p>'; return; }
   list.innerHTML = faults.map(f => {
     const info = getFaultInfo(f.code);
-    return `<div class="dtc-item" data-code="${f.code}"><div class="code"><span class="system-badge">${f.system}</span>${f.code}</div><div class="title">${info.title}</div></div>`;
+    return `
+      <div class="dtc-item" data-code="${f.code}">
+        <div class="code">
+          <span class="system-badge">${f.system}</span>${f.code}
+        </div>
+        <div class="title">${info.title}</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-blue" data-freeze="${f.code}" style="padding:6px 12px;font-size:12px;">❄️ بيانات التجميد</button>
+        </div>
+      </div>
+    `;
   }).join('');
   list.querySelectorAll('.dtc-item').forEach(el => {
-    el.addEventListener('click', () => displayFault(el.dataset.code));
+    el.addEventListener('click', (e) => {
+      if (e.target.dataset.freeze) return;
+      displayFault(el.dataset.code);
+    });
+  });
+  list.querySelectorAll('[data-freeze]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      readFreezeFrame(btn.dataset.freeze);
+    });
   });
 }
 
