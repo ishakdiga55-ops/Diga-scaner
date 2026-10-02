@@ -67,7 +67,6 @@
   .mil-off { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
 
-  /* Battery Test */
   .battery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
   .battery-box { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 14px; padding: 12px 6px; text-align: center; transition: all 0.4s ease; }
   .battery-box .b-icon { font-size: 22px; margin-bottom: 6px; color: #64748b; }
@@ -454,11 +453,15 @@ const TR = {
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
 
+// ✅ NEW: متغير لحفظ بيانات الفحص الجاهزية
+let lastReadinessData = null;
+
 function toggleLanguage(){
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   localStorage.setItem('checkdiga_lang', currentLang);
   applyLanguage();
 }
+
 function applyLanguage(){
   const isAr = currentLang === 'ar';
   document.documentElement.lang = currentLang;
@@ -466,6 +469,11 @@ function applyLanguage(){
   document.getElementById('langText').textContent = isAr ? 'English' : 'العربية';
   document.getElementById('subtitleText').textContent = t('subtitle');
   document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  
+  // ✅ NEW: إعادة عرض فحص الجاهزية عند تغيير اللغة
+  if (lastReadinessData) {
+    renderReadiness(lastReadinessData);
+  }
 }
 window.toggleLanguage = toggleLanguage;
 
@@ -1001,6 +1009,8 @@ function parseMonitor(byte, bit) {
 }
 
 function renderReadiness(data) {
+  // ✅ NEW: حفظ البيانات لإعادة العرض عند تغيير اللغة
+  lastReadinessData = data;
   const c = document.getElementById('readinessContent');
   if (!c) return;
   const milClass = data.mil ? 'mil-on' : 'mil-off';
@@ -1232,7 +1242,6 @@ function displayVINInfo(vin){
   </div>`;
 }
 
-/* ============ Battery & Alternator Test ============ */
 function classifyBattery(v, min, max) {
   if (v >= min && v <= max) return 'good';
   if (v >= min - 0.5 && v <= max + 0.5) return 'warn';
