@@ -19,7 +19,6 @@
   @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
   .spinner { border: 3px solid #334155; border-top-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .gauge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .gauge-box { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; padding: 14px; border: 1px solid #334155; box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
   .gauge-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gauge-color, #3b82f6); box-shadow: 0 0 12px var(--gauge-color, #3b82f6); }
@@ -29,7 +28,6 @@
   .gauge-unit { font-size: 10px; color: #64748b; text-align: center; margin-top: -2px; }
   .gauge-arc { transition: stroke-dashoffset 0.6s ease-out; filter: drop-shadow(0 0 6px currentColor); }
   .gauge-needle { transform-origin: 100px 100px; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
-
   .system-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .sys-item { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 14px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.3s ease; cursor: pointer; position: relative; }
   .sys-item .sys-icon { font-size: 18px; color: #64748b; transition: all 0.3s; }
@@ -42,7 +40,6 @@
   .sys-item.bad .sys-icon { color: #ef4444; filter: drop-shadow(0 0 8px #ef4444); }
   .sys-item.bad .sys-label { color: #fca5a5; }
   @keyframes sysAlert { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
-
   .dtc-type-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
   .dtc-type-confirmed { background: #dc2626; color: #fff; }
   .dtc-type-pending { background: #f59e0b; color: #fff; }
@@ -54,7 +51,6 @@
   .dtc-item-permanent { background: rgba(124,58,237,0.15) !important; border-right-color: #7c3aed !important; }
   .dtc-item-pending .text-red-300 { color: #fcd34d !important; }
   .dtc-item-permanent .text-red-300 { color: #c4b5fd !important; }
-
   .ready-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .ready-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(15,23,42,0.5); border-radius: 10px; border: 1px solid #334155; font-size: 12px; }
   .ready-item .name { color: #cbd5e1; font-weight: 600; }
@@ -66,7 +62,6 @@
   .mil-on { background: linear-gradient(135deg, #dc2626, #991b1b); color: #fff; }
   .mil-off { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
-
   .battery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
   .battery-box { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 14px; padding: 12px 6px; text-align: center; transition: all 0.4s ease; }
   .battery-box .b-icon { font-size: 22px; margin-bottom: 6px; color: #64748b; }
@@ -89,8 +84,6 @@
   .verdict-pass { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
   .verdict-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
   .verdict-fail { background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; }
-
-  /* Mode 06 */
   .mode06-item { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 12px; padding: 12px; margin-bottom: 8px; transition: all 0.3s; }
   .mode06-item.pass { border-color: #10b981; background: linear-gradient(145deg, rgba(16,185,129,0.1), rgba(5,150,105,0.03)); }
   .mode06-item.fail { border-color: #ef4444; background: linear-gradient(145deg, rgba(239,68,68,0.15), rgba(185,28,28,0.03)); animation: sysAlert 1.5s infinite; }
@@ -106,8 +99,6 @@
   .mode06-values > div { background: rgba(15,23,42,0.6); padding: 6px; border-radius: 6px; text-align: center; }
   .mode06-values .v-label { color: #64748b; font-size: 9px; display: block; margin-bottom: 2px; }
   .mode06-values .v-num { color: #e2e8f0; font-weight: 700; font-family: monospace; }
-
-  /* USB support badge */
   .transport-badge { font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
   .badge-usb { background: #059669; color: #fff; }
   .badge-ble { background: #2563eb; color: #fff; }
@@ -136,7 +127,6 @@
       </div>
       <span id="transportBadge" class="hidden transport-badge"></span>
     </div>
-    <!-- ⚡ الزر أضيف: USB -->
     <div class="grid grid-cols-3 gap-2 mb-2">
       <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> <span data-t="btConnect">Bluetooth</span></button>
       <button id="usb-btn" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> <span data-t="usbConnect">USB</span></button>
@@ -145,6 +135,9 @@
     <div class="grid grid-cols-1 gap-2">
       <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span></button>
       <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span></button>
+    </div>
+    <div id="iosNotice" class="hidden mt-3 bg-blue-900/40 border border-blue-600 rounded-xl p-3 text-xs text-blue-200">
+      <i class="fa-solid fa-info-circle"></i> <strong>iOS:</strong> Web Serial غير مدعوم. استخدم أندرويد (Chrome) للاتصال USB، أو استخدم Bluetooth/التجريبي.
     </div>
   </header>
 
@@ -330,7 +323,7 @@
         <button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span></button>
         <button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-radar"></i> <span data-t="readAll">فحص الكل</span></button>
       </div>
-      <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none transition" placeholder="🔍 ابحث عن كود (P0301)...">
+      <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none transition" placeholder="🔍 ابحث عن كود (P0301, P0299, U0100)...">
       <div id="searchResults"></div>
       <div id="dtcList" class="space-y-2 text-sm">
         <p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p>
@@ -403,17 +396,26 @@ const db = getFirestore(initializeApp({
   appId: "1:429788177002:web:be7ff0ca219ccfc0372013"
 }));
 
+// ============ 🌐 كشف نظام التشغيل ============
+const ua = navigator.userAgent;
+const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/.test(ua);
+const hasSerial = 'serial' in navigator;
+const hasBluetooth = 'bluetooth' in navigator;
+
+// ============ 🌍 الترجمات ============
 const TR = {
   ar: { subtitle:'أداة فحص السيارات المتكاملة', disconnected:'غير متصل', connected:'متصل ✓', demoMode:'وضع تجريبي',
     connect:'اتصال', btConnect:'Bluetooth', usbConnect:'USB', demo:'تجريبي', disconnect:'قطع', clear:'مسح الأعطال',
-    usbNotSupported:'متصفحك لا يدعم Web Serial. استخدم Chrome أو Edge على الحاسوب أو أندرويد.',
+    usbNotSupported:'متصفحك لا يدعم Web Serial. استخدم Chrome أو Edge على أندرويد أو حاسوب.',
     usbConnecting:'جاري الاتصال عبر USB...',
     usbConnected:'✓ متصل عبر USB',
-    usbPermissionDenied:'تم رفض الوصول للمنفذ أو فشل الاتصال',
-    usbInitFailed:'فشل تهيئة ELM327 عبر USB',
+    usbPermissionDenied:'تم رفض الوصول للمنفذ',
+    usbInitFailed:'فشل تهيئة ELM327',
     usbNoResponse:'ELM327 لا يستجيب',
     usbDisconnected:'تم قطع اتصال USB',
     btConnected:'✓ متصل عبر Bluetooth',
+    iosNotice:'iOS لا يدعم USB Serial. استخدم أندرويد أو حاسوب.',
     tabFaults:'الأعطال', tabLive:'بيانات حية', tabVin:'VIN', tabHistory:'السجل', tabStats:'إحصائيات',
     readEngine:'فحص المحرك', readAll:'فحص الكل', dtcTitle:'أكواد الأعطال',
     startLive:'بدء', stopLive:'إيقاف', charts:'الرسوم البيانية',
@@ -468,13 +470,11 @@ const TR = {
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
     connect:'Connect', btConnect:'Bluetooth', usbConnect:'USB', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
     usbNotSupported:'Browser does not support Web Serial. Use Chrome or Edge.',
-    usbConnecting:'Connecting via USB...',
-    usbConnected:'✓ Connected via USB',
-    usbPermissionDenied:'Port access denied or connection failed',
-    usbInitFailed:'Failed to init ELM327 over USB',
-    usbNoResponse:'ELM327 not responding',
-    usbDisconnected:'USB disconnected',
+    usbConnecting:'Connecting via USB...', usbConnected:'✓ Connected via USB',
+    usbPermissionDenied:'Port access denied', usbInitFailed:'Failed to init ELM327',
+    usbNoResponse:'ELM327 not responding', usbDisconnected:'USB disconnected',
     btConnected:'✓ Connected via Bluetooth',
+    iosNotice:'iOS does not support USB Serial. Use Android or PC.',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
     readEngine:'Scan Engine', readAll:'Scan All', dtcTitle:'DTC Codes',
     startLive:'Start', stopLive:'Stop', charts:'Charts',
@@ -483,16 +483,13 @@ const TR = {
     shareReport:'📄 Share Results', shareDesc:'PDF or WhatsApp report',
     scanning:'Scanning...', noFaults:'✅ No faults',
     healthExcellent:'Excellent', healthGood:'Good', healthWarn:'Needs Service', healthDanger:'Danger',
-    healthLabel:'Vehicle Health',
-    rpmUnit:'RPM', kmhUnit:'km/h', celsiusUnit:'Celsius', percentUnit:'Percent',
-    sysStatusTitle:'System Status',
-    sysEngine:'Engine', sysTrans:'Trans.', sysBrakes:'Brakes', sysAirbag:'Airbag',
+    healthLabel:'Vehicle Health', rpmUnit:'RPM', kmhUnit:'km/h', celsiusUnit:'Celsius', percentUnit:'Percent',
+    sysStatusTitle:'System Status', sysEngine:'Engine', sysTrans:'Trans.', sysBrakes:'Brakes', sysAirbag:'Airbag',
     sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electrical',
     legendConfirmed:'Confirmed', legendPending:'Pending', legendPermanent:'Permanent',
     typeConfirmed:'Confirmed', typePending:'Pending', typePermanent:'Permanent',
     readinessTitle:'Readiness Monitors', checkReadiness:'Check Readiness',
-    readinessDesc:'Checks emission systems readiness for inspection',
-    readinessIdle:'Press "Check Readiness" to start',
+    readinessDesc:'Checks emission systems readiness', readinessIdle:'Press "Check Readiness"',
     milOn:'⚠️ MIL Light ON', milOff:'✅ MIL Light OFF',
     dtcCountLabel:'DTC Count', continuousMonitors:'Continuous Monitors',
     nonContinuousMonitors:'Non-Continuous Monitors',
@@ -506,26 +503,24 @@ const TR = {
     waHealth:'Vehicle Health', waDiagnosis:'Diagnosis',
     waActions:'Suggested Actions', waGeneratedBy:'Generated by CheckDiga',
     batteryTitle:'Battery & Alternator Test', startBatteryTest:'Start Test',
-    batteryDesc:'3-stage charging system test — engine should be OFF',
-    batStage1:'Engine OFF', batStage2:'Engine ON', batStage3:'Under Load',
+    batteryDesc:'3-stage charging test — engine OFF', batStage1:'Engine OFF', batStage2:'Engine ON', batStage3:'Under Load',
     batWaiting:'Waiting', batReading:'Reading...',
     batGood:'Good', batLow:'Low', batHigh:'High', batWeak:'Weak', batOk:'Excellent',
-    batStep1Msg:'Reading battery voltage (engine OFF)...',
-    batStep2Msg:'Start the engine now — next reading in 5 seconds',
-    batStep3Msg:'Turn on A/C and lights — final reading in 5 seconds',
+    batStep1Msg:'Reading battery (engine OFF)...',
+    batStep2Msg:'Start engine — next reading in 5s',
+    batStep3Msg:'Turn on A/C — final reading in 5s',
     batTestComplete:'Test Complete',
-    batVerdictPass:'✅ Charging system is excellent — battery & alternator OK',
-    batVerdictWarn:'⚠️ Charging system needs check — battery or alternator may need service',
-    batVerdictFail:'🚨 Charging system FAILED — replace battery or alternator now',
+    batVerdictPass:'✅ Charging system excellent',
+    batVerdictWarn:'⚠️ Charging system needs check',
+    batVerdictFail:'🚨 Charging system FAILED',
     batNeedConnect:'Connect to vehicle or use Demo mode',
     mode06Title:'On-Board Monitoring Tests', startMode06:'Start Scan',
-    mode06Desc:'Reveals vehicle self-test results (O2, Catalyst, EGR...)',
-    mode06Idle:'Press "Start Scan" to view self-test results',
+    mode06Desc:'Reveals vehicle self-test results',
+    mode06Idle:'Press "Start Scan"',
     mode06Pass:'PASS', mode06Fail:'FAIL', mode06Unknown:'UNKNOWN',
-    mode06Value:'Value', mode06Min:'Min Limit', mode06Max:'Max Limit',
-    mode06NoData:'Mode 06 data not available for this vehicle',
-    mode06Scanning:'Reading monitoring test results...',
-    mode06Results:'Self-Test Results' }
+    mode06Value:'Value', mode06Min:'Min', mode06Max:'Max',
+    mode06NoData:'Mode 06 data not available',
+    mode06Scanning:'Reading test results...', mode06Results:'Self-Test Results' }
 };
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
@@ -546,12 +541,12 @@ function applyLanguage(){
   document.getElementById('langText').textContent = isAr ? 'English' : 'العربية';
   document.getElementById('subtitleText').textContent = t('subtitle');
   document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
-  
   if (lastReadinessData) renderReadiness(lastReadinessData);
   if (lastMode06Data) renderMode06(lastMode06Data);
 }
 window.toggleLanguage = toggleLanguage;
 
+// ============ 📚 قاعدة بيانات الأكواد ============
 const DTC_MAP = {
   P0171:{zone:"fuel",title:"خليط فقير (Bank 1)",desc:"تسرب هواء"},
   P0300:{zone:"engine",title:"اشتعال متقطع متعدد",desc:"بوجيهات أو كويلات"},
@@ -562,8 +557,15 @@ const DTC_MAP = {
   U0100:{zone:"electronics",title:"فقدان الاتصال بـ ECU",desc:"مشكلة CAN"}
 };
 let DTC_DATABASE = {...DTC_MAP};
-const DB_VERSION = 'v4';
-const DB_FILES = {P:'dtc_p.json',C:'dtc_c.json',B:'dtc_b.json',U:'dtc_u.json',CN:'dtc_chinese.json'};
+const DB_VERSION = 'v5';
+const DB_FILES = {
+  P:'dtc_p.json',
+  C:'dtc_c.json',
+  B:'dtc_b.json',
+  U:'dtc_u.json',
+  CN:'dtc_chinese.json',
+  PM:'dtc_modern.json'
+};
 const loadedCats = new Set();
 
 function decompress(e){return Array.isArray(e)?{zone:e[0]||'engine',title:e[1]||'',desc:e[2]||''}:e;}
@@ -589,6 +591,7 @@ async function loadCat(cat){
   catch(e){log(`⚠️ ${cat} failed`);}
 }
 
+// ============ 🔑 VIN Decoder ============
 const VIN_COUNTRY = {'1':'🇺🇸 USA','2':'🇨🇦 Canada','3':'🇲🇽 Mexico','4':'🇺🇸 USA','5':'🇺🇸 USA','J':'🇯🇵 Japan','K':'🇰🇷 Korea','L':'🇨🇳 China','S':'🇬🇧 UK','V':'🇫🇷 France','W':'🇩🇪 Germany','Y':'🇸🇪 Sweden','Z':'🇮🇹 Italy','9':'🇧🇷 Brazil','M':'🇮🇳 India','T':'🇨🇭 Switzerland'};
 const VIN_YEARS = {'A':'1980/2010','B':'1981/2011','C':'1982/2012','D':'1983/2013','E':'1984/2014','F':'1985/2015','G':'1986/2016','H':'1987/2017','J':'1988/2018','K':'1989/2019','L':'1990/2020','M':'1991/2021','N':'1992/2022','P':'1993/2023','R':'1994/2024','S':'1995/2025','T':'1996/2026','V':'1997/2027','W':'1998/2028','X':'1999/2029','Y':'2000/2030','1':'2001/2031','2':'2002/2032','3':'2003/2033','4':'2004/2034','5':'2005/2035','6':'2006/2036','7':'2007/2037','8':'2008/2038','9':'2009/2039'};
 const VIN_WMI = {'JHM':'Honda','JHL':'Honda','JT2':'Toyota','JTD':'Toyota','JTE':'Toyota','JTN':'Toyota','JTH':'Lexus','JN1':'Nissan','JN6':'Nissan','JN8':'Nissan','JM1':'Mazda','JM3':'Mazda','JMB':'Mitsubishi','JA3':'Mitsubishi','JF1':'Subaru','JF2':'Subaru','JS2':'Suzuki','JS3':'Suzuki','WBA':'BMW','WBS':'BMW M','WDB':'Mercedes','WDD':'Mercedes','WVW':'Volkswagen','WV1':'Volkswagen','WV2':'Volkswagen','WAU':'Audi','WA1':'Audi','WP0':'Porsche','WP1':'Porsche','W0L':'Opel','W0V':'Opel','1FA':'Ford','1FB':'Ford','1FC':'Ford','1FD':'Ford','1FM':'Ford','1FT':'Ford','1G1':'Chevrolet','1G4':'Buick','1G6':'Cadillac','1GC':'Chevrolet','1GT':'GMC','1GK':'GMC','1HG':'Honda','1J4':'Jeep','1C4':'Chrysler','1C3':'Chrysler','1B3':'Dodge','1D7':'Dodge','4T1':'Toyota','4T3':'Toyota','4S3':'Subaru','5YJ':'Tesla','5N1':'Nissan','5NP':'Hyundai','KMH':'Hyundai','KM8':'Hyundai','KNA':'Kia','KND':'Kia','KNC':'Kia','KPT':'SsangYong','VF1':'Renault','VF3':'Peugeot','VF7':'Citroën','ZAR':'Alfa Romeo','ZFA':'Fiat','ZFF':'Ferrari','ZHW':'Lamborghini','ZAM':'Maserati','SAJ':'Jaguar','SAL':'Land Rover','SCF':'Aston Martin','SCB':'Bentley','SCA':'Rolls-Royce','SCC':'Lotus','YV1':'Volvo','YV4':'Volvo','YS3':'Saab','LFV':'VW China','LGB':'Dongfeng','LJD':'JAC','LSV':'SAIC','LGX':'BYD','LDC':'Chery','MA3':'Maruti Suzuki','MAT':'Tata','XTA':'Lada'};
@@ -608,11 +611,16 @@ function validateVIN(vin){
   return (r===10?'X':String(r))===vin[8];
 }
 
+// ============ 🧠 قواعد التشخيص ============
 const RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',confidence:90,severity:'high',description:'خليط فقير في البنكين.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF']},
   {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',actions:['افحص تسرب الهواء أولاً','افحص مشعب السحب']},
   {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',actions:['استبدل البواجي','افحص الكويلات']},
   {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر.',actions:['أصلح الإشعال أولاً','استبدل الكتلايزر']},
+  {required:['P0016'],title:'عدم تزامن عمود الكام',confidence:95,severity:'critical',description:'🚨 افحص سلسلة التوقيت فوراً!',actions:['أوقف السيارة','افحص سلسلة التوقيت','افحص شداد السلسلة']},
+  {required:['P0299'],title:'ضغط التيربو منخفض',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',actions:['افحص خراطيم التيربو','افحص صمام Wastegate','افحص حساس MAP']},
+  {required:['P2002','P2463'],title:'فلتر DPF مسدود',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد (ديزل).',actions:['قم بقيادة سريعة 20 دقيقة','استخدم منظف DPF','إذا استمر: استبدل DPF']},
+  {required:['P0087','P0089'],title:'مشكلة في مضخة الوقود GDI',confidence:85,severity:'high',description:'ضغط الوقود منخفض.',actions:['افحص مضخة الضغط العالي','افحص فلتر الوقود','افحص حساس الضغط']},
   {required:['P0335'],title:'عطل حساس الكرنك',confidence:95,severity:'critical',description:'قد يمنع التشغيل.',actions:['استبدل حساس الكرنك']},
   {required:['P0217'],title:'ارتفاع حرارة المحرك',confidence:100,severity:'critical',description:'🚨 أوقف السيارة فوراً!',actions:['أوقف فوراً','افحص سائل التبريد']},
   {required:['U0100'],title:'فقدان الاتصال بـ ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',actions:['افحص الأسلاك','افحص الفيوزات']},
@@ -662,14 +670,11 @@ function setStatus(state){
   if(state==='connected'){s.textContent=t('connected');s.className='text-sm font-bold text-green-400';d.className='w-3 h-3 rounded-full bg-green-500';}
   else if(state==='demo'){s.textContent=t('demoMode');s.className='text-sm font-bold text-amber-400';d.className='w-3 h-3 rounded-full bg-amber-500';}
   else{s.textContent=t('disconnected');s.className='text-sm font-bold text-red-400';d.className='w-3 h-3 rounded-full bg-red-500 animate-pulse';}
-  // Transport badge
   if(state==='connected' && transport){
     tb.classList.remove('hidden');
     if(transport==='usb'){tb.className='transport-badge badge-usb';tb.innerHTML='🔌 USB';}
     else if(transport==='ble'){tb.className='transport-badge badge-ble';tb.innerHTML='📶 BLE';}
-  } else {
-    tb.classList.add('hidden');
-  }
+  } else { tb.classList.add('hidden'); }
 }
 
 function updateGauge(arcId, needleId, valueId, value, max){
@@ -741,28 +746,16 @@ function displayHealth(faults,diag){
 function showExport(){document.getElementById('exportCard').classList.remove('hidden');}
 function hideExport(){document.getElementById('exportCard').classList.add('hidden');}
 
-/* =====================================================================
-   ⚡⚡⚡  قسم الاتصال الجديد: يدعم Bluetooth + USB (Web Serial)  ⚡⚡⚡
-   ===================================================================== */
-
-// === اتصال Bluetooth ===
+// ============ 🔌 متغيرات الاتصال ============
 let btDevice=null,btServer=null,uartChar=null;
-
-// === اتصال USB (Web Serial) — جديد ===
 let usbPort = null, usbWriter = null, usbReader = null, usbReadLoopActive = false;
-
-// === حالة عامة ===
-let transport = null; // 'ble' | 'usb' | null
+let transport = null;
 let isConnected=false, isDemo=false;
-
 let recvBuf='',cmdQueue=[],isProcessing=false,curResolve=null,curTimeout=null;
 
 const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb'];
 const KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb'];
 
-// ----------------------------------------------------------------------
-// استقبال إشعارات Bluetooth (نفس الكود القديم)
-// ----------------------------------------------------------------------
 function handleNotification(e){
   recvBuf+=new TextDecoder().decode(e.target.value);
   if(recvBuf.includes('>')&&curResolve){
@@ -772,9 +765,6 @@ function handleNotification(e){
   }
 }
 
-// ----------------------------------------------------------------------
-// دالة sendCmd العامة (تُستخدم من كل الواجهات)
-// ----------------------------------------------------------------------
 window.sendCmd=function(cmd,timeout=3000){
   return new Promise((resolve,reject)=>{
     cmdQueue.push({
@@ -787,28 +777,18 @@ window.sendCmd=function(cmd,timeout=3000){
   });
 };
 
-// ----------------------------------------------------------------------
-// معالجة قائمة الأوامر — مُعدّلة لتدعم USB و Bluetooth
-// ----------------------------------------------------------------------
 async function processQueue(){
   if(isProcessing||cmdQueue.length===0)return;
-  // تحقق من وجود قناة إرسال جاهزة
   const hasChannel = (transport==='usb' && usbWriter) || (transport==='ble' && uartChar);
   if(!hasChannel)return;
-
   isProcessing=true;
   const item=cmdQueue.shift();
   curResolve=item.resolve;
   recvBuf='';
-
   try{
     const data = new TextEncoder().encode(item.cmd + '\r');
-    if(transport==='usb'){
-      await usbWriter.write(data);
-    } else {
-      await uartChar.writeValue(data);
-    }
-
+    if(transport==='usb'){ await usbWriter.write(data); }
+    else { await uartChar.writeValue(data); }
     curTimeout=setTimeout(()=>{
       if(curResolve){
         const r=recvBuf;recvBuf='';
@@ -816,39 +796,27 @@ async function processQueue(){
         isProcessing=false;processQueue();
       }
     },item.timeout);
-
   }catch(e){
     item.reject(e);curResolve=null;isProcessing=false;processQueue();
   }
 }
 
-// ======================================================================
-//  🔌 اتصال USB عبر Web Serial API  —  جديد بالكامل
-// ======================================================================
+// ============ 🔌 USB ============
 async function connectUSB(){
-  // 1) التحقق من دعم المتصفح
-  if(!('serial' in navigator)){
+  if(!hasSerial){
     alert(t('usbNotSupported'));
     log('❌ Web Serial not supported');
     return;
   }
-
   const usbBtn = document.getElementById('usb-btn');
   const origHtml = usbBtn.innerHTML;
   usbBtn.disabled = true;
   usbBtn.innerHTML = '<span class="spinner"></span>';
-
   try{
     log('🔌 ' + t('usbConnecting'));
-
-    // 2) طلب المنفذ من المستخدم (يتطلب إيماءة مستخدم)
     usbPort = await navigator.serial.requestPort();
-
-    // 3) فتح المنفذ — ELM327 الافتراضي 38400
-    //    نجرّب عدة معدلات في حال فشل الأول
     const baudRates = [38400, 115200, 9600, 57600];
-    let opened = false;
-    let lastError = null;
+    let opened = false, lastError = null;
     for(const baud of baudRates){
       try{
         await usbPort.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
@@ -857,42 +825,26 @@ async function connectUSB(){
         break;
       }catch(e){
         lastError = e;
-        log(`⚠️ ${baud} baud failed: ${e.message}`);
-        // إذا كان المنفذ مفتوحاً بالفعل أو مغلقاً من الخطأ السابق، حاول الإغلاق
+        log(`⚠️ ${baud} baud failed`);
         try{ await usbPort.close(); }catch(_){}
       }
     }
-    if(!opened){
-      throw new Error(lastError?.message || 'Could not open port');
-    }
-
-    // 4) إعداد القارئ والكاتب
+    if(!opened) throw new Error(lastError?.message || 'Could not open port');
     usbWriter = usbPort.writable.getWriter();
     transport = 'usb';
-
-    // 5) بدء حلقة القراءة المستمرة (تجمع حتى '>')
     startUSBReadLoop();
-
-    // 6) تحديث الواجهة
     isConnected = true;
     setStatus('connected');
     updateConnectionUI(true);
     log('✅ ' + t('usbConnected'));
-
-    // 7) تهيئة ELM327
-    await window.sendCmd('AT Z', 4000);   // إعادة تعيين
-    await window.sendCmd('AT E0', 2000);  // إيقاف echo
-    await window.sendCmd('AT L0', 2000);  // إيقاف الأسطر
-    await window.sendCmd('AT S0', 2000);  // إيقاف المسافات
-    await window.sendCmd('AT SP 0', 3000); // اكتشاف البروتوكول تلقائياً
-
-    // 8) قراءة VIN
+    await window.sendCmd('AT Z', 4000);
+    await window.sendCmd('AT E0', 2000);
+    await window.sendCmd('AT L0', 2000);
+    await window.sendCmd('AT S0', 2000);
+    await window.sendCmd('AT SP 0', 3000);
     const vinRes = await window.sendCmd('09 02', 5000);
     parseVINResponse(vinRes);
-
-    // 9) بدء الحلقة الحية
     startRealLiveLoop();
-
   }catch(e){
     log('❌ USB: ' + e.message);
     await cleanupUSB();
@@ -906,14 +858,10 @@ async function connectUSB(){
   }
 }
 
-// ----------------------------------------------------------------------
-// حلقة قراءة USB المستمرة — تجمع البيانات حتى '>'
-// ----------------------------------------------------------------------
 async function startUSBReadLoop(){
   if(!usbPort || !usbPort.readable) return;
   usbReadLoopActive = true;
   const decoder = new TextDecoder();
-
   while(usbPort && usbPort.readable && usbReadLoopActive){
     usbReader = usbPort.readable.getReader();
     try{
@@ -922,7 +870,6 @@ async function startUSBReadLoop(){
         if(done) break;
         if(value){
           recvBuf += decoder.decode(value, { stream: true });
-          // إذا وصل prompt '>' فهذا يعني أن الرد مكتمل
           if(recvBuf.includes('>') && curResolve){
             clearTimeout(curTimeout);
             const r = recvBuf; recvBuf = '';
@@ -939,31 +886,21 @@ async function startUSBReadLoop(){
   }
 }
 
-// ----------------------------------------------------------------------
-// تنظيف موارد USB بشكل آمن
-// ----------------------------------------------------------------------
 async function cleanupUSB(){
   usbReadLoopActive = false;
   try{ if(usbReader){ await usbReader.cancel(); usbReader.releaseLock(); } }catch(_){}
   try{ if(usbWriter){ usbWriter.releaseLock(); } }catch(_){}
   try{ if(usbPort){ await usbPort.close(); } }catch(_){}
-  usbReader = null;
-  usbWriter = null;
-  usbPort = null;
-  // إعادة تعيين قائمة الأوامر المعلّقة
-  cmdQueue = [];
-  isProcessing = false;
-  curResolve = null;
+  usbReader = null; usbWriter = null; usbPort = null;
+  cmdQueue = []; isProcessing = false; curResolve = null;
   if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
 }
 
-// ======================================================================
-//  📶 اتصال Bluetooth (كما هو، مع تعديل طفيف في النهاية)
-// ======================================================================
+// ============ 📶 Bluetooth ============
 async function connectOBD(){
-  if(!navigator.bluetooth){alert('No Bluetooth');return;}
+  if(!navigator.bluetooth){alert('No Bluetooth support');return;}
   try{
-    log('🔍 Searching...');
+    log('🔍 Searching BLE...');
     btDevice=await navigator.bluetooth.requestDevice({
       filters:[{services:KNOWN_SVC},{namePrefix:'OBD'},{namePrefix:'ELM'},{namePrefix:'V-Link'},{namePrefix:'Vgate'}],
       optionalServices:KNOWN_SVC
@@ -990,24 +927,18 @@ async function connectOBD(){
     parseVINResponse(vinRes);
     startRealLiveLoop();
   }catch(e){
-    log('❌ '+e.message);
+    log('❌ BLE: '+e.message);
     setStatus('disconnected');
   }
 }
 
-// ----------------------------------------------------------------------
-// قطع الاتصال (Bluetooth أو USB) بشكل موحّد
-// ----------------------------------------------------------------------
 async function handleDisconnect(){
   isConnected=false;isDemo=false;
   if(liveTimer)clearInterval(liveTimer);liveTimer=null;
-
-  // إغلاق USB إذا كان نشطاً
   if(transport==='usb'){
     await cleanupUSB();
     log('🔌 ' + t('usbDisconnected'));
   }
-  // إغلاق Bluetooth إذا كان نشطاً
   if(uartChar){
     try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotification); }catch(_){}
     try{ await uartChar.stopNotifications(); }catch(_){}
@@ -1016,25 +947,18 @@ async function handleDisconnect(){
   if(btDevice && btDevice.gatt.connected){
     try{ btDevice.gatt.disconnect(); }catch(_){}
   }
-
   transport = null;
   setStatus('disconnected');
   updateConnectionUI(false);
 }
 
-function disconnectOBD(){
-  handleDisconnect();
-}
+function disconnectOBD(){ handleDisconnect(); }
 
-// ----------------------------------------------------------------------
-// تحديث أزرار الاتصال (إظهار/إخفاء)
-// ----------------------------------------------------------------------
 function updateConnectionUI(connected){
   const connectBtn = document.getElementById('connect-btn');
   const usbBtn = document.getElementById('usb-btn');
   const demoBtn = document.getElementById('demo-btn');
   const dbtn = document.getElementById('disconnect-btn');
-
   if(connected){
     connectBtn.classList.add('hidden');
     usbBtn.classList.add('hidden');
@@ -1043,17 +967,15 @@ function updateConnectionUI(connected){
     dbtn.classList.add('flex');
   } else {
     connectBtn.classList.remove('hidden');
-    usbBtn.classList.remove('hidden');
+    if(hasSerial || !isIOS) usbBtn.classList.remove('hidden');
+    else usbBtn.classList.add('hidden');
     demoBtn.classList.remove('hidden');
     dbtn.classList.add('hidden');
     dbtn.classList.remove('flex');
   }
 }
 
-// ======================================================================
-//  نهاية قسم الاتصال — الكود المتبقي كما هو
-// ======================================================================
-
+// ============ 📊 Parsing ============
 function parseVINResponse(res){
   let clean=res.replace(/[^0-9A-Fa-f]/g,'');
   let vin='';
@@ -1097,6 +1019,7 @@ function parseDTCsFromBytes(bytes){
   return codes;
 }
 
+// ============ 📈 Live Data ============
 let liveTimer=null,chartInstance=null;
 let chartData={labels:[],rpm:[],speed:[]};
 
@@ -1163,6 +1086,7 @@ function runAutoAnalysis(v){
   else el.innerHTML=items.map(i=>`<div class="bg-amber-900/40 rounded-lg p-2 mb-1">${i.icon} ${i.text}</div>`).join('');
 }
 
+// ============ 📋 DTC Reading ============
 async function readDTCs(){
   const list=document.getElementById('dtcList');
   if(!isConnected&&!isDemo){list.innerHTML=`<p class="text-amber-400 text-center py-4">⚠️ ${currentLang==='ar'?'اتصل بجهاز أولاً':'Connect device'}</p>`;return;}
@@ -1190,9 +1114,7 @@ async function readDTCs(){
       list.innerHTML=`<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">✅ ${currentLang==='ar'?'السيارة سليمة':'No faults'}</div>`;
       document.getElementById('smartDiagnosis').classList.add('hidden');
       document.getElementById('healthBadge').classList.add('hidden');
-      hideExport();
-      updateSystemGrid([]);
-      return;
+      hideExport();updateSystemGrid([]);return;
     }
     renderFaults(allFaults);
     const diag=runDiagnosis(allFaults.map(f=>f.code));
@@ -1237,10 +1159,7 @@ async function scanAllSystems(){
     }
   }
   await window.sendCmd('AT SH 7E0',200);
-  if(allFaults.length===0){
-    list.innerHTML=`<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">✅ ${currentLang==='ar'?'لا أعطال':'No faults'}</div>`;
-    return;
-  }
+  if(allFaults.length===0){list.innerHTML=`<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">✅ ${currentLang==='ar'?'لا أعطال':'No faults'}</div>`;return;}
   renderFaults(allFaults);
   const diag=runDiagnosis(allFaults.map(f=>f.code));
   displaySmartDiagnosis(allFaults.map(f=>f.code));
@@ -1255,10 +1174,9 @@ async function runDemoScan(){
   const demoFaults=[
     {code:'P0301',system:sys,type:'confirmed'},
     {code:'P0171',system:sys,type:'confirmed'},
+    {code:'P0299',system:sys,type:'confirmed'},
     {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust',type:'pending'},
-    {code:'C0035',system:'ABS',type:'confirmed'},
-    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag',type:'permanent'},
-    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'pending'}
+    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'confirmed'}
   ];
   renderFaults(demoFaults);
   const diag=runDiagnosis(demoFaults.map(f=>f.code));
@@ -1266,7 +1184,7 @@ async function runDemoScan(){
   displayHealth(demoFaults,diag);
   updateSystemGrid(demoFaults);
   showExport();
-  log('✅ Demo scan complete (3 types)');
+  log('✅ Demo scan complete');
 }
 function renderFaults(faults){
   const list=document.getElementById('dtcList');
@@ -1301,17 +1219,16 @@ async function clearDTCs(){
   document.getElementById('dtcList').innerHTML=`<p class="text-green-400 text-center py-4">✅ ${currentLang==='ar'?'تم المسح':'Cleared'}</p>`;
   document.getElementById('smartDiagnosis').classList.add('hidden');
   document.getElementById('healthBadge').classList.add('hidden');
-  hideExport();
-  resetSystemGrid();
+  hideExport();resetSystemGrid();
 }
 
+// ============ 🌿 Readiness ============
 function parseMonitor(byte, bit) {
   const available = (byte & (1 << bit)) !== 0;
   if (!available) return 'n/a';
   const incomplete = (byte & (1 << (bit + 4))) !== 0;
   return incomplete ? 'not-ready' : 'ready';
 }
-
 function renderReadiness(data) {
   lastReadinessData = data;
   const c = document.getElementById('readinessContent');
@@ -1349,7 +1266,6 @@ function renderReadiness(data) {
     </div>
   `;
 }
-
 async function checkReadiness() {
   const c = document.getElementById('readinessContent');
   if (!c) return;
@@ -1390,37 +1306,22 @@ async function checkReadiness() {
   } catch (e) { log('❌ ' + e.message); }
 }
 
-/* ============ Mode 06 - On-Board Monitoring Tests ============ */
+// ============ 🔬 Mode 06 ============
 const MODE06_MIDS = {
-  0x01:'O2 Sensor Monitor Bank 1',
-  0x02:'O2 Sensor Monitor Bank 2',
-  0x21:'Catalyst Monitor Bank 1',
-  0x22:'Catalyst Monitor Bank 2',
-  0x31:'EGR Monitor',
-  0x35:'VVT Monitor',
-  0x41:'EVAP Monitor',
-  0x51:'Thermostat Monitor',
+  0x01:'O2 Sensor Monitor Bank 1', 0x02:'O2 Sensor Monitor Bank 2',
+  0x21:'Catalyst Monitor Bank 1', 0x22:'Catalyst Monitor Bank 2',
+  0x31:'EGR Monitor', 0x35:'VVT Monitor', 0x41:'EVAP Monitor', 0x51:'Thermostat Monitor',
   0x61:'Misfire Monitor - General',
-  0xA1:'Misfire Monitor - Cyl 1',
-  0xA2:'Misfire Monitor - Cyl 2',
-  0xA3:'Misfire Monitor - Cyl 3',
-  0xA4:'Misfire Monitor - Cyl 4',
-  0xA5:'Misfire Monitor - Cyl 5',
-  0xA6:'Misfire Monitor - Cyl 6',
-  0xA7:'Misfire Monitor - Cyl 7',
-  0xA8:'Misfire Monitor - Cyl 8',
-  0xB1:'Fuel System Monitor',
-  0xC1:'Purge Flow Monitor',
-  0xD0:'Fuel Injection Monitor'
+  0xA1:'Misfire Monitor - Cyl 1', 0xA2:'Misfire Monitor - Cyl 2', 0xA3:'Misfire Monitor - Cyl 3', 0xA4:'Misfire Monitor - Cyl 4',
+  0xA5:'Misfire Monitor - Cyl 5', 0xA6:'Misfire Monitor - Cyl 6', 0xA7:'Misfire Monitor - Cyl 7', 0xA8:'Misfire Monitor - Cyl 8',
+  0xB1:'Fuel System Monitor', 0xC1:'Purge Flow Monitor', 0xD0:'Fuel Injection Monitor'
 };
-
 const MODE06_TIDS = {
   0x01:'Test 1',0x02:'Test 2',0x03:'Test 3',0x04:'Test 4',0x05:'Test 5',
   0x06:'Test 6',0x07:'Test 7',0x08:'Test 8',0x09:'Test 9',0x0A:'Test 10',
   0x0B:'Test 11',0x0C:'Test 12',0x0D:'Test 13',0x0E:'Test 14',0x0F:'Test 15',
   0x10:'Test 16',0x11:'Test 17',0x12:'Test 18',0x13:'Test 19',0x14:'Test 20'
 };
-
 function parseMode06Response(response) {
   const bytes = parseHexBytes(response);
   const results = [];
@@ -1432,15 +1333,10 @@ function parseMode06Response(response) {
       if (mid === undefined || tid === undefined) break;
       const infoType = bytes[i + 3] || 0;
       const value = (bytes[i + 4] || 0);
-      let min = 0, max = 255;
-      let status = 'unknown';
-      if (bytes.length > i + 6) {
-        min = bytes[i + 5] || 0;
-        max = bytes[i + 6] || 255;
-      }
+      let min = 0, max = 255, status = 'unknown';
+      if (bytes.length > i + 6) { min = bytes[i + 5] || 0; max = bytes[i + 6] || 255; }
       if (value >= min && value <= max) status = 'pass';
       else if (value !== 0) status = 'fail';
-      
       results.push({
         mid, tid,
         midName: MODE06_MIDS[mid] || `Monitor 0x${mid.toString(16).toUpperCase()}`,
@@ -1448,13 +1344,10 @@ function parseMode06Response(response) {
         infoType, value, min, max, status
       });
       i += 8;
-    } else {
-      i++;
-    }
+    } else { i++; }
   }
   return results;
 }
-
 function renderMode06(results) {
   lastMode06Data = results;
   const c = document.getElementById('mode06Content');
@@ -1468,9 +1361,7 @@ function renderMode06(results) {
   c.innerHTML = `
     <div class="mb-3 p-3 bg-gray-900/60 rounded-xl border border-gray-700">
       <div class="flex justify-between items-center flex-wrap gap-2 text-sm">
-        <div class="font-bold text-cyan-300">
-          <i class="fa-solid fa-microscope"></i> ${t('mode06Results')}: ${results.length}
-        </div>
+        <div class="font-bold text-cyan-300"><i class="fa-solid fa-microscope"></i> ${t('mode06Results')}: ${results.length}</div>
         <div class="flex gap-3 text-xs">
           <span class="text-green-400">✅ ${passCount} ${t('mode06Pass')}</span>
           <span class="text-red-400">❌ ${failCount} ${t('mode06Fail')}</span>
@@ -1497,78 +1388,57 @@ function renderMode06(results) {
     }).join('')}
   `;
 }
-
 async function runMode06() {
   const c = document.getElementById('mode06Content');
   const btn = document.getElementById('btnMode06');
   if (!c || !btn) return;
   const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
   c.innerHTML = `<p class="text-cyan-400 text-center py-4"><span class="spinner"></span> ${t('mode06Scanning')}</p>`;
-  
   if (!isConnected && !isDemo) {
     c.innerHTML = `<p class="text-amber-400 text-center py-4">⚠️ ${currentLang === 'ar' ? 'اتصل بجهاز أولاً' : 'Connect device first'}</p>`;
-    btn.innerHTML = orig; btn.disabled = false;
-    return;
+    btn.innerHTML = orig; btn.disabled = false; return;
   }
-  
   if (isDemo) {
     const demoResults = [
       { mid: 0x01, tid: 0x01, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 1', infoType: 0, value: 45, min: 10, max: 90, status: 'pass' },
-      { mid: 0x01, tid: 0x02, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 2', infoType: 0, value: 85, min: 10, max: 90, status: 'pass' },
-      { mid: 0x21, tid: 0x01, midName: 'Catalyst Monitor Bank 1', tidName: 'Test 1', infoType: 0, value: 35, min: 0, max: 50, status: 'pass' },
       { mid: 0x21, tid: 0x02, midName: 'Catalyst Monitor Bank 1', tidName: 'Test 2', infoType: 0, value: 78, min: 0, max: 50, status: 'fail' },
-      { mid: 0x31, tid: 0x01, midName: 'EGR Monitor', tidName: 'Test 1', infoType: 0, value: 25, min: 10, max: 40, status: 'pass' },
-      { mid: 0xA1, tid: 0x01, midName: 'Misfire Monitor - Cyl 1', tidName: 'Test 1', infoType: 0, value: 5, min: 0, max: 10, status: 'pass' },
-      { mid: 0x41, tid: 0x01, midName: 'EVAP Monitor', tidName: 'Test 1', infoType: 0, value: 120, min: 50, max: 150, status: 'pass' },
-      { mid: 0x61, tid: 0x01, midName: 'Misfire Monitor - General', tidName: 'Test 1', infoType: 0, value: 3, min: 0, max: 5, status: 'pass' }
+      { mid: 0x31, tid: 0x01, midName: 'EGR Monitor', tidName: 'Test 1', infoType: 0, value: 25, min: 10, max: 40, status: 'pass' }
     ];
     renderMode06(demoResults);
-    log('✅ Mode 06 Demo complete: 8 tests');
-    btn.innerHTML = orig; btn.disabled = false;
-    return;
+    log('✅ Mode 06 Demo complete');
+    btn.innerHTML = orig; btn.disabled = false; return;
   }
-  
   try {
     const results = [];
     const commonMIDs = [0x01, 0x02, 0x21, 0x22, 0x31, 0x41, 0x51, 0x61, 0xA1, 0xA2, 0xA3, 0xA4];
-    
     for (const mid of commonMIDs) {
       const midHex = mid.toString(16).padStart(2, '0').toUpperCase();
       const resp = await window.sendCmd(`06 ${midHex} 01`, 1500);
-      
       if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
         const parsed = parseMode06Response(resp);
-        if (parsed.length > 0) {
-          results.push(...parsed);
-          log(`✅ MID 0x${midHex}: ${parsed.length} tests`);
-        }
+        if (parsed.length > 0) { results.push(...parsed); log(`✅ MID 0x${midHex}: ${parsed.length}`); }
       }
     }
-    
     if (results.length === 0) {
       c.innerHTML = `<p class="text-amber-400 text-center py-4">⚠️ ${t('mode06NoData')}</p>`;
-      log('⚠️ No Mode 06 data');
     } else {
       renderMode06(results);
       log(`✅ Mode 06 complete: ${results.length} tests`);
     }
   } catch (e) {
-    log('❌ Mode 06 failed: ' + e.message);
+    log('❌ Mode 06: ' + e.message);
     c.innerHTML = `<p class="text-red-400 text-center py-4">❌ ${e.message}</p>`;
-  } finally {
-    btn.innerHTML = orig;
-    btn.disabled = false;
-  }
+  } finally { btn.innerHTML = orig; btn.disabled = false; }
 }
 
+// ============ ❄️ Freeze Frame ============
 const FREEZE_PIDS={'05':{name:'Coolant',bytes:1,calc:a=>`${a-40}°C`},'0C':{name:'RPM',bytes:2,calc:(a,b)=>`${((a*256+b)/4).toFixed(0)}`},'0D':{name:'Speed',bytes:1,calc:a=>`${a}km/h`},'0E':{name:'Timing',bytes:1,calc:a=>`${(a/2-64).toFixed(1)}°`},'04':{name:'Load',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`},'11':{name:'Throttle',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`}};
 async function readFreezeFrame(code){
   const modal=document.getElementById('freezeModal');
   modal.classList.remove('hidden');
   document.getElementById('freezeCode').textContent=code;
-  document.getElementById('freezeContent').innerHTML=`<p>${isDemo?'وضع تجريبي - يتطلب سيارة حقيقية':'⏳...'}</p>`;
+  document.getElementById('freezeContent').innerHTML=`<p>${isDemo?'وضع تجريبي':'⏳...'}</p>`;
   if(!isConnected||isDemo)return;
   const results={};
   for(const[pid,def]of Object.entries(FREEZE_PIDS)){
@@ -1594,6 +1464,7 @@ async function readFreezeFrame(code){
   </div>`;
 }
 
+// ============ ☁️ Firebase ============
 async function saveCloud(faults,vin){
   try{
     await addDoc(collection(db,'scans'),{
@@ -1699,6 +1570,7 @@ async function loadStats(){
   }catch(e){c.innerHTML='<p class="text-red-400 text-center py-4">Error</p>';}
 }
 
+// ============ 🔑 VIN Display ============
 function displayVINInfo(vin){
   const c=document.getElementById('vinInfo');
   const d=decodeVIN(vin);
@@ -1718,6 +1590,7 @@ function displayVINInfo(vin){
   </div>`;
 }
 
+// ============ 🔋 Battery Test ============
 function classifyBattery(v, min, max) {
   if (v >= min && v <= max) return 'good';
   if (v >= min - 0.5 && v <= max + 0.5) return 'warn';
@@ -1753,8 +1626,7 @@ async function runBatteryTest() {
   const verdict = document.getElementById('batteryVerdict');
   const btn = document.getElementById('btnBatteryTest');
   const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
   verdict.classList.add('hidden');
   ['1','2','3'].forEach(i => {
     const box = document.getElementById(`bat-box-${i}`);
@@ -1762,297 +1634,18 @@ async function runBatteryTest() {
     const v = document.getElementById(`bat-val-${i}`);
     if (v) v.textContent = '--';
   });
-  if (!isConnected && !isDemo) {
-    alert(t('batNeedConnect'));
-    btn.innerHTML = orig; btn.disabled = false;
-    return;
-  }
+  if (!isConnected && !isDemo) { alert(t('batNeedConnect')); btn.innerHTML = orig; btn.disabled = false; return; }
   log('🔋 Battery test started');
   try {
     log('📊 ' + t('batStep1Msg'));
     const v1 = isDemo ? (12.5 + Math.random() * 0.3) : (await readBatteryVoltage()) || 12.6;
     renderBatteryStage(1, v1, 12.4, 12.8);
-    log('⏳ ' + t('batStep2Msg'));
     await new Promise(r => setTimeout(r, 5000));
     log('📊 ' + t('batStep2Msg'));
     const v2 = isDemo ? (14.0 + Math.random() * 0.5) : (await readBatteryVoltage()) || 14.2;
     renderBatteryStage(2, v2, 13.8, 14.8);
-    log('⏳ ' + t('batStep3Msg'));
     await new Promise(r => setTimeout(r, 5000));
     log('📊 ' + t('batStep3Msg'));
     const v3 = isDemo ? (13.6 + Math.random() * 0.4) : (await readBatteryVoltage()) || 13.7;
     renderBatteryStage(3, v3, 13.5, 14.8);
-    let verdictClass, verdictText;
-    const allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
-    const anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
-    if (allGood) { verdictClass = 'verdict-pass'; verdictText = t('batVerdictPass'); }
-    else if (anyBad) { verdictClass = 'verdict-fail'; verdictText = t('batVerdictFail'); }
-    else { verdictClass = 'verdict-warn'; verdictText = t('batVerdictWarn'); }
-    verdict.className = 'battery-verdict ' + verdictClass;
-    verdict.textContent = verdictText;
-    verdict.classList.remove('hidden');
-    log('✅ ' + t('batTestComplete') + ' — ' + verdictText);
-  } catch (e) {
-    log('❌ Battery test failed: ' + e.message);
-  } finally {
-    btn.innerHTML = orig;
-    btn.disabled = false;
-  }
-}
-
-let demoTimer=null;
-function startDemo(){
-  isDemo=true;isConnected=true;
-  transport = null; // الوضع التجريبي لا يستخدم أي نقل
-  setStatus('demo');
-  updateConnectionUI(true);
-  log('🧪 Demo mode ON');
-  document.getElementById('vin-display').textContent='VIN: 1HGCG5655WA123456';
-  document.getElementById('vinResult').textContent='1HGCG5655WA123456';
-  const sys=currentLang==='ar'?'المحرك':'Engine';
-  const demoFaults=[
-    {code:'P0301',system:sys,type:'confirmed'},
-    {code:'P0171',system:sys,type:'confirmed'},
-    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust',type:'pending'},
-    {code:'C0035',system:'ABS',type:'confirmed'},
-    {code:'B0001',system:currentLang==='ar'?'الوسائد':'Airbag',type:'permanent'},
-    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'pending'}
-  ];
-  renderFaults(demoFaults);
-  const diag=runDiagnosis(demoFaults.map(f=>f.code));
-  displaySmartDiagnosis(demoFaults.map(f=>f.code));
-  displayHealth(demoFaults,diag);
-  updateSystemGrid(demoFaults);
-  showExport();
-  saveCloud(demoFaults,'1HGCG5655WA123456');
-  saveHistory(demoFaults,'1HGCG5655WA123456',diag);
-  setTimeout(()=>{if(!chartInstance)initChart();},300);
-  if(demoTimer)clearInterval(demoTimer);
-  demoTimer=setInterval(()=>{
-    const rpm=Math.floor(900+Math.random()*2500);
-    const speed=Math.floor(Math.random()*110);
-    const coolant=82+Math.floor(Math.random()*18);
-    const fuel=40+Math.floor(Math.random()*50);
-    updateDashboard(rpm,speed,coolant,fuel);
-  },1500);
-  setTimeout(()=>updateDashboard(2500,60,90,75),100);
-}
-function stopDemo(){
-  if(demoTimer)clearInterval(demoTimer);
-  demoTimer=null;isDemo=false;
-  // لا نغلق isConnected هنا لأن handleDisconnect سيتولى ذلك
-}
-
-let searchTimer=null;
-document.getElementById('dtcSearchInput').addEventListener('input',(e)=>{
-  clearTimeout(searchTimer);
-  searchTimer=setTimeout(()=>searchDTC(e.target.value),200);
-});
-async function searchDTC(query){
-  const div=document.getElementById('searchResults');
-  const q=query.trim().toUpperCase();
-  if(q.length<2){div.innerHTML='';return;}
-  const fl=q[0];
-  if(['P','C','B','U'].includes(fl)&&!loadedCats.has(fl)){div.innerHTML=`<p class="text-xs text-blue-400 text-center py-2"><span class="spinner"></span> Loading ${fl}...</p>`;await loadCat(fl);}
-  if((q.startsWith('P1')||q.startsWith('P2')||q.startsWith('P3'))&&!loadedCats.has('CN')){await loadCat('CN');}
-  const matches=[];
-  for(const[code,info]of Object.entries(DTC_DATABASE)){
-    if(matches.length>=20)break;
-    if(code.includes(q)||(info.title&&info.title.includes(query)))matches.push([code,info]);
-  }
-  if(matches.length===0){div.innerHTML=`<p class="text-xs text-gray-500 text-center py-2">No results</p>`;return;}
-  div.innerHTML=`<div class="space-y-1 mb-3">${matches.map(([c,i])=>`<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700" data-code="${c}"><span class="font-mono text-red-300 font-bold">${c}</span> — ${i.title}</div>`).join('')}</div>`;
-  div.querySelectorAll('[data-code]').forEach(el=>el.onclick=()=>{document.getElementById('dtcSearchInput').value='';div.innerHTML='';});
-}
-
-function buildReport(){
-  const isAr=currentLang==='ar';
-  const date=new Date().toLocaleString(isAr?'ar-EG':'en-US');
-  const vin=document.getElementById('vinResult')?.textContent||'-';
-  const d=vin.length===17?decodeVIN(vin):null;
-  const items=document.querySelectorAll('#dtcList [data-code]');
-  const faults=[];items.forEach(el=>{if(el.dataset.code)faults.push({code:el.dataset.code,info:getFaultInfo(el.dataset.code)});});
-  const diag=runDiagnosis(faults.map(f=>f.code));
-  const hs=calcHealth(faults,diag);
-  const hc=hs>=80?'#10b981':hs>=50?'#f59e0b':'#ef4444';
-  return `<div style="padding:30px;font-family:Cairo;background:#fff;color:#1e293b;width:700px;direction:${isAr?'rtl':'ltr'};">
-    <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px;border-radius:14px;margin-bottom:20px;">
-      <div style="font-size:24px;font-weight:700;">🔧 CheckDiga</div>
-      <div style="font-size:12px;opacity:0.8;margin-top:4px;">${date}</div>
-    </div>
-    <div style="background:${hc};color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:16px;font-weight:700;">${t('healthLabel')}</div>
-      <div style="font-size:36px;font-weight:700;">${hs}/100</div>
-    </div>
-    <div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;margin-bottom:10px;">🚗 ${isAr?'معلومات السيارة':'Vehicle Info'}</div>
-      <div>VIN: <strong style="font-family:monospace;">${vin}</strong></div>
-      ${d?`<div>${d.manufacturer} • ${d.year} • ${d.country}</div>`:''}
-    </div>
-    <div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;color:#991b1b;margin-bottom:10px;">🔧 ${isAr?'الأعطال':'Faults'} (${faults.length})</div>
-      ${faults.map((f,i)=>`<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px;"><strong style="color:#b91c1c;font-family:monospace;">#${i+1}. ${f.code}</strong> — ${f.info.title}</div>`).join('')}
-    </div>
-    ${diag.length?`<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;color:#5b21b6;margin-bottom:10px;">🧠 ${isAr?'التشخيص':'Diagnosis'}</div>
-      ${diag.map(dd=>`<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px;"><strong>${dd.title} (${dd.confidence}%)</strong><div style="color:#475569;margin-top:4px;">${dd.description}</div></div>`).join('')}
-    </div>`:''}
-    <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">Generated by CheckDiga</div>
-  </div>`;
-}
-async function exportPDF(){
-  const btn=document.getElementById('btnExportPDF');
-  const orig=btn.innerHTML;
-  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  try{
-    const c=document.createElement('div');
-    c.innerHTML=buildReport();
-    c.style.position='fixed';c.style.left='-9999px';
-    document.body.appendChild(c);
-    await html2pdf().set({margin:0,filename:`CheckDiga-${new Date().toISOString().slice(0,10)}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'}}).from(c.firstElementChild).save();
-    document.body.removeChild(c);
-    log('📄 PDF created');
-  }catch(e){log('⚠️ PDF failed');}
-  finally{btn.innerHTML=orig;btn.disabled=false;}
-}
-
-function buildWhatsAppMessage(){
-  const isAr = currentLang === 'ar';
-  const vinText = document.getElementById('vinResult')?.textContent || '-';
-  const vinDecoded = vinText.length === 17 ? decodeVIN(vinText) : null;
-  const faultItems = document.querySelectorAll('#dtcList [data-code]');
-  const faults = [];
-  faultItems.forEach(el => {
-    if (el.dataset.code) {
-      const info = getFaultInfo(el.dataset.code);
-      const typeEl = el.querySelector('.dtc-type-badge');
-      const typeText = typeEl ? typeEl.textContent.trim() : '';
-      faults.push({ code: el.dataset.code, title: info.title, type: typeText });
-    }
-  });
-  const diag = runDiagnosis(faults.map(f => f.code));
-  const health = calcHealth(faults, diag);
-  let msg = `*${t('waTitle')}*\n`;
-  msg += `━━━━━━━━━━━━━━━━━\n\n`;
-  msg += `*${t('waVehicle')}:*\n`;
-  msg += `🔑 VIN: ${vinText}\n`;
-  if (vinDecoded) {
-    msg += `🏭 ${vinDecoded.manufacturer} • ${vinDecoded.year}\n`;
-    msg += `🌍 ${vinDecoded.country}\n`;
-  }
-  msg += `\n`;
-  const healthEmoji = health >= 80 ? '✅' : health >= 50 ? '⚠️' : '🚨';
-  msg += `*${t('waHealth')}:* ${healthEmoji} ${health}/100\n\n`;
-  if (faults.length > 0) {
-    msg += `*${t('waFaults')} (${faults.length}):*\n`;
-    faults.forEach((f, i) => {
-      msg += `${i+1}. *${f.code}* — ${f.title} ${f.type ? '[' + f.type + ']' : ''}\n`;
-    });
-    msg += `\n`;
-  } else {
-    msg += `✅ ${isAr ? 'لا توجد أعطال' : 'No faults'}\n\n`;
-  }
-  if (diag.length > 0) {
-    msg += `*${t('waDiagnosis')}:*\n`;
-    diag.forEach(d => {
-      const icon = d.severity === 'critical' ? '🚨' : d.severity === 'high' ? '🔴' : d.severity === 'medium' ? '🟡' : '🟢';
-      msg += `${icon} *${d.title}* (${d.confidence}%)\n`;
-      msg += `   ${d.description}\n`;
-      if (d.actions && d.actions.length > 0) {
-        msg += `   🔧 ${t('waActions')}:\n`;
-        d.actions.forEach(a => { msg += `   • ${a}\n`; });
-      }
-      msg += `\n`;
-    });
-  }
-  msg += `━━━━━━━━━━━━━━━━━\n`;
-  msg += `🔧 *${t('waGeneratedBy')}*\n`;
-  msg += `🌐 https://ishakdiga55-ops.github.io/Diga-scaner/`;
-  return msg;
-}
-
-function shareWhatsApp(){
-  const btn = document.getElementById('btnShareWhatsApp');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-  try {
-    const message = buildWhatsAppMessage();
-    const encoded = encodeURIComponent(message);
-    const url = `https://wa.me/?text=${encoded}`;
-    window.open(url, '_blank');
-    log('📱 WhatsApp opened');
-  } catch (e) {
-    log('⚠️ WhatsApp failed: ' + e.message);
-  } finally {
-    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1000);
-  }
-}
-
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
-    tab.classList.remove('bg-gray-800','text-gray-400');tab.classList.add('bg-blue-600','text-white');
-    document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
-    document.getElementById('panel-'+tab.dataset.tab).classList.remove('hidden');
-    if(tab.dataset.tab==='history')displayHistory();
-    if(tab.dataset.tab==='live')setTimeout(()=>{if(!chartInstance)initChart();else chartInstance.resize();},200);
-  };
-});
-
-document.getElementById('btnLang').onclick=toggleLanguage;
-document.getElementById('connect-btn').onclick=connectOBD;
-document.getElementById('usb-btn').onclick=connectUSB;   // ← جديد
-document.getElementById('demo-btn').onclick=startDemo;
-document.getElementById('disconnect-btn').onclick=async()=>{stopDemo();await disconnectOBD();};
-document.getElementById('clear-btn').onclick=clearDTCs;
-document.getElementById('btnReadDTC').onclick=readDTCs;
-document.getElementById('btnScanAll').onclick=scanAllSystems;
-document.getElementById('btnStartLive').onclick=()=>{if(!chartInstance)initChart();};
-document.getElementById('btnStopLive').onclick=()=>{};
-document.getElementById('btnExportCSV').onclick=()=>log('CSV');
-document.getElementById('btnExportPDF').onclick=exportPDF;
-document.getElementById('btnShareWhatsApp').onclick=shareWhatsApp;
-document.getElementById('btnLoadStats').onclick=loadStats;
-document.getElementById('btnReadiness').onclick=checkReadiness;
-document.getElementById('btnBatteryTest').onclick=runBatteryTest;
-document.getElementById('btnMode06').onclick=runMode06;
-document.getElementById('btnReadVIN').onclick=async()=>{
-  if(!isConnected){alert(currentLang==='ar'?'اتصل':'Connect');return;}
-  if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
-  const r=await window.sendCmd('09 02',4000);
-  parseVINResponse(r);
-  const v=document.getElementById('vinResult').textContent;
-  if(v.length===17)displayVINInfo(v);
-};
-document.getElementById('btnDecodeVIN').onclick=()=>{
-  const v=document.getElementById('vinInput').value.trim().toUpperCase();
-  if(v.length!==17){alert('VIN must be 17 chars');return;}
-  document.getElementById('vinResult').textContent=v;
-  displayVINInfo(v);
-};
-document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
-
-// ======================================================================
-//  الاستماع لأحداث قطع اتصال USB من النظام (مثلاً عند نزع الكابل)
-// ======================================================================
-if('serial' in navigator){
-  navigator.serial.addEventListener('disconnect', (e) => {
-    if(usbPort && e.target === usbPort){
-      log('🔌 ' + t('usbDisconnected'));
-      handleDisconnect();
-    }
-  });
-}
-
-applyLanguage();
-loadDatabase();
-setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
-
-if('serviceWorker'in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-}
-</script>
-
-</body>
-</html>
+    let
