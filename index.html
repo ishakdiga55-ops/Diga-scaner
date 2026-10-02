@@ -89,6 +89,23 @@
   .verdict-pass { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
   .verdict-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
   .verdict-fail { background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; }
+
+  /* Mode 06 */
+  .mode06-item { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 12px; padding: 12px; margin-bottom: 8px; transition: all 0.3s; }
+  .mode06-item.pass { border-color: #10b981; background: linear-gradient(145deg, rgba(16,185,129,0.1), rgba(5,150,105,0.03)); }
+  .mode06-item.fail { border-color: #ef4444; background: linear-gradient(145deg, rgba(239,68,68,0.15), rgba(185,28,28,0.03)); animation: sysAlert 1.5s infinite; }
+  .mode06-item.unknown { border-color: #64748b; }
+  .mode06-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .mode06-title { font-weight: 700; font-size: 13px; color: #e2e8f0; }
+  .mode06-result-badge { padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+  .mode06-pass { background: #10b981; color: #fff; }
+  .mode06-fail { background: #ef4444; color: #fff; }
+  .mode06-unknown { background: #64748b; color: #fff; }
+  .mode06-ids { font-size: 10px; color: #94a3b8; font-family: monospace; margin-bottom: 6px; }
+  .mode06-values { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px; }
+  .mode06-values > div { background: rgba(15,23,42,0.6); padding: 6px; border-radius: 6px; text-align: center; }
+  .mode06-values .v-label { color: #64748b; font-size: 9px; display: block; margin-bottom: 2px; }
+  .mode06-values .v-num { color: #e2e8f0; font-weight: 700; font-family: monospace; }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
@@ -124,7 +141,7 @@
   <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
     <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> <span data-t="tabFaults">الأعطال</span></button>
     <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="live"><i class="fa-solid fa-chart-line"></i> <span data-t="tabLive">بيانات حية</span></button>
-    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="vin"><i class="fa-solid fa-barcode"></i> <span data-t="tabVin">VIN</span></button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="vin"><i class="fa-solid fa-barcode"></i> <span data-tab="tabVin">VIN</span></button>
     <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="history"><i class="fa-solid fa-folder"></i> <span data-t="tabHistory">السجل</span></button>
     <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> <span data-t="tabStats">إحصائيات</span></button>
   </div>
@@ -257,6 +274,24 @@
           </div>
         </div>
         <div id="batteryVerdict" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-microscope text-cyan-400"></i>
+          <span data-t="mode06Title">اختبارات المراقبة الذاتية</span>
+          <span class="text-xs bg-cyan-600 text-white px-2 py-0.5 rounded-full">Mode 06</span>
+        </h3>
+        <button id="btnMode06" class="bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <i class="fa-solid fa-flask-vial"></i>
+          <span data-t="startMode06">بدء الفحص</span>
+        </button>
+      </div>
+      <p class="text-xs text-gray-400" data-t="mode06Desc">يكشف نتائج الاختبارات الذاتية للسيارة (O2، Catalyst، EGR...)</p>
+      <div id="mode06Content">
+        <p class="text-gray-500 text-center py-4" data-t="mode06Idle">اضغط "بدء الفحص" لعرض نتائج الاختبارات الذاتية</p>
       </div>
     </div>
 
@@ -403,7 +438,15 @@ const TR = {
     batVerdictPass:'✅ نظام الشحن ممتاز — البطارية والدينامو بحالة جيدة',
     batVerdictWarn:'⚠️ نظام الشحن يحتاج فحص — قد تحتاج البطارية أو الدينامو صيانة',
     batVerdictFail:'🚨 نظام الشحن تالف — استبدل البطارية أو الدينامو فوراً',
-    batNeedConnect:'اتصل بالسيارة أولاً أو استخدم الوضع التجريبي' },
+    batNeedConnect:'اتصل بالسيارة أولاً أو استخدم الوضع التجريبي',
+    mode06Title:'اختبارات المراقبة الذاتية', startMode06:'بدء الفحص',
+    mode06Desc:'يكشف نتائج الاختبارات الذاتية للسيارة (O2، Catalyst، EGR...)',
+    mode06Idle:'اضغط "بدء الفحص" لعرض نتائج الاختبارات الذاتية',
+    mode06Pass:'ناجح', mode06Fail:'فاشل', mode06Unknown:'غير معروف',
+    mode06Value:'القيمة', mode06Min:'الحد الأدنى', mode06Max:'الحد الأعلى',
+    mode06NoData:'لا توجد بيانات Mode 06 متاحة لهذه السيارة',
+    mode06Scanning:'جاري قراءة اختبارات المراقبة...',
+    mode06Results:'نتائج الاختبارات الذاتية' },
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
     connect:'Connect', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
@@ -448,13 +491,21 @@ const TR = {
     batVerdictPass:'✅ Charging system is excellent — battery & alternator OK',
     batVerdictWarn:'⚠️ Charging system needs check — battery or alternator may need service',
     batVerdictFail:'🚨 Charging system FAILED — replace battery or alternator now',
-    batNeedConnect:'Connect to vehicle or use Demo mode' }
+    batNeedConnect:'Connect to vehicle or use Demo mode',
+    mode06Title:'On-Board Monitoring Tests', startMode06:'Start Scan',
+    mode06Desc:'Reveals vehicle self-test results (O2, Catalyst, EGR...)',
+    mode06Idle:'Press "Start Scan" to view self-test results',
+    mode06Pass:'PASS', mode06Fail:'FAIL', mode06Unknown:'UNKNOWN',
+    mode06Value:'Value', mode06Min:'Min Limit', mode06Max:'Max Limit',
+    mode06NoData:'Mode 06 data not available for this vehicle',
+    mode06Scanning:'Reading monitoring test results...',
+    mode06Results:'Self-Test Results' }
 };
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
 
-// ✅ NEW: متغير لحفظ بيانات الفحص الجاهزية
 let lastReadinessData = null;
+let lastMode06Data = null;
 
 function toggleLanguage(){
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
@@ -470,10 +521,8 @@ function applyLanguage(){
   document.getElementById('subtitleText').textContent = t('subtitle');
   document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
   
-  // ✅ NEW: إعادة عرض فحص الجاهزية عند تغيير اللغة
-  if (lastReadinessData) {
-    renderReadiness(lastReadinessData);
-  }
+  if (lastReadinessData) renderReadiness(lastReadinessData);
+  if (lastMode06Data) renderMode06(lastMode06Data);
 }
 window.toggleLanguage = toggleLanguage;
 
@@ -1009,7 +1058,6 @@ function parseMonitor(byte, bit) {
 }
 
 function renderReadiness(data) {
-  // ✅ NEW: حفظ البيانات لإعادة العرض عند تغيير اللغة
   lastReadinessData = data;
   const c = document.getElementById('readinessContent');
   if (!c) return;
@@ -1085,6 +1133,205 @@ async function checkReadiness() {
     });
     log('✅ Readiness check complete');
   } catch (e) { log('❌ ' + e.message); }
+}
+
+/* ============ Mode 06 - On-Board Monitoring Tests ============ */
+const MODE06_MIDS = {
+  0x01:'O2 Sensor Monitor Bank 1',
+  0x02:'O2 Sensor Monitor Bank 2',
+  0x21:'Catalyst Monitor Bank 1',
+  0x22:'Catalyst Monitor Bank 2',
+  0x31:'EGR Monitor',
+  0x35:'VVT Monitor',
+  0x41:'EVAP Monitor',
+  0x51:'Thermostat Monitor',
+  0x61:'Misfire Monitor - General',
+  0xA1:'Misfire Monitor - Cyl 1',
+  0xA2:'Misfire Monitor - Cyl 2',
+  0xA3:'Misfire Monitor - Cyl 3',
+  0xA4:'Misfire Monitor - Cyl 4',
+  0xA5:'Misfire Monitor - Cyl 5',
+  0xA6:'Misfire Monitor - Cyl 6',
+  0xA7:'Misfire Monitor - Cyl 7',
+  0xA8:'Misfire Monitor - Cyl 8',
+  0xB1:'Fuel System Monitor',
+  0xC1:'Purge Flow Monitor',
+  0xD0:'Fuel Injection Monitor'
+};
+
+const MODE06_TIDS = {
+  0x01:'Test 1',
+  0x02:'Test 2',
+  0x03:'Test 3',
+  0x04:'Test 4',
+  0x05:'Test 5',
+  0x06:'Test 6',
+  0x07:'Test 7',
+  0x08:'Test 8',
+  0x09:'Test 9',
+  0x0A:'Test 10',
+  0x0B:'Test 11',
+  0x0C:'Test 12',
+  0x0D:'Test 13',
+  0x0E:'Test 14',
+  0x0F:'Test 15',
+  0x10:'Test 16',
+  0x11:'Test 17',
+  0x12:'Test 18',
+  0x13:'Test 19',
+  0x14:'Test 20'
+};
+
+function parseMode06Response(response) {
+  const bytes = parseHexBytes(response);
+  const results = [];
+  let i = 0;
+  while (i < bytes.length - 4) {
+    if (bytes[i] === 0x46) {
+      const mid = bytes[i + 1];
+      const tid = bytes[i + 2];
+      if (mid === undefined || tid === undefined) break;
+      const infoType = bytes[i + 3] || 0;
+      const value = (bytes[i + 4] || 0);
+      let min = 0, max = 255;
+      let status = 'unknown';
+      if (bytes.length > i + 6) {
+        min = bytes[i + 5] || 0;
+        max = bytes[i + 6] || 255;
+      }
+      // Determine status based on value vs limits
+      if (value >= min && value <= max) status = 'pass';
+      else if (value !== 0) status = 'fail';
+      
+      results.push({
+        mid: mid,
+        tid: tid,
+        midName: MODE06_MIDS[mid] || `Monitor 0x${mid.toString(16).toUpperCase()}`,
+        tidName: MODE06_TIDS[tid] || `TID 0x${tid.toString(16).toUpperCase()}`,
+        infoType: infoType,
+        value: value,
+        min: min,
+        max: max,
+        status: status
+      });
+      i += 8;
+    } else {
+      i++;
+    }
+  }
+  return results;
+}
+
+function renderMode06(results) {
+  lastMode06Data = results;
+  const c = document.getElementById('mode06Content');
+  if (!c) return;
+  if (!results || results.length === 0) {
+    c.innerHTML = `<p class="text-gray-500 text-center py-4">${t('mode06NoData')}</p>`;
+    return;
+  }
+  const passCount = results.filter(r => r.status === 'pass').length;
+  const failCount = results.filter(r => r.status === 'fail').length;
+  c.innerHTML = `
+    <div class="mb-3 p-3 bg-gray-900/60 rounded-xl border border-gray-700">
+      <div class="flex justify-between items-center flex-wrap gap-2 text-sm">
+        <div class="font-bold text-cyan-300">
+          <i class="fa-solid fa-microscope"></i> ${t('mode06Results')}: ${results.length}
+        </div>
+        <div class="flex gap-3 text-xs">
+          <span class="text-green-400">✅ ${passCount} ${t('mode06Pass')}</span>
+          <span class="text-red-400">❌ ${failCount} ${t('mode06Fail')}</span>
+        </div>
+      </div>
+    </div>
+    ${results.map(r => {
+      const cls = r.status === 'pass' ? 'pass' : r.status === 'fail' ? 'fail' : 'unknown';
+      const badgeCls = r.status === 'pass' ? 'mode06-pass' : r.status === 'fail' ? 'mode06-fail' : 'mode06-unknown';
+      const icon = r.status === 'pass' ? '✅' : r.status === 'fail' ? '❌' : '❓';
+      const label = r.status === 'pass' ? t('mode06Pass') : r.status === 'fail' ? t('mode06Fail') : t('mode06Unknown');
+      return `<div class="mode06-item ${cls}">
+        <div class="mode06-header">
+          <div class="mode06-title">
+            <i class="fa-solid fa-flask-vial text-cyan-400"></i> ${r.midName}
+          </div>
+          <span class="mode06-result-badge ${badgeCls}">${icon} ${label}</span>
+        </div>
+        <div class="mode06-ids">MID: 0x${r.mid.toString(16).padStart(2,'0').toUpperCase()} | TID: 0x${r.tid.toString(16).padStart(2,'0').toUpperCase()} | ${r.tidName}</div>
+        <div class="mode06-values">
+          <div><span class="v-label">${t('mode06Value')}</span><span class="v-num">${r.value}</span></div>
+          <div><span class="v-label">${t('mode06Min')}</span><span class="v-num">${r.min}</span></div>
+          <div><span class="v-label">${t('mode06Max')}</span><span class="v-num">${r.max}</span></div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+async function runMode06() {
+  const c = document.getElementById('mode06Content');
+  const btn = document.getElementById('btnMode06');
+  if (!c || !btn) return;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  c.innerHTML = `<p class="text-cyan-400 text-center py-4"><span class="spinner"></span> ${t('mode06Scanning')}</p>`;
+  
+  if (!isConnected && !isDemo) {
+    c.innerHTML = `<p class="text-amber-400 text-center py-4">⚠️ ${currentLang === 'ar' ? 'اتصل بجهاز أولاً' : 'Connect device first'}</p>`;
+    btn.innerHTML = orig; btn.disabled = false;
+    return;
+  }
+  
+  if (isDemo) {
+    // Demo data
+    const demoResults = [
+      { mid: 0x01, tid: 0x01, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 1', infoType: 0, value: 45, min: 10, max: 90, status: 'pass' },
+      { mid: 0x01, tid: 0x02, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 2', infoType: 0, value: 85, min: 10, max: 90, status: 'pass' },
+      { mid: 0x21, tid: 0x01, midName: 'Catalyst Monitor Bank 1', tidName: 'Test 1', infoType: 0, value: 35, min: 0, max: 50, status: 'pass' },
+      { mid: 0x21, tid: 0x02, midName: 'Catalyst Monitor Bank 1', tidName: 'Test 2', infoType: 0, value: 78, min: 0, max: 50, status: 'fail' },
+      { mid: 0x31, tid: 0x01, midName: 'EGR Monitor', tidName: 'Test 1', infoType: 0, value: 25, min: 10, max: 40, status: 'pass' },
+      { mid: 0xA1, tid: 0x01, midName: 'Misfire Monitor - Cyl 1', tidName: 'Test 1', infoType: 0, value: 5, min: 0, max: 10, status: 'pass' },
+      { mid: 0x41, tid: 0x01, midName: 'EVAP Monitor', tidName: 'Test 1', infoType: 0, value: 120, min: 50, max: 150, status: 'pass' },
+      { mid: 0x61, tid: 0x01, midName: 'Misfire Monitor - General', tidName: 'Test 1', infoType: 0, value: 3, min: 0, max: 5, status: 'pass' }
+    ];
+    renderMode06(demoResults);
+    log('✅ Mode 06 Demo complete: 8 tests');
+    btn.innerHTML = orig; btn.disabled = false;
+    return;
+  }
+  
+  try {
+    // Read Mode 06 with all MIDs (01 = request supported MIDs)
+    const results = [];
+    const commonMIDs = [0x01, 0x02, 0x21, 0x22, 0x31, 0x41, 0x51, 0x61, 0xA1, 0xA2, 0xA3, 0xA4];
+    
+    for (const mid of commonMIDs) {
+      const midHex = mid.toString(16).padStart(2, '0').toUpperCase();
+      const resp = await window.sendCmd(`06 ${midHex} 01`, 1500);
+      
+      if (resp && !resp.includes('NO DATA') && !resp.includes('ERROR') && !resp.includes('UNABLE')) {
+        const parsed = parseMode06Response(resp);
+        if (parsed.length > 0) {
+          results.push(...parsed);
+          log(`✅ MID 0x${midHex}: ${parsed.length} tests`);
+        }
+      }
+    }
+    
+    if (results.length === 0) {
+      c.innerHTML = `<p class="text-amber-400 text-center py-4">⚠️ ${t('mode06NoData')}</p>`;
+      log('⚠️ No Mode 06 data');
+    } else {
+      renderMode06(results);
+      log(`✅ Mode 06 complete: ${results.length} tests`);
+    }
+  } catch (e) {
+    log('❌ Mode 06 failed: ' + e.message);
+    c.innerHTML = `<p class="text-red-400 text-center py-4">❌ ${e.message}</p>`;
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
 }
 
 const FREEZE_PIDS={'05':{name:'Coolant',bytes:1,calc:a=>`${a-40}°C`},'0C':{name:'RPM',bytes:2,calc:(a,b)=>`${((a*256+b)/4).toFixed(0)}`},'0D':{name:'Speed',bytes:1,calc:a=>`${a}km/h`},'0E':{name:'Timing',bytes:1,calc:a=>`${(a/2-64).toFixed(1)}°`},'04':{name:'Load',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`},'11':{name:'Throttle',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`}};
@@ -1418,152 +1665,4 @@ function buildReport(){
       <div style="font-weight:700;color:#991b1b;margin-bottom:10px;">🔧 ${isAr?'الأعطال':'Faults'} (${faults.length})</div>
       ${faults.map((f,i)=>`<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px;"><strong style="color:#b91c1c;font-family:monospace;">#${i+1}. ${f.code}</strong> — ${f.info.title}</div>`).join('')}
     </div>
-    ${diag.length?`<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px;">
-      <div style="font-weight:700;color:#5b21b6;margin-bottom:10px;">🧠 ${isAr?'التشخيص':'Diagnosis'}</div>
-      ${diag.map(dd=>`<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px;"><strong>${dd.title} (${dd.confidence}%)</strong><div style="color:#475569;margin-top:4px;">${dd.description}</div></div>`).join('')}
-    </div>`:''}
-    <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">Generated by CheckDiga</div>
-  </div>`;
-}
-async function exportPDF(){
-  const btn=document.getElementById('btnExportPDF');
-  const orig=btn.innerHTML;
-  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  try{
-    const c=document.createElement('div');
-    c.innerHTML=buildReport();
-    c.style.position='fixed';c.style.left='-9999px';
-    document.body.appendChild(c);
-    await html2pdf().set({margin:0,filename:`CheckDiga-${new Date().toISOString().slice(0,10)}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'}}).from(c.firstElementChild).save();
-    document.body.removeChild(c);
-    log('📄 PDF created');
-  }catch(e){log('⚠️ PDF failed');}
-  finally{btn.innerHTML=orig;btn.disabled=false;}
-}
-
-function buildWhatsAppMessage(){
-  const isAr = currentLang === 'ar';
-  const vinText = document.getElementById('vinResult')?.textContent || '-';
-  const vinDecoded = vinText.length === 17 ? decodeVIN(vinText) : null;
-  const faultItems = document.querySelectorAll('#dtcList [data-code]');
-  const faults = [];
-  faultItems.forEach(el => {
-    if (el.dataset.code) {
-      const info = getFaultInfo(el.dataset.code);
-      const typeEl = el.querySelector('.dtc-type-badge');
-      const typeText = typeEl ? typeEl.textContent.trim() : '';
-      faults.push({ code: el.dataset.code, title: info.title, type: typeText });
-    }
-  });
-  const diag = runDiagnosis(faults.map(f => f.code));
-  const health = calcHealth(faults, diag);
-  let msg = `*${t('waTitle')}*\n`;
-  msg += `━━━━━━━━━━━━━━━━━\n\n`;
-  msg += `*${t('waVehicle')}:*\n`;
-  msg += `🔑 VIN: ${vinText}\n`;
-  if (vinDecoded) {
-    msg += `🏭 ${vinDecoded.manufacturer} • ${vinDecoded.year}\n`;
-    msg += `🌍 ${vinDecoded.country}\n`;
-  }
-  msg += `\n`;
-  const healthEmoji = health >= 80 ? '✅' : health >= 50 ? '⚠️' : '🚨';
-  msg += `*${t('waHealth')}:* ${healthEmoji} ${health}/100\n\n`;
-  if (faults.length > 0) {
-    msg += `*${t('waFaults')} (${faults.length}):*\n`;
-    faults.forEach((f, i) => {
-      msg += `${i+1}. *${f.code}* — ${f.title} ${f.type ? '[' + f.type + ']' : ''}\n`;
-    });
-    msg += `\n`;
-  } else {
-    msg += `✅ ${isAr ? 'لا توجد أعطال' : 'No faults'}\n\n`;
-  }
-  if (diag.length > 0) {
-    msg += `*${t('waDiagnosis')}:*\n`;
-    diag.forEach(d => {
-      const icon = d.severity === 'critical' ? '🚨' : d.severity === 'high' ? '🔴' : d.severity === 'medium' ? '🟡' : '🟢';
-      msg += `${icon} *${d.title}* (${d.confidence}%)\n`;
-      msg += `   ${d.description}\n`;
-      if (d.actions && d.actions.length > 0) {
-        msg += `   🔧 ${t('waActions')}:\n`;
-        d.actions.forEach(a => { msg += `   • ${a}\n`; });
-      }
-      msg += `\n`;
-    });
-  }
-  msg += `━━━━━━━━━━━━━━━━━\n`;
-  msg += `🔧 *${t('waGeneratedBy')}*\n`;
-  msg += `🌐 https://ishakdiga55-ops.github.io/Diga-scaner/`;
-  return msg;
-}
-
-function shareWhatsApp(){
-  const btn = document.getElementById('btnShareWhatsApp');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-  try {
-    const message = buildWhatsAppMessage();
-    const encoded = encodeURIComponent(message);
-    const url = `https://wa.me/?text=${encoded}`;
-    window.open(url, '_blank');
-    log('📱 WhatsApp opened');
-  } catch (e) {
-    log('⚠️ WhatsApp failed: ' + e.message);
-  } finally {
-    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1000);
-  }
-}
-
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
-    tab.classList.remove('bg-gray-800','text-gray-400');tab.classList.add('bg-blue-600','text-white');
-    document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
-    document.getElementById('panel-'+tab.dataset.tab).classList.remove('hidden');
-    if(tab.dataset.tab==='history')displayHistory();
-    if(tab.dataset.tab==='live')setTimeout(()=>{if(!chartInstance)initChart();else chartInstance.resize();},200);
-  };
-});
-
-document.getElementById('btnLang').onclick=toggleLanguage;
-document.getElementById('connect-btn').onclick=connectOBD;
-document.getElementById('demo-btn').onclick=startDemo;
-document.getElementById('disconnect-btn').onclick=()=>{stopDemo();disconnectOBD();};
-document.getElementById('clear-btn').onclick=clearDTCs;
-document.getElementById('btnReadDTC').onclick=readDTCs;
-document.getElementById('btnScanAll').onclick=scanAllSystems;
-document.getElementById('btnStartLive').onclick=()=>{if(!chartInstance)initChart();};
-document.getElementById('btnStopLive').onclick=()=>{};
-document.getElementById('btnExportCSV').onclick=()=>log('CSV');
-document.getElementById('btnExportPDF').onclick=exportPDF;
-document.getElementById('btnShareWhatsApp').onclick=shareWhatsApp;
-document.getElementById('btnLoadStats').onclick=loadStats;
-document.getElementById('btnReadiness').onclick=checkReadiness;
-document.getElementById('btnBatteryTest').onclick=runBatteryTest;
-document.getElementById('btnReadVIN').onclick=async()=>{
-  if(!isConnected){alert(currentLang==='ar'?'اتصل':'Connect');return;}
-  if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
-  const r=await window.sendCmd('09 02',4000);
-  parseVINResponse(r);
-  const v=document.getElementById('vinResult').textContent;
-  if(v.length===17)displayVINInfo(v);
-};
-document.getElementById('btnDecodeVIN').onclick=()=>{
-  const v=document.getElementById('vinInput').value.trim().toUpperCase();
-  if(v.length!==17){alert('VIN must be 17 chars');return;}
-  document.getElementById('vinResult').textContent=v;
-  displayVINInfo(v);
-};
-document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
-
-applyLanguage();
-loadDatabase();
-setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
-
-if('serviceWorker'in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-}
-</script>
-
-</body>
-</html>
+    ${diag.length?`<div style="background:#f5f3ff;padding:16px;border-radius
