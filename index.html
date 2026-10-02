@@ -472,7 +472,33 @@ const TRANSLATIONS = {
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = (k) => TRANSLATIONS[currentLang][k] || TRANSLATIONS.ar[k] || k;
 
-// ============ 📚 قاعدة بيانات الأكواد ============
+// ============================================================
+// 📚 تحميل قاعدة البيانات الموسّعة من ملف خارجي
+// ============================================================
+async function loadExtendedDatabase(){
+  try {
+    logInfo('📥 تحميل قاعدة البيانات الموسّعة...');
+    const res = await fetch('dtc_full.json?v=1');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    let added = 0;
+    for(const [key, value] of Object.entries(data)){
+      if(!DTC_DATABASE[key]){
+        DTC_DATABASE[key] = value;
+        added++;
+      }
+    }
+    logSuccess(`✅ تم تحميل ${added} كود إضافي | الإجمالي: ${Object.keys(DTC_DATABASE).length}`);
+    return added;
+  } catch(e) {
+    logError('فشل تحميل dtc_full.json: '+e.message);
+    return 0;
+  }
+}
+
+// ============================================================
+// 📚 قاعدة بيانات الأكواد (الأساسية)
+// ============================================================
 const DTC_DATABASE = {
 "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
 "P0101":{zone:"engine",title:"حساس MAF - أداء",title_en:"MAF Sensor Performance",severity:"medium"},
@@ -658,7 +684,7 @@ const DTC_DATABASE = {
 "U0300":{zone:"electronics",title:"عدم تطابق برمجي",title_en:"Software Mismatch",severity:"high"},
 "U1000":{zone:"electronics",title:"خطأ Class 2 - GM",title_en:"Class 2 Error - GM",severity:"high"},
 "U1001":{zone:"electronics",title:"فقدان اتصال CAN",title_en:"CAN Communication Lost",severity:"critical"},
-"P1100_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط المشعب",title_en:"MAP Sensor PSA",desc:"شائع في PSA",desc_en:"Common in PSA",severity:"medium"},
+"P1100_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط المشعب",title_en:"MAP Sensor PSA",severity:"medium"},
 "P1120_PSA":{brand:"PSA",zone:"engine",title:"حساس دواسة الوقود",title_en:"Pedal Sensor PSA",severity:"high"},
 "P1135_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 1",title_en:"VVT Bank 1 PSA",severity:"high"},
 "P1140_PSA":{brand:"PSA",zone:"engine",title:"VVT التزامن",title_en:"VVT Timing PSA",severity:"high"},
@@ -719,7 +745,9 @@ const DTC_DATABASE = {
 "P1610_REN":{brand:"Renault",zone:"electronics",title:"مفتاح",title_en:"Key Renault",severity:"high"}
 };
 
-// ============ 🧠 قواعد التشخيص ============
+// ============================================================
+// 🧠 قواعد التشخيص
+// ============================================================
 const RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',title_en:'Air Leak in Intake',confidence:90,severity:'high',description:'خليط فقير في البنكين.',description_en:'Lean mixture in both banks.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF'],actions_en:['Check vacuum hoses','Check intake gasket','Check MAF']},
   {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',description_en:'Lean mixture caused misfire.',actions:['افحص تسرب الهواء أولاً'],actions_en:['Check for air leaks first']},
@@ -1342,10 +1370,10 @@ async function scanAllSystems(){
 }
 async function runDemoScan(){
   const demoFaults=[
-    {code:'P0301',system:t('zoneEngine'),type:'confirmed'},
+    {code:'P0301',system:t('zone042Engine'),type:'confirmed'},
     {code:'P0171',system:t('zoneEngine'),type:'confirmed'},
     {code:'P0299',system:t('zoneEngine'),type:'confirmed'},
-    {code:'P0420',system:t('zoneExhaust'),type:'pending'},
+    {code:'P0',system:t('zoneExhaust'),type:'pending'},
     {code:'U0100',system:t('zoneElectronics'),type:'confirmed'}
   ];
   renderFaults(demoFaults);
@@ -1993,7 +2021,6 @@ function applyLanguage(){
     else if(isConnected) conn.textContent = t('connected');
     else conn.textContent = t('disconnected');
   }
-  // Buttons
   const btnSpans = {
     'connect-btn':'bluetooth',
     'usb-btn':'usb',
@@ -2007,7 +2034,6 @@ function applyLanguage(){
   }
   const iosN = document.getElementById('iosNotice');
   if(iosN){const span = iosN.querySelector('span');if(span) span.textContent = t('iosNotice');}
-  // Tabs
   const tabMap = {faults:'tabFaults',live:'tabLive',vin:'tabVin',history:'tabHistory',stats:'tabStats'};
   document.querySelectorAll('.tab').forEach(tab=>{
     const key = tabMap[tab.dataset.tab];
@@ -2016,33 +2042,26 @@ function applyLanguage(){
       if(span) span.textContent = t(key);
     }
   });
-  // System grid
   const sysMap = {engine:'sysEngine',transmission:'sysTrans',brakes:'sysBrakes',airbag:'sysAirbag',fuel:'sysFuel',exhaust:'sysExhaust',cooling:'sysCooling',battery:'sysBattery',electronics:'sysElectronics'};
   document.querySelectorAll('[data-sys-name]').forEach(el=>{
-    const key = sysMap[   el.dataset.sysName];
+    const key = sysMap[el.dataset.sysName];
     if(key) el.textContent = t(key);
   });
   const sysTitle = document.getElementById('sysStatusTitle');
   if(sysTitle) sysTitle.textContent = t('sysStatus');
-  // Units
   const unitMap = {rpm:'rpmUnit',kmh:'kmhUnit',celsius:'celsiusUnit',percent:'percentUnit'};
   document.querySelectorAll('[data-unit]').forEach(el=>{
     const key = unitMap[el.dataset.unit];
     if(key) el.textContent = t(key);
   });
-  // [data-t] elements
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
   });
-  // Search placeholder
   const searchInput = document.getElementById('dtcSearchInput');
   if(searchInput) searchInput.placeholder = t('searchPlaceholder');
-  // VIN input placeholder
   const vinInput = document.getElementById('vinInput');
   if(vinInput) vinInput.placeholder = t('vinManual');
-  // Brand filters - re-init
   initBrandFilters();
-  // Refresh existing data
   if(isConnected || isDemo) setStatus(isDemo ? 'demo' : 'connected');
 }
 
@@ -2073,7 +2092,7 @@ function init(){
     if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
     const r=await window.sendCmd('09 02',4000);
     parseVINResponse(r);
- const v=document.getElementById('vinResult').textContent;
+    const v=document.getElementById('vinResult').textContent;
     if(v.length===17)displayVINInfo(v);
   });
   bind('btnDecodeVIN',()=>{
@@ -2110,8 +2129,13 @@ function init(){
     const n=document.getElementById('iosNotice');if(n)n.classList.remove('hidden');
     const c=document.getElementById('connect-btn');if(c)c.style.display='none';
   }
-  // Apply language on load
+
+  // 🌍 Apply language on load
   applyLanguage();
+
+  // 📚 تحميل الأكواد الموسّعة من الملف الخارجي
+  loadExtendedDatabase();
+
   setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
   if('serviceWorker' in navigator){
     window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
