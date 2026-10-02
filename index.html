@@ -1648,4 +1648,273 @@ async function runBatteryTest() {
     log('📊 ' + t('batStep3Msg'));
     const v3 = isDemo ? (13.6 + Math.random() * 0.4) : (await readBatteryVoltage()) || 13.7;
     renderBatteryStage(3, v3, 13.5, 14.8);
-    let
+    let verdictClass, verdictText;
+    const allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
+    const anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
+    if (allGood) { verdictClass = 'verdict-pass'; verdictText = t('batVerdictPass'); }
+    else if (anyBad) { verdictClass = 'verdict-fail'; verdictText = t('batVerdictFail'); }
+    else { verdictClass = 'verdict-warn'; verdictText = t('batVerdictWarn'); }
+    verdict.className = 'battery-verdict ' + verdictClass;
+    verdict.textContent = verdictText;
+    verdict.classList.remove('hidden');
+    log('✅ ' + t('batTestComplete'));
+  } catch (e) { log('❌ Battery: ' + e.message); }
+  finally { btn.innerHTML = orig; btn.disabled = false; }
+}
+
+// ============ 🧪 Demo Mode ============
+let demoTimer=null;
+function startDemo(){
+  isDemo=true;isConnected=true;transport = null;
+  setStatus('demo');
+  updateConnectionUI(true);
+  log('🧪 Demo mode ON');
+  document.getElementById('vin-display').textContent='VIN: 1HGCG5655WA123456';
+  document.getElementById('vinResult').textContent='1HGCG5655WA123456';
+  const sys=currentLang==='ar'?'المحرك':'Engine';
+  const demoFaults=[
+    {code:'P0301',system:sys,type:'confirmed'},
+    {code:'P0171',system:sys,type:'confirmed'},
+    {code:'P0299',system:sys,type:'confirmed'},
+    {code:'P0420',system:currentLang==='ar'?'العوادم':'Exhaust',type:'pending'},
+    {code:'U0100',system:currentLang==='ar'?'الكهرباء':'Electrical',type:'confirmed'}
+  ];
+  renderFaults(demoFaults);
+  const diag=runDiagnosis(demoFaults.map(f=>f.code));
+  displaySmartDiagnosis(demoFaults.map(f=>f.code));
+  displayHealth(demoFaults,diag);
+  updateSystemGrid(demoFaults);
+  showExport();
+  saveCloud(demoFaults,'1HGCG5655WA123456');
+  saveHistory(demoFaults,'1HGCG5655WA123456',diag);
+  setTimeout(()=>{if(!chartInstance)initChart();},300);
+  if(demoTimer)clearInterval(demoTimer);
+  demoTimer=setInterval(()=>{
+    const rpm=Math.floor(900+Math.random()*2500);
+    const speed=Math.floor(Math.random()*110);
+    const coolant=82+Math.floor(Math.random()*18);
+    const fuel=40+Math.floor(Math.random()*50);
+    updateDashboard(rpm,speed,coolant,fuel);
+  },1500);
+  setTimeout(()=>updateDashboard(2500,60,90,75),100);
+}
+function stopDemo(){
+  if(demoTimer)clearInterval(demoTimer);
+  demoTimer=null;isDemo=false;
+}
+
+// ============ 🔍 Search ============
+let searchTimer=null;
+document.getElementById('dtcSearchInput').addEventListener('input',(e)=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>searchDTC(e.target.value),200);
+});
+async function searchDTC(query){
+  const div=document.getElementById('searchResults');
+  const q=query.trim().toUpperCase();
+  if(q.length<2){div.innerHTML='';return;}
+  const fl=q[0];
+  if(['P','C','B','U'].includes(fl)&&!loadedCats.has(fl)){
+    div.innerHTML=`<p class="text-xs text-blue-400 text-center py-2"><span class="spinner"></span> Loading ${fl}...</p>`;
+    await loadCat(fl);
+  }
+  // تحميل الأكواد الحديثة عند البحث عن P
+  if(fl==='P'&&!loadedCats.has('PM')){ await loadCat('PM'); }
+  if((q.startsWith('P1')||q.startsWith('P2')||q.startsWith('P3'))&&!loadedCats.has('CN')){await loadCat('CN');}
+  const matches=[];
+  for(const[code,info]of Object.entries(DTC_DATABASE)){
+    if(matches.length>=20)break;
+    if(code.includes(q)||(info.title&&info.title.includes(query)))matches.push([code,info]);
+  }
+  if(matches.length===0){div.innerHTML=`<p class="text-xs text-gray-500 text-center py-2">No results</p>`;return;}
+  div.innerHTML=`<div class="space-y-1 mb-3">${matches.map(([c,i])=>`<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700" data-code="${c}"><span class="font-mono text-red-300 font-bold">${c}</span> — ${i.title}</div>`).join('')}</div>`;
+  div.querySelectorAll('[data-code]').forEach(el=>el.onclick=()=>{document.getElementById('dtcSearchInput').value='';div.innerHTML='';});
+}
+
+// ============ 📄 Reports ============
+function buildReport(){
+  const isAr=currentLang==='ar';
+  const date=new Date().toLocaleString(isAr?'ar-EG':'en-US');
+  const vin=document.getElementById('vinResult')?.textContent||'-';
+  const d=vin.length===17?decodeVIN(vin):null;
+  const items=document.querySelectorAll('#dtcList [data-code]');
+  const faults=[];items.forEach(el=>{if(el.dataset.code)faults.push({code:el.dataset.code,info:getFaultInfo(el.dataset.code)});});
+  const diag=runDiagnosis(faults.map(f=>f.code));
+  const hs=calcHealth(faults,diag);
+  const hc=hs>=80?'#10b981':hs>=50?'#f59e0b':'#ef4444';
+  return `<div style="padding:30px;font-family:Cairo;background:#fff;color:#1e293b;width:700px;direction:${isAr?'rtl':'ltr'};">
+    <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px;border-radius:14px;margin-bottom:20px;">
+      <div style="font-size:24px;font-weight:700;">🔧 CheckDiga</div>
+      <div style="font-size:12px;opacity:0.8;margin-top:4px;">${date}</div>
+    </div>
+    <div style="background:${hc};color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:16px;font-weight:700;">${t('healthLabel')}</div>
+      <div style="font-size:36px;font-weight:700;">${hs}/100</div>
+    </div>
+    <div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px;">
+      <div style="font-weight:700;margin-bottom:10px;">🚗 ${isAr?'معلومات السيارة':'Vehicle Info'}</div>
+      <div>VIN: <strong style="font-family:monospace;">${vin}</strong></div>
+      ${d?`<div>${d.manufacturer} • ${d.year} • ${d.country}</div>`:''}
+    </div>
+    <div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px;">
+      <div style="font-weight:700;color:#991b1b;margin-bottom:10px;">🔧 ${isAr?'الأعطال':'Faults'} (${faults.length})</div>
+      ${faults.map((f,i)=>`<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px;"><strong style="color:#b91c1c;font-family:monospace;">#${i+1}. ${f.code}</strong> — ${f.info.title}</div>`).join('')}
+    </div>
+    ${diag.length?`<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px;">
+      <div style="font-weight:700;color:#5b21b6;margin-bottom:10px;">🧠 ${isAr?'التشخيص':'Diagnosis'}</div>
+      ${diag.map(dd=>`<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px;"><strong>${dd.title} (${dd.confidence}%)</strong><div style="color:#475569;margin-top:4px;">${dd.description}</div></div>`).join('')}
+    </div>`:''}
+    <div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1;">Generated by CheckDiga</div>
+  </div>`;
+}
+async function exportPDF(){
+  const btn=document.getElementById('btnExportPDF');
+  const orig=btn.innerHTML;
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  try{
+    const c=document.createElement('div');
+    c.innerHTML=buildReport();
+    c.style.position='fixed';c.style.left='-9999px';
+    document.body.appendChild(c);
+    await html2pdf().set({margin:0,filename:`CheckDiga-${new Date().toISOString().slice(0,10)}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'}}).from(c.firstElementChild).save();
+    document.body.removeChild(c);
+    log('📄 PDF created');
+  }catch(e){log('⚠️ PDF failed');}
+  finally{btn.innerHTML=orig;btn.disabled=false;}
+}
+function buildWhatsAppMessage(){
+  const isAr = currentLang === 'ar';
+  const vinText = document.getElementById('vinResult')?.textContent || '-';
+  const vinDecoded = vinText.length === 17 ? decodeVIN(vinText) : null;
+  const faultItems = document.querySelectorAll('#dtcList [data-code]');
+  const faults = [];
+  faultItems.forEach(el => {
+    if (el.dataset.code) {
+      const info = getFaultInfo(el.dataset.code);
+      const typeEl = el.querySelector('.dtc-type-badge');
+      const typeText = typeEl ? typeEl.textContent.trim() : '';
+      faults.push({ code: el.dataset.code, title: info.title, type: typeText });
+    }
+  });
+  const diag = runDiagnosis(faults.map(f => f.code));
+  const health = calcHealth(faults, diag);
+  let msg = `*${t('waTitle')}*\n━━━━━━━━━━━━━━━━━\n\n`;
+  msg += `*${t('waVehicle')}:*\n🔑 VIN: ${vinText}\n`;
+  if (vinDecoded) { msg += `🏭 ${vinDecoded.manufacturer} • ${vinDecoded.year}\n🌍 ${vinDecoded.country}\n`; }
+  msg += `\n`;
+  const healthEmoji = health >= 80 ? '✅' : health >= 50 ? '⚠️' : '🚨';
+  msg += `*${t('waHealth')}:* ${healthEmoji} ${health}/100\n\n`;
+  if (faults.length > 0) {
+    msg += `*${t('waFaults')} (${faults.length}):*\n`;
+    faults.forEach((f, i) => { msg += `${i+1}. *${f.code}* — ${f.title}\n`; });
+    msg += `\n`;
+  }
+  if (diag.length > 0) {
+    msg += `*${t('waDiagnosis')}:*\n`;
+    diag.forEach(d => {
+      const icon = d.severity === 'critical' ? '🚨' : d.severity === 'high' ? '🔴' : '🟡';
+      msg += `${icon} *${d.title}* (${d.confidence}%)\n`;
+      if (d.actions && d.actions.length > 0) {
+        d.actions.forEach(a => { msg += `   • ${a}\n`; });
+      }
+      msg += `\n`;
+    });
+  }
+  msg += `━━━━━━━━━━━━━━━━━\n🔧 *${t('waGeneratedBy')}*\n🌐 https://ishakdiga55-ops.github.io/Diga-scaner/`;
+  return msg;
+}
+function shareWhatsApp(){
+  const btn = document.getElementById('btnShareWhatsApp');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
+  try {
+    const message = buildWhatsAppMessage();
+    const encoded = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    log('📱 WhatsApp opened');
+  } catch (e) { log('⚠️ WhatsApp failed'); }
+  finally { setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1000); }
+}
+
+// ============ 🎛️ Event Listeners ============
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
+    tab.classList.remove('bg-gray-800','text-gray-400');tab.classList.add('bg-blue-600','text-white');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
+    document.getElementById('panel-'+tab.dataset.tab).classList.remove('hidden');
+    if(tab.dataset.tab==='history')displayHistory();
+    if(tab.dataset.tab==='live')setTimeout(()=>{if(!chartInstance)initChart();else chartInstance.resize();},200);
+  };
+});
+document.getElementById('btnLang').onclick=toggleLanguage;
+document.getElementById('connect-btn').onclick=connectOBD;
+document.getElementById('usb-btn').onclick=connectUSB;
+document.getElementById('demo-btn').onclick=startDemo;
+document.getElementById('disconnect-btn').onclick=async()=>{stopDemo();await disconnectOBD();};
+document.getElementById('clear-btn').onclick=clearDTCs;
+document.getElementById('btnReadDTC').onclick=readDTCs;
+document.getElementById('btnScanAll').onclick=scanAllSystems;
+document.getElementById('btnStartLive').onclick=()=>{if(!chartInstance)initChart();};
+document.getElementById('btnStopLive').onclick=()=>{};
+document.getElementById('btnExportCSV').onclick=()=>log('CSV');
+document.getElementById('btnExportPDF').onclick=exportPDF;
+document.getElementById('btnShareWhatsApp').onclick=shareWhatsApp;
+document.getElementById('btnLoadStats').onclick=loadStats;
+document.getElementById('btnReadiness').onclick=checkReadiness;
+document.getElementById('btnBatteryTest').onclick=runBatteryTest;
+document.getElementById('btnMode06').onclick=runMode06;
+document.getElementById('btnReadVIN').onclick=async()=>{
+  if(!isConnected){alert(currentLang==='ar'?'اتصل':'Connect');return;}
+  if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
+  const r=await window.sendCmd('09 02',4000);
+  parseVINResponse(r);
+  const v=document.getElementById('vinResult').textContent;
+  if(v.length===17)displayVINInfo(v);
+};
+document.getElementById('btnDecodeVIN').onclick=()=>{
+  const v=document.getElementById('vinInput').value.trim().toUpperCase();
+  if(v.length!==17){alert('VIN must be 17 chars');return;}
+  document.getElementById('vinResult').textContent=v;
+  displayVINInfo(v);
+};
+document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
+
+// كشف قطع USB
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if(usbPort && e.target === usbPort){
+      log('🔌 ' + t('usbDisconnected'));
+      handleDisconnect();
+    }
+  });
+}
+
+// ============ 🚀 Init ============
+applyLanguage();
+loadDatabase();
+
+// إخفاء زر USB على iOS وإظهار رسالة
+if(isIOS || !hasSerial){
+  document.getElementById('usb-btn').style.display = 'none';
+  if(isIOS){
+    document.getElementById('iosNotice').classList.remove('hidden');
+    document.getElementById('iosNotice').textContent = t('iosNotice');
+  }
+}
+// إخفاء Bluetooth على iOS (لا يعمل)
+if(isIOS){
+  document.getElementById('connect-btn').style.display = 'none';
+}
+
+setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
+
+if('serviceWorker'in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+log('✅ ' + (isIOS ? 'iOS detected - USB/BT disabled' : isAndroid ? 'Android ready' : 'Desktop ready'));
+</script>
+
+</body>
+</html>
