@@ -106,6 +106,11 @@
   .mode06-values > div { background: rgba(15,23,42,0.6); padding: 6px; border-radius: 6px; text-align: center; }
   .mode06-values .v-label { color: #64748b; font-size: 9px; display: block; margin-bottom: 2px; }
   .mode06-values .v-num { color: #e2e8f0; font-weight: 700; font-family: monospace; }
+
+  /* USB support badge */
+  .transport-badge { font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+  .badge-usb { background: #059669; color: #fff; }
+  .badge-ble { background: #2563eb; color: #fff; }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
@@ -125,16 +130,21 @@
   <header class="bg-gray-800 p-4 rounded-2xl shadow-lg">
     <div class="flex items-center gap-3 mb-3">
       <div id="statusDot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-      <div>
+      <div class="flex-1">
         <p id="connection-status" class="text-sm font-bold text-red-400" data-t="disconnected">غير متصل</p>
         <p id="vin-display" class="text-xs text-gray-500 mt-0.5">VIN: --</p>
       </div>
+      <span id="transportBadge" class="hidden transport-badge"></span>
     </div>
-    <div class="grid grid-cols-2 gap-2">
-      <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> <span data-t="connect">اتصال</span></button>
-      <button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> <span data-t="demo">وضع تجريبي</span></button>
-      <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2 col-span-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span></button>
-      <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 col-span-2"><i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span></button>
+    <!-- ⚡ الزر أضيف: USB -->
+    <div class="grid grid-cols-3 gap-2 mb-2">
+      <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> <span data-t="btConnect">Bluetooth</span></button>
+      <button id="usb-btn" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> <span data-t="usbConnect">USB</span></button>
+      <button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> <span data-t="demo">تجريبي</span></button>
+    </div>
+    <div class="grid grid-cols-1 gap-2">
+      <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span></button>
+      <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span></button>
     </div>
   </header>
 
@@ -146,7 +156,7 @@
     <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> <span data-t="tabStats">إحصائيات</span></button>
   </div>
 
-  <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left;white-space:pre-wrap;">> مرحباً! اضغط "اتصال" أو "وضع تجريبي".</div>
+  <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left;white-space:pre-wrap;">> مرحباً! اضغط "Bluetooth" أو "USB" أو "تجريبي".</div>
 
   <div id="panel-faults" class="panel space-y-4">
     <div id="healthBadge" class="hidden"></div>
@@ -395,7 +405,15 @@ const db = getFirestore(initializeApp({
 
 const TR = {
   ar: { subtitle:'أداة فحص السيارات المتكاملة', disconnected:'غير متصل', connected:'متصل ✓', demoMode:'وضع تجريبي',
-    connect:'اتصال', demo:'وضع تجريبي', disconnect:'قطع', clear:'مسح الأعطال',
+    connect:'اتصال', btConnect:'Bluetooth', usbConnect:'USB', demo:'تجريبي', disconnect:'قطع', clear:'مسح الأعطال',
+    usbNotSupported:'متصفحك لا يدعم Web Serial. استخدم Chrome أو Edge على الحاسوب أو أندرويد.',
+    usbConnecting:'جاري الاتصال عبر USB...',
+    usbConnected:'✓ متصل عبر USB',
+    usbPermissionDenied:'تم رفض الوصول للمنفذ أو فشل الاتصال',
+    usbInitFailed:'فشل تهيئة ELM327 عبر USB',
+    usbNoResponse:'ELM327 لا يستجيب',
+    usbDisconnected:'تم قطع اتصال USB',
+    btConnected:'✓ متصل عبر Bluetooth',
     tabFaults:'الأعطال', tabLive:'بيانات حية', tabVin:'VIN', tabHistory:'السجل', tabStats:'إحصائيات',
     readEngine:'فحص المحرك', readAll:'فحص الكل', dtcTitle:'أكواد الأعطال',
     startLive:'بدء', stopLive:'إيقاف', charts:'الرسوم البيانية',
@@ -448,7 +466,15 @@ const TR = {
     mode06Scanning:'جاري قراءة اختبارات المراقبة...',
     mode06Results:'نتائج الاختبارات الذاتية' },
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
-    connect:'Connect', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
+    connect:'Connect', btConnect:'Bluetooth', usbConnect:'USB', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
+    usbNotSupported:'Browser does not support Web Serial. Use Chrome or Edge.',
+    usbConnecting:'Connecting via USB...',
+    usbConnected:'✓ Connected via USB',
+    usbPermissionDenied:'Port access denied or connection failed',
+    usbInitFailed:'Failed to init ELM327 over USB',
+    usbNoResponse:'ELM327 not responding',
+    usbDisconnected:'USB disconnected',
+    btConnected:'✓ Connected via Bluetooth',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
     readEngine:'Scan Engine', readAll:'Scan All', dtcTitle:'DTC Codes',
     startLive:'Start', stopLive:'Stop', charts:'Charts',
@@ -632,9 +658,18 @@ function log(msg){
 function setStatus(state){
   const s=document.getElementById('connection-status');
   const d=document.getElementById('statusDot');
+  const tb = document.getElementById('transportBadge');
   if(state==='connected'){s.textContent=t('connected');s.className='text-sm font-bold text-green-400';d.className='w-3 h-3 rounded-full bg-green-500';}
   else if(state==='demo'){s.textContent=t('demoMode');s.className='text-sm font-bold text-amber-400';d.className='w-3 h-3 rounded-full bg-amber-500';}
   else{s.textContent=t('disconnected');s.className='text-sm font-bold text-red-400';d.className='w-3 h-3 rounded-full bg-red-500 animate-pulse';}
+  // Transport badge
+  if(state==='connected' && transport){
+    tb.classList.remove('hidden');
+    if(transport==='usb'){tb.className='transport-badge badge-usb';tb.innerHTML='🔌 USB';}
+    else if(transport==='ble'){tb.className='transport-badge badge-ble';tb.innerHTML='📶 BLE';}
+  } else {
+    tb.classList.add('hidden');
+  }
 }
 
 function updateGauge(arcId, needleId, valueId, value, max){
@@ -706,11 +741,28 @@ function displayHealth(faults,diag){
 function showExport(){document.getElementById('exportCard').classList.remove('hidden');}
 function hideExport(){document.getElementById('exportCard').classList.add('hidden');}
 
-let btDevice=null,btServer=null,uartChar=null,isConnected=false,isDemo=false;
+/* =====================================================================
+   ⚡⚡⚡  قسم الاتصال الجديد: يدعم Bluetooth + USB (Web Serial)  ⚡⚡⚡
+   ===================================================================== */
+
+// === اتصال Bluetooth ===
+let btDevice=null,btServer=null,uartChar=null;
+
+// === اتصال USB (Web Serial) — جديد ===
+let usbPort = null, usbWriter = null, usbReader = null, usbReadLoopActive = false;
+
+// === حالة عامة ===
+let transport = null; // 'ble' | 'usb' | null
+let isConnected=false, isDemo=false;
+
 let recvBuf='',cmdQueue=[],isProcessing=false,curResolve=null,curTimeout=null;
+
 const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb'];
 const KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb'];
 
+// ----------------------------------------------------------------------
+// استقبال إشعارات Bluetooth (نفس الكود القديم)
+// ----------------------------------------------------------------------
 function handleNotification(e){
   recvBuf+=new TextDecoder().decode(e.target.value);
   if(recvBuf.includes('>')&&curResolve){
@@ -719,6 +771,10 @@ function handleNotification(e){
     const res=curResolve;curResolve=null;res(r);
   }
 }
+
+// ----------------------------------------------------------------------
+// دالة sendCmd العامة (تُستخدم من كل الواجهات)
+// ----------------------------------------------------------------------
 window.sendCmd=function(cmd,timeout=3000){
   return new Promise((resolve,reject)=>{
     cmdQueue.push({
@@ -730,14 +786,29 @@ window.sendCmd=function(cmd,timeout=3000){
     processQueue();
   });
 };
+
+// ----------------------------------------------------------------------
+// معالجة قائمة الأوامر — مُعدّلة لتدعم USB و Bluetooth
+// ----------------------------------------------------------------------
 async function processQueue(){
-  if(isProcessing||cmdQueue.length===0||!uartChar)return;
+  if(isProcessing||cmdQueue.length===0)return;
+  // تحقق من وجود قناة إرسال جاهزة
+  const hasChannel = (transport==='usb' && usbWriter) || (transport==='ble' && uartChar);
+  if(!hasChannel)return;
+
   isProcessing=true;
   const item=cmdQueue.shift();
   curResolve=item.resolve;
   recvBuf='';
+
   try{
-    await uartChar.writeValue(new TextEncoder().encode(item.cmd+'\r'));
+    const data = new TextEncoder().encode(item.cmd + '\r');
+    if(transport==='usb'){
+      await usbWriter.write(data);
+    } else {
+      await uartChar.writeValue(data);
+    }
+
     curTimeout=setTimeout(()=>{
       if(curResolve){
         const r=recvBuf;recvBuf='';
@@ -745,11 +816,150 @@ async function processQueue(){
         isProcessing=false;processQueue();
       }
     },item.timeout);
+
   }catch(e){
     item.reject(e);curResolve=null;isProcessing=false;processQueue();
   }
 }
 
+// ======================================================================
+//  🔌 اتصال USB عبر Web Serial API  —  جديد بالكامل
+// ======================================================================
+async function connectUSB(){
+  // 1) التحقق من دعم المتصفح
+  if(!('serial' in navigator)){
+    alert(t('usbNotSupported'));
+    log('❌ Web Serial not supported');
+    return;
+  }
+
+  const usbBtn = document.getElementById('usb-btn');
+  const origHtml = usbBtn.innerHTML;
+  usbBtn.disabled = true;
+  usbBtn.innerHTML = '<span class="spinner"></span>';
+
+  try{
+    log('🔌 ' + t('usbConnecting'));
+
+    // 2) طلب المنفذ من المستخدم (يتطلب إيماءة مستخدم)
+    usbPort = await navigator.serial.requestPort();
+
+    // 3) فتح المنفذ — ELM327 الافتراضي 38400
+    //    نجرّب عدة معدلات في حال فشل الأول
+    const baudRates = [38400, 115200, 9600, 57600];
+    let opened = false;
+    let lastError = null;
+    for(const baud of baudRates){
+      try{
+        await usbPort.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
+        opened = true;
+        log(`🔌 Port opened @ ${baud} baud`);
+        break;
+      }catch(e){
+        lastError = e;
+        log(`⚠️ ${baud} baud failed: ${e.message}`);
+        // إذا كان المنفذ مفتوحاً بالفعل أو مغلقاً من الخطأ السابق، حاول الإغلاق
+        try{ await usbPort.close(); }catch(_){}
+      }
+    }
+    if(!opened){
+      throw new Error(lastError?.message || 'Could not open port');
+    }
+
+    // 4) إعداد القارئ والكاتب
+    usbWriter = usbPort.writable.getWriter();
+    transport = 'usb';
+
+    // 5) بدء حلقة القراءة المستمرة (تجمع حتى '>')
+    startUSBReadLoop();
+
+    // 6) تحديث الواجهة
+    isConnected = true;
+    setStatus('connected');
+    updateConnectionUI(true);
+    log('✅ ' + t('usbConnected'));
+
+    // 7) تهيئة ELM327
+    await window.sendCmd('AT Z', 4000);   // إعادة تعيين
+    await window.sendCmd('AT E0', 2000);  // إيقاف echo
+    await window.sendCmd('AT L0', 2000);  // إيقاف الأسطر
+    await window.sendCmd('AT S0', 2000);  // إيقاف المسافات
+    await window.sendCmd('AT SP 0', 3000); // اكتشاف البروتوكول تلقائياً
+
+    // 8) قراءة VIN
+    const vinRes = await window.sendCmd('09 02', 5000);
+    parseVINResponse(vinRes);
+
+    // 9) بدء الحلقة الحية
+    startRealLiveLoop();
+
+  }catch(e){
+    log('❌ USB: ' + e.message);
+    await cleanupUSB();
+    transport = null;
+    isConnected = false;
+    setStatus('disconnected');
+    updateConnectionUI(false);
+  }finally{
+    usbBtn.disabled = false;
+    usbBtn.innerHTML = origHtml;
+  }
+}
+
+// ----------------------------------------------------------------------
+// حلقة قراءة USB المستمرة — تجمع البيانات حتى '>'
+// ----------------------------------------------------------------------
+async function startUSBReadLoop(){
+  if(!usbPort || !usbPort.readable) return;
+  usbReadLoopActive = true;
+  const decoder = new TextDecoder();
+
+  while(usbPort && usbPort.readable && usbReadLoopActive){
+    usbReader = usbPort.readable.getReader();
+    try{
+      while(usbReadLoopActive){
+        const { value, done } = await usbReader.read();
+        if(done) break;
+        if(value){
+          recvBuf += decoder.decode(value, { stream: true });
+          // إذا وصل prompt '>' فهذا يعني أن الرد مكتمل
+          if(recvBuf.includes('>') && curResolve){
+            clearTimeout(curTimeout);
+            const r = recvBuf; recvBuf = '';
+            const res = curResolve; curResolve = null;
+            res(r);
+          }
+        }
+      }
+    }catch(e){
+      if(usbReadLoopActive) log('⚠️ USB read: ' + e.message);
+    }finally{
+      try{ usbReader.releaseLock(); }catch(_){}
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+// تنظيف موارد USB بشكل آمن
+// ----------------------------------------------------------------------
+async function cleanupUSB(){
+  usbReadLoopActive = false;
+  try{ if(usbReader){ await usbReader.cancel(); usbReader.releaseLock(); } }catch(_){}
+  try{ if(usbWriter){ usbWriter.releaseLock(); } }catch(_){}
+  try{ if(usbPort){ await usbPort.close(); } }catch(_){}
+  usbReader = null;
+  usbWriter = null;
+  usbPort = null;
+  // إعادة تعيين قائمة الأوامر المعلّقة
+  cmdQueue = [];
+  isProcessing = false;
+  curResolve = null;
+  if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
+}
+
+// ======================================================================
+//  📶 اتصال Bluetooth (كما هو، مع تعديل طفيف في النهاية)
+// ======================================================================
 async function connectOBD(){
   if(!navigator.bluetooth){alert('No Bluetooth');return;}
   try{
@@ -767,13 +977,11 @@ async function connectOBD(){
     uartChar=chr;
     await uartChar.startNotifications();
     uartChar.addEventListener('characteristicvaluechanged',handleNotification);
+    transport = 'ble';
     isConnected=true;
     setStatus('connected');
-    document.getElementById('connect-btn').classList.add('hidden');
-    document.getElementById('demo-btn').classList.add('hidden');
-    const dbtn=document.getElementById('disconnect-btn');
-    dbtn.classList.remove('hidden');dbtn.classList.add('flex');
-    log('🎉 Connected');
+    updateConnectionUI(true);
+    log('🎉 ' + t('btConnected'));
     await window.sendCmd('AT Z',4000);
     await window.sendCmd('AT E0',2000);
     await window.sendCmd('AT S0',2000);
@@ -786,19 +994,66 @@ async function connectOBD(){
     setStatus('disconnected');
   }
 }
-function handleDisconnect(){
+
+// ----------------------------------------------------------------------
+// قطع الاتصال (Bluetooth أو USB) بشكل موحّد
+// ----------------------------------------------------------------------
+async function handleDisconnect(){
   isConnected=false;isDemo=false;
   if(liveTimer)clearInterval(liveTimer);liveTimer=null;
+
+  // إغلاق USB إذا كان نشطاً
+  if(transport==='usb'){
+    await cleanupUSB();
+    log('🔌 ' + t('usbDisconnected'));
+  }
+  // إغلاق Bluetooth إذا كان نشطاً
+  if(uartChar){
+    try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotification); }catch(_){}
+    try{ await uartChar.stopNotifications(); }catch(_){}
+    uartChar = null;
+  }
+  if(btDevice && btDevice.gatt.connected){
+    try{ btDevice.gatt.disconnect(); }catch(_){}
+  }
+
+  transport = null;
   setStatus('disconnected');
-  document.getElementById('connect-btn').classList.remove('hidden');
-  document.getElementById('demo-btn').classList.remove('hidden');
-  const dbtn=document.getElementById('disconnect-btn');
-  dbtn.classList.add('hidden');dbtn.classList.remove('flex');
+  updateConnectionUI(false);
 }
+
 function disconnectOBD(){
-  if(btDevice&&btDevice.gatt.connected)btDevice.gatt.disconnect();
   handleDisconnect();
 }
+
+// ----------------------------------------------------------------------
+// تحديث أزرار الاتصال (إظهار/إخفاء)
+// ----------------------------------------------------------------------
+function updateConnectionUI(connected){
+  const connectBtn = document.getElementById('connect-btn');
+  const usbBtn = document.getElementById('usb-btn');
+  const demoBtn = document.getElementById('demo-btn');
+  const dbtn = document.getElementById('disconnect-btn');
+
+  if(connected){
+    connectBtn.classList.add('hidden');
+    usbBtn.classList.add('hidden');
+    demoBtn.classList.add('hidden');
+    dbtn.classList.remove('hidden');
+    dbtn.classList.add('flex');
+  } else {
+    connectBtn.classList.remove('hidden');
+    usbBtn.classList.remove('hidden');
+    demoBtn.classList.remove('hidden');
+    dbtn.classList.add('hidden');
+    dbtn.classList.remove('flex');
+  }
+}
+
+// ======================================================================
+//  نهاية قسم الاتصال — الكود المتبقي كما هو
+// ======================================================================
+
 function parseVINResponse(res){
   let clean=res.replace(/[^0-9A-Fa-f]/g,'');
   let vin='';
@@ -1160,26 +1415,10 @@ const MODE06_MIDS = {
 };
 
 const MODE06_TIDS = {
-  0x01:'Test 1',
-  0x02:'Test 2',
-  0x03:'Test 3',
-  0x04:'Test 4',
-  0x05:'Test 5',
-  0x06:'Test 6',
-  0x07:'Test 7',
-  0x08:'Test 8',
-  0x09:'Test 9',
-  0x0A:'Test 10',
-  0x0B:'Test 11',
-  0x0C:'Test 12',
-  0x0D:'Test 13',
-  0x0E:'Test 14',
-  0x0F:'Test 15',
-  0x10:'Test 16',
-  0x11:'Test 17',
-  0x12:'Test 18',
-  0x13:'Test 19',
-  0x14:'Test 20'
+  0x01:'Test 1',0x02:'Test 2',0x03:'Test 3',0x04:'Test 4',0x05:'Test 5',
+  0x06:'Test 6',0x07:'Test 7',0x08:'Test 8',0x09:'Test 9',0x0A:'Test 10',
+  0x0B:'Test 11',0x0C:'Test 12',0x0D:'Test 13',0x0E:'Test 14',0x0F:'Test 15',
+  0x10:'Test 16',0x11:'Test 17',0x12:'Test 18',0x13:'Test 19',0x14:'Test 20'
 };
 
 function parseMode06Response(response) {
@@ -1199,20 +1438,14 @@ function parseMode06Response(response) {
         min = bytes[i + 5] || 0;
         max = bytes[i + 6] || 255;
       }
-      // Determine status based on value vs limits
       if (value >= min && value <= max) status = 'pass';
       else if (value !== 0) status = 'fail';
       
       results.push({
-        mid: mid,
-        tid: tid,
+        mid, tid,
         midName: MODE06_MIDS[mid] || `Monitor 0x${mid.toString(16).toUpperCase()}`,
         tidName: MODE06_TIDS[tid] || `TID 0x${tid.toString(16).toUpperCase()}`,
-        infoType: infoType,
-        value: value,
-        min: min,
-        max: max,
-        status: status
+        infoType, value, min, max, status
       });
       i += 8;
     } else {
@@ -1251,9 +1484,7 @@ function renderMode06(results) {
       const label = r.status === 'pass' ? t('mode06Pass') : r.status === 'fail' ? t('mode06Fail') : t('mode06Unknown');
       return `<div class="mode06-item ${cls}">
         <div class="mode06-header">
-          <div class="mode06-title">
-            <i class="fa-solid fa-flask-vial text-cyan-400"></i> ${r.midName}
-          </div>
+          <div class="mode06-title"><i class="fa-solid fa-flask-vial text-cyan-400"></i> ${r.midName}</div>
           <span class="mode06-result-badge ${badgeCls}">${icon} ${label}</span>
         </div>
         <div class="mode06-ids">MID: 0x${r.mid.toString(16).padStart(2,'0').toUpperCase()} | TID: 0x${r.tid.toString(16).padStart(2,'0').toUpperCase()} | ${r.tidName}</div>
@@ -1283,7 +1514,6 @@ async function runMode06() {
   }
   
   if (isDemo) {
-    // Demo data
     const demoResults = [
       { mid: 0x01, tid: 0x01, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 1', infoType: 0, value: 45, min: 10, max: 90, status: 'pass' },
       { mid: 0x01, tid: 0x02, midName: 'O2 Sensor Monitor Bank 1', tidName: 'Test 2', infoType: 0, value: 85, min: 10, max: 90, status: 'pass' },
@@ -1301,7 +1531,6 @@ async function runMode06() {
   }
   
   try {
-    // Read Mode 06 with all MIDs (01 = request supported MIDs)
     const results = [];
     const commonMIDs = [0x01, 0x02, 0x21, 0x22, 0x31, 0x41, 0x51, 0x61, 0xA1, 0xA2, 0xA3, 0xA4];
     
@@ -1574,11 +1803,9 @@ async function runBatteryTest() {
 let demoTimer=null;
 function startDemo(){
   isDemo=true;isConnected=true;
+  transport = null; // الوضع التجريبي لا يستخدم أي نقل
   setStatus('demo');
-  document.getElementById('connect-btn').classList.add('hidden');
-  document.getElementById('demo-btn').classList.add('hidden');
-  const dbtn=document.getElementById('disconnect-btn');
-  dbtn.classList.remove('hidden');dbtn.classList.add('flex');
+  updateConnectionUI(true);
   log('🧪 Demo mode ON');
   document.getElementById('vin-display').textContent='VIN: 1HGCG5655WA123456';
   document.getElementById('vinResult').textContent='1HGCG5655WA123456';
@@ -1612,7 +1839,8 @@ function startDemo(){
 }
 function stopDemo(){
   if(demoTimer)clearInterval(demoTimer);
-  demoTimer=null;isDemo=false;isConnected=false;
+  demoTimer=null;isDemo=false;
+  // لا نغلق isConnected هنا لأن handleDisconnect سيتولى ذلك
 }
 
 let searchTimer=null;
@@ -1774,8 +2002,9 @@ document.querySelectorAll('.tab').forEach(tab=>{
 
 document.getElementById('btnLang').onclick=toggleLanguage;
 document.getElementById('connect-btn').onclick=connectOBD;
+document.getElementById('usb-btn').onclick=connectUSB;   // ← جديد
 document.getElementById('demo-btn').onclick=startDemo;
-document.getElementById('disconnect-btn').onclick=()=>{stopDemo();disconnectOBD();};
+document.getElementById('disconnect-btn').onclick=async()=>{stopDemo();await disconnectOBD();};
 document.getElementById('clear-btn').onclick=clearDTCs;
 document.getElementById('btnReadDTC').onclick=readDTCs;
 document.getElementById('btnScanAll').onclick=scanAllSystems;
@@ -1803,6 +2032,18 @@ document.getElementById('btnDecodeVIN').onclick=()=>{
   displayVINInfo(v);
 };
 document.getElementById('btnCloseFreeze').onclick=()=>document.getElementById('freezeModal').classList.add('hidden');
+
+// ======================================================================
+//  الاستماع لأحداث قطع اتصال USB من النظام (مثلاً عند نزع الكابل)
+// ======================================================================
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if(usbPort && e.target === usbPort){
+      log('🔌 ' + t('usbDisconnected'));
+      handleDisconnect();
+    }
+  });
+}
 
 applyLanguage();
 loadDatabase();
