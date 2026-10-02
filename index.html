@@ -20,20 +20,9 @@
   .spinner { border: 3px solid #334155; border-top-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Gauges */
   .gauge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .gauge-box {
-    background: linear-gradient(145deg, #1e293b, #0f172a);
-    border-radius: 20px; padding: 14px;
-    border: 1px solid #334155;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
-    position: relative; overflow: hidden;
-  }
-  .gauge-box::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--gauge-color, #3b82f6);
-    box-shadow: 0 0 12px var(--gauge-color, #3b82f6);
-  }
+  .gauge-box { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; padding: 14px; border: 1px solid #334155; box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+  .gauge-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gauge-color, #3b82f6); box-shadow: 0 0 12px var(--gauge-color, #3b82f6); }
   .gauge-label { font-size: 11px; color: #94a3b8; text-align: center; margin-bottom: 6px; font-weight: 700; }
   .gauge-svg { width: 100%; height: auto; display: block; }
   .gauge-value { font-size: 22px; font-weight: 800; text-align: center; margin-top: 4px; font-family: 'Cairo', monospace; color: #fff; text-shadow: 0 0 12px var(--gauge-color, #3b82f6); }
@@ -41,15 +30,8 @@
   .gauge-arc { transition: stroke-dashoffset 0.6s ease-out; filter: drop-shadow(0 0 6px currentColor); }
   .gauge-needle { transform-origin: 100px 100px; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)); }
 
-  /* System Grid */
   .system-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-  .sys-item {
-    background: linear-gradient(145deg, #1e293b, #0f172a);
-    border: 1.5px solid #334155; border-radius: 14px;
-    padding: 10px 4px; display: flex; flex-direction: column;
-    align-items: center; gap: 4px; transition: all 0.3s ease;
-    cursor: pointer; position: relative;
-  }
+  .sys-item { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 14px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.3s ease; cursor: pointer; position: relative; }
   .sys-item .sys-icon { font-size: 18px; color: #64748b; transition: all 0.3s; }
   .sys-item .sys-label { font-size: 9px; color: #64748b; font-weight: 700; text-align: center; line-height: 1.1; }
   .sys-item:hover { transform: translateY(-2px); border-color: #3b82f6; }
@@ -61,7 +43,6 @@
   .sys-item.bad .sys-label { color: #fca5a5; }
   @keyframes sysAlert { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
 
-  /* DTC Type Badges */
   .dtc-type-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
   .dtc-type-confirmed { background: #dc2626; color: #fff; }
   .dtc-type-pending { background: #f59e0b; color: #fff; }
@@ -73,6 +54,18 @@
   .dtc-item-permanent { background: rgba(124,58,237,0.15) !important; border-right-color: #7c3aed !important; }
   .dtc-item-pending .text-red-300 { color: #fcd34d !important; }
   .dtc-item-permanent .text-red-300 { color: #c4b5fd !important; }
+
+  .ready-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ready-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(15,23,42,0.5); border-radius: 10px; border: 1px solid #334155; font-size: 12px; }
+  .ready-item .name { color: #cbd5e1; font-weight: 600; }
+  .ready-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+  .ready-ready { background: #10b981; color: #fff; }
+  .ready-not-ready { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
+  .ready-na { background: #64748b; color: #fff; }
+  .mil-status { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; }
+  .mil-on { background: linear-gradient(135deg, #dc2626, #991b1b); color: #fff; }
+  .mil-off { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
@@ -81,9 +74,7 @@
 
   <div class="flex justify-between items-center pt-2">
     <div class="text-right flex-1">
-      <h1 class="text-xl font-bold flex items-center gap-2">
-        <i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga
-      </h1>
+      <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga</h1>
       <p id="subtitleText" class="text-xs text-gray-400">أداة فحص السيارات المتكاملة</p>
     </div>
     <button id="btnLang" class="bg-gray-800 hover:bg-gray-700 border-2 border-blue-500 text-blue-400 px-3 py-1.5 rounded-xl text-sm font-bold transition">
@@ -100,37 +91,19 @@
       </div>
     </div>
     <div class="grid grid-cols-2 gap-2">
-      <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-        <i class="fa-brands fa-bluetooth-b"></i> <span data-t="connect">اتصال</span>
-      </button>
-      <button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-flask"></i> <span data-t="demo">وضع تجريبي</span>
-      </button>
-      <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2 col-span-2">
-        <i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span>
-      </button>
-      <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 col-span-2">
-        <i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span>
-      </button>
+      <button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> <span data-t="connect">اتصال</span></button>
+      <button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> <span data-t="demo">وضع تجريبي</span></button>
+      <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold transition items-center justify-center gap-2 col-span-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span data-t="disconnect">قطع</span></button>
+      <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 col-span-2"><i class="fa-solid fa-trash"></i> <span data-t="clear">مسح الأعطال</span></button>
     </div>
   </header>
 
   <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
-    <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="faults">
-      <i class="fa-solid fa-screwdriver-wrench"></i> <span data-t="tabFaults">الأعطال</span>
-    </button>
-    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="live">
-      <i class="fa-solid fa-chart-line"></i> <span data-t="tabLive">بيانات حية</span>
-    </button>
-    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="vin">
-      <i class="fa-solid fa-barcode"></i> <span data-t="tabVin">VIN</span>
-    </button>
-    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="history">
-      <i class="fa-solid fa-folder"></i> <span data-t="tabHistory">السجل</span>
-    </button>
-    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="stats">
-      <i class="fa-solid fa-chart-pie"></i> <span data-t="tabStats">إحصائيات</span>
-    </button>
+    <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> <span data-t="tabFaults">الأعطال</span></button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="live"><i class="fa-solid fa-chart-line"></i> <span data-t="tabLive">بيانات حية</span></button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="vin"><i class="fa-solid fa-barcode"></i> <span data-t="tabVin">VIN</span></button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="history"><i class="fa-solid fa-folder"></i> <span data-t="tabHistory">السجل</span></button>
+    <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> <span data-t="tabStats">إحصائيات</span></button>
   </div>
 
   <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left;white-space:pre-wrap;">> مرحباً! اضغط "اتصال" أو "وضع تجريبي".</div>
@@ -152,7 +125,6 @@
           <div class="gauge-value" style="--gauge-color:#ef4444;" id="gauge-rpm">0</div>
           <div class="gauge-unit" data-t="rpmUnit">دورة/دقيقة</div>
         </div>
-
         <div class="gauge-box" style="--gauge-color: #3b82f6;">
           <div class="gauge-label">SPEED</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
@@ -165,7 +137,6 @@
           <div class="gauge-value" style="--gauge-color:#3b82f6;" id="gauge-speed">0</div>
           <div class="gauge-unit" data-t="kmhUnit">كم/ساعة</div>
         </div>
-
         <div class="gauge-box" style="--gauge-color: #f59e0b;">
           <div class="gauge-label">TEMP</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
@@ -178,7 +149,6 @@
           <div class="gauge-value" style="--gauge-color:#f59e0b;" id="gauge-coolant">0</div>
           <div class="gauge-unit" data-t="celsiusUnit">درجة مئوية</div>
         </div>
-
         <div class="gauge-box" style="--gauge-color: #10b981;">
           <div class="gauge-label">FUEL</div>
           <svg viewBox="0 0 200 200" class="gauge-svg">
@@ -213,6 +183,23 @@
       </div>
     </div>
 
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-leaf text-green-400"></i>
+          <span data-t="readinessTitle">جاهزية الانبعاثات</span>
+        </h3>
+        <button id="btnReadiness" class="bg-green-700 hover:bg-green-600 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <span data-t="checkReadiness">فحص الجاهزية</span>
+        </button>
+      </div>
+      <p class="text-xs text-gray-400" data-t="readinessDesc">يفحص جاهزية أنظمة الانبعاثات للفحص الدوري</p>
+      <div id="readinessContent">
+        <p class="text-gray-500 text-center py-4" data-t="readinessIdle">اضغط "فحص الجاهزية" للبدء</p>
+      </div>
+    </div>
+
     <div id="smartDiagnosis" class="hidden"></div>
     <div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
       <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -220,28 +207,20 @@
           <div class="font-bold text-emerald-300 text-sm" data-t="shareReport">📄 شارك النتائج</div>
           <div class="text-xs text-emerald-400/80 mt-1" data-t="shareDesc">تقرير PDF احترافي</div>
         </div>
-        <button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
-          <i class="fa-solid fa-file-pdf"></i> PDF
-        </button>
+        <button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
       </div>
     </div>
 
     <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
       <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span data-t="dtcTitle">أكواد الأعطال</span></h3>
-
       <div class="dtc-legend">
         <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#dc2626;color:#dc2626;"></div><span data-t="legendConfirmed">مؤكد</span></div>
         <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#f59e0b;color:#f59e0b;"></div><span data-t="legendPending">مؤقت</span></div>
         <div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#7c3aed;color:#7c3aed;"></div><span data-t="legendPermanent">دائم</span></div>
       </div>
-
       <div class="grid grid-cols-2 gap-2">
-        <button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span>
-        </button>
-        <button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-radar"></i> <span data-t="readAll">فحص الكل</span>
-        </button>
+        <button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span></button>
+        <button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-radar"></i> <span data-t="readAll">فحص الكل</span></button>
       </div>
       <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none transition" placeholder="🔍 ابحث عن كود (P0301)...">
       <div id="searchResults"></div>
@@ -333,7 +312,18 @@ const TR = {
     sysEngine:'المحرك', sysTrans:'الجير', sysBrakes:'الفرامل', sysAirbag:'الوسائد',
     sysFuel:'الوقود', sysExhaust:'العوادم', sysCooling:'التبريد', sysBattery:'البطارية', sysElectronics:'الكهرباء',
     legendConfirmed:'مؤكد', legendPending:'مؤقت', legendPermanent:'دائم',
-    typeConfirmed:'مؤكد', typePending:'مؤقت', typePermanent:'دائم' },
+    typeConfirmed:'مؤكد', typePending:'مؤقت', typePermanent:'دائم',
+    readinessTitle:'جاهزية الانبعاثات', checkReadiness:'فحص الجاهزية',
+    readinessDesc:'يفحص جاهزية أنظمة الانبعاثات للفحص الدوري',
+    readinessIdle:'اضغط "فحص الجاهزية" للبدء',
+    milOn:'⚠️ لمبة الأعطال مضاءة', milOff:'✅ لمبة الأعطال مطفأة',
+    dtcCountLabel:'عدد الأعطال', continuousMonitors:'المراقبة المستمرة',
+    nonContinuousMonitors:'المراقبة غير المستمرة',
+    monMisfire:'الاشتعال المتقطع', monFuel:'نظام الوقود', monComponents:'المكونات',
+    monCatalyst:'الكتلايزر', monHeatedCat:'الكتلايزر المسخّن', monEvap:'نظام EVAP',
+    monSecondaryAir:'الهواء الثانوي', monAcRef:'غاز التكييف', monO2:'حساس O2',
+    monO2Heater:'سخان O2', monEgr:'صمام EGR',
+    statusReady:'جاهز', statusNotReady:'غير جاهز', statusNA:'غير مدعوم' },
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
     connect:'Connect', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
@@ -350,7 +340,18 @@ const TR = {
     sysEngine:'Engine', sysTrans:'Trans.', sysBrakes:'Brakes', sysAirbag:'Airbag',
     sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electrical',
     legendConfirmed:'Confirmed', legendPending:'Pending', legendPermanent:'Permanent',
-    typeConfirmed:'Confirmed', typePending:'Pending', typePermanent:'Permanent' }
+    typeConfirmed:'Confirmed', typePending:'Pending', typePermanent:'Permanent',
+    readinessTitle:'Readiness Monitors', checkReadiness:'Check Readiness',
+    readinessDesc:'Checks emission systems readiness for inspection',
+    readinessIdle:'Press "Check Readiness" to start',
+    milOn:'⚠️ MIL Light ON', milOff:'✅ MIL Light OFF',
+    dtcCountLabel:'DTC Count', continuousMonitors:'Continuous Monitors',
+    nonContinuousMonitors:'Non-Continuous Monitors',
+    monMisfire:'Misfire', monFuel:'Fuel System', monComponents:'Components',
+    monCatalyst:'Catalyst', monHeatedCat:'Heated Cat', monEvap:'EVAP',
+    monSecondaryAir:'Secondary Air', monAcRef:'A/C Ref', monO2:'O2 Sensor',
+    monO2Heater:'O2 Heater', monEgr:'EGR Valve',
+    statusReady:'Ready', statusNotReady:'Not Ready', statusNA:'N/A' }
 };
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
@@ -761,28 +762,20 @@ async function readDTCs(){
   try{
     let allFaults=[];
     const systemName=currentLang==='ar'?'المحرك':'Engine';
-    
     const res03=await window.sendCmd('03',5000);
     const codes03=parseDTCsFromBytes(parseHexBytes(res03));
     codes03.forEach(c=>allFaults.push({code:c,system:systemName,type:'confirmed'}));
     log(`📋 Confirmed: ${codes03.length}`);
-    
     await window.sendCmd('AT SH 7E0',200);
     const res07=await window.sendCmd('07',5000);
     const codes07=parseDTCsFromBytes(parseHexBytes(res07));
-    codes07.forEach(c=>{
-      if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'pending'});
-    });
+    codes07.forEach(c=>{if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'pending'});});
     log(`🟡 Pending: ${codes07.length}`);
-    
     await window.sendCmd('AT SH 7E0',200);
     const res0A=await window.sendCmd('0A',5000);
     const codes0A=parseDTCsFromBytes(parseHexBytes(res0A));
-    codes0A.forEach(c=>{
-      if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'permanent'});
-    });
+    codes0A.forEach(c=>{if(!allFaults.some(f=>f.code===c)) allFaults.push({code:c,system:systemName,type:'permanent'});});
     log(`🟣 Permanent: ${codes0A.length}`);
-    
     if(allFaults.length===0){
       list.innerHTML=`<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">✅ ${currentLang==='ar'?'السيارة سليمة':'No faults'}</div>`;
       document.getElementById('smartDiagnosis').classList.add('hidden');
@@ -875,7 +868,6 @@ function renderFaults(faults){
     const typeIcon=type==='pending'?'⏳':type==='permanent'?'🔒':'✅';
     const typeClass=type==='pending'?'dtc-type-pending':type==='permanent'?'dtc-type-permanent':'dtc-type-confirmed';
     const itemClass=type==='pending'?'dtc-item-pending':type==='permanent'?'dtc-item-permanent':'';
-    
     return `<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in ${itemClass}" data-code="${f.code}">
       <div class="flex items-center gap-2 mb-1 flex-wrap">
         <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">${f.system}</span>
@@ -901,6 +893,91 @@ async function clearDTCs(){
   document.getElementById('healthBadge').classList.add('hidden');
   hideExport();
   resetSystemGrid();
+}
+
+function parseMonitor(byte, bit) {
+  const available = (byte & (1 << bit)) !== 0;
+  if (!available) return 'n/a';
+  const incomplete = (byte & (1 << (bit + 4))) !== 0;
+  return incomplete ? 'not-ready' : 'ready';
+}
+
+function renderReadiness(data) {
+  const c = document.getElementById('readinessContent');
+  if (!c) return;
+  const milClass = data.mil ? 'mil-on' : 'mil-off';
+  const milText = data.mil ? t('milOn') : t('milOff');
+  const renderItem = (name, status) => {
+    const cls = status === 'ready' ? 'ready-ready' : status === 'not-ready' ? 'ready-not-ready' : 'ready-na';
+    const label = status === 'ready' ? t('statusReady') : status === 'not-ready' ? t('statusNotReady') : t('statusNA');
+    const icon = status === 'ready' ? '✅' : status === 'not-ready' ? '⚠️' : '—';
+    return `<div class="ready-item"><span class="name">${name}</span><span class="ready-badge ${cls}">${icon} ${label}</span></div>`;
+  };
+  c.innerHTML = `
+    <div class="mil-status ${milClass}"><span>${milText}</span><span style="font-size:13px;">${t('dtcCountLabel')}: ${data.dtcCount}</span></div>
+    <div class="mb-3">
+      <div class="text-xs font-bold text-blue-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-infinity"></i> ${t('continuousMonitors')}</div>
+      <div class="ready-grid">
+        ${renderItem(t('monMisfire'), data.continuous.misfire)}
+        ${renderItem(t('monFuel'), data.continuous.fuel)}
+        ${renderItem(t('monComponents'), data.continuous.components)}
+      </div>
+    </div>
+    <div>
+      <div class="text-xs font-bold text-purple-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> ${t('nonContinuousMonitors')}</div>
+      <div class="ready-grid">
+        ${renderItem(t('monCatalyst'), data.nonContinuous.catalyst)}
+        ${renderItem(t('monHeatedCat'), data.nonContinuous.heatedCat)}
+        ${renderItem(t('monEvap'), data.nonContinuous.evap)}
+        ${renderItem(t('monO2'), data.nonContinuous.o2)}
+        ${renderItem(t('monO2Heater'), data.nonContinuous.o2Heater)}
+        ${renderItem(t('monEgr'), data.nonContinuous.egr)}
+        ${renderItem(t('monSecondaryAir'), data.nonContinuous.secondaryAir)}
+        ${renderItem(t('monAcRef'), data.nonContinuous.acRef)}
+      </div>
+    </div>
+  `;
+}
+
+async function checkReadiness() {
+  const c = document.getElementById('readinessContent');
+  if (!c) return;
+  c.innerHTML = `<p class="text-blue-400 text-center py-4"><span class="spinner"></span> ${t('scanning')}</p>`;
+  if (!isConnected && !isDemo) {
+    c.innerHTML = `<p class="text-amber-400 text-center py-4">⚠️ ${currentLang === 'ar' ? 'اتصل بجهاز أولاً' : 'Connect device first'}</p>`;
+    return;
+  }
+  if (isDemo) {
+    renderReadiness({
+      mil: true,
+      dtcCount: 3,
+      continuous: { misfire: 'not-ready', fuel: 'ready', components: 'ready' },
+      nonContinuous: { catalyst: 'ready', heatedCat: 'n/a', evap: 'not-ready', o2: 'ready', o2Heater: 'ready', egr: 'n/a', secondaryAir: 'n/a', acRef: 'ready' }
+    });
+    log('✅ Demo readiness check');
+    return;
+  }
+  try {
+    const res = await window.sendCmd('01 01', 3500);
+    const bytes = parseHexBytes(res);
+    let idx = -1;
+    for (let i = 0; i < bytes.length - 5; i++) {
+      if (bytes[i] === 0x41 && bytes[i + 1] === 0x01) { idx = i; break; }
+    }
+    if (idx === -1) {
+      c.innerHTML = `<p class="text-red-400 text-center py-4">❌ ${currentLang === 'ar' ? 'لا توجد استجابة' : 'No response'}</p>`;
+      return;
+    }
+    const A = bytes[idx + 2], B = bytes[idx + 3], C = bytes[idx + 4];
+    const mil = (A & 0x80) !== 0;
+    const dtcCount = A & 0x7F;
+    renderReadiness({
+      mil, dtcCount,
+      continuous: { misfire: parseMonitor(B, 0), fuel: parseMonitor(B, 1), components: parseMonitor(B, 2) },
+      nonContinuous: { catalyst: parseMonitor(C, 0), heatedCat: parseMonitor(C, 1), evap: parseMonitor(C, 2), secondaryAir: parseMonitor(C, 3), acRef: parseMonitor(C, 4), o2: parseMonitor(C, 5), o2Heater: parseMonitor(C, 6), egr: parseMonitor(C, 7) }
+    });
+    log('✅ Readiness check complete');
+  } catch (e) { log('❌ ' + e.message); }
 }
 
 const FREEZE_PIDS={'05':{name:'Coolant',bytes:1,calc:a=>`${a-40}°C`},'0C':{name:'RPM',bytes:2,calc:(a,b)=>`${((a*256+b)/4).toFixed(0)}`},'0D':{name:'Speed',bytes:1,calc:a=>`${a}km/h`},'0E':{name:'Timing',bytes:1,calc:a=>`${(a/2-64).toFixed(1)}°`},'04':{name:'Load',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`},'11':{name:'Throttle',bytes:1,calc:a=>`${(a*100/255).toFixed(1)}%`}};
@@ -1198,6 +1275,7 @@ document.getElementById('btnStopLive').onclick=()=>{};
 document.getElementById('btnExportCSV').onclick=()=>log('CSV');
 document.getElementById('btnExportPDF').onclick=exportPDF;
 document.getElementById('btnLoadStats').onclick=loadStats;
+document.getElementById('btnReadiness').onclick=checkReadiness;
 document.getElementById('btnReadVIN').onclick=async()=>{
   if(!isConnected){alert(currentLang==='ar'?'اتصل':'Connect');return;}
   if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
