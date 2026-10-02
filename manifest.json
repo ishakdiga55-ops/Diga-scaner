@@ -13,15 +13,9 @@
   "categories": ["utilities", "productivity", "automotive"],
   "icons": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
@@ -31,14 +25,26 @@
       "short_name": "فحص",
       "description": "بدء فحص المحرك",
       "url": "./?action=scan",
-      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+      "icons": [
+        {
+          "src": "icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     },
     {
       "name": "الوضع التجريبي",
       "short_name": "تجريبي",
       "description": "تجربة الأداة بدون سيارة",
       "url": "./?action=demo",
-      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+      "icons": [
+        {
+          "src": "icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }
