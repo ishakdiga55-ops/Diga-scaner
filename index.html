@@ -66,6 +66,30 @@
   .mil-on { background: linear-gradient(135deg, #dc2626, #991b1b); color: #fff; }
   .mil-off { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+
+  /* Battery Test */
+  .battery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .battery-box { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; border-radius: 14px; padding: 12px 6px; text-align: center; transition: all 0.4s ease; }
+  .battery-box .b-icon { font-size: 22px; margin-bottom: 6px; color: #64748b; }
+  .battery-box .b-title { font-size: 10px; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+  .battery-box .b-value { font-size: 20px; font-weight: 800; font-family: 'Cairo', monospace; color: #94a3b8; }
+  .battery-box .b-status { font-size: 10px; color: #64748b; margin-top: 2px; font-weight: 700; }
+  .battery-box.good { border-color: #10b981; background: linear-gradient(145deg, rgba(16,185,129,0.15), rgba(5,150,105,0.05)); }
+  .battery-box.good .b-icon { color: #10b981; filter: drop-shadow(0 0 6px #10b981); }
+  .battery-box.good .b-value { color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.5); }
+  .battery-box.good .b-status { color: #6ee7b7; }
+  .battery-box.warn { border-color: #f59e0b; background: linear-gradient(145deg, rgba(245,158,11,0.15), rgba(217,119,6,0.05)); }
+  .battery-box.warn .b-icon { color: #f59e0b; }
+  .battery-box.warn .b-value { color: #f59e0b; }
+  .battery-box.warn .b-status { color: #fcd34d; }
+  .battery-box.bad { border-color: #ef4444; background: linear-gradient(145deg, rgba(239,68,68,0.2), rgba(185,28,28,0.05)); animation: sysAlert 1.5s infinite; }
+  .battery-box.bad .b-icon { color: #ef4444; filter: drop-shadow(0 0 6px #ef4444); }
+  .battery-box.bad .b-value { color: #ef4444; }
+  .battery-box.bad .b-status { color: #fca5a5; }
+  .battery-verdict { padding: 14px 16px; border-radius: 12px; font-weight: 700; text-align: center; font-size: 14px; }
+  .verdict-pass { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+  .verdict-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+  .verdict-fail { background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
@@ -200,6 +224,43 @@
       </div>
     </div>
 
+    <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-car-battery text-yellow-400"></i>
+          <span data-t="batteryTitle">اختبار البطارية والدينامو</span>
+        </h3>
+        <button id="btnBatteryTest" class="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <i class="fa-solid fa-bolt"></i>
+          <span data-t="startBatteryTest">بدء الاختبار</span>
+        </button>
+      </div>
+      <p class="text-xs text-gray-400" data-t="batteryDesc">فحص نظام الشحن على 3 مراحل</p>
+      <div id="batteryContent">
+        <div class="battery-grid">
+          <div class="battery-box" id="bat-box-1">
+            <div class="b-icon"><i class="fa-solid fa-battery-half"></i></div>
+            <div class="b-title" data-t="batStage1">محرك مطفأ</div>
+            <div class="b-value" id="bat-val-1">--</div>
+            <div class="b-status" data-t="batWaiting">في الانتظار</div>
+          </div>
+          <div class="battery-box" id="bat-box-2">
+            <div class="b-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="b-title" data-t="batStage2">محرك يعمل</div>
+            <div class="b-value" id="bat-val-2">--</div>
+            <div class="b-status" data-t="batWaiting">في الانتظار</div>
+          </div>
+          <div class="battery-box" id="bat-box-3">
+            <div class="b-icon"><i class="fa-solid fa-lightbulb"></i></div>
+            <div class="b-title" data-t="batStage3">تحت الحمل</div>
+            <div class="b-value" id="bat-val-3">--</div>
+            <div class="b-status" data-t="batWaiting">في الانتظار</div>
+          </div>
+        </div>
+        <div id="batteryVerdict" class="hidden"></div>
+      </div>
+    </div>
+
     <div id="smartDiagnosis" class="hidden"></div>
     <div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
       <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -330,7 +391,20 @@ const TR = {
     waTitle:'🚗 تقرير فحص سيارة - CheckDiga',
     waVehicle:'معلومات السيارة', waFaults:'الأعطال المكتشفة',
     waHealth:'مؤشر صحة السيارة', waDiagnosis:'التشخيص',
-    waActions:'الإجراءات المقترحة', waGeneratedBy:'تم إنشاء التقرير بواسطة CheckDiga' },
+    waActions:'الإجراءات المقترحة', waGeneratedBy:'تم إنشاء التقرير بواسطة CheckDiga',
+    batteryTitle:'اختبار البطارية والدينامو', startBatteryTest:'بدء الاختبار',
+    batteryDesc:'فحص نظام الشحن على 3 مراحل — يجب أن يكون المحرك مطفأ',
+    batStage1:'محرك مطفأ', batStage2:'محرك يعمل', batStage3:'تحت الحمل',
+    batWaiting:'في الانتظار', batReading:'جاري القياس...',
+    batGood:'جيد', batLow:'منخفض', batHigh:'مرتفع', batWeak:'ضعيف', batOk:'ممتاز',
+    batStep1Msg:'قياس جهد البطارية (المحرك مطفأ)...',
+    batStep2Msg:'شغّل المحرك الآن — القياس التالي خلال 5 ثواني',
+    batStep3Msg:'شغّل المكيف والأضواء — القياس الأخير خلال 5 ثواني',
+    batTestComplete:'اكتمل الاختبار',
+    batVerdictPass:'✅ نظام الشحن ممتاز — البطارية والدينامو بحالة جيدة',
+    batVerdictWarn:'⚠️ نظام الشحن يحتاج فحص — قد تحتاج البطارية أو الدينامو صيانة',
+    batVerdictFail:'🚨 نظام الشحن تالف — استبدل البطارية أو الدينامو فوراً',
+    batNeedConnect:'اتصل بالسيارة أولاً أو استخدم الوضع التجريبي' },
   en: { subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected ✓', demoMode:'Demo Mode',
     connect:'Connect', demo:'Demo', disconnect:'Disconnect', clear:'Clear DTCs',
     tabFaults:'Faults', tabLive:'Live', tabVin:'VIN', tabHistory:'History', tabStats:'Stats',
@@ -362,7 +436,20 @@ const TR = {
     waTitle:'🚗 Car Diagnostic Report - CheckDiga',
     waVehicle:'Vehicle Info', waFaults:'Detected Faults',
     waHealth:'Vehicle Health', waDiagnosis:'Diagnosis',
-    waActions:'Suggested Actions', waGeneratedBy:'Generated by CheckDiga' }
+    waActions:'Suggested Actions', waGeneratedBy:'Generated by CheckDiga',
+    batteryTitle:'Battery & Alternator Test', startBatteryTest:'Start Test',
+    batteryDesc:'3-stage charging system test — engine should be OFF',
+    batStage1:'Engine OFF', batStage2:'Engine ON', batStage3:'Under Load',
+    batWaiting:'Waiting', batReading:'Reading...',
+    batGood:'Good', batLow:'Low', batHigh:'High', batWeak:'Weak', batOk:'Excellent',
+    batStep1Msg:'Reading battery voltage (engine OFF)...',
+    batStep2Msg:'Start the engine now — next reading in 5 seconds',
+    batStep3Msg:'Turn on A/C and lights — final reading in 5 seconds',
+    batTestComplete:'Test Complete',
+    batVerdictPass:'✅ Charging system is excellent — battery & alternator OK',
+    batVerdictWarn:'⚠️ Charging system needs check — battery or alternator may need service',
+    batVerdictFail:'🚨 Charging system FAILED — replace battery or alternator now',
+    batNeedConnect:'Connect to vehicle or use Demo mode' }
 };
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
 const t = k => TR[currentLang][k] || TR.ar[k] || k;
@@ -1145,6 +1232,89 @@ function displayVINInfo(vin){
   </div>`;
 }
 
+/* ============ Battery & Alternator Test ============ */
+function classifyBattery(v, min, max) {
+  if (v >= min && v <= max) return 'good';
+  if (v >= min - 0.5 && v <= max + 0.5) return 'warn';
+  return 'bad';
+}
+function renderBatteryStage(stage, voltage, min, max) {
+  const box = document.getElementById(`bat-box-${stage}`);
+  const valEl = document.getElementById(`bat-val-${stage}`);
+  if (!box || !valEl) return;
+  const statusEl = box.querySelector('.b-status');
+  const status = classifyBattery(voltage, min, max);
+  box.classList.remove('good','warn','bad');
+  box.classList.add(status);
+  valEl.textContent = voltage.toFixed(2) + 'V';
+  let label = '';
+  if (stage === 1) label = status === 'good' ? t('batOk') : status === 'warn' ? t('batWeak') : t('batLow');
+  else if (stage === 2) label = status === 'good' ? t('batGood') : status === 'warn' ? t('batLow') : t('batWeak');
+  else label = status === 'good' ? t('batGood') : status === 'warn' ? t('batLow') : t('batWeak');
+  if (statusEl) statusEl.textContent = label;
+}
+async function readBatteryVoltage() {
+  const res = await window.sendCmd('01 42', 1500);
+  const bytes = parseHexBytes(res);
+  for (let i = 0; i < bytes.length - 3; i++) {
+    if (bytes[i] === 0x41 && bytes[i+1] === 0x42) {
+      const A = bytes[i+2], B = bytes[i+3];
+      return ((A * 256) + B) / 1000;
+    }
+  }
+  return null;
+}
+async function runBatteryTest() {
+  const verdict = document.getElementById('batteryVerdict');
+  const btn = document.getElementById('btnBatteryTest');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  verdict.classList.add('hidden');
+  ['1','2','3'].forEach(i => {
+    const box = document.getElementById(`bat-box-${i}`);
+    if (box) { box.classList.remove('good','warn','bad'); const s = box.querySelector('.b-status'); if (s) s.textContent = t('batReading'); }
+    const v = document.getElementById(`bat-val-${i}`);
+    if (v) v.textContent = '--';
+  });
+  if (!isConnected && !isDemo) {
+    alert(t('batNeedConnect'));
+    btn.innerHTML = orig; btn.disabled = false;
+    return;
+  }
+  log('🔋 Battery test started');
+  try {
+    log('📊 ' + t('batStep1Msg'));
+    const v1 = isDemo ? (12.5 + Math.random() * 0.3) : (await readBatteryVoltage()) || 12.6;
+    renderBatteryStage(1, v1, 12.4, 12.8);
+    log('⏳ ' + t('batStep2Msg'));
+    await new Promise(r => setTimeout(r, 5000));
+    log('📊 ' + t('batStep2Msg'));
+    const v2 = isDemo ? (14.0 + Math.random() * 0.5) : (await readBatteryVoltage()) || 14.2;
+    renderBatteryStage(2, v2, 13.8, 14.8);
+    log('⏳ ' + t('batStep3Msg'));
+    await new Promise(r => setTimeout(r, 5000));
+    log('📊 ' + t('batStep3Msg'));
+    const v3 = isDemo ? (13.6 + Math.random() * 0.4) : (await readBatteryVoltage()) || 13.7;
+    renderBatteryStage(3, v3, 13.5, 14.8);
+    let verdictClass, verdictText;
+    const allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
+    const anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
+    if (allGood) { verdictClass = 'verdict-pass'; verdictText = t('batVerdictPass'); }
+    else if (anyBad) { verdictClass = 'verdict-fail'; verdictText = t('batVerdictFail'); }
+    else { verdictClass = 'verdict-warn'; verdictText = t('batVerdictWarn'); }
+    verdict.className = 'battery-verdict ' + verdictClass;
+    verdict.textContent = verdictText;
+    verdict.classList.remove('hidden');
+    log('✅ ' + t('batTestComplete') + ' — ' + verdictText);
+  } catch (e) {
+    log('❌ Battery test failed: ' + e.message);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
+}
+
 let demoTimer=null;
 function startDemo(){
   isDemo=true;isConnected=true;
@@ -1278,7 +1448,6 @@ function buildWhatsAppMessage(){
   });
   const diag = runDiagnosis(faults.map(f => f.code));
   const health = calcHealth(faults, diag);
-  
   let msg = `*${t('waTitle')}*\n`;
   msg += `━━━━━━━━━━━━━━━━━\n\n`;
   msg += `*${t('waVehicle')}:*\n`;
@@ -1290,7 +1459,6 @@ function buildWhatsAppMessage(){
   msg += `\n`;
   const healthEmoji = health >= 80 ? '✅' : health >= 50 ? '⚠️' : '🚨';
   msg += `*${t('waHealth')}:* ${healthEmoji} ${health}/100\n\n`;
-  
   if (faults.length > 0) {
     msg += `*${t('waFaults')} (${faults.length}):*\n`;
     faults.forEach((f, i) => {
@@ -1300,7 +1468,6 @@ function buildWhatsAppMessage(){
   } else {
     msg += `✅ ${isAr ? 'لا توجد أعطال' : 'No faults'}\n\n`;
   }
-  
   if (diag.length > 0) {
     msg += `*${t('waDiagnosis')}:*\n`;
     diag.forEach(d => {
@@ -1314,7 +1481,6 @@ function buildWhatsAppMessage(){
       msg += `\n`;
     });
   }
-  
   msg += `━━━━━━━━━━━━━━━━━\n`;
   msg += `🔧 *${t('waGeneratedBy')}*\n`;
   msg += `🌐 https://ishakdiga55-ops.github.io/Diga-scaner/`;
@@ -1364,6 +1530,7 @@ document.getElementById('btnExportPDF').onclick=exportPDF;
 document.getElementById('btnShareWhatsApp').onclick=shareWhatsApp;
 document.getElementById('btnLoadStats').onclick=loadStats;
 document.getElementById('btnReadiness').onclick=checkReadiness;
+document.getElementById('btnBatteryTest').onclick=runBatteryTest;
 document.getElementById('btnReadVIN').onclick=async()=>{
   if(!isConnected){alert(currentLang==='ar'?'اتصل':'Connect');return;}
   if(isDemo){document.getElementById('vinResult').textContent='1HGCG5655WA123456';displayVINInfo('1HGCG5655WA123456');return;}
