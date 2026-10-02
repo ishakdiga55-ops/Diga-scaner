@@ -240,9 +240,7 @@ body{font-family:'Cairo',sans-serif}
 
 <div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
 <div class="flex items-center justify-between gap-3 flex-wrap">
-<div>
-<div class="font-bold text-emerald-300 text-sm">📄 شارك النتائج</div>
-</div>
+<div><div class="font-bold text-emerald-300 text-sm">📄 شارك النتائج</div></div>
 <div class="flex gap-2">
 <button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
 <button id="btnShareWhatsApp" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</button>
@@ -323,45 +321,24 @@ body{font-family:'Cairo',sans-serif}
 </div>
 
 <script>
-// 🛡️ كاشف الأخطاء — يعرض أي خطأ مباشرة
-window.addEventListener('error', function(e) {
+window.addEventListener('error', function(e){
   const c = document.getElementById('console');
-  if(c) {
-    c.textContent += '\n\n❌ خطأ: ' + e.message + '\n📍 سطر: ' + e.lineno;
-    c.style.color = '#ef4444';
-  }
+  if(c){c.textContent += '\n\n❌ خطأ: ' + e.message + '\n📍 سطر: ' + e.lineno;c.style.color = '#ef4444';}
 });
-
-// 🚀 Firebase — اختياري (إذا فشل، التطبيق يعمل)
 window.FIREBASE_READY = false;
 window.firebaseMethods = null;
 (async function loadFirebase(){
-  try {
+  try{
     const appModule = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js");
     const fsModule = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
-    const app = appModule.initializeApp({
-      apiKey: "AIzaSyBEIqVSzAdu-hBQqhhda3E7A05oVOHDkFc",
-      authDomain: "checkdiga-f9be7.firebaseapp.com",
-      projectId: "checkdiga-f9be7",
-      storageBucket: "checkdiga-f9be7.firebasestorage.app",
-      messagingSenderId: "429788177002",
-      appId: "1:429788177002:web:be7ff0ca219ccfc0372013"
-    });
-    const db = fsModule.getFirestore(app);
-    window.firebaseMethods = { db, fsModule };
+    const app = appModule.initializeApp({apiKey:"AIzaSyBEIqVSzAdu-hBQqhhda3E7A05oVOHDkFc",authDomain:"checkdiga-f9be7.firebaseapp.com",projectId:"checkdiga-f9be7",storageBucket:"checkdiga-f9be7.firebasestorage.app",messagingSenderId:"429788177002",appId:"1:429788177002:web:be7ff0ca219ccfc0372013"});
+    window.firebaseMethods = {db: fsModule.getFirestore(app), fsModule};
     window.FIREBASE_READY = true;
-    console.log('✅ Firebase loaded');
-  } catch(e) {
-    console.warn('⚠️ Firebase غير متوفر — التطبيق سيعمل بدون سحابة');
-    window.FIREBASE_READY = false;
-  }
+  }catch(e){console.warn('Firebase غير متوفر');}
 })();
 </script>
 
 <script type="module">
-// ============================================================
-// 🌐 كشف النظام
-// ============================================================
 const ua = navigator.userAgent;
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isAndroid = /Android/.test(ua);
@@ -369,10 +346,10 @@ const hasSerial = 'serial' in navigator;
 const hasBluetooth = 'bluetooth' in navigator;
 
 // ============================================================
-// 📚 قاعدة بيانات الأكواد (كل الأكواد في مكان واحد)
+// 📚 قاعدة البيانات — كل الأكواد
 // ============================================================
 const DTC_DATABASE = {
-// ============ P01xx - نظام الوقود والهواء ============
+// ============ P01xx ============
 "P0100":{zone:"engine",title:"حساس MAF - الدائرة",severity:"medium"},
 "P0101":{zone:"engine",title:"حساس MAF - أداء",desc:"نظّف الحساس",severity:"medium"},
 "P0102":{zone:"engine",title:"حساس MAF - منخفض",severity:"medium"},
@@ -417,13 +394,12 @@ const DTC_DATABASE = {
 "P0173":{zone:"fuel",title:"Fuel Trim Bank 2",severity:"high"},
 "P0174":{zone:"fuel",title:"خليط فقير - Bank 2",severity:"high"},
 "P0175":{zone:"fuel",title:"خليط غني - Bank 2",severity:"high"},
-"P0180":{zone:"fuel",title:"حساس حرارة الوقود",severity:"low"},
 "P0190":{zone:"fuel",title:"حساس ضغط الوقود",severity:"high"},
 "P0191":{zone:"fuel",title:"حساس ضغط الوقود - أداء",severity:"high"},
 "P0192":{zone:"fuel",title:"حساس ضغط الوقود - منخفض",severity:"high"},
 "P0193":{zone:"fuel",title:"حساس ضغط الوقود - مرتفع",severity:"high"},
 
-// ============ P02xx - الحاقنات والتيربو ============
+// ============ P02xx ============
 "P0200":{zone:"fuel",title:"دائرة الحاقن - عام",severity:"high"},
 "P0201":{zone:"fuel",title:"الحاقن - الأسطوانة 1",severity:"high"},
 "P0202":{zone:"fuel",title:"الحاقن - الأسطوانة 2",severity:"high"},
@@ -438,13 +414,11 @@ const DTC_DATABASE = {
 "P0236":{zone:"engine",title:"حساس ضغط التيربو - أداء",severity:"medium"},
 "P0237":{zone:"engine",title:"حساس ضغط التيربو - منخفض",severity:"medium"},
 "P0238":{zone:"engine",title:"حساس ضغط التيربو - مرتفع",severity:"medium"},
-"P0261":{zone:"fuel",title:"حاقن 1 - منخفض",severity:"high"},
-"P0263":{zone:"fuel",title:"حاقن 1 - خلل",severity:"high"},
-"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbocharger Underboost",desc:"الأكثر شيوعاً في السيارات التيربو",severity:"high",causes:["خرطوم تيربو مشقوق","صمام Wastegate عالق","صمام Blow-off معطل","حساس MAP تالف","توربو تالف"],symptoms:["فقدان قوة عند التسارع","دخان أسود","صوت صفير","Limp Mode"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص حساس MAP","Smoke Test"],common_cars:["VW Golf TSI","BMW N20","Ford EcoBoost","Audi A3 1.8T"]},
+"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbocharger Underboost",desc:"الأكثر شيوعاً في السيارات التيربو",severity:"high",causes:["خرطوم تيربو مشقوق","صمام Wastegate عالق","صمام Blow-off معطل","حساس MAP تالف"],symptoms:["فقدان قوة عند التسارع","دخان أسود","صوت صفير","Limp Mode"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص حساس MAP"],common_cars:["VW Golf TSI","BMW N20","Ford EcoBoost","Audi A3 1.8T"]},
 
-// ============ P03xx - الإشعال ============
-"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random/Multiple Cylinder Misfire",desc:"اشتعال غير منتظم",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض","حاقنات متسخة"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],common_cars:["جميع السيارات"]},
-"P0301":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل في الأسطوانة 1",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض","تسرب هواء"],symptoms:["اهتزاز المحرك عند الخمول","فقدان قوة","صوت غير منتظم"],steps:["افحص البوجيه","بدّل الكويل مع أسطوانة أخرى","افحص ضغط الأسطوانة","افحص الحاقن"],common_cars:["Toyota Corolla","Honda Civic","Hyundai Elantra","Nissan Sunny"]},
+// ============ P03xx ============
+"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random/Multiple Cylinder Misfire",desc:"اشتعال غير منتظم",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],common_cars:["جميع السيارات"]},
+"P0301":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل في الأسطوانة 1",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],symptoms:["اهتزاز عند الخمول","فقدان قوة","صوت غير منتظم"],steps:["افحص البوجيه","بدّل الكويل","افحص ضغط الأسطوانة","افحص الحاقن"],common_cars:["Toyota Corolla","Honda Civic","Hyundai Elantra","Nissan Sunny"]},
 "P0302":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 2",severity:"high"},
 "P0303":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 3",severity:"high"},
 "P0304":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 4",severity:"high"},
@@ -478,7 +452,7 @@ const DTC_DATABASE = {
 "P0357":{zone:"engine",title:"دائرة الكويل G",severity:"high"},
 "P0358":{zone:"engine",title:"دائرة الكويل H",severity:"high"},
 
-// ============ P04xx - الانبعاثات ============
+// ============ P04xx ============
 "P0400":{zone:"exhaust",title:"تدفق EGR - عام",severity:"medium"},
 "P0401":{zone:"exhaust",title:"تدفق EGR غير كافي",title_en:"EGR Flow Insufficient",desc:"صمام EGR مسدود",severity:"medium",causes:["صمام EGR مسدود","خط EGR مسدود"],symptoms:["خمول غير مستقر","تسارع ضعيف"],steps:["نظّف صمام EGR","افحص الخطوط"],common_cars:["Toyota","VW","Ford"]},
 "P0402":{zone:"exhaust",title:"تدفق EGR زائد",severity:"medium"},
@@ -488,7 +462,7 @@ const DTC_DATABASE = {
 "P0406":{zone:"exhaust",title:"حساس EGR - مرتفع",severity:"medium"},
 "P0410":{zone:"exhaust",title:"نظام الهواء الثانوي",severity:"medium"},
 "P0411":{zone:"exhaust",title:"تدفق الهواء الثانوي",severity:"medium"},
-"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst System Efficiency Below Threshold",desc:"شائع جداً - افحص O2 قبل الاستبدال",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف","تسرب في العادم"],symptoms:["Check Engine فقط","أحياناً رائحة كبريت","فشل اختبار الانبعاثات"],steps:["افحص P0300/P0301 أولاً","قارن O2 الأمامي والخلفي","إذا O2 الخلفي يتذبذب = كتلايزر ضعيف"],common_cars:["Honda Accord","Toyota Camry","Ford Focus","Chevrolet Cruze"]},
+"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst System Efficiency Below Threshold",desc:"شائع جداً - افحص O2 قبل الاستبدال",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف","تسرب في العادم"],symptoms:["Check Engine فقط","أحياناً رائحة كبريت","فشل اختبار الانبعاثات"],steps:["افحص P0300/P0301 أولاً","قارن O2 الأمامي والخلفي"],common_cars:["Honda Accord","Toyota Camry","Ford Focus","Chevrolet Cruze"]},
 "P0430":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 2",severity:"medium"},
 "P0440":{zone:"exhaust",title:"نظام EVAP - عام",severity:"medium"},
 "P0441":{zone:"exhaust",title:"تدفق Purge EVAP",severity:"medium"},
@@ -526,7 +500,7 @@ const DTC_DATABASE = {
 "P0620":{zone:"electronics",title:"دائرة الدينامو",severity:"high"},
 "P0650":{zone:"electronics",title:"دائرة لمبة MIL",severity:"low"},
 
-// ============ P07xx - ناقل الحركة ============
+// ============ P07xx ============
 "P0700":{zone:"transmission",title:"عطل ناقل الحركة - طلب MIL",title_en:"Transmission Control System MIL Request",desc:"افحص كمبيوتر الجير",severity:"high",causes:["مشكلة داخلية","TCM أرسل إشارة عطل"],symptoms:["صعوبة تغيير التروس","Limp Mode"],steps:["افحص كمبيوتر الجير TCM","اقرأ الأكواد الفرعية"],common_cars:["جميع الأوتوماتيك"]},
 "P0705":{zone:"transmission",title:"حساس نطاق ناقل الحركة",severity:"medium"},
 "P0710":{zone:"transmission",title:"حساس حرارة زيت الجير",severity:"medium"},
@@ -553,7 +527,7 @@ const DTC_DATABASE = {
 "P0770":{zone:"transmission",title:"Shift Solenoid E",severity:"high"},
 "P0780":{zone:"transmission",title:"خطأ تغيير التروس",severity:"high"},
 
-// ============ P0Axx - الهجين ============
+// ============ P0Axx - هجين ============
 "P0A00":{zone:"electronics",title:"دائرة تبريد المحرك الكهربائي",severity:"high"},
 "P0A0F":{zone:"electronics",title:"فشل تشغيل المحرك",severity:"critical"},
 "P0A1F":{zone:"electronics",title:"بطارية الجهد العالي",severity:"critical"},
@@ -561,8 +535,8 @@ const DTC_DATABASE = {
 "P0A80":{zone:"electronics",title:"استبدل بطارية HV",severity:"critical"},
 "P0AFA":{zone:"electronics",title:"جهد بطارية HV منخفض",severity:"critical"},
 
-// ============ P2xxx - الديزل ============
-"P2002":{brand:"Diesel",zone:"exhaust",title:"فلتر DPF - Bank 1",title_en:"Diesel Particulate Filter Efficiency",desc:"شائع في الديزل",severity:"high",causes:["سخام متراكم","قيادة قصيرة متكررة","حساس ضغط DPF معطل"],symptoms:["فقدان قوة","Limp Mode","استهلاك مرتفع"],steps:["قيادة سريعة 20 دقيقة","منظف DPF","تجديد قسري بالجهاز"],common_cars:["VW TDI","BMW 320d","Mercedes CDI"]},
+// ============ P2xxx - ديزل ============
+"P2002":{brand:"Diesel",zone:"exhaust",title:"فلتر DPF - Bank 1",severity:"high",causes:["سخام متراكم","قيادة قصيرة متكررة","حساس ضغط DPF معطل"],symptoms:["فقدان قوة","Limp Mode","استهلاك مرتفع"],steps:["قيادة سريعة 20 دقيقة","منظف DPF","تجديد قسري بالجهاز"],common_cars:["VW TDI","BMW 320d","Mercedes CDI"]},
 "P2003":{brand:"Diesel",zone:"exhaust",title:"فلتر DPF - Bank 2",severity:"high"},
 "P2043":{brand:"Diesel",zone:"engine",title:"مضخة اليوريا",severity:"high"},
 "P2047":{brand:"Diesel",zone:"engine",title:"حاقن اليوريا",severity:"high"},
@@ -575,14 +549,14 @@ const DTC_DATABASE = {
 "P2458":{brand:"Diesel",zone:"exhaust",title:"مدة تجديد DPF طويلة",severity:"medium"},
 "P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم سخام DPF",severity:"high"},
 
-// ============ C - الشاسيه ============
+// ============ C ============
 "C0035":{zone:"brakes",title:"حساس سرعة العجلة الأمامية اليسرى",severity:"high"},
 "C0040":{zone:"brakes",title:"حساس سرعة العجلة الأمامية اليمنى",severity:"high"},
 "C0045":{zone:"brakes",title:"حساس سرعة العجلة الخلفية اليسرى",severity:"high"},
 "C0050":{zone:"brakes",title:"حساس سرعة العجلة الخلفية اليمنى",severity:"high"},
 "C1201":{zone:"electronics",title:"نظام التحكم بالانزلاق - Toyota",severity:"high"},
 
-// ============ B - الجسم ============
+// ============ B ============
 "B0001":{zone:"airbag",title:"عطل الوسائد الهوائية",title_en:"Airbag System Fault",desc:"🚨 نظام SRS معطل",severity:"critical",causes:["وحدة SRS تالفة","حساس صدمة","أسلاك"],symptoms:["لمبة الوسائد مضاءة","قد لا تعمل عند الاصطدام"],steps:["افحص وحدة SRS","افحص الحساسات"],common_cars:["جميع السيارات"]},
 "B0004":{zone:"airbag",title:"دائرة حزام السائق",severity:"high"},
 "B0012":{zone:"airbag",title:"دائرة الوسادة الجانبية",severity:"high"},
@@ -593,7 +567,7 @@ const DTC_DATABASE = {
 "B1342":{zone:"electronics",title:"ECU معطل - Ford",severity:"high"},
 "B2606":{zone:"electronics",title:"مفتاح السيارة - Immobilizer",severity:"high"},
 
-// ============ U - الشبكة ============
+// ============ U ============
 "U0001":{zone:"electronics",title:"ناقل CAN - خطأ عام",severity:"high"},
 "U0002":{zone:"electronics",title:"ناقل CAN - أداء",severity:"high"},
 "U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECM/PCM",title_en:"Lost Communication With ECM/PCM",desc:"كمبيوتر المحرك لا يستجيب",severity:"critical",causes:["فيوز محروق","سلك CAN مقطوع","ECM تالف"],symptoms:["السيارة لا تشتغل","لمبة Check Engine","Limp Mode"],steps:["افحص فيوز ECM","افحص مقاومة CAN (60Ω)","افحص CAN H و CAN L"],common_cars:["جميع السيارات 2008+"]},
@@ -602,7 +576,7 @@ const DTC_DATABASE = {
 "U0106":{zone:"electronics",title:"فقدان الاتصال بشمعات التوهج",severity:"high"},
 "U0107":{zone:"engine",title:"فقدان الاتصال بمحرك الخانق",severity:"high"},
 "U0109":{zone:"fuel",title:"فقدان الاتصال بمضخة الوقود",severity:"high"},
-"U0121":{zone:"abs",title:"فقدان الاتصال بـ ABS",title_en:"Lost Communication With ABS",desc:"كمبيوتر الفرامل لا يستجيب",severity:"critical"},
+"U0121":{zone:"abs",title:"فقدان الاتصال بـ ABS",severity:"critical"},
 "U0122":{zone:"electronics",title:"فقدان الاتصال بـ ESP/ESC",severity:"high"},
 "U0126":{zone:"electronics",title:"فقدان الاتصال بحساس التوجيه",severity:"medium"},
 "U0127":{zone:"electronics",title:"فقدان الاتصال بـ TPMS",severity:"low"},
@@ -620,6 +594,230 @@ const DTC_DATABASE = {
 "U0300":{zone:"electronics",title:"عدم تطابق برمجي بين الوحدات",severity:"high"},
 "U1000":{zone:"electronics",title:"خطأ Class 2 - GM",severity:"high"},
 "U1001":{zone:"electronics",title:"فقدان اتصال CAN",severity:"critical"},
+
+// ============ 🚗 PSA (Peugeot / Citroën) ============
+"P1100_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط مشعب السحب",desc:"شائع في محركات PSA",severity:"medium"},
+"P1101_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط - خارج النطاق",severity:"medium"},
+"P1102_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط - أداء",severity:"medium"},
+"P1110_PSA":{brand:"PSA",zone:"engine",title:"حساس درجة الحرارة",severity:"medium"},
+"P1112_PSA":{brand:"PSA",zone:"engine",title:"حساس حرارة الهواء",severity:"low"},
+"P1113_PSA":{brand:"PSA",zone:"engine",title:"حساس حرارة الهواء - جهد مرتفع",severity:"low"},
+"P1120_PSA":{brand:"PSA",zone:"engine",title:"حساس دواسة الوقود - الدائرة 1",desc:"شائع في Peugeot 206/207",severity:"high",causes:["حساس الدواسة تالف","أسلاك"],symptoms:["خمول غير طبيعي","Limp Mode"],steps:["افحص الدواسة","افحص الأسلاك"],common_cars:["Peugeot 206","Peugeot 207","Peugeot 307"]},
+"P1121_PSA":{brand:"PSA",zone:"engine",title:"حساس دواسة الوقود - الدائرة 2",severity:"high"},
+"P1122_PSA":{brand:"PSA",zone:"engine",title:"حساس دواسة الوقود - تناسق",severity:"high"},
+"P1130_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim Bank 1",severity:"high"},
+"P1131_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim - خليط فقير",severity:"high"},
+"P1132_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim - خليط غني",severity:"high"},
+"P1135_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 1",severity:"high"},
+"P1136_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 1 (Intake)",severity:"high"},
+"P1137_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 1 (Exhaust)",severity:"high"},
+"P1138_PSA":{brand:"PSA",zone:"engine",title:"VVT - البنك 1",severity:"high"},
+"P1140_PSA":{brand:"PSA",zone:"engine",title:"VVT - التزامن",severity:"high"},
+"P1141_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 2",severity:"high"},
+"P1142_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 2",severity:"high"},
+"P1146_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 1",severity:"high"},
+"P1147_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 2",severity:"high"},
+"P1148_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 3",severity:"high"},
+"P1149_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 4",severity:"high"},
+"P1150_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 1",severity:"medium"},
+"P1151_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 1",severity:"medium"},
+"P1152_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 2",severity:"medium"},
+"P1153_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 2",severity:"medium"},
+"P1155_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 1",severity:"medium"},
+"P1157_PSA":{brand:"PSA",zone:"engine",title:"حساس O2 - Bank 2",severity:"medium"},
+"P1160_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط الوقود",severity:"high"},
+"P1161_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط الوقود - أداء",severity:"high"},
+"P1162_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط الوقود - منخفض",severity:"high"},
+"P1163_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط الوقود - مرتفع",severity:"high"},
+"P1170_PSA":{brand:"PSA",zone:"engine",title:"خليط - Bank 1",severity:"high"},
+"P1171_PSA":{brand:"PSA",zone:"engine",title:"خليط فقير عند التسارع",severity:"high"},
+"P1172_PSA":{brand:"PSA",zone:"engine",title:"خليط غني عند التسارع",severity:"high"},
+"P1173_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim عند الخمول",severity:"medium"},
+"P1174_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim عند الخمول",severity:"medium"},
+"P1175_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim عند الخمول",severity:"medium"},
+"P1176_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim",severity:"medium"},
+"P1177_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim",severity:"medium"},
+"P1178_PSA":{brand:"PSA",zone:"engine",title:"Fuel Trim",severity:"medium"},
+"P1180_PSA":{brand:"PSA",zone:"fuel",title:"ضغط الوقود - النظام",severity:"high"},
+"P1181_PSA":{brand:"PSA",zone:"fuel",title:"ضغط الوقود منخفض",severity:"high"},
+"P1182_PSA":{brand:"PSA",zone:"fuel",title:"ضغط الوقود مرتفع",severity:"high"},
+"P1183_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - الجهد",severity:"high"},
+"P1184_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - القطبية",severity:"high"},
+"P1185_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - الدائرة",severity:"high"},
+"P1200_PSA":{brand:"PSA",zone:"engine",title:"حاقن - دائرة",severity:"high"},
+"P1201_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 1",severity:"high"},
+"P1202_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 2",severity:"high"},
+"P1203_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 3",severity:"high"},
+"P1204_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 4",severity:"high"},
+"P1205_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 5",severity:"high"},
+"P1206_PSA":{brand:"PSA",zone:"engine",title:"حاقن - الأسطوانة 6",severity:"high"},
+"P1211_PSA":{brand:"PSA",zone:"engine",title:"حاقن - ضغط",severity:"high"},
+"P1212_PSA":{brand:"PSA",zone:"engine",title:"حاقن - مقاومة",severity:"high"},
+"P1220_PSA":{brand:"PSA",zone:"engine",title:"Throttle - دائرة",severity:"high"},
+"P1221_PSA":{brand:"PSA",zone:"engine",title:"Throttle - أداء",severity:"high"},
+"P1222_PSA":{brand:"PSA",zone:"engine",title:"Throttle - تعلم",severity:"high"},
+"P1223_PSA":{brand:"PSA",zone:"engine",title:"Throttle - إشارة",severity:"high"},
+"P1224_PSA":{brand:"PSA",zone:"engine",title:"Throttle - تعلم مطلوب",severity:"medium"},
+"P1226_PSA":{brand:"PSA",zone:"engine",title:"Throttle - عالق مغلق",severity:"critical"},
+"P1229_PSA":{brand:"PSA",zone:"engine",title:"مضخة الوقود - ضغط زائد",severity:"high"},
+"P1230_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - مرحل",severity:"high"},
+"P1231_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - أداء",severity:"high"},
+"P1232_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - سرعة منخفضة",severity:"high"},
+"P1233_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - مقفلة",severity:"high"},
+"P1234_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - مقفلة",severity:"high"},
+"P1235_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - خارج النطاق",severity:"high"},
+"P1236_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - إشارة",severity:"high"},
+"P1237_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - ثانوي",severity:"high"},
+"P1238_PSA":{brand:"PSA",zone:"fuel",title:"مضخة الوقود - ثانوي",severity:"high"},
+"P1240_PSA":{brand:"PSA",zone:"electronics",title:"مرحل الطاقة",severity:"high"},
+"P1241_PSA":{brand:"PSA",zone:"electronics",title:"مرحل الطاقة - منخفض",severity:"high"},
+"P1242_PSA":{brand:"PSA",zone:"electronics",title:"مرحل الطاقة - مرتفع",severity:"high"},
+"P1300_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - عام",severity:"high"},
+"P1301_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - بنك 1",severity:"high"},
+"P1302_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - بنك 2",severity:"high"},
+"P1303_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",severity:"high"},
+"P1304_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - الأسطوانة 2",severity:"high"},
+"P1305_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - الأسطوانة 3",severity:"high"},
+"P1306_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع - الأسطوانة 4",severity:"high"},
+"P1310_PSA":{brand:"PSA",zone:"engine",title:"اشتعال - تأخير",severity:"high"},
+"P1320_PSA":{brand:"PSA",zone:"engine",title:"Ignition - خطأ عام",severity:"high"},
+"P1335_PSA":{brand:"PSA",zone:"engine",title:"حساس الكرنك - التزامن",severity:"critical"},
+"P1336_PSA":{brand:"PSA",zone:"engine",title:"حساس الكرنك - التزامن",severity:"critical"},
+"P1337_PSA":{brand:"PSA",zone:"engine",title:"حساس الكرنك - التزامن",severity:"critical"},
+"P1340_PSA":{brand:"PSA",zone:"engine",title:"حساس الكام - Bank 2",severity:"high"},
+"P1345_PSA":{brand:"PSA",zone:"engine",title:"تزامن الكام/الكرنك - Bank 1",severity:"critical"},
+"P1346_PSA":{brand:"PSA",zone:"engine",title:"تزامن الكام/الكرنك - Bank 2",severity:"critical"},
+"P1349_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 1",severity:"high"},
+"P1350_PSA":{brand:"PSA",zone:"engine",title:"VVT - Bank 1",severity:"high"},
+"P1351_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال A",severity:"high"},
+"P1352_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال B",severity:"high"},
+"P1353_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال C",severity:"high"},
+"P1354_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال D",severity:"high"},
+"P1355_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال E",severity:"high"},
+"P1356_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال F",severity:"high"},
+"P1357_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال G",severity:"high"},
+"P1358_PSA":{brand:"PSA",zone:"engine",title:"دائرة الإشعال H",severity:"high"},
+"P1380_PSA":{brand:"PSA",zone:"engine",title:"VVT - إشارة",severity:"high"},
+"P1381_PSA":{brand:"PSA",zone:"engine",title:"VVT - إشارة",severity:"high"},
+"P1400_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1401_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق غير كافي",severity:"medium"},
+"P1402_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق زائد",severity:"medium"},
+"P1403_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - دائرة كهربائية",severity:"medium"},
+"P1404_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - عالق مغلق",severity:"medium"},
+"P1405_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - عالق مفتوح",severity:"medium"},
+"P1406_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - أداء",severity:"medium"},
+"P1410_PSA":{brand:"PSA",zone:"exhaust",title:"الهواء الثانوي - بنك 1",severity:"medium"},
+"P1411_PSA":{brand:"PSA",zone:"exhaust",title:"الهواء الثانوي - بنك 2",severity:"medium"},
+"P1420_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - تسرب",severity:"low"},
+"P1421_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - تسرب",severity:"low"},
+"P1422_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - تسرب",severity:"low"},
+"P1423_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - تسرب",severity:"low"},
+"P1440_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - Purge",severity:"low"},
+"P1441_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - Purge",severity:"low"},
+"P1443_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - Purge",severity:"low"},
+"P1450_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - فراغ",severity:"low"},
+"P1455_PSA":{brand:"PSA",zone:"exhaust",title:"EVAP - تسرب كبير",severity:"low"},
+"P1470_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد 1",severity:"medium"},
+"P1471_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد 2",severity:"medium"},
+"P1472_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد 3",severity:"medium"},
+"P1479_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد",severity:"medium"},
+"P1480_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد - دائرة 1",severity:"medium"},
+"P1481_PSA":{brand:"PSA",zone:"engine",title:"مروحة التبريد - دائرة 2",severity:"medium"},
+"P1490_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1491_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1500_PSA":{brand:"PSA",zone:"electronics",title:"مرحل مضخة الوقود",severity:"high"},
+"P1501_PSA":{brand:"PSA",zone:"electronics",title:"حساس السرعة",severity:"medium"},
+"P1502_PSA":{brand:"PSA",zone:"electronics",title:"حساس السرعة - جهد",severity:"medium"},
+"P1503_PSA":{brand:"PSA",zone:"electronics",title:"حساس السرعة - جهد",severity:"medium"},
+"P1508_PSA":{brand:"PSA",zone:"electronics",title:"IAC - دائرة",severity:"medium"},
+"P1509_PSA":{brand:"PSA",zone:"electronics",title:"IAC - عطل",severity:"medium"},
+"P1510_PSA":{brand:"PSA",zone:"electronics",title:"IAC - عطل",severity:"medium"},
+"P1519_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1520_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1521_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1523_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1527_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1528_PSA":{brand:"PSA",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1540_PSA":{brand:"PSA",zone:"engine",title:"A/C - ضغط",severity:"medium"},
+"P1541_PSA":{brand:"PSA",zone:"engine",title:"A/C - ضغط مرتفع",severity:"medium"},
+"P1542_PSA":{brand:"PSA",zone:"engine",title:"A/C - ضغط منخفض",severity:"medium"},
+"P1543_PSA":{brand:"PSA",zone:"engine",title:"A/C - ضاغط",severity:"medium"},
+"P1544_PSA":{brand:"PSA",zone:"engine",title:"A/C - ضاغط",severity:"medium"},
+"P1545_PSA":{brand:"PSA",zone:"engine",title:"A/C - مرحل",severity:"medium"},
+"P1546_PSA":{brand:"PSA",zone:"engine",title:"A/C - مرحل",severity:"medium"},
+"P1550_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو",severity:"high"},
+"P1551_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - مرتفع",severity:"high"},
+"P1552_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - منخفض",severity:"high"},
+"P1553_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - فرق",severity:"high"},
+"P1554_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - فوق",severity:"high"},
+"P1555_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - أداء",severity:"high"},
+"P1556_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - ضغط سالب",severity:"high"},
+"P1557_PSA":{brand:"PSA",zone:"engine",title:"ضغط التيربو - تجاوز",severity:"high"},
+"P1560_PSA":{brand:"PSA",zone:"engine",title:"مثبت السرعة",severity:"low"},
+"P1561_PSA":{brand:"PSA",zone:"engine",title:"مثبت السرعة",severity:"low"},
+"P1580_PSA":{brand:"PSA",zone:"engine",title:"Throttle - تعلم",severity:"medium"},
+"P1581_PSA":{brand:"PSA",zone:"engine",title:"Throttle - تعلم",severity:"medium"},
+"P1590_PSA":{brand:"PSA",zone:"engine",title:"مفتاح الفرامل - دائرة A",severity:"high"},
+"P1591_PSA":{brand:"PSA",zone:"engine",title:"مفتاح الفرامل - دائرة B",severity:"high"},
+"P1592_PSA":{brand:"PSA",zone:"engine",title:"مفتاح الفرامل - تناسق",severity:"high"},
+"P1593_PSA":{brand:"PSA",zone:"engine",title:"مفتاح القابض",severity:"medium"},
+"P1600_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ داخلي",severity:"critical"},
+"P1601_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ EEPROM",severity:"critical"},
+"P1602_PSA":{brand:"PSA",zone:"electronics",title:"PCM - جهد منخفض",severity:"high"},
+"P1603_PSA":{brand:"PSA",zone:"electronics",title:"PCM - جهد مرتفع",severity:"high"},
+"P1604_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ برمجة",severity:"critical"},
+"P1605_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ Knock",severity:"critical"},
+"P1610_PSA":{brand:"PSA",zone:"electronics",title:"مفتاح السيارة - Immobilizer",severity:"critical"},
+"P1611_PSA":{brand:"PSA",zone:"electronics",title:"مفتاح السيارة - إشارة",severity:"critical"},
+"P1612_PSA":{brand:"PSA",zone:"electronics",title:"مفتاح السيارة - إشارة",severity:"critical"},
+"P1619_PSA":{brand:"PSA",zone:"electronics",title:"صيانة دورية",severity:"low"},
+"P1620_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ برمجة",severity:"critical"},
+"P1621_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ برمجة",severity:"critical"},
+"P1622_PSA":{brand:"PSA",zone:"electronics",title:"PCM - VIN",severity:"high"},
+"P1630_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ RAM",severity:"critical"},
+"P1633_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ ROM",severity:"critical"},
+"P1640_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ CAN",severity:"critical"},
+"P1641_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ CAN",severity:"critical"},
+"P1650_PSA":{brand:"PSA",zone:"electronics",title:"PCM - مرحل A/C",severity:"medium"},
+"P1651_PSA":{brand:"PSA",zone:"electronics",title:"PCM - مرحل A/C",severity:"medium"},
+"P1670_PSA":{brand:"PSA",zone:"electronics",title:"مرحل A/C",severity:"medium"},
+"P1671_PSA":{brand:"PSA",zone:"electronics",title:"مرحل A/C",severity:"medium"},
+"P1680_PSA":{brand:"PSA",zone:"electronics",title:"BCM - خطأ",severity:"high"},
+"P1681_PSA":{brand:"PSA",zone:"electronics",title:"BCM - خطأ",severity:"high"},
+"P1690_PSA":{brand:"PSA",zone:"transmission",title:"TCM - خطأ",severity:"high"},
+"P1691_PSA":{brand:"PSA",zone:"transmission",title:"TCM - خطأ",severity:"high"},
+"P1693_PSA":{brand:"PSA",zone:"transmission",title:"TCM - MIL",severity:"high"},
+
+// ============ 🚗 Skoda ============
+"P1136_SKO":{brand:"Skoda",zone:"fuel",title:"Fuel Trim - Octavia/Fabia",severity:"high"},
+"P1137_SKO":{brand:"Skoda",zone:"fuel",title:"Fuel Trim Bank 1",severity:"high"},
+"P1138_SKO":{brand:"Skoda",zone:"fuel",title:"Fuel Trim Bank 1",severity:"high"},
+"P1140_SKO":{brand:"Skoda",zone:"engine",title:"حساس MAF",severity:"medium"},
+"P1171_SKO":{brand:"Skoda",zone:"engine",title:"حساس زاوية الخانق",severity:"high"},
+"P1174_SKO":{brand:"Skoda",zone:"engine",title:"Fuel Trim",severity:"high"},
+"P1335_SKO":{brand:"Skoda",zone:"engine",title:"حساس الكرنك",severity:"high"},
+"P1338_SKO":{brand:"Skoda",zone:"engine",title:"حساس الكام",severity:"high"},
+"P1340_SKO":{brand:"Skoda",zone:"engine",title:"حساس الكام",severity:"high"},
+"P1519_SKO":{brand:"Skoda",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1523_SKO":{brand:"Skoda",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1527_SKO":{brand:"Skoda",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1543_SKO":{brand:"Skoda",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1544_SKO":{brand:"Skoda",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1545_SKO":{brand:"Skoda",zone:"engine",title:"حساس TPS",severity:"medium"},
+"P1546_SKO":{brand:"Skoda",zone:"engine",title:"حساس TPS",severity:"medium"},
+"P1550_SKO":{brand:"Skoda",zone:"engine",title:"ضغط التيربو",severity:"high"},
+"P1555_SKO":{brand:"Skoda",zone:"engine",title:"ضغط التيربو",severity:"high"},
+"P1556_SKO":{brand:"Skoda",zone:"engine",title:"ضغط التيربو",severity:"high"},
+"P1557_SKO":{brand:"Skoda",zone:"engine",title:"ضغط التيربو - مرتفع",severity:"high"},
+"P1602_SKO":{brand:"Skoda",zone:"electronics",title:"جهد البطارية",severity:"high"},
+"P1619_SKO":{brand:"Skoda",zone:"electronics",title:"صيانة دورية",severity:"low"},
+"P1624_SKO":{brand:"Skoda",zone:"electronics",title:"MIL Request",severity:"medium"},
+"P1630_SKO":{brand:"Skoda",zone:"electronics",title:"PCM - خطأ",severity:"high"},
+"P1633_SKO":{brand:"Skoda",zone:"electronics",title:"PCM - خطأ",severity:"high"},
+"P1640_SKO":{brand:"Skoda",zone:"engine",title:"TCM",severity:"high"},
+"P1648_SKO":{brand:"Skoda",zone:"engine",title:"TCM",severity:"high"},
+"P1649_SKO":{brand:"Skoda",zone:"engine",title:"TCM",severity:"high"},
+"P1650_SKO":{brand:"Skoda",zone:"engine",title:"TCM",severity:"high"},
 
 // ============ 🚗 Toyota ============
 "P1604_TOY":{brand:"Toyota",zone:"engine",title:"فشل البدء",severity:"high"},
@@ -639,8 +837,6 @@ const DTC_DATABASE = {
 "P1348_BMW":{brand:"BMW",zone:"engine",title:"VANOS",severity:"critical"},
 "P1349_BMW":{brand:"BMW",zone:"engine",title:"VANOS",severity:"high"},
 "P1350_BMW":{brand:"BMW",zone:"engine",title:"VANOS",severity:"high"},
-"P1351_BMW":{brand:"BMW",zone:"engine",title:"VANOS",severity:"high"},
-"P1352_BMW":{brand:"BMW",zone:"engine",title:"VANOS",severity:"high"},
 "P1397_BMW":{brand:"BMW",zone:"electronics",title:"حساس كام",severity:"high"},
 "P1686_BMW":{brand:"BMW",zone:"electronics",title:"EWS",severity:"critical"},
 "P1687_BMW":{brand:"BMW",zone:"electronics",title:"EWS",severity:"critical"},
@@ -663,6 +859,90 @@ const DTC_DATABASE = {
 "P1619_VW":{brand:"VW",zone:"electronics",title:"صيانة دورية",severity:"low"},
 "P1640_VW":{brand:"VW",zone:"engine",title:"TCM",severity:"high"},
 "P1650_VW":{brand:"VW",zone:"engine",title:"TCM",severity:"high"},
+"P1101_VW":{brand:"VW",zone:"engine",title:"حساس MAF",severity:"medium"},
+"P1102_VW":{brand:"VW",zone:"engine",title:"حساس MAF - منخفض",severity:"medium"},
+"P1103_VW":{brand:"VW",zone:"engine",title:"حساس MAF - مرتفع",severity:"medium"},
+"P1120_VW":{brand:"VW",zone:"engine",title:"TPS - دائرة",severity:"high"},
+"P1121_VW":{brand:"VW",zone:"engine",title:"TPS - أداء",severity:"high"},
+"P1122_VW":{brand:"VW",zone:"engine",title:"TPS - منخفض",severity:"high"},
+"P1123_VW":{brand:"VW",zone:"engine",title:"TPS - مرتفع",severity:"high"},
+"P1126_VW":{brand:"VW",zone:"engine",title:"Throttle Motor",severity:"high"},
+"P1127_VW":{brand:"VW",zone:"engine",title:"Throttle Motor",severity:"high"},
+"P1128_VW":{brand:"VW",zone:"engine",title:"Throttle Motor - تعلم",severity:"high"},
+"P1130_VW":{brand:"VW",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1131_VW":{brand:"VW",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1140_VW":{brand:"VW",zone:"engine",title:"Fuel Trim Bank 1",severity:"high"},
+"P1142_VW":{brand:"VW",zone:"engine",title:"Fuel Trim Bank 2",severity:"high"},
+"P1200_VW":{brand:"VW",zone:"engine",title:"حاقن - دائرة",severity:"high"},
+"P1201_VW":{brand:"VW",zone:"engine",title:"حاقن 1",severity:"high"},
+"P1202_VW":{brand:"VW",zone:"engine",title:"حاقن 2",severity:"high"},
+"P1203_VW":{brand:"VW",zone:"engine",title:"حاقن 3",severity:"high"},
+"P1204_VW":{brand:"VW",zone:"engine",title:"حاقن 4",severity:"high"},
+"P1220_VW":{brand:"VW",zone:"engine",title:"Throttle - دائرة",severity:"high"},
+"P1226_VW":{brand:"VW",zone:"engine",title:"Throttle - عالق مغلق",severity:"critical"},
+"P1230_VW":{brand:"VW",zone:"fuel",title:"مضخة الوقود - مرحل",severity:"high"},
+"P1231_VW":{brand:"VW",zone:"fuel",title:"مضخة الوقود",severity:"high"},
+"P1240_VW":{brand:"VW",zone:"electronics",title:"مرحل الطاقة",severity:"high"},
+"P1250_VW":{brand:"VW",zone:"electronics",title:"Immobilizer - خطأ",severity:"critical"},
+"P1300_VW":{brand:"VW",zone:"engine",title:"Ignition - عام",severity:"high"},
+"P1301_VW":{brand:"VW",zone:"engine",title:"Ignition - بنك 1",severity:"high"},
+"P1302_VW":{brand:"VW",zone:"engine",title:"Ignition - بنك 2",severity:"high"},
+"P1325_VW":{brand:"VW",zone:"engine",title:"حساس الكرنك",severity:"high"},
+"P1326_VW":{brand:"VW",zone:"engine",title:"حساس الكرنك",severity:"high"},
+"P1336_VW":{brand:"VW",zone:"engine",title:"حساس الكرنك - تزامن",severity:"critical"},
+"P1345_VW":{brand:"VW",zone:"engine",title:"حساس الكام - Bank 1",severity:"high"},
+"P1346_VW":{brand:"VW",zone:"engine",title:"حساس الكام - Bank 2",severity:"high"},
+"P1349_VW":{brand:"VW",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1350_VW":{brand:"VW",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1351_VW":{brand:"VW",zone:"engine",title:"Ignition A",severity:"high"},
+"P1352_VW":{brand:"VW",zone:"engine",title:"Ignition B",severity:"high"},
+"P1353_VW":{brand:"VW",zone:"engine",title:"Ignition C",severity:"high"},
+"P1354_VW":{brand:"VW",zone:"engine",title:"Ignition D",severity:"high"},
+"P1355_VW":{brand:"VW",zone:"engine",title:"Ignition E",severity:"high"},
+"P1356_VW":{brand:"VW",zone:"engine",title:"Ignition F",severity:"high"},
+"P1357_VW":{brand:"VW",zone:"engine",title:"Ignition G",severity:"high"},
+"P1358_VW":{brand:"VW",zone:"engine",title:"Ignition H",severity:"high"},
+"P1380_VW":{brand:"VW",zone:"engine",title:"VVT Bank 1",severity:"high"},
+"P1400_VW":{brand:"VW",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1401_VW":{brand:"VW",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1402_VW":{brand:"VW",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1410_VW":{brand:"VW",zone:"exhaust",title:"الهواء الثانوي",severity:"medium"},
+"P1420_VW":{brand:"VW",zone:"exhaust",title:"EVAP - تسرب صغير",severity:"low"},
+"P1421_VW":{brand:"VW",zone:"exhaust",title:"EVAP - تسرب كبير",severity:"low"},
+"P1440_VW":{brand:"VW",zone:"exhaust",title:"EVAP - تسرب",severity:"low"},
+"P1470_VW":{brand:"VW",zone:"engine",title:"مروحة التبريد 1",severity:"medium"},
+"P1471_VW":{brand:"VW",zone:"engine",title:"مروحة التبريد 2",severity:"medium"},
+"P1472_VW":{brand:"VW",zone:"engine",title:"مروحة التبريد 3",severity:"medium"},
+"P1490_VW":{brand:"VW",zone:"exhaust",title:"EGR - تدفق",severity:"medium"},
+"P1500_VW":{brand:"VW",zone:"fuel",title:"مضخة الوقود - مرحل",severity:"high"},
+"P1501_VW":{brand:"VW",zone:"engine",title:"حساس السرعة",severity:"medium"},
+"P1502_VW":{brand:"VW",zone:"engine",title:"حساس السرعة",severity:"medium"},
+"P1508_VW":{brand:"VW",zone:"engine",title:"IAC - دائرة",severity:"medium"},
+"P1509_VW":{brand:"VW",zone:"engine",title:"IAC - عطل",severity:"medium"},
+"P1520_VW":{brand:"VW",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1521_VW":{brand:"VW",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1527_VW":{brand:"VW",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1528_VW":{brand:"VW",zone:"engine",title:"VVT Bank 2",severity:"high"},
+"P1540_VW":{brand:"VW",zone:"engine",title:"A/C - ضغط",severity:"medium"},
+"P1541_VW":{brand:"VW",zone:"engine",title:"A/C - ضغط مرتفع",severity:"medium"},
+"P1542_VW":{brand:"VW",zone:"engine",title:"A/C - ضغط منخفض",severity:"medium"},
+"P1550_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو",severity:"high"},
+"P1551_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - مرتفع",severity:"high"},
+"P1552_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - منخفض",severity:"high"},
+"P1553_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - فرق",severity:"high"},
+"P1554_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - فوق",severity:"high"},
+"P1555_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - أداء",severity:"high"},
+"P1556_VW":{brand:"VW",zone:"engine",title:"ضغط التيربو - ضغط سالب",severity:"high"},
+"P1560_VW":{brand:"VW",zone:"engine",title:"مثبت السرعة",severity:"low"},
+"P1580_VW":{brand:"VW",zone:"engine",title:"Throttle - تعلم",severity:"medium"},
+"P1590_VW":{brand:"VW",zone:"engine",title:"مفتاح الفرامل A",severity:"high"},
+"P1591_VW":{brand:"VW",zone:"engine",title:"مفتاح الفرامل B",severity:"high"},
+"P1600_VW":{brand:"VW",zone:"electronics",title:"PCM - خطأ داخلي",severity:"critical"},
+"P1610_VW":{brand:"VW",zone:"electronics",title:"Immobilizer",severity:"critical"},
+"P1630_VW":{brand:"VW",zone:"electronics",title:"PCM - خطأ",severity:"high"},
+"P1680_VW":{brand:"VW",zone:"electronics",title:"BCM - خطأ",severity:"high"},
+"P1690_VW":{brand:"VW",zone:"transmission",title:"TCM - خطأ",severity:"high"},
+"P1693_VW":{brand:"VW",zone:"transmission",title:"TCM - MIL",severity:"high"},
 
 // ============ 🚗 Ford ============
 "P1000_FOR":{brand:"Ford",zone:"electronics",title:"اختبار OBD غير مكتمل",severity:"low"},
@@ -696,8 +976,6 @@ const DTC_DATABASE = {
 "P1362_HON":{brand:"Honda",zone:"engine",title:"حساس كام",severity:"high"},
 "P1366_HON":{brand:"Honda",zone:"engine",title:"حساس TDC",severity:"high"},
 "P1367_HON":{brand:"Honda",zone:"engine",title:"حساس TDC",severity:"high"},
-"P1456_HON":{brand:"Honda",zone:"exhaust",title:"EVAP",severity:"low"},
-"P1457_HON":{brand:"Honda",zone:"exhaust",title:"EVAP",severity:"low"},
 
 // ============ 🚗 Nissan ============
 "P1102_NIS":{brand:"Nissan",zone:"engine",title:"حساس MAF",severity:"medium"},
@@ -717,7 +995,7 @@ const DTC_DATABASE = {
 "P1123_HYU":{brand:"Hyundai",zone:"engine",title:"Long Term Fuel",severity:"high"},
 "P1140_HYU":{brand:"Hyundai",zone:"engine",title:"حساس MAF",severity:"medium"},
 "P1191_HYU":{brand:"Hyundai",zone:"fuel",title:"ضغط الوقود",severity:"high"},
-"P1326_HYU":{brand:"Hyundai/Kia",zone:"engine",title:"اهتزاز المحرك - مشكلة مصنعية",title_en:"Engine Vibration - Hyundai/Kia",desc:"🚨 مشكلة مصنعية شهيرة - قد يكون مشمولاً بالضمان",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],symptoms:["صوت قرقعة من المحرك","فقدان قوة","اهتزاز شديد"],steps:["افحص رقم VIN للتأكد من شمول الضمان","اتصل بالوكيل الرسمي"],common_cars:["Hyundai Elantra 2011-2016","Hyundai Sonata 2011-2014","Kia Optima 2011-2014"]},
+"P1326_HYU":{brand:"Hyundai/Kia",zone:"engine",title:"اهتزاز المحرك - مشكلة مصنعية",title_en:"Engine Vibration - Hyundai/Kia",desc:"🚨 مشكلة مصنعية شهيرة - قد يكون مشمولاً بالضمان",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],symptoms:["صوت قرقعة","فقدان قوة","اهتزاز شديد"],steps:["افحص رقم VIN للضمان","اتصل بالوكيل"],common_cars:["Hyundai Elantra 2011-2016","Kia Optima 2011-2014"]},
 "P1330_HYU":{brand:"Hyundai",zone:"engine",title:"حساس كام",severity:"high"},
 "P1335_HYU":{brand:"Hyundai",zone:"engine",title:"حساس كرنك",severity:"high"},
 "P1521_HYU":{brand:"Hyundai",zone:"engine",title:"VVT",severity:"high"},
@@ -734,15 +1012,6 @@ const DTC_DATABASE = {
 "P1354_MER":{brand:"Mercedes",zone:"engine",title:"حساس كام",severity:"high"},
 "P1400_MER":{brand:"Mercedes",zone:"exhaust",title:"EGR",severity:"medium"},
 "P1410_MER":{brand:"Mercedes",zone:"exhaust",title:"الهواء الثانوي",severity:"medium"},
-
-// ============ 🚗 Peugeot / Citroën ============
-"P1100_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط",severity:"medium"},
-"P1110_PSA":{brand:"PSA",zone:"engine",title:"حساس ضغط",severity:"medium"},
-"P1120_PSA":{brand:"PSA",zone:"engine",title:"حساس دواسة",severity:"high"},
-"P1130_PSA":{brand:"PSA",zone:"engine",title:"حساس",severity:"medium"},
-"P1131_PSA":{brand:"PSA",zone:"engine",title:"حساس",severity:"medium"},
-"P1135_PSA":{brand:"PSA",zone:"engine",title:"حساس",severity:"medium"},
-"P1136_PSA":{brand:"PSA",zone:"engine",title:"حساس",severity:"medium"},
 
 // ============ 🚗 Renault ============
 "P1140_REN":{brand:"Renault",zone:"engine",title:"VVT",severity:"high"},
@@ -774,7 +1043,7 @@ const RULES = [
 {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',actions:['استبدل البواجي','افحص الكويلات']},
 {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر.',actions:['أصلح الإشعال أولاً','استبدل الكتلايزر']},
 {required:['P0299'],title:'ضغط التيربو منخفض',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',actions:['افحص خراطيم التيربو','افحص صمام Wastegate','افحص حساس MAP']},
-{required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد (ديزل).',actions:['قم بقيادة سريعة 20 دقيقة','استخدم منظف DPF','استبدل DPF إذا استمر']},
+{required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد (ديزل).',actions:['قم بقيادة سريعة 20 دقيقة','استخدم منظف DPF']},
 {required:['P0335'],title:'عطل حساس الكرنك',confidence:95,severity:'critical',description:'قد يمنع التشغيل.',actions:['استبدل حساس الكرنك']},
 {required:['P0217'],title:'ارتفاع حرارة المحرك',confidence:100,severity:'critical',description:'🚨 أوقف السيارة فوراً!',actions:['أوقف فوراً','افحص سائل التبريد']},
 {required:['U0100'],title:'فقدان الاتصال بـ ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',actions:['افحص الأسلاك','افحص الفيوزات']},
@@ -852,10 +1121,6 @@ function updateSystemGrid(faults){
   faults.forEach(f=>{const info=getFaultInfo(f.code);affected.add(info.zone);});
   document.querySelectorAll('.sys-item').forEach(el=>{el.classList.add(affected.has(el.dataset.sys)?'bad':'good');});
 }
-
-// ============================================================
-// 🎯 getFaultInfo — يدعم المفاتيح الفريدة
-// ============================================================
 function getFaultInfo(code){
   const c=String(code).trim().toUpperCase();
   if(DTC_DATABASE[c])return DTC_DATABASE[c];
@@ -1192,7 +1457,7 @@ function parseDTCsFromBytes(bytes){
 }
 
 // ============================================================
-// 📈 Live Data + Chart
+// 📈 Live Data
 // ============================================================
 let liveTimer=null,chartInstance=null;
 let chartData={labels:[],rpm:[],speed:[]};
@@ -1248,7 +1513,7 @@ function runAutoAnalysis(v){
 }
 
 // ============================================================
-// 📋 قراءة الأعطال
+// 📋 DTC
 // ============================================================
 async function readDTCs(){
   const list=document.getElementById('dtcList');
@@ -1582,7 +1847,7 @@ async function readFreezeFrame(code){
 }
 
 // ============================================================
-// ☁️ Firebase (اختياري)
+// ☁️ Firebase
 // ============================================================
 async function saveCloud(faults,vin){
   if(!window.FIREBASE_READY||!window.firebaseMethods)return;
@@ -1775,7 +2040,7 @@ async function runBatteryTest(){
 }
 
 // ============================================================
-// 🧪 Demo Mode
+// 🧪 Demo
 // ============================================================
 let demoTimer=null;
 function startDemo(){
@@ -1864,9 +2129,9 @@ function searchDTC(query){
 function initBrandFilters(){
   const container=document.getElementById('brandFilters');
   if(!container)return;
-  const brands=['all','Toyota','BMW','VW','Ford','GM','Honda','Nissan','Hyundai','Mercedes','PSA','Renault','Diesel'];
-  const labels={all:'الكل',Toyota:'Toyota',BMW:'BMW',VW:'VW/Audi',Ford:'Ford',GM:'GM',Honda:'Honda',Nissan:'Nissan',Hyundai:'Hyundai',Mercedes:'Mercedes',PSA:'Peugeot',Renault:'Renault',Diesel:'ديزل'};
-  container.innerHTML=brands.map(b=>`<button data-brand="${b}" class="${b==='all'?'bg-purple-600 text-white':'bg-gray-700 text-gray-300'} text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap transition">${labels[b]}</button>`).join('');
+  const brands=['all','Toyota','BMW','VW','Skoda','Ford','GM','Honda','Nissan','Hyundai','Mercedes','PSA','Renault','Diesel'];
+  const labels={all:'الكل',Toyota:'Toyota',BMW:'BMW',VW:'VW',Skoda:'Skoda',Ford:'Ford',GM:'GM',Honda:'Honda',Nissan:'Nissan',Hyundai:'Hyundai',Mercedes:'Mercedes',PSA:'Peugeot',Renault:'Renault',Diesel:'ديزل'};
+  container.innerHTML=brands.map(b=>`<button data-brand="${b}" class="${b==='all'?'bg-purple-600 text-white':'bg-gray-700 text-gray-300'} text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">${labels[b]}</button>`).join('');
   container.querySelectorAll('[data-brand]').forEach(btn=>{
     btn.onclick=()=>{
       currentBrandFilter=btn.dataset.brand;
@@ -1969,10 +2234,9 @@ function shareWhatsApp(){
 }
 
 // ============================================================
-// 🎛️ تهيئة التطبيق
+// 🎛️ Init
 // ============================================================
 function init(){
-  // الأزرار الرئيسية
   const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.onclick=fn;};
   bind('connect-btn',connectOBD);
   bind('usb-btn',connectUSB);
@@ -2003,8 +2267,7 @@ function init(){
   });
   bind('btnCloseFreeze',()=>document.getElementById('freezeModal').classList.add('hidden'));
   bind('btnCloseDetail',()=>document.getElementById('dtcDetailModal').classList.add('hidden'));
-  
-  // Tabs
+
   document.querySelectorAll('.tab').forEach(tab=>{
     tab.onclick=()=>{
       document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
@@ -2016,43 +2279,28 @@ function init(){
       if(tab.dataset.tab==='live')setTimeout(()=>{if(!chartInstance)initChart();else chartInstance.resize();},200);
     };
   });
-  
-  // Close modals on backdrop
   const dd=document.getElementById('dtcDetailModal');
   if(dd)dd.onclick=(e)=>{if(e.target.id==='dtcDetailModal')dd.classList.add('hidden');};
-  
-  // Search + Brand filters
   initSearch();
   initBrandFilters();
-  
-  // USB disconnect listener
   if('serial' in navigator){
     navigator.serial.addEventListener('disconnect',(e)=>{
       if(usbPort&&e.target===usbPort){log('🔌 تم قطع USB');handleDisconnect();}
     });
   }
-  
-  // iOS adjustments
   if(isIOS||!hasSerial){const u=document.getElementById('usb-btn');if(u)u.style.display='none';}
   if(isIOS){
     const n=document.getElementById('iosNotice');if(n)n.classList.remove('hidden');
     const c=document.getElementById('connect-btn');if(c)c.style.display='none';
   }
-  
-  // Initialize gauges
   setTimeout(()=>updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
-  
-  // Service worker (اختياري)
   if('serviceWorker' in navigator){
     window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   }
-  
-  // رسالة الترحيب
   log('✅ '+Object.keys(DTC_DATABASE).length+' كود جاهز | '+(isIOS?'iOS':isAndroid?'Android':'Desktop'));
-  log('💡 اضغط "تجريبي" لتجربة الأداة بدون سيارة');
+  log('💡 اضغط "تجريبي" لتجربة الأداة');
 }
 
-// تشغيل التطبيق عند تحميل الصفحة
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',init);
 }else{
