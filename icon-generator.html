@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 مولد أيقونات CheckDiga</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>body{font-family:'Cairo',sans-serif}</style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-3">
+<div class="max-w-2xl mx-auto space-y-3">
+
+  <div class="text-center py-3">
+    <h1 class="text-xl font-bold">🎨 مولد أيقونات CheckDiga</h1>
+    <p class="text-xs text-gray-400 mt-1">اضغط الزر لتحميل أيقونات PWA جاهزة</p>
+  </div>
+
+  <div class="bg-gray-800 rounded-2xl p-3 space-y-2">
+    <h2 class="font-bold text-sm">📱 الإعدادات</h2>
+    
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="text-xs text-gray-400">اسم التطبيق</label>
+        <input id="appName" type="text" value="CheckDiga" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-sm mt-1">
+      </div>
+      <div>
+        <label class="text-xs text-gray-400">النص السفلي</label>
+        <input id="subtitle" type="text" value="CAR DIAGNOSTIC" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-sm mt-1">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="text-xs text-gray-400">اللون الأساسي</label>
+        <input id="color1" type="color" value="#3b82f6" class="w-full h-9 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer">
+      </div>
+      <div>
+        <label class="text-xs text-gray-400">اللون الثانوي</label>
+        <input id="color2" type="color" value="#8b5cf6" class="w-full h-9 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs text-gray-400">الأيقونة</label>
+      <select id="iconType" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-sm mt-1">
+        <option value="wrench">🔧 مفتاح ربط</option>
+        <option value="car">🚗 سيارة</option>
+        <option value="gauge">📊 عدّاد</option>
+        <option value="bolt">⚡ برق</option>
+        <option value="engine">⚙️ محرك</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="bg-gray-800 rounded-2xl p-3">
+    <h2 class="font-bold text-sm mb-2">👁️ المعاينة</h2>
+    <div class="flex justify-center gap-3 items-end flex-wrap">
+      <div class="text-center">
+        <canvas id="preview192" width="192" height="192" class="rounded-2xl shadow-lg border-2 border-gray-700" style="width:140px;height:140px;"></canvas>
+        <p class="text-xs text-gray-400 mt-1">192×192</p>
+      </div>
+      <div class="text-center">
+        <canvas id="preview512" width="512" height="512" class="rounded-2xl shadow-lg border-2 border-gray-700" style="width:140px;height:140px;"></canvas>
+        <p class="text-xs text-gray-400 mt-1">512×512</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gray-800 rounded-2xl p-3 space-y-2">
+    <button id="btnGenerate" class="w-full bg-gradient-to-l from-blue-600 to-purple-600 px-4 py-2.5 rounded-xl font-bold transition">
+      🎨 تحديث المعاينة
+    </button>
+    <button id="btnDownloadAll" class="w-full bg-emerald-600 px-4 py-2.5 rounded-xl font-bold transition">
+      ⬇️ تحميل جميع الأيقونات
+    </button>
+    <button id="btnDownloadSVG" class="w-full bg-gray-700 px-4 py-2.5 rounded-xl font-bold transition">
+      📄 تحميل كـ SVG
+    </button>
+  </div>
+
+  <div class="bg-blue-900/30 border border-blue-600 rounded-2xl p-3 text-xs">
+    <h3 class="font-bold mb-2">📋 كيفية الاستخدام:</h3>
+    <ol class="space-y-1 list-decimal list-inside">
+      <li>عدّل الإعدادات</li>
+      <li>اضغط "⬇️ تحميل جميع الأيقونات"</li>
+      <li>سيتم تحميل 6 ملفات PNG</li>
+      <li>ارفعهم إلى مستودع GitHub</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawIconShape(ctx, type, gradient) {
+  ctx.fillStyle = gradient;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 6;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  if(type === 'wrench') {
+    ctx.beginPath();
+    ctx.moveTo(-60, -80);
+    ctx.lineTo(-30, -110);
+    ctx.lineTo(0, -80);
+    ctx.lineTo(30, -110);
+    ctx.lineTo(60, -80);
+    ctx.lineTo(20, -40);
+    ctx.lineTo(20, 80);
+    ctx.lineTo(-20, 80);
+    ctx.lineTo(-20, -40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -30, 20, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  } else if(type === 'car') {
+    ctx.beginPath();
+    ctx.moveTo(-80, 20);
+    ctx.lineTo(-60, -20);
+    ctx.lineTo(-30, -40);
+    ctx.lineTo(30, -40);
+    ctx.lineTo(60, -20);
+    ctx.lineTo(80, 20);
+    ctx.lineTo(80, 50);
+    ctx.lineTo(-80, 50);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.rect(-40, -30, 80, 30);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-50, 50, 20, 0, Math.PI * 2);
+    ctx.arc(50, 50, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(-50, 50, 8, 0, Math.PI * 2);
+    ctx.arc(50, 50, 8, 0, Math.PI * 2);
+    ctx.fill();
+  } else if(type === 'gauge') {
+    ctx.beginPath();
+    ctx.arc(0, 20, 80, Math.PI, 0);
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = gradient;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 20);
+    ctx.lineTo(40, -30);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = '#fff';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 20, 12, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  } else if(type === 'bolt') {
+    ctx.beginPath();
+    ctx.moveTo(20, -100);
+    ctx.lineTo(-40, 0);
+    ctx.lineTo(-5, 0);
+    ctx.lineTo(-20, 100);
+    ctx.lineTo(40, 0);
+    ctx.lineTo(5, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else if(type === 'engine') {
+    ctx.beginPath();
+    ctx.rect(-70, -30, 140, 80);
+    ctx.fill();
+    ctx.stroke();
+    for(let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.rect(-50 + i * 30, -50, 20, 25);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 10, 15, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
+}
+
+function drawIcon(ctx, size, appName, subtitle, color1, color2, iconType) {
+  const s = size;
+  const r = s * 0.1875;
+
+  const bgGrad = ctx.createLinearGradient(0, 0, s, s);
+  bgGrad.addColorStop(0, '#1e293b');
+  bgGrad.addColorStop(1, '#0f172a');
+  roundRect(ctx, 0, 0, s, s, r);
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  const borderGrad = ctx.createLinearGradient(0, 0, s, s);
+  borderGrad.addColorStop(0, color1);
+  borderGrad.addColorStop(1, color2);
+  roundRect(ctx, s*0.03, s*0.03, s*0.94, s*0.94, r*0.95);
+  ctx.strokeStyle = borderGrad;
+  ctx.lineWidth = s * 0.012;
+  ctx.globalAlpha = 0.5;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  ctx.save();
+  ctx.translate(s/2, s*0.45);
+  const iconScale = s * 0.0018;
+  ctx.scale(iconScale, iconScale);
+  
+  const iconGrad = ctx.createLinearGradient(-100, -100, 100, 100);
+  iconGrad.addColorStop(0, color1);
+  iconGrad.addColorStop(1, color2);
+  
+  drawIconShape(ctx, iconType, iconGrad);
+  ctx.restore();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 ' + (s * 0.105) + 'px Cairo, Arial, sans-serif';
+  ctx.fillText(appName, s/2, s * 0.78);
+
+  ctx.fillStyle = color1;
+  ctx.font = '700 ' + (s * 0.042) + 'px Cairo, Arial, sans-serif';
+  ctx.fillText(subtitle, s/2, s * 0.88);
+}
+
+function generatePreview() {
+  const appName = document.getElementById('appName').value || 'App';
+  const subtitle = document.getElementById('subtitle').value || '';
+  const color1 = document.getElementById('color1').value;
+  const color2 = document.getElementById('color2').value;
+  const iconType = document.getElementById('iconType').value;
+
+  const ctx192 = document.getElementById('preview192').getContext('2d');
+  ctx192.clearRect(0, 0, 192, 192);
+  drawIcon(ctx192, 192, appName, subtitle, color1, color2, iconType);
+
+  const ctx512 = document.getElementById('preview512').getContext('2d');
+  ctx512.clearRect(0, 0, 512, 512);
+  drawIcon(ctx512, 512, appName, subtitle, color1, color2, iconType);
+}
+
+function downloadIcon(size, filename, appName, subtitle, color1, color2, iconType) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  drawIcon(ctx, size, appName, subtitle, color1, color2, iconType);
+  
+  canvas.toBlob(function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+function downloadAll() {
+  const appName = document.getElementById('appName').value || 'App';
+  const subtitle = document.getElementById('subtitle').value || '';
+  const color1 = document.getElementById('color1').value;
+  const color2 = document.getElementById('color2').value;
+  const iconType = document.getElementById('iconType').value;
+
+  downloadIcon(192, 'icon-192.png', appName, subtitle, color1, color2, iconType);
+  setTimeout(function(){ downloadIcon(512, 'icon-512.png', appName, subtitle, color1, color2, iconType); }, 400);
+  setTimeout(function(){ downloadIcon(180, 'apple-touch-icon.png', appName, subtitle, color1, color2, iconType); }, 800);
+  setTimeout(function(){ downloadIcon(144, 'icon-144.png', appName, subtitle, color1, color2, iconType); }, 1200);
+  setTimeout(function(){ downloadIcon(96, 'icon-96.png', appName, subtitle, color1, color2, iconType); }, 1600);
+  setTimeout(function(){ downloadIcon(72, 'icon-72.png', appName, subtitle, color1, color2, iconType); }, 2000);
+
+  setTimeout(function(){
+    alert('✅ تم تحميل 6 أيقونات!\n\nالملفات:\n- icon-192.png\n- icon-512.png\n- apple-touch-icon.png (180×180)\n- icon-144.png\n- icon-96.png\n- icon-72.png');
+  }, 2400);
+}
+
+function downloadSVG() {
+  const appName = document.getElementById('appName').value || 'App';
+  const subtitle = document.getElementById('subtitle').value || '';
+  const color1 = document.getElementById('color1').value;
+  const color2 = document.getElementById('color2').value;
+
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">' +
+    '<defs>' +
+    '<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">' +
+    '<stop offset="0%" stop-color="#1e293b"/>' +
+    '<stop offset="100%" stop-color="#0f172a"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="icon" x1="0%" y1="0%" x2="100%" y2="100%">' +
+    '<stop offset="0%" stop-color="' + color1 + '"/>' +
+    '<stop offset="100%" stop-color="' + color2 + '"/>' +
+    '</linearGradient>' +
+    '</defs>' +
+    '<rect width="512" height="512" rx="96" fill="url(#bg)"/>' +
+    '<rect x="15" y="15" width="482" height="482" rx="87" fill="none" stroke="url(#icon)" stroke-width="6" opacity="0.5"/>' +
+    '<g transform="translate(256,230)">' +
+    '<path d="M -60,-80 L -30,-110 L 0,-80 L 30,-110 L 60,-80 L 20,-40 L 20,80 L -20,80 L -20,-40 Z" fill="url(#icon)" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>' +
+    '<circle cx="0" cy="-30" r="20" fill="#0f172a" stroke="#fff" stroke-width="5"/>' +
+    '</g>' +
+    '<text x="256" y="400" text-anchor="middle" font-family="Cairo, Arial" font-size="54" font-weight="900" fill="#fff">' + appName + '</text>' +
+    '<text x="256" y="445" text-anchor="middle" font-family="Cairo, Arial" font-size="22" font-weight="700" fill="' + color1 + '">' + subtitle + '</text>' +
+    '</svg>';
+
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'icon.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('btnGenerate').onclick = generatePreview;
+document.getElementById('btnDownloadAll').onclick = downloadAll;
+document.getElementById('btnDownloadSVG').onclick = downloadSVG;
+
+['appName','subtitle','color1','color2','iconType'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', generatePreview);
+});
+
+generatePreview();
+</script>
+</body>
+</html>
