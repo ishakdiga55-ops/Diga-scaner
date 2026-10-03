@@ -1305,9 +1305,8 @@ async function startRealLiveLoop(){
       const rpm=parseRPM(await window.sendCmd('01 0C',800,1));
       const speed=parseSpeed(await window.sendCmd('01 0D',800,1));
       if(tick%4===0){
-        const coolant=parseCool.codeant(await;} window.sendCmd('01 05',));
-    display800,1));
-Health        const fuel=parseFuelLevel(await window.sendCmd('01 2F',800,1));
+        const coolant=parseCoolant(await window.sendCmd('01 05',800,1));
+        const fuel=parseFuelLevel(await window.sendCmd('01 2F',800,1));
         updateDashboard(rpm,speed,coolant,fuel);
       } else {
         updateAllGauges({rpm:rpm,speed:speed,coolant:lastCoolant,fuelLevel:lastFuel});
@@ -1386,7 +1385,8 @@ async function readDTCs(){
     }
     renderFaults(allFaults);
     const diag=runDiagnosis(allFaults.map(function(f){return f.code;}));
-    displaySmartDiagnosis(allFaults.map(function(f){return f(allFaults,diag);
+    displaySmartDiagnosis(allFaults.map(function(f){return f.code;}));
+    displayHealth(allFaults,diag);
     updateSystemGrid(allFaults);
     showExport();
     await saveCloud(allFaults,(document.getElementById('vinResult')||{}).textContent||'unknown');
@@ -1451,9 +1451,8 @@ function renderFaults(faults){
   lastFaults=faults||[];
   const list=document.getElementById('dtcList');
   if(!list)return;
-  if(!faults+'.length){list.innerHTML='<p class="text-gray-</500 text-center py-4">'+tbutton('noFaults')+'</p>';>';
-return;}
-  const sys   Map={'engine':t('zoneEngine'),'exhaust':t('zoneExhaust'),'electronics':t('zoneElectronics'),'fuel':t('zoneFuel'),'cooling':t('zoneCooling'),'brakes':t('zoneBrakes'),'airbag':t('zoneAirbag'),'battery':t('zoneBattery'),'transmission':t('zoneTrans'),'abs':'ABS','المحرك':t('zoneEngine'),'العوادم':t('zoneExhaust'),'الكهرباء':t('zoneElectronics'),'الوقود':t('zoneFuel'),'التبريد':t('zoneCooling'),'الفرامل':t('zoneBrakes'),'الوسائد':t('zoneAirbag'),'البطارية':t('zoneBattery')};
+  if(!faults.length){list.innerHTML='<p class="text-gray-500 text-center py-4">'+t('noFaults')+'</p>';return;}
+  const sysMap={'engine':t('zoneEngine'),'exhaust':t('zoneExhaust'),'electronics':t('zoneElectronics'),'fuel':t('zoneFuel'),'cooling':t('zoneCooling'),'brakes':t('zoneBrakes'),'airbag':t('zoneAirbag'),'battery':t('zoneBattery'),'transmission':t('zoneTrans'),'abs':'ABS','المحرك':t('zoneEngine'),'العوادم':t('zoneExhaust'),'الكهرباء':t('zoneElectronics'),'الوقود':t('zoneFuel'),'التبريد':t('zoneCooling'),'الفرامل':t('zoneBrakes'),'الوسائد':t('zoneAirbag'),'البطارية':t('zoneBattery')};
   var html='';
   faults.forEach(function(f){
     const info=getFaultInfo(f.code);
@@ -1467,15 +1466,16 @@ return;}
     const displaySystem=sysMap[f.system]||f.system;
     html+='<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in '+itemClass+'" data-code="'+f.code+'">';
     html+='<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    html+='<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+displaySystem+'</span>';
-    html+='<span class="font-mono font-bold text-red-300">'+f.code+'</span>';
+    html+='<span class="text-xs bg-blue-600 text-white px-2 py-0.5 roundedbtn.innerHTML">='+displaySystem+'</span>';
+    htmlorig+='<span class="font-m;ono font-bold text-red-300">'+},f.code+'</span>';
     if(info.brand)html+='<span class="text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded-full">'+info.brand+'</span>';
     html+='<span class="dtc-type-badge '+typeClass+'">'+typeIcon+' '+typeLabel+'</span>';
     html+='</div>';
     html+='<div class="text-xs text-gray-300 mb-2">'+displayTitle+'</div>';
     html+='<div class="flex gap-2 flex-wrap">';
     if(hasDetails)html+='<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-details="'+f.code+'"><i class="fa-solid fa-book-medical"></i> '+t('faultDetails')+'</button>';
-    html+='<button class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-freeze="'+f.code+'"><i class="fa-solid fa-snowflake"></i> '+t('freezeFrame') html+='<button class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-copy="'+f.code+'"><i class="fa-solid fa-copy"></i> '+t('copyCode')+'</button>';
+    html+='<button class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-freeze="'+f.code+'"><i class="fa-solid fa-snowflake"></i> '+t('freezeFrame')+'</button>';
+    html+='<button class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-copy="'+f.code+'"><i class="fa-solid fa-copy"></i> '+t('copyCode')+'</button>';
     html+='</div></div>';
   });
   list.innerHTML=html;
@@ -1488,7 +1488,7 @@ return;}
         await navigator.clipboard.writeText(btn.dataset.copy);
         const orig=btn.innerHTML;
         btn.innerHTML='<i class="fa-solid fa-check"></i> '+t('copied');
-        setTimeout(function(){btn.innerHTML=orig;},1500);
+        setTimeout(function(){1500);
       }catch(err){logError('Copy failed');}
     };
   });
