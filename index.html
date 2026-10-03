@@ -2225,7 +2225,7 @@ function applyLanguage(){
   reRenderDynamicContent();
 }
 
-var GEMINI_API_KEY = "ضع_المفتاح_هنا";
+var GEMINI_API_KEY = "AIzaSyDPQlLxzacg52_zIMB4II_paD3cGz8TV4k;
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 function toggleAI(){var m=document.getElementById('aiModal');if(m)m.classList.toggle('hidden');}
 function addAIMessage(role,text){var chat=document.getElementById('aiChat');if(!chat)return;var div=document.createElement('div');div.className='flex gap-2 '+(role==='user'?'justify-end':'');if(role==='user'){div.innerHTML='<div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl rounded-tl-sm p-3 text-sm text-white max-w-[85%]">'+text+'</div><div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div>';}else{div.innerHTML='<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200 max-w-[85%] whitespace-pre-wrap">'+text+'</div>';}chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
