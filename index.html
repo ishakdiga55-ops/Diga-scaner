@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CheckDiga - فحص السيارات مجاناً</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات مجانية تعمل في المتصفح - 1696+ كود عطل">
-<meta name="keywords" content="فحص سيارات, OBD2, DTC, ELM327, الجزائر">
+<meta name="description" content="أداة فحص سيارات مجانية - 1696+ كود عطل">
 <meta name="author" content="Ishak Diga">
-<meta property="og:title" content="CheckDiga - أداة فحص السيارات">
-<meta property="og:description" content="1696+ كود عطل | USB + Bluetooth">
-<meta property="og:image" content="https://ishakdiga55-ops.github.io/Diga-scaner/icon.svg">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -419,118 +415,118 @@ const hasSerial = 'serial' in navigator;
 const hasBluetooth = 'bluetooth' in navigator;
 
 const TRANSLATIONS = {
-  ar: {
-    subtitle:'أداة فحص السيارات المتكاملة', disconnected:'غير متصل', connected:'متصل', demoMode:'وضع تجريبي',
-    bluetooth:'Bluetooth', usb:'USB', demo:'تجريبي', disconnect:'قطع', clearDTC:'مسح الأعطال',
-    iosNotice:'iOS لا يدعم USB Serial. استخدم أندرويد (Chrome) أو حاسوب.',
-    tabFaults:'الأعطال', tabLive:'بيانات حية', tabVin:'VIN', tabHistory:'السجل', tabStats:'إحصائيات',
-    sysStatus:'حالة الأنظمة', sysEngine:'المحرك', sysTrans:'الجير', sysBrakes:'الفرامل', sysAirbag:'الوسائد',
-    sysFuel:'الوقود', sysExhaust:'العوادم', sysCooling:'التبريد', sysBattery:'البطارية', sysElectronics:'الكهرباء',
-    rpmUnit:'دورة/دقيقة', kmhUnit:'كم/ساعة', celsiusUnit:'درجة مئوية', percentUnit:'نسبة مئوية',
-    readinessTitle:'جاهزية الانبعاثات', checkReadiness:'فحص الجاهزية', readinessIdle:'اضغط "فحص الجاهزية" للبدء',
-    milOn:'لمبة الأعطال مضاءة', milOff:'لمبة الأعطال مطفأة', dtcCount:'عدد الأعطال',
-    continuousMonitors:'المراقبة المستمرة', nonContinuousMonitors:'المراقبة غير المستمرة',
-    monMisfire:'الاشتعال المتقطع', monFuel:'نظام الوقود', monComponents:'المكونات', monCatalyst:'الكتلايزر',
-    monHeatedCat:'الكتلايزر المسخّن', monEvap:'نظام EVAP', monO2:'حساس O2', monO2Heater:'سخان O2',
-    monEgr:'صمام EGR', monSecondaryAir:'الهواء الثانوي', monAcRef:'غاز التكييف',
-    statusReady:'جاهز', statusNotReady:'غير جاهز', statusNA:'غير مدعوم',
-    batteryTitle:'اختبار البطارية', startTest:'بدء الاختبار', batStage1:'محرك مطفأ', batStage2:'محرك يعمل',
-    batStage3:'تحت الحمل', batWaiting:'في الانتظار', batReading:'جاري القياس...',
-    batGood:'جيد', batLow:'منخفض', batWeak:'ضعيف', batOk:'ممتاز',
-    verdictPass:'نظام الشحن ممتاز', verdictWarn:'نظام الشحن يحتاج فحص', verdictFail:'نظام الشحن تالف',
-    mode06Title:'Mode 06', mode06Start:'بدء الفحص', mode06Idle:'اضغط "بدء الفحص"', mode06NoData:'لا توجد بيانات Mode 06',
-    mode06Pass:'ناجح', mode06Fail:'فاشل', mode06Unknown:'غير معروف',
-    mode06Value:'القيمة', mode06Min:'الأدنى', mode06Max:'الأعلى', mode06Results:'نتائج الاختبارات',
-    shareResults:'شارك النتائج', dtcTitle:'أكواد الأعطال',
-    legendConfirmed:'مؤكد', legendPending:'مؤقت', legendPermanent:'دائم',
-    readEngine:'فحص المحرك', readAll:'فحص الكل',
-    searchPlaceholder:'ابحث عن كود (P0301, BMW, تيربو...)', notScanned:'لم يتم الفحص بعد.',
-    chartsTitle:'الرسوم البيانية', autoAnalysis:'التحليل التلقائي', waitingData:'في انتظار البيانات...',
-    allNormal:'كل القيم طبيعية', overheating:'ارتفاع حرارة!', lowTemp:'حرارة منخفضة',
-    vinTitle:'رقم الهيكل VIN', readFromCar:'قراءة من السيارة', vinManual:'VIN يدوي (17 حرفاً)',
-    decodeVIN:'فك الشيفرة', vinNotRead:'لم يتم القراءة.',
-    historyTitle:'سجل الفحوصات', statsTitle:'إحصائيات حية', refresh:'تحديث',
-    vehicleHealth:'مؤشر صحة السيارة', faultsRegistered:'عطل مسجل', smartDiagnoses:'تشخيص ذكي',
-    excellent:'ممتازة', good:'جيدة', needsService:'تحتاج صيانة', critical:'خطيرة', severe:'حرجة',
-    descExcellent:'لا توجد مشاكل تستدعي القلق', descGood:'أعطال بسيطة تحتاج مراقبة',
-    descNeedsService:'أعطال تحتاج إصلاحاً خلال فترة قصيرة', descCritical:'أعطال مهمة يجب إصلاحها فوراً',
-    descSevere:'أعطال خطيرة - لا تقُد السيارة',
-    smartDiagnosisTitle:'التشخيص الذكي', faultDetails:'تفاصيل', freezeFrame:'Freeze',
-    scanning:'جاري الفحص...', readingConfirmed:'قراءة الأعطال المؤكدة...', readingPending:'قراءة الأعطال المؤقتة...',
-    readingPermanent:'قراءة الأعطال الدائمة...', carHealthy:'السيارة سليمة', noFaults:'لا توجد أعطال',
-    confirmClear:'مسح الأعطال؟', cleared:'تم المسح', noResults:'لا توجد نتائج', allBrands:'الكل',
-    causes:'الأسباب المحتملة', symptoms:'الأعراض', steps:'خطوات الفحص', commonCars:'سيارات شائعة',
-    description:'الوصف', unknownFault:'عطل غير معروف',
-    severityCritical:'حرج جداً', severityHigh:'خطير', severityMedium:'متوسط', severityLow:'منخفض', severityUnknown:'غير محدد',
-    zoneEngine:'المحرك', zoneTrans:'ناقل الحركة', zoneAbs:'ABS', zoneBrakes:'الفرامل', zoneAirbag:'الوسائد',
-    zoneFuel:'الوقود', zoneExhaust:'العوادم', zoneCooling:'التبريد', zoneBattery:'البطارية', zoneElectronics:'الكهرباء',
-    noHistory:'لا يوجد سجل', clearHistory:'حذف', scans:'فحص',
-    firebaseUnavailable:'Firebase غير متوفر', noData:'لا توجد بيانات', topFaults:'أكثر الأعطال',
-    vinBadge:'صحيح', connectedUSB:'متصل عبر USB', connectedBLE:'متصل عبر Bluetooth',
-    initELM:'تهيئة ELM327...', detectProtocol:'اكتشاف بروتوكول السيارة...', readyToRead:'جاهز للقراءة',
-    readingVIN:'قراءة VIN...', startLive:'بدء قراءة البيانات الحية...',
-    usbReadError:'خطأ قراءة USB:', bleError:'خطأ BLE:', retryFailed:'محاولة فشلت، إعادة...',
-    vehicleInfo:'معلومات السيارة', detectedFaults:'الأعطال المكتشفة', diagnosis:'التشخيص',
-    reportTitle:'تقرير فحص سيارة - CheckDiga', generatedBy:'تم إنشاء التقرير بواسطة CheckDiga',
-    brandAll:'الكل', brandDiesel:'ديزل', copied:'تم النسخ', copyCode:'نسخ',
-    searchByBrand:'ابحث عن كود أو شركة...'
-  },
-  en: {
-    subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected', demoMode:'Demo Mode',
-    bluetooth:'Bluetooth', usb:'USB', demo:'Demo', disconnect:'Disconnect', clearDTC:'Clear DTCs',
-    iosNotice:'iOS does not support USB Serial. Use Android (Chrome) or PC.',
-    tabFaults:'Faults', tabLive:'Live Data', tabVin:'VIN', tabHistory:'History', tabStats:'Statistics',
-    sysStatus:'System Status', sysEngine:'Engine', sysTrans:'Transmission', sysBrakes:'Brakes', sysAirbag:'Airbag',
-    sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electronics',
-    rpmUnit:'RPM', kmhUnit:'km/h', celsiusUnit:'Celsius', percentUnit:'Percent',
-    readinessTitle:'Emission Readiness', checkReadiness:'Check Readiness', readinessIdle:'Press "Check Readiness" to start',
-    milOn:'MIL Light ON', milOff:'MIL Light OFF', dtcCount:'DTC Count',
-    continuousMonitors:'Continuous Monitors', nonContinuousMonitors:'Non-Continuous Monitors',
-    monMisfire:'Misfire', monFuel:'Fuel System', monComponents:'Components', monCatalyst:'Catalyst',
-    monHeatedCat:'Heated Cat', monEvap:'EVAP', monO2:'O2 Sensor', monO2Heater:'O2 Heater',
-    monEgr:'EGR Valve', monSecondaryAir:'Secondary Air', monAcRef:'A/C Ref',
-    statusReady:'Ready', statusNotReady:'Not Ready', statusNA:'N/A',
-    batteryTitle:'Battery & Alternator Test', startTest:'Start Test', batStage1:'Engine OFF', batStage2:'Engine ON',
-    batStage3:'Under Load', batWaiting:'Waiting', batReading:'Reading...',
-    batGood:'Good', batLow:'Low', batWeak:'Weak', batOk:'Excellent',
-    verdictPass:'Charging system excellent', verdictWarn:'Charging system needs check', verdictFail:'Charging system FAILED',
-    mode06Title:'Mode 06', mode06Start:'Start Scan', mode06Idle:'Press "Start Scan"', mode06NoData:'Mode 06 data not available',
-    mode06Pass:'PASS', mode06Fail:'FAIL', mode06Unknown:'UNKNOWN',
-    mode06Value:'Value', mode06Min:'Min', mode06Max:'Max', mode06Results:'Test Results',
-    shareResults:'Share Results', dtcTitle:'DTC Codes',
-    legendConfirmed:'Confirmed', legendPending:'Pending', legendPermanent:'Permanent',
-    readEngine:'Scan Engine', readAll:'Scan All',
-    searchPlaceholder:'Search code (P0301, BMW, turbo...)', notScanned:'Not scanned yet.',
-    chartsTitle:'Live Charts', autoAnalysis:'Auto Analysis', waitingData:'Waiting for data...',
-    allNormal:'All values normal', overheating:'Overheating!', lowTemp:'Low temperature',
-    vinTitle:'Vehicle VIN', readFromCar:'Read from Car', vinManual:'VIN manual (17 chars)',
-    decodeVIN:'Decode VIN', vinNotRead:'Not read yet.',
-    historyTitle:'Scan History', statsTitle:'Live Statistics', refresh:'Refresh',
-    vehicleHealth:'Vehicle Health', faultsRegistered:'faults registered', smartDiagnoses:'smart diagnoses',
-    excellent:'Excellent', good:'Good', needsService:'Needs Service', critical:'Critical', severe:'Severe',
-    descExcellent:'No issues detected', descGood:'Minor faults need monitoring',
-    descNeedsService:'Faults need repair soon', descCritical:'Important faults - repair immediately',
-    descSevere:'Severe faults - do not drive',
-    smartDiagnosisTitle:'Smart Diagnosis', faultDetails:'Details', freezeFrame:'Freeze',
-    scanning:'Scanning...', readingConfirmed:'Reading confirmed faults...', readingPending:'Reading pending faults...',
-    readingPermanent:'Reading permanent faults...', carHealthy:'Car is healthy', noFaults:'No faults',
-    confirmClear:'Clear DTCs?', cleared:'Cleared', noResults:'No results', allBrands:'All',
-    causes:'Possible Causes', symptoms:'Symptoms', steps:'Diagnostic Steps', commonCars:'Common Cars',
-    description:'Description', unknownFault:'Unknown fault',
-    severityCritical:'Very Critical', severityHigh:'High', severityMedium:'Medium', severityLow:'Low', severityUnknown:'Unknown',
-    zoneEngine:'Engine', zoneTrans:'Transmission', zoneAbs:'ABS', zoneBrakes:'Brakes', zoneAirbag:'Airbag',
-    zoneFuel:'Fuel', zoneExhaust:'Exhaust', zoneCooling:'Cooling', zoneBattery:'Battery', zoneElectronics:'Electronics',
-    noHistory:'No history', clearHistory:'Clear', scans:'scans',
-    firebaseUnavailable:'Firebase not available', noData:'No data', topFaults:'Top Faults',
-    vinBadge:'Valid', connectedUSB:'Connected via USB', connectedBLE:'Connected via Bluetooth',
-    initELM:'Initializing ELM327...', detectProtocol:'Detecting vehicle protocol...', readyToRead:'Ready to read',
-    readingVIN:'Reading VIN...', startLive:'Starting live data...',
-    usbReadError:'USB read error:', bleError:'BLE error:', retryFailed:'Attempt failed, retrying...',
-    vehicleInfo:'Vehicle Info', detectedFaults:'Detected Faults', diagnosis:'Diagnosis',
-    reportTitle:'Car Diagnostic Report - CheckDiga', generatedBy:'Generated by CheckDiga',
-    brandAll:'All', brandDiesel:'Diesel', copied:'Copied', copyCode:'Copy',
-    searchByBrand:'Search code or brand...'
-  }
+ar: {
+subtitle:'أداة فحص السيارات المتكاملة', disconnected:'غير متصل', connected:'متصل', demoMode:'وضع تجريبي',
+bluetooth:'Bluetooth', usb:'USB', demo:'تجريبي', disconnect:'قطع', clearDTC:'مسح الأعطال',
+iosNotice:'iOS لا يدعم USB Serial. استخدم أندرويد (Chrome) أو حاسوب.',
+tabFaults:'الأعطال', tabLive:'بيانات حية', tabVin:'VIN', tabHistory:'السجل', tabStats:'إحصائيات',
+sysStatus:'حالة الأنظمة', sysEngine:'المحرك', sysTrans:'الجير', sysBrakes:'الفرامل', sysAirbag:'الوسائد',
+sysFuel:'الوقود', sysExhaust:'العوادم', sysCooling:'التبريد', sysBattery:'البطارية', sysElectronics:'الكهرباء',
+rpmUnit:'دورة/دقيقة', kmhUnit:'كم/ساعة', celsiusUnit:'درجة مئوية', percentUnit:'نسبة مئوية',
+readinessTitle:'جاهزية الانبعاثات', checkReadiness:'فحص الجاهزية', readinessIdle:'اضغط فحص الجاهزية للبدء',
+milOn:'لمبة الأعطال مضاءة', milOff:'لمبة الأعطال مطفأة', dtcCount:'عدد الأعطال',
+continuousMonitors:'المراقبة المستمرة', nonContinuousMonitors:'المراقبة غير المستمرة',
+monMisfire:'الاشتعال المتقطع', monFuel:'نظام الوقود', monComponents:'المكونات', monCatalyst:'الكتلايزر',
+monHeatedCat:'الكتلايزر المسخن', monEvap:'نظام EVAP', monO2:'حساس O2', monO2Heater:'سخان O2',
+monEgr:'صمام EGR', monSecondaryAir:'الهواء الثانوي', monAcRef:'غاز التكييف',
+statusReady:'جاهز', statusNotReady:'غير جاهز', statusNA:'غير مدعوم',
+batteryTitle:'اختبار البطارية', startTest:'بدء الاختبار', batStage1:'محرك مطفأ', batStage2:'محرك يعمل',
+batStage3:'تحت الحمل', batWaiting:'في الانتظار', batReading:'جاري القياس...',
+batGood:'جيد', batLow:'منخفض', batWeak:'ضعيف', batOk:'ممتاز',
+verdictPass:'نظام الشحن ممتاز', verdictWarn:'نظام الشحن يحتاج فحص', verdictFail:'نظام الشحن تالف',
+mode06Title:'Mode 06', mode06Start:'بدء الفحص', mode06Idle:'اضغط بدء الفحص', mode06NoData:'لا توجد بيانات Mode 06',
+mode06Pass:'ناجح', mode06Fail:'فاشل', mode06Unknown:'غير معروف',
+mode06Value:'القيمة', mode06Min:'الأدنى', mode06Max:'الأعلى', mode06Results:'نتائج الاختبارات',
+shareResults:'شارك النتائج', dtcTitle:'أكواد الأعطال',
+legendConfirmed:'مؤكد', legendPending:'مؤقت', legendPermanent:'دائم',
+readEngine:'فحص المحرك', readAll:'فحص الكل',
+searchPlaceholder:'ابحث عن كود P0301 BMW تيربو', notScanned:'لم يتم الفحص بعد',
+chartsTitle:'الرسوم البيانية', autoAnalysis:'التحليل التلقائي', waitingData:'في انتظار البيانات',
+allNormal:'كل القيم طبيعية', overheating:'ارتفاع حرارة', lowTemp:'حرارة منخفضة',
+vinTitle:'رقم الهيكل VIN', readFromCar:'قراءة من السيارة', vinManual:'VIN يدوي 17 حرف',
+decodeVIN:'فك الشيفرة', vinNotRead:'لم يتم القراءة',
+historyTitle:'سجل الفحوصات', statsTitle:'إحصائيات حية', refresh:'تحديث',
+vehicleHealth:'مؤشر صحة السيارة', faultsRegistered:'عطل مسجل', smartDiagnoses:'تشخيص ذكي',
+excellent:'ممتازة', good:'جيدة', needsService:'تحتاج صيانة', critical:'خطيرة', severe:'حرجة',
+descExcellent:'لا توجد مشاكل', descGood:'أعطال بسيطة',
+descNeedsService:'أعطال تحتاج إصلاح قريب', descCritical:'أعطال مهمة - إصلاح فوري',
+descSevere:'أعطال خطيرة - لا تقُد',
+smartDiagnosisTitle:'التشخيص الذكي', faultDetails:'تفاصيل', freezeFrame:'Freeze',
+scanning:'جاري الفحص', readingConfirmed:'قراءة الأعطال المؤكدة',
+readingPending:'قراءة الأعطال المؤقتة', readingPermanent:'قراءة الأعطال الدائمة',
+carHealthy:'السيارة سليمة', noFaults:'لا توجد أعطال',
+confirmClear:'مسح الأعطال', cleared:'تم المسح', noResults:'لا توجد نتائج', allBrands:'الكل',
+causes:'الأسباب المحتملة', symptoms:'الأعراض', steps:'خطوات الفحص', commonCars:'سيارات شائعة',
+description:'الوصف', unknownFault:'عطل غير معروف',
+severityCritical:'حرج جدا', severityHigh:'خطير', severityMedium:'متوسط', severityLow:'منخفض', severityUnknown:'غير محدد',
+zoneEngine:'المحرك', zoneTrans:'ناقل الحركة', zoneAbs:'ABS', zoneBrakes:'الفرامل', zoneAirbag:'الوسائد',
+zoneFuel:'الوقود', zoneExhaust:'العوادم', zoneCooling:'التبريد', zoneBattery:'البطارية', zoneElectronics:'الكهرباء',
+noHistory:'لا يوجد سجل', clearHistory:'حذف', scans:'فحص',
+firebaseUnavailable:'Firebase غير متوفر', noData:'لا توجد بيانات', topFaults:'أكثر الأعطال',
+vinBadge:'صحيح', connectedUSB:'متصل عبر USB', connectedBLE:'متصل عبر Bluetooth',
+initELM:'تهيئة ELM327', detectProtocol:'اكتشاف البروتوكول', readyToRead:'جاهز للقراءة',
+readingVIN:'قراءة VIN', startLive:'بدء البيانات الحية',
+usbReadError:'خطأ USB', bleError:'خطأ BLE',
+vehicleInfo:'معلومات السيارة', detectedFaults:'الأعطال المكتشفة', diagnosis:'التشخيص',
+reportTitle:'تقرير فحص سيارة - CheckDiga', generatedBy:'تم إنشاء التقرير بواسطة CheckDiga',
+brandAll:'الكل', brandDiesel:'ديزل', copied:'تم النسخ', copyCode:'نسخ'
+},
+en: {
+subtitle:'Complete Car Diagnostic Tool', disconnected:'Disconnected', connected:'Connected', demoMode:'Demo Mode',
+bluetooth:'Bluetooth', usb:'USB', demo:'Demo', disconnect:'Disconnect', clearDTC:'Clear DTCs',
+iosNotice:'iOS does not support USB Serial. Use Android (Chrome) or PC.',
+tabFaults:'Faults', tabLive:'Live Data', tabVin:'VIN', tabHistory:'History', tabStats:'Statistics',
+sysStatus:'System Status', sysEngine:'Engine', sysTrans:'Transmission', sysBrakes:'Brakes', sysAirbag:'Airbag',
+sysFuel:'Fuel', sysExhaust:'Exhaust', sysCooling:'Cooling', sysBattery:'Battery', sysElectronics:'Electronics',
+rpmUnit:'RPM', kmhUnit:'km/h', celsiusUnit:'Celsius', percentUnit:'Percent',
+readinessTitle:'Emission Readiness', checkReadiness:'Check Readiness', readinessIdle:'Press Check Readiness',
+milOn:'MIL Light ON', milOff:'MIL Light OFF', dtcCount:'DTC Count',
+continuousMonitors:'Continuous Monitors', nonContinuousMonitors:'Non-Continuous Monitors',
+monMisfire:'Misfire', monFuel:'Fuel System', monComponents:'Components', monCatalyst:'Catalyst',
+monHeatedCat:'Heated Cat', monEvap:'EVAP', monO2:'O2 Sensor', monO2Heater:'O2 Heater',
+monEgr:'EGR Valve', monSecondaryAir:'Secondary Air', monAcRef:'A/C Ref',
+statusReady:'Ready', statusNotReady:'Not Ready', statusNA:'N/A',
+batteryTitle:'Battery Test', startTest:'Start Test', batStage1:'Engine OFF', batStage2:'Engine ON',
+batStage3:'Under Load', batWaiting:'Waiting', batReading:'Reading...',
+batGood:'Good', batLow:'Low', batWeak:'Weak', batOk:'Excellent',
+verdictPass:'Charging system excellent', verdictWarn:'Charging system needs check', verdictFail:'Charging system FAILED',
+mode06Title:'Mode 06', mode06Start:'Start Scan', mode06Idle:'Press Start Scan', mode06NoData:'No Mode 06 data',
+mode06Pass:'PASS', mode06Fail:'FAIL', mode06Unknown:'UNKNOWN',
+mode06Value:'Value', mode06Min:'Min', mode06Max:'Max', mode06Results:'Test Results',
+shareResults:'Share Results', dtcTitle:'DTC Codes',
+legendConfirmed:'Confirmed', legendPending:'Pending', legendPermanent:'Permanent',
+readEngine:'Scan Engine', readAll:'Scan All',
+searchPlaceholder:'Search code P0301 BMW turbo', notScanned:'Not scanned yet',
+chartsTitle:'Live Charts', autoAnalysis:'Auto Analysis', waitingData:'Waiting for data',
+allNormal:'All values normal', overheating:'Overheating', lowTemp:'Low temperature',
+vinTitle:'Vehicle VIN', readFromCar:'Read from Car', vinManual:'VIN manual 17 chars',
+decodeVIN:'Decode VIN', vinNotRead:'Not read yet',
+historyTitle:'Scan History', statsTitle:'Live Statistics', refresh:'Refresh',
+vehicleHealth:'Vehicle Health', faultsRegistered:'faults registered', smartDiagnoses:'smart diagnoses',
+excellent:'Excellent', good:'Good', needsService:'Needs Service', critical:'Critical', severe:'Severe',
+descExcellent:'No issues detected', descGood:'Minor faults need monitoring',
+descNeedsService:'Faults need repair soon', descCritical:'Important faults - repair immediately',
+descSevere:'Severe faults - do not drive',
+smartDiagnosisTitle:'Smart Diagnosis', faultDetails:'Details', freezeFrame:'Freeze',
+scanning:'Scanning', readingConfirmed:'Reading confirmed faults',
+readingPending:'Reading pending faults', readingPermanent:'Reading permanent faults',
+carHealthy:'Car is healthy', noFaults:'No faults',
+confirmClear:'Clear DTCs', cleared:'Cleared', noResults:'No results', allBrands:'All',
+causes:'Possible Causes', symptoms:'Symptoms', steps:'Diagnostic Steps', commonCars:'Common Cars',
+description:'Description', unknownFault:'Unknown fault',
+severityCritical:'Very Critical', severityHigh:'High', severityMedium:'Medium', severityLow:'Low', severityUnknown:'Unknown',
+zoneEngine:'Engine', zoneTrans:'Transmission', zoneAbs:'ABS', zoneBrakes:'Brakes', zoneAirbag:'Airbag',
+zoneFuel:'Fuel', zoneExhaust:'Exhaust', zoneCooling:'Cooling', zoneBattery:'Battery', zoneElectronics:'Electronics',
+noHistory:'No history', clearHistory:'Clear', scans:'scans',
+firebaseUnavailable:'Firebase not available', noData:'No data', topFaults:'Top Faults',
+vinBadge:'Valid', connectedUSB:'Connected via USB', connectedBLE:'Connected via Bluetooth',
+initELM:'Initializing ELM327', detectProtocol:'Detecting protocol', readyToRead:'Ready to read',
+readingVIN:'Reading VIN', startLive:'Starting live data',
+usbReadError:'USB error', bleError:'BLE error',
+vehicleInfo:'Vehicle Info', detectedFaults:'Detected Faults', diagnosis:'Diagnosis',
+reportTitle:'Car Diagnostic Report - CheckDiga', generatedBy:'Generated by CheckDiga',
+brandAll:'All', brandDiesel:'Diesel', copied:'Copied', copyCode:'Copy'
+}
 };
 
 let currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
@@ -541,28 +537,6 @@ let lastDiagnosis = [];
 let lastReadinessData = null;
 let lastMode06Data = null;
 let lastVinInfo = null;
-
-async function loadExtendedDatabase(){
-  try {
-    logInfo('Loading extended database...');
-    const res = await fetch('dtc_full.json?v=1');
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    let added = 0;
-    for(const [key, value] of Object.entries(data)){
-      if(!DTC_DATABASE[key]){
-        DTC_DATABASE[key] = value;
-        added++;
-      }
-    }
-    buildDTCIndex();
-    logSuccess('Loaded '+added+' extra codes | Total: '+Object.keys(DTC_DATABASE).length);
-    return added;
-  } catch(e) {
-    logError('Failed to load dtc_full.json: '+e.message);
-    return 0;
-  }
-}
 
 const DTC_DATABASE = {
 "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
@@ -596,7 +570,7 @@ const DTC_DATABASE = {
 "P0150":{zone:"exhaust",title:"حساس O2 B2S1",title_en:"O2 Sensor B2S1",severity:"medium"},
 "P0155":{zone:"exhaust",title:"سخان O2 B2S1",title_en:"O2 B2S1 Heater",severity:"medium"},
 "P0170":{zone:"fuel",title:"Fuel Trim Bank 1",title_en:"Fuel Trim Bank 1",severity:"high"},
-"P0171":{zone:"fuel",title:"خليط فقير - Bank 1",title_en:"System Too Lean Bank 1",desc:"الخليط فقير جداً",desc_en:"Air/fuel mixture too lean",severity:"high",causes:["تسرب هواء","حساس MAF متسخ","فلتر هواء مسدود","مضخة وقود ضعيفة"],causes_en:["Vacuum leak","Dirty MAF","Clogged air filter","Weak fuel pump"],symptoms:["اهتزاز عند الخمول","تسارع ضعيف","استهلاك مرتفع"],symptoms_en:["Idle vibration","Poor acceleration","High fuel consumption"],steps:["افحص خراطيم الفاكيوم","نظّف MAF","افحص ضغط الوقود"],steps_en:["Check vacuum hoses","Clean MAF","Check fuel pressure"],common_cars:["VW Golf","Audi A4","BMW 3-Series"]},
+"P0171":{zone:"fuel",title:"خليط فقير - Bank 1",title_en:"System Too Lean Bank 1",desc:"الخليط فقير جدا",desc_en:"Air/fuel mixture too lean",severity:"high",causes:["تسرب هواء","حساس MAF متسخ","فلتر هواء مسدود","مضخة وقود ضعيفة"],causes_en:["Vacuum leak","Dirty MAF","Clogged air filter","Weak fuel pump"],symptoms:["اهتزاز عند الخمول","تسارع ضعيف","استهلاك مرتفع"],symptoms_en:["Idle vibration","Poor acceleration","High fuel consumption"],steps:["افحص خراطيم الفاكيوم","نظف MAF","افحص ضغط الوقود"],steps_en:["Check vacuum hoses","Clean MAF","Check fuel pressure"],common_cars:["VW Golf","Audi A4","BMW 3-Series"]},
 "P0172":{zone:"fuel",title:"خليط غني - Bank 1",title_en:"System Too Rich Bank 1",severity:"high"},
 "P0174":{zone:"fuel",title:"خليط فقير - Bank 2",title_en:"System Too Lean Bank 2",severity:"high"},
 "P0175":{zone:"fuel",title:"خليط غني - Bank 2",title_en:"System Too Rich Bank 2",severity:"high"},
@@ -607,15 +581,15 @@ const DTC_DATABASE = {
 "P0202":{zone:"fuel",title:"الحاقن - الأسطوانة 2",title_en:"Injector Cylinder 2",severity:"high"},
 "P0203":{zone:"fuel",title:"الحاقن - الأسطوانة 3",title_en:"Injector Cylinder 3",severity:"high"},
 "P0204":{zone:"fuel",title:"الحاقن - الأسطوانة 4",title_en:"Injector Cylinder 4",severity:"high"},
-"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Engine Overheating",desc:"أوقف السيارة فوراً!",desc_en:"Stop the vehicle immediately!",severity:"critical",causes:["نقص سائل التبريد","ترموستات تالف","مروحة معطلة"],causes_en:["Low coolant","Faulty thermostat","Broken fan"],symptoms:["ارتفاع مؤشر الحرارة","دخان من غطاء المحرك"],symptoms_en:["High temp gauge","Smoke from hood"],steps:["أوقف فوراً","افحص سائل التبريد","افحص المراوح"],steps_en:["Stop immediately","Check coolant","Check fans"],common_cars:["جميع السيارات"]},
+"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Engine Overheating",desc:"أوقف السيارة فورا",desc_en:"Stop immediately",severity:"critical",causes:["نقص سائل التبريد","ترموستات تالف","مروحة معطلة"],causes_en:["Low coolant","Faulty thermostat","Broken fan"],symptoms:["ارتفاع مؤشر الحرارة","دخان من المحرك"],symptoms_en:["High temp gauge","Smoke from hood"],steps:["أوقف فورا","افحص سائل التبريد","افحص المراوح"],steps_en:["Stop immediately","Check coolant","Check fans"],common_cars:["جميع السيارات"]},
 "P0234":{zone:"engine",title:"ضغط التيربو مرتفع",title_en:"Turbo Overboost",severity:"high"},
 "P0235":{zone:"engine",title:"حساس ضغط التيربو A",title_en:"Turbo Boost Sensor A",severity:"medium"},
 "P0236":{zone:"engine",title:"حساس ضغط التيربو - أداء",title_en:"Boost Sensor Performance",severity:"medium"},
 "P0237":{zone:"engine",title:"حساس ضغط التيربو - منخفض",title_en:"Boost Sensor Low",severity:"medium"},
 "P0238":{zone:"engine",title:"حساس ضغط التيربو - مرتفع",title_en:"Boost Sensor High",severity:"medium"},
-"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbocharger Underboost",desc:"التيربو لا ينتج الضغط المطلوب",desc_en:"Turbo not producing required boost",severity:"high",causes:["خرطوم تيربو مشقوق","صمام Wastegate عالق","صمام Blow-off معطل","حساس MAP تالف"],causes_en:["Cracked turbo hose","Stuck wastegate","Faulty blow-off valve","Bad MAP sensor"],symptoms:["فقدان قوة","دخان أسود","صوت صفير","Limp Mode"],symptoms_en:["Power loss","Black smoke","Whistling sound","Limp mode"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص MAP"],steps_en:["Check turbo hoses","Check wastegate","Check MAP"],common_cars:["VW Golf TSI","BMW N20","Ford EcoBoost"]},
-"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Multiple Cylinder Misfire",desc:"اشتعال غير منتظم",desc_en:"Irregular combustion",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],causes_en:["Worn spark plugs","Bad coils","Vacuum leak","Low fuel pressure"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],symptoms_en:["Engine vibration","Power loss","Irregular sound"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],steps_en:["Check plugs","Check coils","Check fuel pressure"],common_cars:["جميع السيارات"]},
-"P0301":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل",desc_en:"Incomplete combustion",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],causes_en:["Bad plug","Bad coil","Clogged injector","Low compression"],symptoms:["اهتزاز عند الخمول","فقدان قوة"],symptoms_en:["Idle vibration","Power loss"],steps:["افحص البوجيه","بدّل الكويل","افحص الضغط"],steps_en:["Check plug","Swap coil","Check compression"],common_cars:["Toyota Corolla","Honda Civic"]},
+"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbocharger Underboost",desc:"التيربو لا ينتج الضغط المطلوب",desc_en:"Turbo not producing required boost",severity:"high",causes:["خرطوم تيربو مشقوق","Wastegate عالق","Blow-off معطل","حساس MAP تالف"],causes_en:["Cracked turbo hose","Stuck wastegate","Faulty blow-off valve","Bad MAP sensor"],symptoms:["فقدان قوة","دخان أسود","صوت صفير","Limp Mode"],symptoms_en:["Power loss","Black smoke","Whistling sound","Limp mode"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص MAP"],steps_en:["Check turbo hoses","Check wastegate","Check MAP"],common_cars:["VW Golf TSI","BMW N20","Ford EcoBoost"]},
+"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Multiple Misfire",desc:"اشتعال غير منتظم",desc_en:"Irregular combustion",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],causes_en:["Worn spark plugs","Bad coils","Vacuum leak","Low fuel pressure"],symptoms:["اهتزاز المحرك","فقدان قوة"],symptoms_en:["Engine vibration","Power loss"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],steps_en:["Check plugs","Check coils","Check fuel pressure"],common_cars:["جميع السيارات"]},
+"P0301":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل",desc_en:"Incomplete combustion",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],causes_en:["Bad plug","Bad coil","Clogged injector","Low compression"],symptoms:["اهتزاز عند الخمول","فقدان قوة"],symptoms_en:["Idle vibration","Power loss"],steps:["افحص البوجيه","بدل الكويل","افحص الضغط"],steps_en:["Check plug","Swap coil","Check compression"],common_cars:["Toyota Corolla","Honda Civic"]},
 "P0302":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
 "P0303":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
 "P0304":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
@@ -640,11 +614,11 @@ const DTC_DATABASE = {
 "P0355":{zone:"engine",title:"دائرة الكويل E",title_en:"Coil E Circuit",severity:"high"},
 "P0356":{zone:"engine",title:"دائرة الكويل F",title_en:"Coil F Circuit",severity:"high"},
 "P0400":{zone:"exhaust",title:"تدفق EGR - عام",title_en:"EGR Flow General",severity:"medium"},
-"P0401":{zone:"exhaust",title:"تدفق EGR غير كافي",title_en:"EGR Flow Insufficient",desc:"صمام EGR مسدود",desc_en:"Clogged EGR valve",severity:"medium",causes:["صمام EGR مسدود","خط EGR مسدود"],causes_en:["Clogged EGR valve","Clogged EGR line"],symptoms:["خمول غير مستقر","تسارع ضعيف"],symptoms_en:["Unstable idle","Poor acceleration"],steps:["نظّف صمام EGR","افحص الخطوط"],steps_en:["Clean EGR","Check lines"],common_cars:["Toyota","VW","Ford"]},
+"P0401":{zone:"exhaust",title:"تدفق EGR غير كافي",title_en:"EGR Flow Insufficient",desc:"صمام EGR مسدود",desc_en:"Clogged EGR valve",severity:"medium",causes:["صمام EGR مسدود","خط EGR مسدود"],causes_en:["Clogged EGR valve","Clogged EGR line"],symptoms:["خمول غير مستقر","تسارع ضعيف"],symptoms_en:["Unstable idle","Poor acceleration"],steps:["نظف صمام EGR","افحص الخطوط"],steps_en:["Clean EGR","Check lines"],common_cars:["Toyota","VW","Ford"]},
 "P0402":{zone:"exhaust",title:"تدفق EGR زائد",title_en:"EGR Flow Excessive",severity:"medium"},
 "P0403":{zone:"exhaust",title:"دائرة صمام EGR",title_en:"EGR Valve Circuit",severity:"medium"},
 "P0410":{zone:"exhaust",title:"نظام الهواء الثانوي",title_en:"Secondary Air System",severity:"medium"},
-"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst Below Threshold Bank 1",desc:"شائع - افحص O2 قبل الاستبدال",desc_en:"Common - check O2 before replacing",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف"],causes_en:["Worn catalyst","Bad upstream O2","Bad downstream O2"],symptoms:["Check Engine فقط","رائحة كبريت","فشل اختبار الانبعاثات"],symptoms_en:["Check Engine only","Sulfur smell","Emission test fail"],steps:["افحص P0300/P0301","قارن O2 الأمامي والخلفي"],steps_en:["Check P0300/P0301","Compare O2 sensors"],common_cars:["Honda Accord","Toyota Camry"]},
+"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst Below Threshold Bank 1",desc:"شائع - افحص O2 قبل الاستبدال",desc_en:"Common - check O2 before replacing",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف"],causes_en:["Worn catalyst","Bad upstream O2","Bad downstream O2"],symptoms:["Check Engine فقط","رائحة كبريت","فشل اختبار الانبعاثات"],symptoms_en:["Check Engine only","Sulfur smell","Emission test fail"],steps:["افحص P0300 P0301","قارن O2 الأمامي والخلفي"],steps_en:["Check P0300 P0301","Compare O2 sensors"],common_cars:["Honda Accord","Toyota Camry"]},
 "P0430":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 2",title_en:"Catalyst Below Threshold Bank 2",severity:"medium"},
 "P0440":{zone:"exhaust",title:"نظام EVAP - عام",title_en:"EVAP System General",severity:"medium"},
 "P0441":{zone:"exhaust",title:"تدفق Purge EVAP",title_en:"EVAP Purge Flow",severity:"medium"},
@@ -652,7 +626,7 @@ const DTC_DATABASE = {
 "P0443":{zone:"exhaust",title:"دائرة Purge Valve",title_en:"Purge Valve Circuit",severity:"medium"},
 "P0450":{zone:"exhaust",title:"حساس ضغط EVAP",title_en:"EVAP Pressure Sensor",severity:"medium"},
 "P0455":{zone:"exhaust",title:"تسرب كبير EVAP",title_en:"EVAP Large Leak",severity:"medium"},
-"P0456":{zone:"exhaust",title:"تسرب صغير جداً EVAP",title_en:"EVAP Very Small Leak",severity:"low"},
+"P0456":{zone:"exhaust",title:"تسرب صغير جدا EVAP",title_en:"EVAP Very Small Leak",severity:"low"},
 "P0457":{zone:"exhaust",title:"غطاء البنزين مفتوح",title_en:"Fuel Cap Loose",severity:"low"},
 "P0460":{zone:"fuel",title:"حساس مستوى الوقود",title_en:"Fuel Level Sensor",severity:"low"},
 "P0480":{zone:"cooling",title:"مروحة التبريد 1",title_en:"Cooling Fan 1",severity:"high"},
@@ -662,7 +636,7 @@ const DTC_DATABASE = {
 "P0506":{zone:"engine",title:"RPM الخمول - منخفض",title_en:"Idle RPM Low",severity:"medium"},
 "P0507":{zone:"engine",title:"RPM الخمول - مرتفع",title_en:"Idle RPM High",severity:"medium"},
 "P0520":{zone:"engine",title:"حساس ضغط الزيت",title_en:"Oil Pressure Sensor",severity:"high"},
-"P0524":{zone:"engine",title:"ضغط الزيت منخفض جداً",title_en:"Oil Pressure Too Low",severity:"critical"},
+"P0524":{zone:"engine",title:"ضغط الزيت منخفض جدا",title_en:"Oil Pressure Too Low",severity:"critical"},
 "P0530":{zone:"cooling",title:"حساس ضغط التكييف",title_en:"A/C Pressure Sensor",severity:"low"},
 "P0560":{zone:"electronics",title:"جهد النظام - خلل",title_en:"System Voltage Fault",severity:"high"},
 "P0562":{zone:"electronics",title:"جهد النظام - منخفض",title_en:"System Voltage Low",severity:"high"},
@@ -722,22 +696,22 @@ const DTC_DATABASE = {
 "B1000":{zone:"airbag",title:"عطل وحدة الوسائد",title_en:"Airbag Module Fault",severity:"critical"},
 "B1318":{zone:"battery",title:"بطارية منخفضة - Ford",title_en:"Low Battery - Ford",severity:"medium"},
 "B1342":{zone:"electronics",title:"ECU معطل - Ford",title_en:"ECU Fault - Ford",severity:"high"},
-"B2606":{zone:"electronics",title:"مفتاح السيارة - Immobilizer",title_en:"Immobilizer",severity:"high"},
+"B2606":{zone:"electronics",title:"مفتاح السيارة",title_en:"Immobilizer",severity:"high"},
 "U0001":{zone:"electronics",title:"ناقل CAN - خطأ عام",title_en:"CAN Bus General Error",severity:"high"},
 "U0002":{zone:"electronics",title:"ناقل CAN - أداء",title_en:"CAN Bus Performance",severity:"high"},
-"U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECM/PCM",title_en:"Lost Comm With ECM/PCM",desc:"كمبيوتر المحرك لا يستجيب",desc_en:"Engine computer not responding",severity:"critical",causes:["فيوز محروق","سلك CAN مقطوع","ECM تالف"],causes_en:["Blown fuse","Broken CAN wire","Bad ECM"],symptoms:["السيارة لا تشتغل","Limp Mode"],symptoms_en:["Car won't start","Limp mode"],steps:["افحص فيوز ECM","افحص مقاومة CAN 60 اوم"],steps_en:["Check ECM fuse","Check CAN 60 ohm"],common_cars:["جميع السيارات 2008+"]},
+"U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECM PCM",title_en:"Lost Comm With ECM PCM",desc:"كمبيوتر المحرك لا يستجيب",desc_en:"Engine computer not responding",severity:"critical",causes:["فيوز محروق","سلك CAN مقطوع","ECM تالف"],causes_en:["Blown fuse","Broken CAN wire","Bad ECM"],symptoms:["السيارة لا تشتغل","Limp Mode"],symptoms_en:["Car won't start","Limp mode"],steps:["افحص فيوز ECM","افحص مقاومة CAN 60 اوم"],steps_en:["Check ECM fuse","Check CAN 60 ohm"],common_cars:["جميع السيارات 2008+"]},
 "U0101":{zone:"transmission",title:"فقدان الاتصال بـ TCM",title_en:"Lost Comm With TCM",severity:"critical"},
 "U0102":{zone:"transmission",title:"فقدان الاتصال بوحدة 4WD",title_en:"Lost Comm With 4WD",severity:"high"},
 "U0106":{zone:"electronics",title:"فقدان الاتصال بشمعات التوهج",title_en:"Lost Comm With Glow Plugs",severity:"high"},
 "U0107":{zone:"engine",title:"فقدان الاتصال بمحرك الخانق",title_en:"Lost Comm With Throttle",severity:"high"},
 "U0109":{zone:"fuel",title:"فقدان الاتصال بمضخة الوقود",title_en:"Lost Comm With Fuel Pump",severity:"high"},
 "U0121":{zone:"abs",title:"فقدان الاتصال بـ ABS",title_en:"Lost Comm With ABS",severity:"critical"},
-"U0122":{zone:"electronics",title:"فقدان الاتصال بـ ESP/ESC",title_en:"Lost Comm With ESP/ESC",severity:"high"},
+"U0122":{zone:"electronics",title:"فقدان الاتصال بـ ESP ESC",title_en:"Lost Comm With ESP ESC",severity:"high"},
 "U0126":{zone:"electronics",title:"فقدان الاتصال بحساس التوجيه",title_en:"Lost Comm With Steering Sensor",severity:"medium"},
 "U0127":{zone:"electronics",title:"فقدان الاتصال بـ TPMS",title_en:"Lost Comm With TPMS",severity:"low"},
 "U0128":{zone:"brakes",title:"فقدان الاتصال بـ EPB",title_en:"Lost Comm With EPB",severity:"high"},
 "U0129":{zone:"abs",title:"فقدان الاتصال بوحدة الفرامل",title_en:"Lost Comm With Brake Module",severity:"high"},
-"U0140":{zone:"electronics",title:"فقدان الاتصال بـ BCM",title_en:"Lost Comm With BCM",desc:"شائع جداً",desc_en:"Very common",severity:"high",causes:["BCM تالف","أسلاك","فيوز"],causes_en:["Bad BCM","Wires","Fuse"],symptoms:["أضواء لا تعمل","نوافذ لا تعمل"],symptoms_en:["Lights not working","Windows not working"],steps:["افحص فيوز BCM","افحص BCM"],steps_en:["Check BCM fuse","Check BCM"],common_cars:["Ford","GM","Toyota","BMW"]},
+"U0140":{zone:"electronics",title:"فقدان الاتصال بـ BCM",title_en:"Lost Comm With BCM",desc:"شائع جدا",desc_en:"Very common",severity:"high",causes:["BCM تالف","أسلاك","فيوز"],causes_en:["Bad BCM","Wires","Fuse"],symptoms:["أضواء لا تعمل","نوافذ لا تعمل"],symptoms_en:["Lights not working","Windows not working"],steps:["افحص فيوز BCM","افحص BCM"],steps_en:["Check BCM fuse","Check BCM"],common_cars:["Ford","GM","Toyota","BMW"]},
 "U0141":{zone:"electronics",title:"فقدان الاتصال بالوحدة الأمامية",title_en:"Lost Comm With Front Module",severity:"high"},
 "U0142":{zone:"electronics",title:"فقدان الاتصال بالوحدة الخلفية",title_en:"Lost Comm With Rear Module",severity:"high"},
 "U0155":{zone:"electronics",title:"فقدان الاتصال بلوحة العدادات",title_en:"Lost Comm With Instrument Panel",severity:"high"},
@@ -759,7 +733,7 @@ const DTC_DATABASE = {
 "P1220_PSA":{brand:"PSA",zone:"engine",title:"Throttle - دائرة",title_en:"Throttle Circuit PSA",severity:"high"},
 "P1300_PSA":{brand:"PSA",zone:"engine",title:"اشتعال متقطع",title_en:"Misfire PSA",severity:"high"},
 "P1335_PSA":{brand:"PSA",zone:"engine",title:"حساس الكرنك - التزامن",title_en:"Crank Sync PSA",severity:"critical"},
-"P1345_PSA":{brand:"PSA",zone:"engine",title:"تزامن الكام/الكرنك",title_en:"Cam/Crank Sync PSA",severity:"critical"},
+"P1345_PSA":{brand:"PSA",zone:"engine",title:"تزامن الكام الكرنك",title_en:"Cam Crank Sync PSA",severity:"critical"},
 "P1400_PSA":{brand:"PSA",zone:"exhaust",title:"EGR - تدفق",title_en:"EGR Flow PSA",severity:"medium"},
 "P1500_PSA":{brand:"PSA",zone:"electronics",title:"مرحل مضخة الوقود",title_en:"Fuel Pump Relay PSA",severity:"high"},
 "P1600_PSA":{brand:"PSA",zone:"electronics",title:"PCM - خطأ داخلي",title_en:"PCM Internal Error PSA",severity:"critical"},
@@ -798,7 +772,7 @@ const DTC_DATABASE = {
 "P1110_NIS":{brand:"Nissan",zone:"engine",title:"VTC",title_en:"VTC Nissan",severity:"high"},
 "P1320_NIS":{brand:"Nissan",zone:"engine",title:"إشارة الإشعال",title_en:"Ignition Signal Nissan",severity:"high"},
 "P1110_HYU":{brand:"Hyundai",zone:"engine",title:"VVT",title_en:"VVT Hyundai",severity:"high"},
-"P1326_HYU":{brand:"Hyundai/Kia",zone:"engine",title:"اهتزاز المحرك - مشكلة مصنعية",title_en:"Engine Vibration - Manufacturing Issue",desc:"مشكلة مصنعية شهيرة - قد يكون مشمولاً بالضمان",desc_en:"Famous manufacturing issue - may be under warranty",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],causes_en:["Manufacturing defect","Carbon buildup"],symptoms:["صوت قرقعة","فقدان قوة","اهتزاز شديد"],symptoms_en:["Knocking noise","Power loss","Severe vibration"],steps:["افحص رقم VIN للضمان","اتصل بالوكيل"],steps_en:["Check VIN for warranty","Contact dealer"],common_cars:["Hyundai Elantra 2011-2016","Kia Optima 2011-2014"]},
+"P1326_HYU":{brand:"Hyundai Kia",zone:"engine",title:"اهتزاز المحرك - مشكلة مصنعية",title_en:"Engine Vibration Manufacturing Issue",desc:"مشكلة مصنعية شهيرة قد يكون مشمولا بالضمان",desc_en:"Famous manufacturing issue may be under warranty",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],causes_en:["Manufacturing defect","Carbon buildup"],symptoms:["صوت قرقعة","فقدان قوة","اهتزاز شديد"],symptoms_en:["Knocking noise","Power loss","Severe vibration"],steps:["افحص رقم VIN للضمان","اتصل بالوكيل"],steps_en:["Check VIN for warranty","Contact dealer"],common_cars:["Hyundai Elantra 2011-2016","Kia Optima 2011-2014"]},
 "P1120_MER":{brand:"Mercedes",zone:"engine",title:"حساس TPS",title_en:"TPS Sensor Mercedes",severity:"medium"},
 "P1187_MER":{brand:"Mercedes",zone:"fuel",title:"ضغط الوقود",title_en:"Fuel Pressure Mercedes",severity:"high"},
 "P1350_MER":{brand:"Mercedes",zone:"engine",title:"حساس كام",title_en:"Cam Sensor Mercedes",severity:"high"},
@@ -814,7 +788,7 @@ const BRAND_INDEX = new Map();
 
 function buildDTCIndex(){
   BRAND_INDEX.clear();
-  Object.keys(DTC_DATABASE).forEach(k=>{
+  Object.keys(DTC_DATABASE).forEach(function(k){
     const base = k.split('_')[0].toUpperCase();
     if(!BRAND_INDEX.has(base)) BRAND_INDEX.set(base, []);
     BRAND_INDEX.get(base).push(k);
@@ -823,20 +797,20 @@ function buildDTCIndex(){
 buildDTCIndex();
 
 const RULES = [
-  {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',title_en:'Air Leak in Intake',confidence:90,severity:'high',description:'خليط فقير في البنكين.',description_en:'Lean mixture in both banks.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF'],actions_en:['Check vacuum hoses','Check intake gasket','Check MAF']},
-  {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',description_en:'Lean mixture caused misfire.',actions:['افحص تسرب الهواء أولاً'],actions_en:['Check for air leaks first']},
-  {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',title_en:'Ignition System Issue',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',description_en:'Multiple misfire.',actions:['استبدل البواجي','افحص الكويلات'],actions_en:['Replace plugs','Check coils']},
-  {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',title_en:'Catalyst Damage',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر.',description_en:'Misfire damaged catalyst.',actions:['أصلح الإشعال أولاً','استبدل الكتلايزر'],actions_en:['Fix ignition first','Replace catalyst']},
-  {required:['P0299'],title:'ضغط التيربو منخفض',title_en:'Turbo Underboost',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',description_en:'Turbo not producing required boost.',actions:['افحص خراطيم التيربو','افحص Wastegate','افحص MAP'],actions_en:['Check turbo hoses','Check wastegate','Check MAP']},
-  {required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',title_en:'DPF Clogged',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد.',description_en:'DPF needs regeneration.',actions:['قيادة سريعة 20 دقيقة','منظف DPF'],actions_en:['20 min fast drive','DPF cleaner']},
-  {required:['P0335'],title:'عطل حساس الكرنك',title_en:'Crank Sensor Fault',confidence:95,severity:'critical',description:'قد يمنع التشغيل.',description_en:'May prevent start.',actions:['استبدل حساس الكرنك'],actions_en:['Replace crank sensor']},
-  {required:['P0217'],title:'ارتفاع حرارة المحرك',title_en:'Engine Overheating',confidence:100,severity:'critical',description:'أوقف السيارة فوراً!',description_en:'Stop immediately!',actions:['أوقف فوراً','افحص سائل التبريد'],actions_en:['Stop immediately','Check coolant']},
-  {required:['U0100'],title:'فقدان الاتصال بـ ECU',title_en:'Lost Comm With ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',description_en:'No communication with ECU.',actions:['افحص الأسلاك','افحص الفيوزات'],actions_en:['Check wires','Check fuses']},
-  {required:['U0140'],title:'فقدان الاتصال بـ BCM',title_en:'Lost Comm With BCM',confidence:85,severity:'high',description:'وحدة الجسم لا تتواصل.',description_en:'BCM not communicating.',actions:['افحص فيوز BCM','افحص BCM'],actions_en:['Check BCM fuse','Check BCM']},
-  {required:['B0001'],title:'عطل الوسائد الهوائية',title_en:'Airbag System Fault',confidence:90,severity:'critical',description:'نظام SRS معطل!',description_en:'SRS system faulty!',actions:['افحص وحدة SRS'],actions_en:['Check SRS module']},
-  {required:['P0128'],title:'ترموستات عاطل',title_en:'Thermostat Faulty',confidence:90,severity:'medium',description:'المحرك لا يصل للحرارة.',description_en:'Engine not reaching temp.',actions:['استبدل الترموستات'],actions_en:['Replace thermostat']},
-  {required:['P0700'],title:'عطل ناقل الحركة',title_en:'Transmission Fault',confidence:95,severity:'high',description:'كمبيوتر الجير أرسل عطل.',description_en:'TCM sent fault.',actions:['افحص كمبيوتر الجير'],actions_en:['Check TCM']},
-  {required:['P1326_HYU'],title:'عطل مصنعي Hyundai/Kia',title_en:'Hyundai/Kia Manufacturing Issue',confidence:100,severity:'critical',description:'مشكلة مصنعية شهيرة!',description_en:'Famous manufacturing issue!',actions:['اتصل بالوكيل','افحص شمول الضمان'],actions_en:['Contact dealer','Check warranty']}
+  {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',title_en:'Air Leak in Intake',confidence:90,severity:'high',description:'خليط فقير في البنكين',description_en:'Lean mixture in both banks',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF'],actions_en:['Check vacuum hoses','Check intake gasket','Check MAF']},
+  {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع',description_en:'Lean mixture caused misfire',actions:['افحص تسرب الهواء أولا'],actions_en:['Check for air leaks first']},
+  {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',title_en:'Ignition System Issue',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد',description_en:'Multiple misfire',actions:['استبدل البواجي','افحص الكويلات'],actions_en:['Replace plugs','Check coils']},
+  {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',title_en:'Catalyst Damage',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر',description_en:'Misfire damaged catalyst',actions:['أصلح الإشعال أولا','استبدل الكتلايزر'],actions_en:['Fix ignition first','Replace catalyst']},
+  {required:['P0299'],title:'ضغط التيربو منخفض',title_en:'Turbo Underboost',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب',description_en:'Turbo not producing required boost',actions:['افحص خراطيم التيربو','افحص Wastegate','افحص MAP'],actions_en:['Check turbo hoses','Check wastegate','Check MAP']},
+  {required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',title_en:'DPF Clogged',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد',description_en:'DPF needs regeneration',actions:['قيادة سريعة 20 دقيقة','منظف DPF'],actions_en:['20 min fast drive','DPF cleaner']},
+  {required:['P0335'],title:'عطل حساس الكرنك',title_en:'Crank Sensor Fault',confidence:95,severity:'critical',description:'قد يمنع التشغيل',description_en:'May prevent start',actions:['استبدل حساس الكرنك'],actions_en:['Replace crank sensor']},
+  {required:['P0217'],title:'ارتفاع حرارة المحرك',title_en:'Engine Overheating',confidence:100,severity:'critical',description:'أوقف السيارة فورا',description_en:'Stop immediately',actions:['أوقف فورا','افحص سائل التبريد'],actions_en:['Stop immediately','Check coolant']},
+  {required:['U0100'],title:'فقدان الاتصال بـ ECU',title_en:'Lost Comm With ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر',description_en:'No communication with ECU',actions:['افحص الأسلاك','افحص الفيوزات'],actions_en:['Check wires','Check fuses']},
+  {required:['U0140'],title:'فقدان الاتصال بـ BCM',title_en:'Lost Comm With BCM',confidence:85,severity:'high',description:'وحدة الجسم لا تتواصل',description_en:'BCM not communicating',actions:['افحص فيوز BCM','افحص BCM'],actions_en:['Check BCM fuse','Check BCM']},
+  {required:['B0001'],title:'عطل الوسائد الهوائية',title_en:'Airbag System Fault',confidence:90,severity:'critical',description:'نظام SRS معطل',description_en:'SRS system faulty',actions:['افحص وحدة SRS'],actions_en:['Check SRS module']},
+  {required:['P0128'],title:'ترموستات عاطل',title_en:'Thermostat Faulty',confidence:90,severity:'medium',description:'المحرك لا يصل للحرارة',description_en:'Engine not reaching temp',actions:['استبدل الترموستات'],actions_en:['Replace thermostat']},
+  {required:['P0700'],title:'عطل ناقل الحركة',title_en:'Transmission Fault',confidence:95,severity:'high',description:'كمبيوتر الجير أرسل عطل',description_en:'TCM sent fault',actions:['افحص كمبيوتر الجير'],actions_en:['Check TCM']},
+  {required:['P1326_HYU'],title:'عطل مصنعي Hyundai Kia',title_en:'Hyundai Kia Manufacturing Issue',confidence:100,severity:'critical',description:'مشكلة مصنعية شهيرة',description_en:'Famous manufacturing issue',actions:['اتصل بالوكيل','افحص شمول الضمان'],actions_en:['Contact dealer','Check warranty']}
 ];
 
 const VIN_COUNTRY = {'1':'USA','2':'Canada','3':'Mexico','J':'Japan','K':'Korea','L':'China','S':'UK','V':'France','W':'Germany','Y':'Sweden','Z':'Italy'};
@@ -896,13 +870,13 @@ function updateAllGauges(v){
   updateGauge('colArc','colNeedle','gauge-coolant',v.coolant||0,130);
   updateGauge('fuelArc','fuelNeedle','gauge-fuel',v.fuelLevel!==undefined?v.fuelLevel:75,100);
 }
-function resetSystemGrid(){document.querySelectorAll('.sys-item').forEach(el=>el.classList.remove('good','bad'));}
+function resetSystemGrid(){document.querySelectorAll('.sys-item').forEach(function(el){el.classList.remove('good','bad');});}
 function updateSystemGrid(faults){
   resetSystemGrid();
-  if(!faults||faults.length===0){document.querySelectorAll('.sys-item').forEach(el=>el.classList.add('good'));return;}
+  if(!faults||faults.length===0){document.querySelectorAll('.sys-item').forEach(function(el){el.classList.add('good');});return;}
   const affected=new Set();
-  faults.forEach(f=>{const info=getFaultInfo(f.code);affected.add(info.zone);});
-  document.querySelectorAll('.sys-item').forEach(el=>{el.classList.add(affected.has(el.dataset.sys)?'bad':'good');});
+  faults.forEach(function(f){const info=getFaultInfo(f.code);affected.add(info.zone);});
+  document.querySelectorAll('.sys-item').forEach(function(el){el.classList.add(affected.has(el.dataset.sys)?'bad':'good');});
 }
 function getFaultInfo(code){
   const c=String(code).trim().toUpperCase();
@@ -914,23 +888,23 @@ function getFaultInfo(code){
 function getAllBrandVariants(code){
   const c=String(code).trim().toUpperCase();
   const keys=BRAND_INDEX.get(c)||[];
-  return keys.map(k=>Object.assign({key:k},DTC_DATABASE[k]));
+  return keys.map(function(k){return Object.assign({key:k},DTC_DATABASE[k]);});
 }
 function runDiagnosis(codes){
   if(!codes||codes.length===0)return[];
-  const s=new Set(codes.map(c=>String(c).toUpperCase()));
+  const s=new Set(codes.map(function(c){return String(c).toUpperCase();}));
   const r=[];
   for(const rule of RULES){
-    if(!rule.required.every(c=>s.has(c)))continue;
-    if(rule.anyOf&&rule.anyOf.length>0&&!rule.anyOf.some(c=>s.has(c)))continue;
+    if(!rule.required.every(function(c){return s.has(c);}))continue;
+    if(rule.anyOf&&rule.anyOf.length>0&&!rule.anyOf.some(function(c){return s.has(c);}))continue;
     r.push(Object.assign({},rule,{matchedCodes:rule.required}));
   }
-  return r.sort((a,b)=>b.confidence-a.confidence).slice(0,5);
+  return r.sort(function(a,b){return b.confidence-a.confidence;}).slice(0,5);
 }
 function calcHealth(faults,diag){
   if(!faults||faults.length===0)return 100;
   let sc=100;
-  faults.forEach(f=>{
+  faults.forEach(function(f){
     const c=(f.code||'').toUpperCase();
     let d=0;
     if(c.startsWith('P0')&&!c.includes('P0A'))d=2;
@@ -941,7 +915,7 @@ function calcHealth(faults,diag){
     else if(c.startsWith('U'))d=5;
     sc-=d;
   });
-  (diag||[]).forEach(d=>{
+  (diag||[]).forEach(function(d){
     if(d.severity==='critical')sc-=4;
     else if(d.severity==='high')sc-=3;
     else if(d.severity==='medium')sc-=2;
@@ -982,7 +956,7 @@ function displayHealth(faults,diag){
   if(!b)return;
   if(!faults||faults.length===0){b.classList.add('hidden');return;}
   const sc=calcHealth(faults,diag);
-  let gradient, statusKey, descKey, icon;
+  let gradient,statusKey,descKey,icon;
   if(sc>=90){gradient='from-green-500 to-emerald-600';statusKey='excellent';descKey='descExcellent';icon='[+]';}
   else if(sc>=75){gradient='from-emerald-500 to-green-600';statusKey='good';descKey='descGood';icon='[+]';}
   else if(sc>=50){gradient='from-amber-500 to-orange-600';statusKey='needsService';descKey='descNeedsService';icon='[!]';}
@@ -1020,7 +994,7 @@ function showDTCDetails(codeOrKey){
   const modal=document.getElementById('dtcDetailModal');
   const content=document.getElementById('dtcDetailContent');
   if(!modal||!content)return;
-  const isEn = currentLang==='en';
+  const isEn=currentLang==='en';
   const sevMap={critical:{bg:'#dc2626',label:t('severityCritical'),icon:'[!!]'},high:{bg:'#ef4444',label:t('severityHigh'),icon:'[H]'},medium:{bg:'#f59e0b',label:t('severityMedium'),icon:'[M]'},low:{bg:'#10b981',label:t('severityLow'),icon:'[L]'}};
   const sev=sevMap[info.severity]||{bg:'#64748b',label:t('severityUnknown'),icon:'[?]'};
   const zl={engine:t('zoneEngine'),transmission:t('zoneTrans'),abs:'ABS',brakes:t('zoneBrakes'),airbag:t('zoneAirbag'),fuel:t('zoneFuel'),exhaust:t('zoneExhaust'),cooling:t('zoneCooling'),battery:t('zoneBattery'),electronics:t('zoneElectronics')};
@@ -1073,7 +1047,7 @@ let transport=null;
 let isConnected=false,isDemo=false;
 let recvBuf='',cmdQueue=[],isProcessing=false,curResolve=null,curTimeout=null;
 let liveReading=false;
-let lastCoolant=0, lastFuel=75;
+let lastCoolant=0,lastFuel=75;
 const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb'];
 const KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb'];
 
@@ -1083,8 +1057,8 @@ function handleNotification(e){
 }
 
 window.sendCmd=function(cmd,timeout,retries){
-  timeout = timeout || 3000;
-  retries = retries || 1;
+  timeout=timeout||3000;
+  retries=retries||1;
   return new Promise(function(resolve,reject){
     let attempts=0;
     let settled=false;
@@ -1127,6 +1101,7 @@ async function processQueue(){
     },item.timeout);
   }catch(e){item.reject(e);curResolve=null;isProcessing=false;processQueue();}
 }
+
 async function connectUSB(){
   if(!hasSerial){alert('Browser does not support Web Serial. Use Chrome or Edge.');return;}
   const btn=document.getElementById('usb-btn');
@@ -1170,6 +1145,7 @@ async function connectUSB(){
     updateConnectionUI(false);
   }finally{btn.disabled=false;btn.innerHTML=orig;}
 }
+
 async function startUSBReadLoop(){
   if(!usbPort||!usbPort.readable)return;
   usbReadLoopActive=true;
@@ -1189,6 +1165,7 @@ async function startUSBReadLoop(){
     finally{try{usbReader.releaseLock();}catch(_){}}
   }
 }
+
 async function cleanupUSB(){
   usbReadLoopActive=false;
   try{if(usbReader){await usbReader.cancel();usbReader.releaseLock();}}catch(_){}
@@ -1198,6 +1175,7 @@ async function cleanupUSB(){
   cmdQueue=[];isProcessing=false;curResolve=null;
   if(curTimeout){clearTimeout(curTimeout);curTimeout=null;}
 }
+
 async function connectOBD(){
   if(!navigator.bluetooth){alert('No Bluetooth support');return;}
   try{
@@ -1230,6 +1208,7 @@ async function connectOBD(){
     startRealLiveLoop();
   }catch(e){logError('BLE: '+e.message);setStatus('disconnected');}
 }
+
 async function handleDisconnect(){
   isConnected=false;isDemo=false;
   if(liveTimer)clearInterval(liveTimer);liveTimer=null;
@@ -1295,6 +1274,7 @@ function parseDTCsFromBytes(bytes){
 
 let liveTimer=null,chartInstance=null;
 let chartData={labels:[],rpm:[],speed:[]};
+
 async function startRealLiveLoop(){
   if(liveTimer)return;
   let tick=0;
@@ -1308,7 +1288,7 @@ async function startRealLiveLoop(){
         const coolant=parseCoolant(await window.sendCmd('01 05',800,1));
         const fuel=parseFuelLevel(await window.sendCmd('01 2F',800,1));
         updateDashboard(rpm,speed,coolant,fuel);
-      } else {
+      }else{
         updateAllGauges({rpm:rpm,speed:speed,coolant:lastCoolant,fuelLevel:lastFuel});
         try{updateChart(rpm,speed);}catch(e){}
         runAutoAnalysis({rpm:rpm,speed:speed,coolant:lastCoolant,runtime:420});
@@ -1393,6 +1373,7 @@ async function readDTCs(){
     await saveHistory(allFaults,(document.getElementById('vinResult')||{}).textContent||'unknown',diag);
   }catch(e){logError(e.message);}
 }
+
 async function scanAllSystems(){
   const list=document.getElementById('dtcList');
   if(!list)return;
@@ -1431,6 +1412,7 @@ async function scanAllSystems(){
   await saveCloud(allFaults,(document.getElementById('vinResult')||{}).textContent||'unknown');
   await saveHistory(allFaults,(document.getElementById('vinResult')||{}).textContent||'unknown',diag);
 }
+
 async function runDemoScan(){
   const demoFaults=[
     {code:'P0301',system:'engine',type:'confirmed'},
@@ -1447,12 +1429,13 @@ async function runDemoScan(){
   showExport();
   logSuccess('Demo scan complete');
 }
+
 function renderFaults(faults){
   lastFaults=faults||[];
   const list=document.getElementById('dtcList');
   if(!list)return;
   if(!faults.length){list.innerHTML='<p class="text-gray-500 text-center py-4">'+t('noFaults')+'</p>';return;}
-  const sysMap={'engine':t('zoneEngine'),'exhaust':t('zoneExhaust'),'electronics':t('zoneElectronics'),'fuel':t('zoneFuel'),'cooling':t('zoneCooling'),'brakes':t('zoneBrakes'),'airbag':t('zoneAirbag'),'battery':t('zoneBattery'),'transmission':t('zoneTrans'),'abs':'ABS','المحرك':t('zoneEngine'),'العوادم':t('zoneExhaust'),'الكهرباء':t('zoneElectronics'),'الوقود':t('zoneFuel'),'التبريد':t('zoneCooling'),'الفرامل':t('zoneBrakes'),'الوسائد':t('zoneAirbag'),'البطارية':t('zoneBattery')};
+  const sysMap={'engine':t('zoneEngine'),'exhaust':t('zoneExhaust'),'electronics':t('zoneElectronics'),'fuel':t('zoneFuel'),'cooling':t('zoneCooling'),'brakes':t('zoneBrakes'),'airbag':t('zoneAirbag'),'battery':t('zoneBattery'),'transmission':t('zoneTrans'),'abs':'ABS'};
   var html='';
   faults.forEach(function(f){
     const info=getFaultInfo(f.code);
@@ -1466,8 +1449,8 @@ function renderFaults(faults){
     const displaySystem=sysMap[f.system]||f.system;
     html+='<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in '+itemClass+'" data-code="'+f.code+'">';
     html+='<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    html+='<span class="text-xs bg-blue-600 text-white px-2 py-0.5 roundedbtn.innerHTML">='+displaySystem+'</span>';
-    htmlorig+='<span class="font-m;ono font-bold text-red-300">'+},f.code+'</span>';
+    html+='<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+displaySystem+'</span>';
+    html+='<span class="font-mono font-bold text-red-300">'+f.code+'</span>';
     if(info.brand)html+='<span class="text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded-full">'+info.brand+'</span>';
     html+='<span class="dtc-type-badge '+typeClass+'">'+typeIcon+' '+typeLabel+'</span>';
     html+='</div>';
@@ -1488,11 +1471,12 @@ function renderFaults(faults){
         await navigator.clipboard.writeText(btn.dataset.copy);
         const orig=btn.innerHTML;
         btn.innerHTML='<i class="fa-solid fa-check"></i> '+t('copied');
-        setTimeout(function(){1500);
+        setTimeout(function(){btn.innerHTML=orig;},1500);
       }catch(err){logError('Copy failed');}
     };
   });
 }
+
 async function clearDTCs(){
   if(!isConnected&&!isDemo){alert(t('disconnected'));return;}
   if(!confirm(t('confirmClear')))return;
@@ -1707,6 +1691,7 @@ async function saveCloud(faults,vin){
     log('Saved to cloud');
   }catch(e){log('Cloud failed');}
 }
+
 async function loadStats(){
   const c=document.getElementById('statsContent');
   if(!c)return;
@@ -1808,9 +1793,9 @@ function displayVINInfo(vin){
 }
 
 function classifyBattery(v,min,max){
-  if(v>=min&&v<=max)return 'good';
-  if(v>=min-0.5&&v<=max+0.5)return 'warn';
-  return 'bad';
+  if(v>=min&&v<=max)return'good';
+  if(v>=min-0.5&&v<=max+0.5)return'warn';
+  return'bad';
 }
 function renderBatteryStage(stage,voltage,min,max){
   const box=document.getElementById('bat-box-'+stage);
@@ -2071,9 +2056,9 @@ function reRenderDynamicContent(){
     displayHealth(lastFaults,lastDiagnosis);
     updateSystemGrid(lastFaults);
   }
-  if(lastReadinessData) renderReadiness(lastReadinessData);
-  if(lastMode06Data) renderMode06(lastMode06Data);
-  if(lastVinInfo) displayVINInfo(lastVinInfo);
+  if(lastReadinessData)renderReadiness(lastReadinessData);
+  if(lastMode06Data)renderMode06(lastMode06Data);
+  if(lastVinInfo)displayVINInfo(lastVinInfo);
 }
 
 function applyLanguage(){
@@ -2130,6 +2115,25 @@ function applyLanguage(){
   reRenderDynamicContent();
 }
 
+async function loadExtendedDatabase(){
+  try{
+    logInfo('Loading extended database...');
+    const res=await fetch('dtc_full.json?v=1');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    let added=0;
+    for(const key in data){
+      if(!DTC_DATABASE[key]){DTC_DATABASE[key]=data[key];added++;}
+    }
+    buildDTCIndex();
+    logSuccess('Loaded '+added+' extra codes | Total: '+Object.keys(DTC_DATABASE).length);
+    return added;
+  }catch(e){
+    logError('Failed to load dtc_full.json: '+e.message);
+    return 0;
+  }
+}
+
 function init(){
   function bind(id,fn){const el=document.getElementById(id);if(el)el.onclick=fn;}
   bind('connect-btn',connectOBD);
@@ -2167,7 +2171,6 @@ function init(){
   });
   bind('btnCloseFreeze',function(){document.getElementById('freezeModal').classList.add('hidden');});
   bind('btnCloseDetail',function(){document.getElementById('dtcDetailModal').classList.add('hidden');});
-
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.onclick=function(){
       document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400');});
@@ -2193,16 +2196,14 @@ function init(){
     const n=document.getElementById('iosNotice');if(n)n.classList.remove('hidden');
     const c=document.getElementById('connect-btn');if(c)c.style.display='none';
   }
-
   applyLanguage();
   loadExtendedDatabase();
-
   setTimeout(function(){updateAllGauges({rpm:0,speed:0,coolant:0,fuelLevel:0});},300);
   if('serviceWorker' in navigator){
     window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
   }
   logSuccess(Object.keys(DTC_DATABASE).length+' codes ready | '+(isIOS?'iOS':isAndroid?'Android':'Desktop'));
-  logInfo('Tap "Demo" or "USB" or "Bluetooth"');
+  logInfo('Tap Demo or USB or Bluetooth');
 }
 
 if(document.readyState==='loading'){
