@@ -417,7 +417,7 @@ window.firebaseMethods = null;
 </script>
 
 <script type="module">
-var GEMINI_API_KEY = "PUT_YOUR_API_KEY_HERE";
+var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";";
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 
 var ua = navigator.userAgent;
@@ -1834,7 +1834,22 @@ function toggleTheme(){
 /* 🤖 AI Assistant */
 function toggleAI(){
   var m = document.getElementById('aiModal');
-  if(m) m.classList.toggle('hidden');
+  if(!m) return;
+  var key = localStorage.getItem('checkdiga_gemini_key') || "";
+  if(!key){
+    var newKey = prompt('الصق مفتاح Gemini API:', 'AIzaSy');
+    if(newKey && newKey.length > 20){
+      localStorage.setItem('checkdiga_gemini_key', newKey);
+      GEMINI_API_KEY = newKey;
+      GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey;
+    } else if(newKey !== null){
+      alert('مفتاح غير صحيح');
+      return;
+    } else {
+      return;
+    }
+  }
+  m.classList.toggle('hidden');
 }
 function addAIMessage(role, text){
   var chat = document.getElementById('aiChat');
