@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CheckDiga - فحص السيارات مجاناً</title>
+<title>CheckDiga - فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات مجانية مع مساعد ذكي - 1696+ كود">
+<meta name="description" content="أداة فحص سيارات مع مساعد ذكي - 1696+ كود">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -56,6 +55,19 @@ body{font-family:'Cairo',sans-serif;transition:background-color .3s ease,color .
 .mil-status{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:12px;font-weight:700}
 .mil-on{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff}
 .mil-off{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.battery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.battery-box{background:linear-gradient(145deg,#1e293b,#0f172a);border:1.5px solid #334155;border-radius:14px;padding:12px 6px;text-align:center}
+.battery-box .b-icon{font-size:22px;margin-bottom:6px;color:#64748b}
+.battery-box .b-title{font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px}
+.battery-box .b-value{font-size:20px;font-weight:800;color:#94a3b8}
+.battery-box .b-status{font-size:10px;color:#64748b;margin-top:2px;font-weight:700}
+.battery-box.good{border-color:#10b981}.battery-box.good .b-icon,.battery-box.good .b-value{color:#10b981}.battery-box.good .b-status{color:#6ee7b7}
+.battery-box.warn{border-color:#f59e0b}.battery-box.warn .b-icon,.battery-box.warn .b-value{color:#f59e0b}
+.battery-box.bad{border-color:#ef4444}.battery-box.bad .b-icon,.battery-box.bad .b-value{color:#ef4444}
+.battery-verdict{padding:14px 16px;border-radius:12px;font-weight:700;text-align:center;font-size:14px}
+.verdict-pass{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.verdict-warn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.verdict-fail{background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff}
 .mode06-item{background:linear-gradient(145deg,#1e293b,#0f172a);border:1.5px solid #334155;border-radius:12px;padding:12px;margin-bottom:8px}
 .mode06-item.pass{border-color:#10b981}
 .mode06-item.fail{border-color:#ef4444}
@@ -75,21 +87,19 @@ body{font-family:'Cairo',sans-serif;transition:background-color .3s ease,color .
 .badge-ble{background:#2563eb;color:#fff}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
 .safe-area{padding-bottom:env(safe-area-inset-bottom)}
+.bluefy-banner{background:linear-gradient(135deg,#1e3a5f,#0f172a);border:2px solid #3b82f6;border-radius:14px;padding:14px;margin-top:12px;font-size:12px;color:#93c5fd;line-height:1.7}
+.bluefy-banner a{color:#60a5fa;font-weight:800;text-decoration:underline}
 body.light-mode{background:#f1f5f9!important;color:#0f172a!important}
 body.light-mode .bg-gray-900{background:#ffffff!important}
 body.light-mode .bg-gray-800{background:#f8fafc!important;border-color:#e2e8f0!important}
-body.light-mode .bg-gray-700{background:#e2e8f0!important}
 body.light-mode .bg-black{background:#1e293b!important;color:#10b981!important}
 body.light-mode .text-gray-100{color:#0f172a!important}
 body.light-mode .text-gray-300{color:#475569!important}
 body.light-mode .text-gray-400{color:#64748b!important}
-body.light-mode .text-gray-500{color:#94a3b8!important}
 body.light-mode .text-white{color:#0f172a!important}
-body.light-mode .border-gray-800,body.light-mode .border-gray-700{border-color:#cbd5e1!important}
-body.light-mode .gauge-box{background:#ffffff!important;border-color:#e2e8f0!important}
-body.light-mode .sys-item{background:#ffffff!important;border-color:#e2e8f0!important}
+body.light-mode .gauge-box{background:#ffffff!important}
+body.light-mode .sys-item{background:#ffffff!important}
 body.light-mode .gauge-value{color:#0f172a!important}
-body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!important;border-color:#cbd5e1!important}
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10 safe-area">
@@ -104,7 +114,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
     </div>
     <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
       افحص سيارتك من هاتفك
-      <span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mt-1">مجاناً</span>
+      <span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mt-1">الآن</span>
     </h1>
     <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">أداة فحص احترافية تعمل في المتصفح — بدون تحميل، بدون تسجيل</p>
     <button onclick="document.getElementById('app-start').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 hover:opacity-90 px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/25 inline-flex items-center gap-2 transition">
@@ -112,7 +122,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
     </button>
     <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-7">
       <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400">1696+</div><div class="text-[10px] text-gray-500 mt-0.5">كود عطل</div></div>
-      <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">100%</div><div class="text-[10px] text-gray-500 mt-0.5">مجاني</div></div>
+      <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500 mt-0.5">حقيقي</div></div>
       <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">AI</div><div class="text-[10px] text-gray-500 mt-0.5">مساعد ذكي</div></div>
     </div>
   </div>
@@ -125,12 +135,8 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
     <p id="subtitleText" class="text-xs text-gray-400">أداة فحص السيارات المتكاملة</p>
   </div>
   <div class="flex gap-2">
-    <button id="btnTheme" class="bg-gray-800 hover:bg-gray-700 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center">
-      <i class="fa-solid fa-sun" id="themeIcon"></i>
-    </button>
-    <button id="btnLang" class="bg-gray-800 hover:bg-gray-700 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
-      <i class="fa-solid fa-globe"></i><span id="langText">English</span>
-    </button>
+    <button id="btnTheme" class="bg-gray-800 hover:bg-gray-700 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
+    <button id="btnLang" class="bg-gray-800 hover:bg-gray-700 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-globe"></i><span id="langText">English</span></button>
   </div>
 </div>
 
@@ -152,8 +158,13 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold items-center justify-center gap-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span>قطع</span></button>
 <button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> <span>مسح الأعطال</span></button>
 </div>
-<div id="iosNotice" class="hidden mt-3 bg-blue-900/40 border border-blue-600 rounded-xl p-3 text-xs text-blue-200">
-<i class="fa-solid fa-info-circle"></i> <span>iOS لا يدعم USB Serial. استخدم أندرويد أو حاسوب.</span>
+<div id="bluefyBanner" class="hidden bluefy-banner">
+<i class="fa-solid fa-info-circle text-blue-400"></i>
+<span>لتشغيل Bluetooth على iPhone، حمّل متصفح <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank">Bluefy</a> من App Store وافتح الموقع داخله.</span>
+</div>
+<div id="usbBanner" class="hidden bluefy-banner">
+<i class="fa-solid fa-plug text-emerald-400"></i>
+<span>USB Serial يعمل فقط على Chrome للحاسوب أو أندرويد.</span>
 </div>
 </header>
 
@@ -165,7 +176,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> <span class="tab-text">إحصائيات</span></button>
 </div>
 
-<div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin" style="unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;">> مرحباً! اضغط "تجريبي" للبدء (أو Bluetooth/USB من حاسوب).</div>
+<div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin" style="unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;">> مرحباً! اضغط "Bluetooth" أو "USB" أو "تجريبي".</div>
 
 <div id="panel-faults" class="panel space-y-4">
 <div id="healthBadge" class="hidden"></div>
@@ -181,7 +192,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <g class="gauge-needle" id="rpmNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/></g>
 </svg>
 <div class="gauge-value" id="gauge-rpm">0</div>
-<div class="gauge-unit" data-unit="rpm">دورة/دقيقة</div>
+<div class="gauge-unit">دورة/دقيقة</div>
 </div>
 <div class="gauge-box" style="--gauge-color:#3b82f6">
 <div class="gauge-label">SPEED</div>
@@ -192,7 +203,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <g class="gauge-needle" id="spdNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/></g>
 </svg>
 <div class="gauge-value" id="gauge-speed">0</div>
-<div class="gauge-unit" data-unit="kmh">كم/ساعة</div>
+<div class="gauge-unit">كم/ساعة</div>
 </div>
 <div class="gauge-box" style="--gauge-color:#f59e0b">
 <div class="gauge-label">TEMP</div>
@@ -203,7 +214,7 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <g class="gauge-needle" id="colNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/></g>
 </svg>
 <div class="gauge-value" id="gauge-coolant">0</div>
-<div class="gauge-unit" data-unit="celsius">درجة مئوية</div>
+<div class="gauge-unit">درجة مئوية</div>
 </div>
 <div class="gauge-box" style="--gauge-color:#10b981">
 <div class="gauge-label">FUEL</div>
@@ -214,48 +225,63 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <g class="gauge-needle" id="fuelNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/></g>
 </svg>
 <div class="gauge-value" id="gauge-fuel">0</div>
-<div class="gauge-unit" data-unit="percent">نسبة مئوية</div>
+<div class="gauge-unit">نسبة مئوية</div>
 </div>
 </div>
 
 <div>
 <div class="flex items-center gap-2 mb-2 px-1"><i class="fa-solid fa-microchip text-blue-400 text-sm"></i><span class="text-xs font-bold text-gray-400" id="sysStatusTitle">حالة الأنظمة</span></div>
 <div class="system-grid">
-<div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear sys-icon"></i><span class="sys-label" data-sys-name="engine">المحرك</span></div>
-<div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs sys-icon"></i><span class="sys-label" data-sys-name="transmission">الجير</span></div>
+<div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear sys-icon"></i><span class="sys-label">المحرك</span></div>
+<div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs sys-icon"></i><span class="sys-label">الجير</span></div>
 <div class="sys-item" data-sys="abs"><i class="fa-solid fa-circle-exclamation sys-icon"></i><span class="sys-label">ABS</span></div>
-<div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand sys-icon"></i><span class="sys-label" data-sys-name="brakes">الفرامل</span></div>
-<div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved sys-icon"></i><span class="sys-label" data-sys-name="airbag">الوسائد</span></div>
-<div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump sys-icon"></i><span class="sys-label" data-sys-name="fuel">الوقود</span></div>
-<div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog sys-icon"></i><span class="sys-label" data-sys-name="exhaust">العوادم</span></div>
-<div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half sys-icon"></i><span class="sys-label" data-sys-name="cooling">التبريد</span></div>
-<div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery sys-icon"></i><span class="sys-label" data-sys-name="battery">البطارية</span></div>
-<div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt sys-icon"></i><span class="sys-label" data-sys-name="electronics">الكهرباء</span></div>
+<div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand sys-icon"></i><span class="sys-label">الفرامل</span></div>
+<div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved sys-icon"></i><span class="sys-label">الوسائد</span></div>
+<div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump sys-icon"></i><span class="sys-label">الوقود</span></div>
+<div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog sys-icon"></i><span class="sys-label">العوادم</span></div>
+<div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half sys-icon"></i><span class="sys-label">التبريد</span></div>
+<div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery sys-icon"></i><span class="sys-label">البطارية</span></div>
+<div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt sys-icon"></i><span class="sys-label">الكهرباء</span></div>
 </div>
 </div>
 </div>
 
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <div class="flex items-center justify-between flex-wrap gap-2">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> <span data-t="readinessTitle">جاهزية الانبعاثات</span></h3>
-<button id="btnReadiness" class="bg-green-700 hover:bg-green-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-clipboard-check"></i> <span data-t="checkReadiness">فحص الجاهزية</span></button>
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> <span>جاهزية الانبعاثات</span></h3>
+<button id="btnReadiness" class="bg-green-700 hover:bg-green-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-clipboard-check"></i> <span>فحص الجاهزية</span></button>
 </div>
-<div id="readinessContent"><p class="text-gray-500 text-center py-4" data-t="readinessIdle">اضغط "فحص الجاهزية" للبدء</p></div>
+<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية" للبدء</p></div>
 </div>
 
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <div class="flex items-center justify-between flex-wrap gap-2">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-microscope text-cyan-400"></i> <span data-t="mode06Title">Mode 06</span></h3>
-<button id="btnMode06" class="bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-flask-vial"></i> <span data-t="mode06Start">بدء الفحص</span></button>
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-car-battery text-yellow-400"></i> <span>اختبار البطارية</span></h3>
+<button id="btnBatteryTest" class="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-bolt"></i> <span>بدء الاختبار</span></button>
 </div>
-<div id="mode06Content"><p class="text-gray-500 text-center py-4" data-t="mode06Idle">اضغط "بدء الفحص"</p></div>
+<div id="batteryContent">
+<div class="battery-grid">
+<div class="battery-box" id="bat-box-1"><div class="b-icon"><i class="fa-solid fa-battery-half"></i></div><div class="b-title">محرك مطفأ</div><div class="b-value" id="bat-val-1">--</div><div class="b-status">في الانتظار</div></div>
+<div class="battery-box" id="bat-box-2"><div class="b-icon"><i class="fa-solid fa-bolt"></i></div><div class="b-title">محرك يعمل</div><div class="b-value" id="bat-val-2">--</div><div class="b-status">في الانتظار</div></div>
+<div class="battery-box" id="bat-box-3"><div class="b-icon"><i class="fa-solid fa-lightbulb"></i></div><div class="b-title">تحت الحمل</div><div class="b-value" id="bat-val-3">--</div><div class="b-status">في الانتظار</div></div>
+</div>
+<div id="batteryVerdict" class="hidden"></div>
+</div>
+</div>
+
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<div class="flex items-center justify-between flex-wrap gap-2">
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-microscope text-cyan-400"></i> <span>Mode 06</span></h3>
+<button id="btnMode06" class="bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-flask-vial"></i> <span>بدء الفحص</span></button>
+</div>
+<div id="mode06Content"><p class="text-gray-500 text-center py-4">اضغط "بدء الفحص"</p></div>
 </div>
 
 <div id="smartDiagnosis" class="hidden"></div>
 
 <div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
 <div class="flex items-center justify-between gap-3 flex-wrap">
-<div><div class="font-bold text-emerald-300 text-sm" data-t="shareResults">شارك النتائج</div></div>
+<div><div class="font-bold text-emerald-300 text-sm">شارك النتائج</div></div>
 <div class="flex gap-2">
 <button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
 <button id="btnShareWhatsApp" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</button>
@@ -264,56 +290,56 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 </div>
 
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span data-t="dtcTitle">أكواد الأعطال</span></h3>
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span>أكواد الأعطال</span></h3>
 <div class="dtc-legend">
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#dc2626"></div><span data-t="legendConfirmed">مؤكد</span></div>
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#f59e0b"></div><span data-t="legendPending">مؤقت</span></div>
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#7c3aed"></div><span data-t="legendPermanent">دائم</span></div>
+<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#dc2626"></div><span>مؤكد</span></div>
+<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#f59e0b"></div><span>مؤقت</span></div>
+<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#7c3aed"></div><span>دائم</span></div>
 </div>
 <div class="grid grid-cols-2 gap-2">
-<button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-list"></i> <span data-t="readEngine">فحص المحرك</span></button>
-<button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-radar"></i> <span data-t="readAll">فحص الكل</span></button>
+<button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-list"></i> <span>فحص المحرك</span></button>
+<button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-radar"></i> <span>فحص الكل</span></button>
 </div>
 <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none" placeholder="ابحث عن كود (P0301, BMW...)">
 <div id="brandFilters" class="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1"></div>
 <div id="searchResults"></div>
-<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4" data-t="notScanned">لم يتم الفحص بعد.</p></div>
+<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
 </div>
 </div>
 
 <div id="panel-live" class="panel hidden space-y-4">
 <div class="bg-gray-800 p-4 rounded-2xl">
-<h3 class="text-base font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> <span data-t="chartsTitle">الرسوم البيانية</span></h3>
+<h3 class="text-base font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> <span>الرسوم البيانية</span></h3>
 <div class="h-56"><canvas id="liveChart"></canvas></div>
 </div>
 <div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4">
-<h3 class="text-amber-200 font-bold text-sm mb-2"><i class="fa-solid fa-brain"></i> <span data-t="autoAnalysis">التحليل التلقائي</span></h3>
-<div id="autoAnalysis" class="text-amber-100 text-sm" data-t="waitingData">في انتظار البيانات...</div>
+<h3 class="text-amber-200 font-bold text-sm mb-2"><i class="fa-solid fa-brain"></i> <span>التحليل التلقائي</span></h3>
+<div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div>
 </div>
 </div>
 
 <div id="panel-vin" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> <span data-t="vinTitle">رقم الهيكل VIN</span></h3>
-<button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-satellite-dish"></i> <span data-t="readFromCar">قراءة من السيارة</span></button>
+<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> <span>رقم الهيكل VIN</span></h3>
+<button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-satellite-dish"></i> <span>قراءة من السيارة</span></button>
 <input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase" placeholder="VIN يدوي (17 حرفاً)">
-<button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> <span data-t="decodeVIN">فك الشيفرة</span></button>
-<div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400" data-t="vinNotRead">لم يتم القراءة.</div>
+<button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> <span>فك الشيفرة</span></button>
+<div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة.</div>
 <div id="vinInfo"></div>
 </div>
 </div>
 
 <div id="panel-history" class="panel hidden">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder text-blue-400"></i> <span data-t="historyTitle">سجل الفحوصات</span></h3>
+<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder text-blue-400"></i> <span>سجل الفحوصات</span></h3>
 <div id="historyContent"><p class="text-center text-gray-500 py-4">...</p></div>
 </div>
 </div>
 
 <div id="panel-stats" class="panel hidden">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> <span data-t="statsTitle">إحصائيات حية</span></h3>
-<button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> <span data-t="refresh">تحديث</span></button>
+<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> <span>إحصائيات حية</span></h3>
+<button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> <span>تحديث</span></button>
 <div id="statsContent"><p class="text-center text-gray-500 py-4">اضغط "تحديث".</p></div>
 </div>
 </div>
@@ -326,24 +352,24 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
 <div class="flex items-center justify-between p-4 border-b border-gray-700">
 <div class="flex items-center gap-3">
 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"><i class="fa-solid fa-robot text-white"></i></div>
-<div><div class="font-bold text-white">المساعد الذكي</div><div class="text-[10px] text-green-400 flex items-center gap-1"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>متصل</div></div>
+<div><div class="font-bold text-white">المساعد الذكي</div><div class="text-[10px] text-green-400">متصل</div></div>
 </div>
 <button onclick="window.toggleAI()" class="w-9 h-9 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"><i class="fa-solid fa-times"></i></button>
 </div>
 <div id="aiChat" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin" style="background:#0a0f1e;">
 <div class="flex gap-2">
 <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
-<div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200 max-w-[85%]">مرحباً! أنا مساعد CheckDiga الذكي.<br>اسألني عن أي عطل في سيارتك.</div>
+<div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200 max-w-[85%]">مرحباً! أنا مساعد CheckDiga الذكي.</div>
 </div>
 </div>
 <div class="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-thin">
-<button onclick="window.askAI('اشرح P0301')" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">P0301</button>
-<button onclick="window.askAI('سيارتي تهتز')" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">اهتزاز</button>
-<button onclick="window.askAI('Check Engine')" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">Check Engine</button>
+<button onclick="window.askAI('اشرح P0301')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">P0301</button>
+<button onclick="window.askAI('سيارتي تهتز')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">اهتزاز</button>
+<button onclick="window.askAI('Check Engine')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">Check Engine</button>
 </div>
 <div class="p-3 border-t border-gray-700 flex gap-2">
-<input id="aiInput" type="text" placeholder="اكتب سؤالك..." class="flex-1 bg-gray-800 border-2 border-gray-700 focus:border-purple-500 rounded-2xl px-4 py-3 text-sm text-white outline-none" onkeydown="if(event.key==='Enter')window.sendAI()">
-<button onclick="window.sendAI()" id="aiSendBtn" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 hover:opacity-90 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-white"></i></button>
+<input id="aiInput" type="text" placeholder="اكتب سؤالك..." class="flex-1 bg-gray-800 border-2 border-gray-700 rounded-2xl px-4 py-3 text-sm text-white outline-none" onkeydown="if(event.key==='Enter')window.sendAI()">
+<button onclick="window.sendAI()" id="aiSendBtn" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-white"></i></button>
 </div>
 </div>
 </div>
@@ -354,104 +380,99 @@ body.light-mode .dtc-legend,body.light-mode .ready-item{background:#f8fafc!impor
       <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-wrench text-white text-sm"></i></div>
       <span class="font-extrabold">CheckDiga</span>
     </div>
-    <p class="text-xs text-gray-500">أداة فحص سيارات مجانية مع مساعد ذكي</p>
+    <p class="text-xs text-gray-500">أداة فحص سيارات مع مساعد ذكي</p>
     <div class="text-xs text-gray-600 pt-3 border-t border-gray-800/50">CheckDiga 2026 - صُنع في الجزائر</div>
   </div>
 </footer>
 
 <div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto">
 <div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative border border-gray-700">
-<button id="btnCloseDetail" class="absolute top-3 left-3 bg-red-600 hover:bg-red-700 w-8 h-8 rounded-full text-sm font-bold">x</button>
+<button id="btnCloseDetail" class="absolute top-3 left-3 bg-red-600 w-8 h-8 rounded-full text-sm font-bold">x</button>
 <div id="dtcDetailContent" class="pt-2"></div>
 </div>
 </div>
 
-<script>
-window.FIREBASE_READY = false;
-window.firebaseMethods = null;
-(function(){
-  Promise.all([
-    import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js"),
-    import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js")
-  ]).then(function(mods){
-    var app = mods[0].initializeApp({apiKey:"AIzaSyBEIqVSzAdu-hBQqhhda3E7A05oVOHDkFc",authDomain:"checkdiga-f9be7.firebaseapp.com",projectId:"checkdiga-f9be7",storageBucket:"checkdiga-f9be7.firebasestorage.app",messagingSenderId:"429788177002",appId:"1:429788177002:web:be7ff0ca219ccfc0372013"});
-    window.firebaseMethods = {db: mods[1].getFirestore(app), fsModule: mods[1]};
-    window.FIREBASE_READY = true;
-  }).catch(function(){});
-})();
-</script>
-
 <script type="module">
-// ============ FIX #1: تعريف صحيح لمفتاح Gemini ============
+// ============ GEMINI KEY ============
 var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 
 var ua = navigator.userAgent;
 var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-var hasSerial = 'serial' in navigator && !isIOS;
-var hasBluetooth = 'bluetooth' in navigator && !isIOS;
+var isBluefy = /Bluefy/i.test(ua);
+var hasSerial = 'serial' in navigator;
+var hasBluetooth = 'bluetooth' in navigator;
 
-var currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
-var L = {
-ar:{subtitle:'أداة فحص السيارات المتكاملة',disconnected:'غير متصل',connected:'متصل',demoMode:'وضع تجريبي',bluetooth:'Bluetooth',usb:'USB',demo:'تجريبي',disconnect:'قطع',clearDTC:'مسح الأعطال',iosNotice:'iOS لا يدعم USB Serial. استخدم أندرويد أو حاسوب.',tabFaults:'الأعطال',tabLive:'بيانات حية',tabVin:'VIN',tabHistory:'السجل',tabStats:'إحصائيات',sysStatus:'حالة الأنظمة',sysEngine:'المحرك',sysTrans:'الجير',sysBrakes:'الفرامل',sysAirbag:'الوسائد',sysFuel:'الوقود',sysExhaust:'العوادم',sysCooling:'التبريد',sysBattery:'البطارية',sysElectronics:'الكهرباء',rpmUnit:'دورة/دقيقة',kmhUnit:'كم/ساعة',celsiusUnit:'درجة مئوية',percentUnit:'نسبة مئوية',readinessTitle:'جاهزية الانبعاثات',checkReadiness:'فحص الجاهزية',readinessIdle:'اضغط فحص الجاهزية للبدء',milOn:'لمبة الأعطال مضاءة',milOff:'لمبة الأعطال مطفأة',dtcCount:'عدد الأعطال',continuousMonitors:'المراقبة المستمرة',nonContinuousMonitors:'المراقبة غير المستمرة',monMisfire:'الاشتعال',monFuel:'الوقود',monComponents:'المكونات',monCatalyst:'الكتلايزر',monHeatedCat:'كتلايزر مسخن',monEvap:'EVAP',monO2:'O2',monO2Heater:'سخان O2',monEgr:'EGR',monSecondaryAir:'هواء ثانوي',monAcRef:'تكييف',statusReady:'جاهز',statusNotReady:'غير جاهز',statusNA:'غير مدعوم',mode06Title:'Mode 06',mode06Start:'بدء الفحص',mode06Idle:'اضغط بدء الفحص',mode06NoData:'لا توجد بيانات',mode06Pass:'ناجح',mode06Fail:'فاشل',mode06Unknown:'غير معروف',mode06Value:'القيمة',mode06Min:'الأدنى',mode06Max:'الأعلى',mode06Results:'النتائج',shareResults:'شارك النتائج',dtcTitle:'أكواد الأعطال',legendConfirmed:'مؤكد',legendPending:'مؤقت',legendPermanent:'دائم',readEngine:'فحص المحرك',readAll:'فحص الكل',searchPlaceholder:'ابحث عن كود',notScanned:'لم يتم الفحص بعد',chartsTitle:'الرسوم البيانية',autoAnalysis:'التحليل التلقائي',waitingData:'انتظار البيانات',allNormal:'كل القيم طبيعية',overheating:'ارتفاع حرارة',lowTemp:'حرارة منخفضة',vinTitle:'رقم الهيكل VIN',readFromCar:'قراءة من السيارة',vinManual:'VIN يدوي',decodeVIN:'فك الشيفرة',vinNotRead:'لم يتم القراءة',historyTitle:'سجل الفحوصات',statsTitle:'إحصائيات',refresh:'تحديث',vehicleHealth:'مؤشر صحة السيارة',faultsRegistered:'عطل مسجل',smartDiagnoses:'تشخيص',excellent:'ممتازة',good:'جيدة',needsService:'تحتاج صيانة',critical:'خطيرة',severe:'حرجة',descExcellent:'لا مشاكل',descGood:'أعطال بسيطة',descNeedsService:'تحتاج إصلاح قريب',descCritical:'إصلاح فوري',descSevere:'خطيرة - لا تقُد',smartDiagnosisTitle:'التشخيص الذكي',faultDetails:'تفاصيل',scanning:'جاري الفحص',readingConfirmed:'قراءة الأعطال المؤكدة',readingPending:'قراءة المؤقتة',readingPermanent:'قراءة الدائمة',carHealthy:'السيارة سليمة',noFaults:'لا أعطال',confirmClear:'مسح الأعطال',cleared:'تم المسح',noResults:'لا نتائج',causes:'الأسباب',symptoms:'الأعراض',steps:'الخطوات',description:'الوصف',unknownFault:'عطل غير معروف',severityCritical:'حرج',severityHigh:'خطير',severityMedium:'متوسط',severityLow:'منخفض',severityUnknown:'غير محدد',zoneEngine:'المحرك',zoneTrans:'ناقل الحركة',zoneBrakes:'الفرامل',zoneAirbag:'الوسائد',zoneFuel:'الوقود',zoneExhaust:'العوادم',zoneCooling:'التبريد',zoneBattery:'البطارية',zoneElectronics:'الكهرباء',noHistory:'لا سجل',clearHistory:'حذف',scans:'فحص',firebaseUnavailable:'Firebase غير متوفر',noData:'لا بيانات',topFaults:'أكثر الأعطال',vinBadge:'صحيح',connectedUSB:'متصل USB',connectedBLE:'متصل BT',initELM:'تهيئة ELM',detectProtocol:'اكتشاف البروتوكول',readyToRead:'جاهز',readingVIN:'قراءة VIN',startLive:'بدء البيانات',usbReadError:'خطأ USB',vehicleInfo:'معلومات السيارة',detectedFaults:'الأعطال',diagnosis:'التشخيص',reportTitle:'تقرير CheckDiga',generatedBy:'تم بواسطة CheckDiga',copied:'تم النسخ',copyCode:'نسخ'},
-en:{subtitle:'Complete Car Diagnostic Tool',disconnected:'Disconnected',connected:'Connected',demoMode:'Demo Mode',bluetooth:'Bluetooth',usb:'USB',demo:'Demo',disconnect:'Disconnect',clearDTC:'Clear DTCs',iosNotice:'iOS does not support USB Serial.',tabFaults:'Faults',tabLive:'Live Data',tabVin:'VIN',tabHistory:'History',tabStats:'Stats',sysStatus:'System Status',sysEngine:'Engine',sysTrans:'Trans',sysBrakes:'Brakes',sysAirbag:'Airbag',sysFuel:'Fuel',sysExhaust:'Exhaust',sysCooling:'Cooling',sysBattery:'Battery',sysElectronics:'Electronics',rpmUnit:'RPM',kmhUnit:'km/h',celsiusUnit:'Celsius',percentUnit:'Percent',readinessTitle:'Readiness',checkReadiness:'Check',readinessIdle:'Press to start',milOn:'MIL ON',milOff:'MIL OFF',dtcCount:'DTC Count',continuousMonitors:'Continuous',nonContinuousMonitors:'Non-Continuous',monMisfire:'Misfire',monFuel:'Fuel',monComponents:'Components',monCatalyst:'Catalyst',monHeatedCat:'Heated Cat',monEvap:'EVAP',monO2:'O2',monO2Heater:'O2 Heater',monEgr:'EGR',monSecondaryAir:'Sec Air',monAcRef:'A/C',statusReady:'Ready',statusNotReady:'Not Ready',statusNA:'N/A',mode06Title:'Mode 06',mode06Start:'Start',mode06Idle:'Press Start',mode06NoData:'No data',mode06Pass:'PASS',mode06Fail:'FAIL',mode06Unknown:'UNK',mode06Value:'Value',mode06Min:'Min',mode06Max:'Max',mode06Results:'Results',shareResults:'Share',dtcTitle:'DTC Codes',legendConfirmed:'Confirmed',legendPending:'Pending',legendPermanent:'Permanent',readEngine:'Scan Engine',readAll:'Scan All',searchPlaceholder:'Search code',notScanned:'Not scanned',chartsTitle:'Charts',autoAnalysis:'Analysis',waitingData:'Waiting',allNormal:'All normal',overheating:'Overheating',lowTemp:'Low temp',vinTitle:'Vehicle VIN',readFromCar:'Read VIN',vinManual:'VIN manual',decodeVIN:'Decode',vinNotRead:'Not read',historyTitle:'History',statsTitle:'Stats',refresh:'Refresh',vehicleHealth:'Vehicle Health',faultsRegistered:'faults',smartDiagnoses:'Dx',excellent:'Excellent',good:'Good',needsService:'Needs Service',critical:'Critical',severe:'Severe',descExcellent:'No issues',descGood:'Minor faults',descNeedsService:'Need repair soon',descCritical:'Repair now',descSevere:'Do not drive',smartDiagnosisTitle:'Smart Diagnosis',faultDetails:'Details',scanning:'Scanning',readingConfirmed:'Reading',readingPending:'Reading pending',readingPermanent:'Reading permanent',carHealthy:'Healthy',noFaults:'No faults',confirmClear:'Clear?',cleared:'Cleared',noResults:'No results',causes:'Causes',symptoms:'Symptoms',steps:'Steps',description:'Description',unknownFault:'Unknown',severityCritical:'Critical',severityHigh:'High',severityMedium:'Medium',severityLow:'Low',severityUnknown:'Unknown',zoneEngine:'Engine',zoneTrans:'Transmission',zoneBrakes:'Brakes',zoneAirbag:'Airbag',zoneFuel:'Fuel',zoneExhaust:'Exhaust',zoneCooling:'Cooling',zoneBattery:'Battery',zoneElectronics:'Electronics',noHistory:'No history',clearHistory:'Clear',scans:'scans',firebaseUnavailable:'Firebase N/A',noData:'No data',topFaults:'Top Faults',vinBadge:'Valid',connectedUSB:'USB Connected',connectedBLE:'BT Connected',initELM:'Init ELM',detectProtocol:'Detect protocol',readyToRead:'Ready',readingVIN:'Reading VIN',startLive:'Live data',usbReadError:'USB error',vehicleInfo:'Vehicle Info',detectedFaults:'Faults',diagnosis:'Diagnosis',reportTitle:'CheckDiga Report',generatedBy:'Generated by CheckDiga',copied:'Copied',copyCode:'Copy'}};
-function t(k){return L[currentLang][k] || L.ar[k] || k;}
+// ============ OBD2 STATE ============
+var btDevice=null, btServer=null, uartChar=null;
+var usbPort=null, usbWriter=null, usbReader=null, usbReadLoopActive=false;
+var transport=null;
+var isConnected=false, isDemo=false;
+var recvBuf='', cmdQueue=[], isProcessing=false, curResolve=null, curTimeout=null;
+var liveReading=false;
+var liveTimer=null, chartInstance=null;
+var chartData={labels:[], rpm:[], speed:[]};
+var lastCoolant=0, lastFuel=75;
+var lastFaults=[], lastDiagnosis=[], lastVinInfo=null;
+var demoTimer=null;
+var KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb'];
+var KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb','0000fff2-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb'];
 
-var lastFaults = [], lastDiagnosis = [], lastVinInfo = null;
-
+// ============ DTC DATABASE ============
 var DTC_DATABASE = {
 "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
 "P0101":{zone:"engine",title:"حساس MAF - أداء",title_en:"MAF Sensor Performance",severity:"medium"},
 "P0102":{zone:"engine",title:"حساس MAF - منخفض",title_en:"MAF Sensor Low",severity:"medium"},
 "P0103":{zone:"engine",title:"حساس MAF - مرتفع",title_en:"MAF Sensor High",severity:"medium"},
-"P0104":{zone:"engine",title:"حساس MAF - متقطع",title_en:"MAF Sensor Intermittent",severity:"medium"},
-"P0105":{zone:"engine",title:"حساس MAP - الدائرة",title_en:"MAP Sensor Circuit",severity:"medium"},
-"P0106":{zone:"engine",title:"حساس MAP - أداء",title_en:"MAP Sensor Performance",severity:"medium"},
-"P0107":{zone:"engine",title:"حساس MAP - منخفض",title_en:"MAP Sensor Low",severity:"medium"},
-"P0108":{zone:"engine",title:"حساس MAP - مرتفع",title_en:"MAP Sensor High",severity:"medium"},
+"P0105":{zone:"engine",title:"حساس MAP",title_en:"MAP Sensor Circuit",severity:"medium"},
+"P0106":{zone:"engine",title:"حساس MAP - أداء",title_en:"MAP Performance",severity:"medium"},
+"P0107":{zone:"engine",title:"حساس MAP - منخفض",title_en:"MAP Low",severity:"medium"},
+"P0108":{zone:"engine",title:"حساس MAP - مرتفع",title_en:"MAP High",severity:"medium"},
 "P0110":{zone:"engine",title:"حساس IAT",title_en:"IAT Sensor",severity:"low"},
-"P0113":{zone:"engine",title:"حساس IAT - مرتفع",title_en:"IAT Sensor High",severity:"low"},
+"P0113":{zone:"engine",title:"IAT - مرتفع",title_en:"IAT High",severity:"low"},
 "P0115":{zone:"cooling",title:"حساس حرارة التبريد",title_en:"Coolant Temp Sensor",severity:"medium"},
-"P0117":{zone:"cooling",title:"حساس الحرارة - منخفض",title_en:"Coolant Sensor Low",severity:"medium"},
-"P0118":{zone:"cooling",title:"حساس الحرارة - مرتفع",title_en:"Coolant Sensor High",severity:"medium"},
+"P0117":{zone:"cooling",title:"حرارة - منخفض",title_en:"Coolant Low",severity:"medium"},
+"P0118":{zone:"cooling",title:"حرارة - مرتفع",title_en:"Coolant High",severity:"medium"},
 "P0120":{zone:"engine",title:"حساس TPS",title_en:"TPS Circuit",severity:"high"},
-"P0121":{zone:"engine",title:"حساس TPS - أداء",title_en:"TPS Performance",severity:"high"},
-"P0122":{zone:"engine",title:"حساس TPS - منخفض",title_en:"TPS Low",severity:"high"},
-"P0123":{zone:"engine",title:"حساس TPS - مرتفع",title_en:"TPS High",severity:"high"},
+"P0121":{zone:"engine",title:"TPS - أداء",title_en:"TPS Performance",severity:"high"},
+"P0122":{zone:"engine",title:"TPS - منخفض",title_en:"TPS Low",severity:"high"},
+"P0123":{zone:"engine",title:"TPS - مرتفع",title_en:"TPS High",severity:"high"},
 "P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat Faulty",desc:"المحرك لا يصل لحرارة التشغيل",desc_en:"Engine doesn't reach operating temp",severity:"medium",causes:["ترموستات عالق مفتوح","حساس الحرارة تالف","هواء في نظام التبريد"],causes_en:["Thermostat stuck open","Faulty temp sensor","Air in cooling"],symptoms:["مؤشر الحرارة لا يصل للمنتصف","استهلاك وقود مرتفع"],symptoms_en:["Temp gauge doesn't reach middle","High fuel consumption"],steps:["افحص مستوى سائل التبريد","افحص الترموستات","استبدل الترموستات"],steps_en:["Check coolant level","Test thermostat","Replace thermostat"]},
-"P0130":{zone:"exhaust",title:"حساس O2 B1S1",title_en:"O2 Sensor B1S1",severity:"medium"},
+"P0130":{zone:"exhaust",title:"حساس O2 B1S1",title_en:"O2 B1S1",severity:"medium"},
 "P0131":{zone:"exhaust",title:"O2 B1S1 - منخفض",title_en:"O2 B1S1 Low",severity:"medium"},
 "P0132":{zone:"exhaust",title:"O2 B1S1 - مرتفع",title_en:"O2 B1S1 High",severity:"medium"},
 "P0133":{zone:"exhaust",title:"O2 B1S1 - بطيء",title_en:"O2 B1S1 Slow",severity:"medium"},
-"P0134":{zone:"exhaust",title:"O2 B1S1 - لا نشاط",title_en:"O2 B1S1 No Activity",severity:"high"},
+"P0134":{zone:"exhaust",title:"O2 B1S1 - لا نشاط",title_en:"O2 No Activity",severity:"high"},
 "P0135":{zone:"exhaust",title:"سخان O2 B1S1",title_en:"O2 B1S1 Heater",severity:"medium"},
-"P0136":{zone:"exhaust",title:"حساس O2 B1S2",title_en:"O2 Sensor B1S2",severity:"medium"},
+"P0136":{zone:"exhaust",title:"حساس O2 B1S2",title_en:"O2 B1S2",severity:"medium"},
 "P0141":{zone:"exhaust",title:"سخان O2 B1S2",title_en:"O2 B1S2 Heater",severity:"medium"},
-"P0171":{zone:"fuel",title:"خليط فقير - Bank 1",title_en:"System Too Lean Bank 1",desc:"الخليط فقير جداً",desc_en:"Air/fuel mixture too lean",severity:"high",causes:["تسرب هواء","حساس MAF متسخ","فلتر هواء مسدود","مضخة وقود ضعيفة"],causes_en:["Vacuum leak","Dirty MAF","Clogged air filter","Weak fuel pump"],symptoms:["اهتزاز عند الخمول","تسارع ضعيف","استهلاك مرتفع"],symptoms_en:["Idle vibration","Poor acceleration","High fuel consumption"],steps:["افحص خراطيم الفاكيوم","نظف MAF","افحص ضغط الوقود"],steps_en:["Check vacuum hoses","Clean MAF","Check fuel pressure"]},
-"P0172":{zone:"fuel",title:"خليط غني - Bank 1",title_en:"System Too Rich Bank 1",severity:"high"},
-"P0174":{zone:"fuel",title:"خليط فقير - Bank 2",title_en:"System Too Lean Bank 2",severity:"high"},
-"P0175":{zone:"fuel",title:"خليط غني - Bank 2",title_en:"System Too Rich Bank 2",severity:"high"},
+"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"System Too Lean Bank 1",desc:"الخليط فقير جداً",desc_en:"Air/fuel too lean",severity:"high",causes:["تسرب هواء","حساس MAF متسخ","فلتر هواء مسدود","مضخة وقود ضعيفة"],causes_en:["Vacuum leak","Dirty MAF","Clogged air filter","Weak fuel pump"],symptoms:["اهتزاز عند الخمول","تسارع ضعيف","استهلاك مرتفع"],symptoms_en:["Idle vibration","Poor acceleration","High fuel consumption"],steps:["افحص خراطيم الفاكيوم","نظف MAF","افحص ضغط الوقود"],steps_en:["Check vacuum hoses","Clean MAF","Check fuel pressure"]},
+"P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"System Too Rich Bank 1",severity:"high"},
+"P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"System Too Lean Bank 2",severity:"high"},
+"P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"System Too Rich Bank 2",severity:"high"},
 "P0200":{zone:"fuel",title:"دائرة الحاقن",title_en:"Injector Circuit",severity:"high"},
 "P0201":{zone:"fuel",title:"الحاقن 1",title_en:"Injector Cylinder 1",severity:"high"},
 "P0202":{zone:"fuel",title:"الحاقن 2",title_en:"Injector Cylinder 2",severity:"high"},
 "P0203":{zone:"fuel",title:"الحاقن 3",title_en:"Injector Cylinder 3",severity:"high"},
 "P0204":{zone:"fuel",title:"الحاقن 4",title_en:"Injector Cylinder 4",severity:"high"},
-"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Engine Overheating",desc:"أوقف السيارة فوراً",desc_en:"Stop immediately",severity:"critical",causes:["نقص سائل التبريد","ترموستات تالف","مروحة معطلة"],causes_en:["Low coolant","Faulty thermostat","Broken fan"],symptoms:["ارتفاع مؤشر الحرارة","دخان من المحرك"],symptoms_en:["High temp gauge","Smoke from hood"],steps:["أوقف فوراً","افحص سائل التبريد","افحص المراوح"],steps_en:["Stop immediately","Check coolant","Check fans"]},
-"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbocharger Underboost",desc:"التيربو لا ينتج الضغط المطلوب",desc_en:"Turbo not producing required boost",severity:"high",causes:["خرطوم تيربو مشقوق","Wastegate عالق","Blow-off معطل","حساس MAP تالف"],causes_en:["Cracked turbo hose","Stuck wastegate","Faulty blow-off valve","Bad MAP sensor"],symptoms:["فقدان قوة","دخان أسود","صوت صفير","Limp Mode"],symptoms_en:["Power loss","Black smoke","Whistling","Limp mode"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص MAP"],steps_en:["Check turbo hoses","Check wastegate","Check MAP"]},
-"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Multiple Misfire",desc:"اشتعال غير منتظم",desc_en:"Irregular combustion",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],causes_en:["Worn spark plugs","Bad coils","Vacuum leak","Low fuel pressure"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],symptoms_en:["Engine vibration","Power loss","Irregular sound"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],steps_en:["Check plugs","Check coils","Check fuel pressure"]},
-"P0301":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل",desc_en:"Incomplete combustion",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],causes_en:["Bad plug","Bad coil","Clogged injector","Low compression"],symptoms:["اهتزاز عند الخمول","فقدان قوة"],symptoms_en:["Idle vibration","Power loss"],steps:["افحص البوجيه","بدل الكويل","افحص الضغط"],steps_en:["Check plug","Swap coil","Check compression"]},
-"P0302":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
-"P0303":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
-"P0304":{zone:"engine",title:"اشتعال متقطع - الأسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
-"P0335":{zone:"engine",title:"حساس الكرنك A",title_en:"Crankshaft Position Sensor A",desc:"قد يمنع التشغيل",desc_en:"May prevent engine start",severity:"critical",causes:["حساس كرنك تالف","أسلاك مقطوعة"],causes_en:["Bad crank sensor","Broken wires"],symptoms:["السيارة لا تشتغل","توقف مفاجئ"],symptoms_en:["Car won't start","Sudden stall"],steps:["افحص الحساس","افحص الأسلاك"],steps_en:["Check sensor","Check wires"]},
-"P0336":{zone:"engine",title:"حساس الكرنك - نطاق",title_en:"Crank Sensor Range",severity:"high"},
-"P0340":{zone:"engine",title:"حساس الكام A",title_en:"Cam Sensor A",severity:"high"},
-"P0350":{zone:"engine",title:"دائرة الكويل",title_en:"Ignition Coil Circuit",severity:"high"},
+"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Engine Overheating",desc:"أوقف السيارة فوراً",desc_en:"Stop immediately",severity:"critical",causes:["نقص سائل التبريد","ترموستات تالف","مروحة معطلة"],causes_en:["Low coolant","Bad thermostat","Broken fan"],symptoms:["ارتفاع مؤشر الحرارة","دخان من المحرك"],symptoms_en:["High temp gauge","Smoke"],steps:["أوقف فوراً","افحص سائل التبريد","افحص المراوح"],steps_en:["Stop immediately","Check coolant","Check fans"]},
+"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",desc:"التيربو لا ينتج الضغط المطلوب",desc_en:"Turbo not producing boost",severity:"high",causes:["خرطوم تيربو مشقوق","Wastegate عالق","Blow-off معطل","حساس MAP تالف"],causes_en:["Cracked turbo hose","Stuck wastegate","Faulty blow-off","Bad MAP"],symptoms:["فقدان قوة","دخان أسود","صوت صفير"],symptoms_en:["Power loss","Black smoke","Whistling"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص MAP"],steps_en:["Check turbo hoses","Check wastegate","Check MAP"]},
+"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Multiple Misfire",desc:"اشتعال غير منتظم",desc_en:"Irregular combustion",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],causes_en:["Worn plugs","Bad coils","Vacuum leak","Low fuel pressure"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],symptoms_en:["Engine vibration","Power loss"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],steps_en:["Check plugs","Check coils","Check fuel pressure"]},
+"P0301":{zone:"engine",title:"اشتعال متقطع - أسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل",desc_en:"Incomplete combustion",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],causes_en:["Bad plug","Bad coil","Clogged injector","Low compression"],symptoms:["اهتزاز عند الخمول","فقدان قوة"],symptoms_en:["Idle vibration","Power loss"],steps:["افحص البوجيه","بدل الكويل","افحص الضغط"],steps_en:["Check plug","Swap coil","Check compression"]},
+"P0302":{zone:"engine",title:"اشتعال متقطع - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
+"P0303":{zone:"engine",title:"اشتعال متقطع - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
+"P0304":{zone:"engine",title:"اشتعال متقطع - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
+"P0305":{zone:"engine",title:"اشتعال متقطع - أسطوانة 5",title_en:"Cylinder 5 Misfire",severity:"high"},
+"P0306":{zone:"engine",title:"اشتعال متقطع - أسطوانة 6",title_en:"Cylinder 6 Misfire",severity:"high"},
+"P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crankshaft Position Sensor",desc:"قد يمنع التشغيل",desc_en:"May prevent start",severity:"critical",causes:["حساس كرنك تالف","أسلاك مقطوعة"],causes_en:["Bad crank sensor","Broken wires"],symptoms:["السيارة لا تشتغل","توقف مفاجئ"],symptoms_en:["Car won't start","Sudden stall"],steps:["افحص الحساس","افحص الأسلاك"],steps_en:["Check sensor","Check wires"]},
+"P0336":{zone:"engine",title:"حساس الكرنك - نطاق",title_en:"Crank Range",severity:"high"},
+"P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor A",severity:"high"},
+"P0350":{zone:"engine",title:"دائرة الكويل",title_en:"Coil Circuit",severity:"high"},
 "P0351":{zone:"engine",title:"دائرة الكويل A",title_en:"Coil A",severity:"high"},
 "P0352":{zone:"engine",title:"دائرة الكويل B",title_en:"Coil B",severity:"high"},
 "P0401":{zone:"exhaust",title:"EGR غير كافي",title_en:"EGR Insufficient",desc:"صمام EGR مسدود",desc_en:"Clogged EGR valve",severity:"medium",causes:["صمام EGR مسدود","خط EGR مسدود"],causes_en:["Clogged EGR valve","Clogged EGR line"],symptoms:["خمول غير مستقر","تسارع ضعيف"],symptoms_en:["Unstable idle","Poor acceleration"],steps:["نظف صمام EGR","افحص الخطوط"],steps_en:["Clean EGR","Check lines"]},
-"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst Below Threshold Bank 1",desc:"شائع - افحص O2 قبل الاستبدال",desc_en:"Common - check O2 before replacing",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف"],causes_en:["Worn catalyst","Bad upstream O2","Bad downstream O2"],symptoms:["Check Engine فقط","رائحة كبريت","فشل اختبار الانبعاثات"],symptoms_en:["Check Engine only","Sulfur smell","Emission test fail"],steps:["افحص P0300/P0301","قارن O2 الأمامي والخلفي"],steps_en:["Check P0300/P0301","Compare O2 sensors"]},
-"P0430":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 2",title_en:"Catalyst Below Threshold Bank 2",severity:"medium"},
+"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst Below Threshold Bank 1",desc:"شائع - افحص O2 قبل الاستبدال",desc_en:"Common - check O2 first",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف"],causes_en:["Worn catalyst","Bad upstream O2","Bad downstream O2"],symptoms:["Check Engine فقط","رائحة كبريت"],symptoms_en:["Check Engine only","Sulfur smell"],steps:["افحص P0300/P0301","قارن O2 الأمامي والخلفي"],steps_en:["Check P0300/P0301","Compare O2 sensors"]},
+"P0430":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 2",title_en:"Catalyst Bank 2",severity:"medium"},
 "P0442":{zone:"exhaust",title:"تسرب EVAP صغير",title_en:"EVAP Small Leak",severity:"low"},
 "P0455":{zone:"exhaust",title:"تسرب EVAP كبير",title_en:"EVAP Large Leak",severity:"medium"},
 "P0456":{zone:"exhaust",title:"تسرب EVAP صغير جداً",title_en:"EVAP Very Small",severity:"low"},
@@ -462,7 +483,7 @@ var DTC_DATABASE = {
 "P0500":{zone:"transmission",title:"حساس سرعة المركبة",title_en:"Vehicle Speed Sensor",severity:"medium"},
 "P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
 "P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Too Low",severity:"critical"},
-"P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage Fault",severity:"high"},
+"P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage",severity:"high"},
 "P0562":{zone:"electronics",title:"جهد منخفض",title_en:"Voltage Low",severity:"high"},
 "P0563":{zone:"electronics",title:"جهد مرتفع",title_en:"Voltage High",severity:"high"},
 "P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM Error",severity:"high"},
@@ -489,13 +510,13 @@ var DTC_DATABASE = {
 "C0050":{zone:"brakes",title:"حساس عجلة خلفية يمنى",title_en:"RR Wheel Speed Sensor",severity:"high"},
 "B0001":{zone:"airbag",title:"عطل الوسائد",title_en:"Airbag System Fault",desc:"نظام SRS معطل",desc_en:"SRS faulty",severity:"critical",causes:["وحدة SRS تالفة","حساس صدمة","أسلاك"],causes_en:["Bad SRS module","Impact sensor","Wires"],symptoms:["لمبة الوسائد مضاءة"],symptoms_en:["Airbag light on"],steps:["افحص وحدة SRS","افحص الحساسات"],steps_en:["Check SRS module","Check sensors"]},
 "B1000":{zone:"airbag",title:"وحدة الوسائد",title_en:"Airbag Module",severity:"critical"},
-"U0001":{zone:"electronics",title:"CAN عام",title_en:"CAN Bus General Error",severity:"high"},
+"U0001":{zone:"electronics",title:"CAN عام",title_en:"CAN General Error",severity:"high"},
 "U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost Comm With ECM/PCM",desc:"كمبيوتر المحرك لا يستجيب",desc_en:"Engine computer not responding",severity:"critical",causes:["فيوز محروق","سلك CAN مقطوع","ECM تالف"],causes_en:["Blown fuse","Broken CAN wire","Bad ECM"],symptoms:["السيارة لا تشتغل","Limp Mode"],symptoms_en:["Car won't start","Limp mode"],steps:["افحص فيوز ECM","افحص مقاومة CAN 60 اوم"],steps_en:["Check ECM fuse","Check CAN 60 ohm"]},
 "U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost Comm With TCM",severity:"critical"},
 "U0121":{zone:"abs",title:"فقدان ABS",title_en:"Lost Comm With ABS",severity:"critical"},
 "U0140":{zone:"electronics",title:"فقدان BCM",title_en:"Lost Comm With BCM",desc:"شائع جداً",desc_en:"Very common",severity:"high",causes:["BCM تالف","أسلاك","فيوز"],causes_en:["Bad BCM","Wires","Fuse"],symptoms:["أضواء لا تعمل","نوافذ لا تعمل"],symptoms_en:["Lights not working","Windows not working"],steps:["افحص فيوز BCM","افحص BCM"],steps_en:["Check BCM fuse","Check BCM"]},
-"U0155":{zone:"electronics",title:"فقدان Instrument Panel",title_en:"Lost Comm With Instrument",severity:"high"},
-"U0167":{zone:"electronics",title:"فقدان Immobilizer",title_en:"Lost Comm With Immob",severity:"critical"},
+"U0155":{zone:"electronics",title:"فقدان Instrument Panel",title_en:"Lost Comm Instrument",severity:"high"},
+"U0167":{zone:"electronics",title:"فقدان Immobilizer",title_en:"Lost Comm Immob",severity:"critical"},
 "U1001":{zone:"electronics",title:"فقدان CAN",title_en:"CAN Communication Lost",severity:"critical"},
 "P1326_HYU":{brand:"Hyundai/Kia",zone:"engine",title:"اهتزاز المحرك - مصنعي",title_en:"Engine Vibration Manufacturing",desc:"مشكلة مصنعية شهيرة - قد يكون مشمولاً بالضمان",desc_en:"Famous manufacturing issue - may be under warranty",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],causes_en:["Manufacturing defect","Carbon buildup"],symptoms:["صوت قرقعة","فقدان قوة","اهتزاز شديد"],symptoms_en:["Knocking noise","Power loss","Severe vibration"],steps:["افحص رقم VIN للضمان","اتصل بالوكيل"],steps_en:["Check VIN for warranty","Contact dealer"]}
 };
@@ -515,16 +536,16 @@ buildDTCIndex();
 
 var RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',title_en:'Air Leak in Intake',confidence:90,severity:'high',description:'خليط فقير في البنكين.',description_en:'Lean mixture both banks',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF'],actions_en:['Check vacuum hoses','Check intake gasket','Check MAF']},
-  {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',description_en:'Lean mixture caused misfire',actions:['افحص تسرب الهواء أولاً'],actions_en:['Check for air leaks first']},
+  {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',description_en:'Lean mixture caused misfire',actions:['افحص تسرب الهواء أولاً'],actions_en:['Check air leaks first']},
   {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',title_en:'Ignition System Issue',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',description_en:'Multiple misfire',actions:['استبدل البواجي','افحص الكويلات'],actions_en:['Replace plugs','Check coils']},
   {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',title_en:'Catalyst Damage',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر.',description_en:'Misfire damaged catalyst',actions:['أصلح الإشعال أولاً','استبدل الكتلايزر'],actions_en:['Fix ignition first','Replace catalyst']},
-  {required:['P0299'],title:'ضغط التيربو منخفض',title_en:'Turbo Underboost',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',description_en:'Turbo not producing required boost',actions:['افحص خراطيم التيربو','افحص Wastegate','افحص MAP'],actions_en:['Check turbo hoses','Check wastegate','Check MAP']},
+  {required:['P0299'],title:'ضغط التيربو منخفض',title_en:'Turbo Underboost',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',description_en:'Turbo not producing boost',actions:['افحص خراطيم التيربو','افحص Wastegate','افحص MAP'],actions_en:['Check turbo hoses','Check wastegate','Check MAP']},
   {required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',title_en:'DPF Clogged',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد.',description_en:'DPF needs regeneration',actions:['قيادة سريعة 20 دقيقة','منظف DPF'],actions_en:['20 min fast drive','DPF cleaner']},
   {required:['P0335'],title:'عطل حساس الكرنك',title_en:'Crank Sensor Fault',confidence:95,severity:'critical',description:'قد يمنع التشغيل.',description_en:'May prevent start',actions:['استبدل حساس الكرنك'],actions_en:['Replace crank sensor']},
   {required:['P0217'],title:'ارتفاع حرارة المحرك',title_en:'Engine Overheating',confidence:100,severity:'critical',description:'أوقف السيارة فوراً!',description_en:'Stop immediately!',actions:['أوقف فوراً','افحص سائل التبريد'],actions_en:['Stop immediately','Check coolant']},
-  {required:['U0100'],title:'فقدان الاتصال بـ ECU',title_en:'Lost Comm With ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',description_en:'No communication with ECU',actions:['افحص الأسلاك','افحص الفيوزات'],actions_en:['Check wires','Check fuses']},
+  {required:['U0100'],title:'فقدان الاتصال بـ ECU',title_en:'Lost Comm With ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',description_en:'No comm with ECU',actions:['افحص الأسلاك','افحص الفيوزات'],actions_en:['Check wires','Check fuses']},
   {required:['U0140'],title:'فقدان الاتصال بـ BCM',title_en:'Lost Comm With BCM',confidence:85,severity:'high',description:'وحدة الجسم لا تتواصل.',description_en:'BCM not communicating',actions:['افحص فيوز BCM','افحص BCM'],actions_en:['Check BCM fuse','Check BCM']},
-  {required:['B0001'],title:'عطل الوسائد الهوائية',title_en:'Airbag System Fault',confidence:90,severity:'critical',description:'نظام SRS معطل!',description_en:'SRS system faulty!',actions:['افحص وحدة SRS'],actions_en:['Check SRS module']},
+  {required:['B0001'],title:'عطل الوسائد الهوائية',title_en:'Airbag System Fault',confidence:90,severity:'critical',description:'نظام SRS معطل!',description_en:'SRS faulty!',actions:['افحص وحدة SRS'],actions_en:['Check SRS module']},
   {required:['P0128'],title:'ترموستات عاطل',title_en:'Thermostat Faulty',confidence:90,severity:'medium',description:'المحرك لا يصل للحرارة.',description_en:'Engine not reaching temp',actions:['استبدل الترموستات'],actions_en:['Replace thermostat']},
   {required:['P0700'],title:'عطل ناقل الحركة',title_en:'Transmission Fault',confidence:95,severity:'high',description:'كمبيوتر الجير أرسل عطل.',description_en:'TCM sent fault',actions:['افحص كمبيوتر الجير'],actions_en:['Check TCM']},
   {required:['P1326_HYU'],title:'عطل مصنعي Hyundai/Kia',title_en:'Hyundai/Kia Manufacturing Issue',confidence:100,severity:'critical',description:'مشكلة مصنعية شهيرة!',description_en:'Famous manufacturing issue!',actions:['اتصل بالوكيل','افحص شمول الضمان'],actions_en:['Contact dealer','Check warranty']}
@@ -540,6 +561,7 @@ function decodeVIN(vin){
   return {vin:v,country:VIN_COUNTRY[v[0]]||'Unknown',manufacturer:VIN_WMI[v.substring(0,3)]||'Unknown',year:VIN_YEARS[v[9]]||'Unknown',plant:'Plant '+v[10]};
 }
 
+// ============ LOGGING ============
 function log(msg){
   var c = document.getElementById('console');
   if(!c) return;
@@ -556,15 +578,16 @@ function setStatus(state){
   var d = document.getElementById('statusDot');
   var tb = document.getElementById('transportBadge');
   if(!s||!d) return;
-  if(state === 'connected'){s.textContent = t('connected'); s.className = 'text-sm font-bold text-green-400'; d.className = 'w-3 h-3 rounded-full bg-green-500';}
-  else if(state === 'demo'){s.textContent = t('demoMode'); s.className = 'text-sm font-bold text-amber-400'; d.className = 'w-3 h-3 rounded-full bg-amber-500';}
-  else{s.textContent = t('disconnected'); s.className = 'text-sm font-bold text-red-400'; d.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';}
+  if(state === 'connected'){s.textContent = 'متصل'; s.className = 'text-sm font-bold text-green-400'; d.className = 'w-3 h-3 rounded-full bg-green-500';}
+  else if(state === 'demo'){s.textContent = 'وضع تجريبي'; s.className = 'text-sm font-bold text-amber-400'; d.className = 'w-3 h-3 rounded-full bg-amber-500';}
+  else{s.textContent = 'غير متصل'; s.className = 'text-sm font-bold text-red-400'; d.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';}
   if(tb){
     if(state === 'connected' && transport){tb.classList.remove('hidden'); tb.className = transport === 'usb' ? 'transport-badge badge-usb' : 'transport-badge badge-ble'; tb.textContent = transport === 'usb' ? 'USB' : 'BLE';}
     else tb.classList.add('hidden');
   }
 }
 
+// ============ UI HELPERS ============
 function updateGauge(arcId, needleId, valueId, value, max){
   var arc = document.getElementById(arcId), needle = document.getElementById(needleId), valEl = document.getElementById(valueId);
   if(!arc||!needle||!valEl) return;
@@ -592,7 +615,7 @@ function getFaultInfo(code){
   if(DTC_DATABASE[c]) return DTC_DATABASE[c];
   var variants = BRAND_INDEX.get(c);
   if(variants && variants.length>0) return Object.assign({}, DTC_DATABASE[variants[0]], {code:c});
-  return {zone:'engine', title:t('unknownFault'), title_en:'Unknown fault', desc:''};
+  return {zone:'engine', title:'عطل غير معروف', title_en:'Unknown fault', desc:''};
 }
 function runDiagnosis(codes){
   if(!codes||codes.length===0) return [];
@@ -643,21 +666,18 @@ function displaySmartDiagnosis(codes){
   if(diag.length===0){c.classList.add('hidden'); c.innerHTML = ''; return;}
   c.classList.remove('hidden');
   var html = '<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4 fade-in">';
-  html += '<h3 class="font-bold text-purple-200 mb-3 flex items-center gap-2"><i class="fa-solid fa-brain"></i> ' + t('smartDiagnosisTitle') + '</h3>';
+  html += '<h3 class="font-bold text-purple-200 mb-3 flex items-center gap-2"><i class="fa-solid fa-brain"></i> التشخيص الذكي</h3>';
   diag.forEach(function(d){
     var color = d.severity === 'critical' ? '#dc2626' : d.severity === 'high' ? '#ef4444' : d.severity === 'medium' ? '#f59e0b' : '#10b981';
     var icon = d.severity === 'critical' ? '[!!]' : d.severity === 'high' ? '[H]' : d.severity === 'medium' ? '[M]' : '[L]';
-    var title = currentLang === 'en' ? d.title_en : d.title;
-    var description = currentLang === 'en' ? d.description_en : d.description;
-    var actions = currentLang === 'en' ? d.actions_en : d.actions;
     html += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid ' + color + ';">';
     html += '<div class="flex justify-between items-center mb-2 flex-wrap gap-2">';
-    html += '<div class="font-bold text-sm">' + icon + ' ' + title + '</div>';
+    html += '<div class="font-bold text-sm">' + icon + ' ' + d.title + '</div>';
     html += '<span class="text-xs px-2 py-1 rounded-full text-white font-bold" style="background:' + color + ';">' + d.confidence + '%</span>';
     html += '</div>';
-    html += '<p class="text-xs text-gray-300 mb-2">' + description + '</p>';
+    html += '<p class="text-xs text-gray-300 mb-2">' + d.description + '</p>';
     html += '<ul class="text-xs space-y-1">';
-    (actions||[]).forEach(function(a){html += '<li class="bg-gray-800/60 rounded p-1.5">- ' + a + '</li>';});
+    (d.actions||[]).forEach(function(a){html += '<li class="bg-gray-800/60 rounded p-1.5">- ' + a + '</li>';});
     html += '</ul></div>';
   });
   html += '</div>';
@@ -669,21 +689,21 @@ function displayHealth(faults, diag){
   if(!b) return;
   if(!faults||faults.length===0){b.classList.add('hidden'); return;}
   var sc = calcHealth(faults, diag);
-  var gradient, statusKey, descKey, icon;
-  if(sc>=90){gradient='from-green-500 to-emerald-600'; statusKey='excellent'; descKey='descExcellent'; icon='[+]';}
-  else if(sc>=75){gradient='from-emerald-500 to-green-600'; statusKey='good'; descKey='descGood'; icon='[+]';}
-  else if(sc>=50){gradient='from-amber-500 to-orange-600'; statusKey='needsService'; descKey='descNeedsService'; icon='[!]';}
-  else if(sc>=30){gradient='from-red-500 to-rose-600'; statusKey='critical'; descKey='descCritical'; icon='[!]';}
-  else{gradient='from-red-700 to-red-900'; statusKey='severe'; descKey='descSevere'; icon='[!!]';}
+  var gradient, status, desc, icon;
+  if(sc>=90){gradient='from-green-500 to-emerald-600';status='ممتازة';desc='لا توجد مشاكل';icon='[+]';}
+  else if(sc>=75){gradient='from-emerald-500 to-green-600';status='جيدة';desc='أعطال بسيطة تحتاج مراقبة';icon='[+]';}
+  else if(sc>=50){gradient='from-amber-500 to-orange-600';status='تحتاج صيانة';desc='أعطال تحتاج إصلاح قريب';icon='[!]';}
+  else if(sc>=30){gradient='from-red-500 to-rose-600';status='خطيرة';desc='أعطال مهمة - إصلاح فوري';icon='[!]';}
+  else{gradient='from-red-700 to-red-900';status='حرجة';desc='أعطال خطيرة - لا تقُد';icon='[!!]';}
   b.classList.remove('hidden');
   var html = '<div class="bg-gradient-to-l ' + gradient + ' rounded-2xl p-4 text-white fade-in">';
   html += '<div class="flex justify-between items-center">';
-  html += '<div><div class="text-sm font-bold">' + icon + ' ' + t(statusKey) + '</div><div class="text-xs opacity-90 mt-1">' + t(descKey) + '</div></div>';
-  html += '<div class="text-right"><div class="text-4xl font-bold">' + sc + '<span class="text-base opacity-80">/100</span></div><div class="text-[10px] opacity-80 mt-1">' + t('vehicleHealth') + '</div></div>';
+  html += '<div><div class="text-sm font-bold">' + icon + ' ' + status + '</div><div class="text-xs opacity-90 mt-1">' + desc + '</div></div>';
+  html += '<div class="text-right"><div class="text-4xl font-bold">' + sc + '<span class="text-base opacity-80">/100</span></div><div class="text-[10px] opacity-80 mt-1">مؤشر صحة السيارة</div></div>';
   html += '</div>';
   html += '<div class="grid grid-cols-2 gap-2 mt-3 text-xs">';
-  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i><span>' + faults.length + ' ' + t('faultsRegistered') + '</span></div>';
-  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-brain"></i><span>' + (diag||[]).length + ' ' + t('smartDiagnoses') + '</span></div>';
+  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i><span>' + faults.length + ' عطل مسجل</span></div>';
+  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-brain"></i><span>' + (diag||[]).length + ' تشخيص</span></div>';
   html += '</div>';
   html += '<div class="mt-3 bg-black/20 rounded-lg p-2"><div class="w-full bg-black/30 rounded-full h-2 overflow-hidden"><div class="h-full rounded-full transition-all duration-700" style="width:' + sc + '%; background:white;"></div></div></div>';
   html += '</div>';
@@ -696,63 +716,399 @@ function hideExport(){var el = document.getElementById('exportCard'); if(el) el.
 function showDTCDetails(codeOrKey){
   var isKey = /_[A-Z]+$/.test(codeOrKey);
   var displayCode = codeOrKey.replace(/_[A-Z]+$/, '');
-  var info;
-  if(isKey){info = DTC_DATABASE[codeOrKey] || {};}
-  else{info = getFaultInfo(codeOrKey);}
+  var info = isKey ? (DTC_DATABASE[codeOrKey] || {}) : getFaultInfo(codeOrKey);
   var modal = document.getElementById('dtcDetailModal');
   var content = document.getElementById('dtcDetailContent');
   if(!modal||!content) return;
-  var isEn = currentLang === 'en';
-  var sevMap = {critical:{bg:'#dc2626',label:t('severityCritical'),icon:'[!!]'}, high:{bg:'#ef4444',label:t('severityHigh'),icon:'[H]'}, medium:{bg:'#f59e0b',label:t('severityMedium'),icon:'[M]'}, low:{bg:'#10b981',label:t('severityLow'),icon:'[L]'}};
-  var sev = sevMap[info.severity] || {bg:'#64748b', label:t('severityUnknown'), icon:'[?]'};
-  var zl = {engine:t('zoneEngine'),transmission:t('zoneTrans'),abs:'ABS',brakes:t('zoneBrakes'),airbag:t('zoneAirbag'),fuel:t('zoneFuel'),exhaust:t('zoneExhaust'),cooling:t('zoneCooling'),battery:t('zoneBattery'),electronics:t('zoneElectronics')};
+  var sevMap = {critical:{bg:'#dc2626',label:'حرج'}, high:{bg:'#ef4444',label:'خطير'}, medium:{bg:'#f59e0b',label:'متوسط'}, low:{bg:'#10b981',label:'منخفض'}};
+  var sev = sevMap[info.severity] || {bg:'#64748b', label:'غير محدد'};
   var html = '<div class="text-center mb-4">';
   html += '<div class="font-mono font-bold text-3xl text-red-400 mb-1">' + displayCode + '</div>';
-  html += '<div class="text-base font-bold text-white">' + (isEn ? (info.title_en || info.title) : info.title || t('unknownFault')) + '</div>';
+  html += '<div class="text-base font-bold text-white">' + (info.title || 'عطل غير معروف') + '</div>';
   html += '<div class="flex justify-center gap-2 mt-3 flex-wrap">';
-  html += '<span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:' + sev.bg + ';">' + sev.icon + ' ' + sev.label + '</span>';
-  if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + (zl[info.zone] || info.zone) + '</span>';
+  html += '<span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:' + sev.bg + ';">' + sev.label + '</span>';
+  if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + info.zone + '</span>';
   if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + info.brand + '</span>';
   html += '</div></div>';
-  var desc = isEn ? (info.desc_en || info.desc) : info.desc;
-  var causes = isEn ? (info.causes_en || info.causes) : info.causes;
-  var symptoms = isEn ? (info.symptoms_en || info.symptoms) : info.symptoms;
-  var steps = isEn ? (info.steps_en || info.steps) : info.steps;
-  if(desc){
-    html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500">';
-    html += '<div class="font-bold text-sm mb-1 text-blue-400">' + t('description') + '</div>';
-    html += '<div class="text-xs text-gray-300">' + desc + '</div></div>';
+  if(info.desc){
+    html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + info.desc + '</div></div>';
   }
   function listBlock(items, title, color){
-    if(!items || items.length === 0) return '';
+    if(!items||items.length===0) return '';
     var h = '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + color + ';">';
-    h += '<div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div>';
-    h += '<ul class="space-y-1.5">';
+    h += '<div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div><ul class="space-y-1.5">';
     items.forEach(function(i){h += '<li class="text-xs text-gray-300">- ' + i + '</li>';});
     h += '</ul></div>';
     return h;
   }
-  html += listBlock(causes, t('causes'), '#f59e0b');
-  html += listBlock(symptoms, t('symptoms'), '#ef4444');
-  html += listBlock(steps, t('steps'), '#10b981');
+  html += listBlock(info.causes, 'الأسباب', '#f59e0b');
+  html += listBlock(info.symptoms, 'الأعراض', '#ef4444');
+  html += listBlock(info.steps, 'الخطوات', '#10b981');
   content.innerHTML = html;
   modal.classList.remove('hidden');
 }
 
-var transport=null;
-var isConnected=false, isDemo=false;
-var liveTimer=null, chartInstance=null;
-var chartData={labels:[], rpm:[], speed:[]};
-var lastCoolant=0, lastFuel=75;
+// ============ OBD2 NOTIFICATION HANDLER ============
+function handleNotification(e){
+  recvBuf += new TextDecoder().decode(e.target.value);
+  if(recvBuf.indexOf('>') >= 0 && curResolve){
+    clearTimeout(curTimeout);
+    var r = recvBuf; recvBuf = '';
+    var res = curResolve; curResolve = null;
+    res(r);
+  }
+}
+
+// ============ SEND COMMAND ============
+function sendCmd(cmd, timeout, retries){
+  timeout = timeout || 3000;
+  retries = retries || 1;
+  return new Promise(function(resolve, reject){
+    var attempts = 0;
+    var settled = false;
+    function safeResolve(val){ if(settled) return; settled = true; resolve(val); }
+    function safeReject(err){ if(settled) return; settled = true; reject(err); }
+    function tryOnce(){
+      attempts++;
+      cmdQueue.push({
+        cmd: cmd,
+        resolve: function(r){
+          var isBad = !r || r.indexOf('NO DATA')>=0 || r.indexOf('UNABLE')>=0 || r.indexOf('ERROR')>=0 || r.trim()==='>';
+          if(isBad && attempts <= retries){ setTimeout(tryOnce, 300); return; }
+          safeResolve(r); isProcessing = false; processQueue();
+        },
+        reject: function(e){
+          if(attempts <= retries) setTimeout(tryOnce, 300);
+          else{ safeReject(e); isProcessing = false; processQueue(); }
+        },
+        timeout: timeout
+      });
+      processQueue();
+    }
+    tryOnce();
+  });
+}
+
+async function processQueue(){
+  if(isProcessing || cmdQueue.length === 0) return;
+  var hasChannel = (transport === 'usb' && usbWriter) || (transport === 'ble' && uartChar);
+  if(!hasChannel){ isProcessing = false; return; }
+  isProcessing = true;
+  var item = cmdQueue.shift();
+  curResolve = item.resolve; recvBuf = '';
+  try{
+    var data = new TextEncoder().encode(item.cmd + '\r');
+    if(transport === 'usb'){ await usbWriter.write(data); }
+    else{ await uartChar.writeValue(data); }
+    curTimeout = setTimeout(function(){
+      if(curResolve){
+        var r = recvBuf; recvBuf = '';
+        var res = curResolve; curResolve = null;
+        res(r); isProcessing = false; processQueue();
+      }
+    }, item.timeout);
+  }catch(e){ item.reject(e); curResolve = null; isProcessing = false; processQueue(); }
+}
+
+// ============ BLE CONNECT ============
+async function connectOBD(){
+  if(!navigator.bluetooth){
+    alert('المتصفح لا يدعم Web Bluetooth.\n\n📱 على iPhone: استخدم متصفح Bluefy\n💻 على الكمبيوتر: استخدم Chrome\n📱 على أندرويد: استخدم Chrome');
+    return;
+  }
+  var btn = document.getElementById('connect-btn');
+  var orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try{
+    logInfo('جاري البحث عن أجهزة BLE...');
+    btDevice = await navigator.bluetooth.requestDevice({
+      filters: [
+        {services: KNOWN_SVC},
+        {namePrefix:'OBD'},{namePrefix:'ELM'},{namePrefix:'V-Link'},{namePrefix:'Vgate'},{namePrefix:'Viecar'},{namePrefix:'KONNWEI'}
+      ],
+      optionalServices: KNOWN_SVC
+    });
+    logInfo('الجهاز: ' + btDevice.name);
+    btDevice.addEventListener('gattserverdisconnected', handleDisconnect);
+    btServer = await btDevice.gatt.connect();
+    logInfo('متصل بـ GATT');
+    var svc = null, chr = null;
+    for(var si=0; si<KNOWN_SVC.length; si++){
+      try{ svc = await btServer.getPrimaryService(KNOWN_SVC[si]); logSuccess('Service found'); break; }catch(e){}
+    }
+    if(!svc) throw new Error('لم يتم العثور على Service');
+    for(var chi=0; chi<KNOWN_CHR.length; chi++){
+      try{ chr = await svc.getCharacteristic(KNOWN_CHR[chi]); logSuccess('Char found'); break; }catch(e){}
+    }
+    if(!chr) throw new Error('لم يتم العثور على Characteristic');
+    uartChar = chr;
+    await uartChar.startNotifications();
+    uartChar.addEventListener('characteristicvaluechanged', handleNotification);
+    transport = 'ble';
+    isConnected = true;
+    setStatus('connected');
+    updateConnectionUI(true);
+    logSuccess('متصل Bluetooth');
+    logInfo('تهيئة ELM327...');
+    await sendCmd('AT Z', 4000);
+    await sendCmd('AT E0', 2000);
+    await sendCmd('AT L0', 2000);
+    await sendCmd('AT S0', 2000);
+    logInfo('اكتشاف البروتوكول...');
+    var protocols = ['AT SP 6', 'AT SP 7', 'AT SP 5', 'AT SP 0'];
+    for(var pi=0; pi<protocols.length; pi++){
+      await sendCmd(protocols[pi], 2000);
+      var test = await sendCmd('0100', 3000);
+      if(test && test.indexOf('41 00') >= 0){
+        logSuccess('البروتوكول: ' + protocols[pi]);
+        break;
+      }
+    }
+    logSuccess('جاهز للقراءة');
+    await readVIN();
+    startRealLiveLoop();
+  }catch(e){
+    logError('BLE: ' + e.message);
+    if(uartChar){ try{uartChar.removeEventListener('characteristicvaluechanged', handleNotification);}catch(_){} try{await uartChar.stopNotifications();}catch(_){} uartChar = null; }
+    if(btDevice && btDevice.gatt.connected){ try{btDevice.gatt.disconnect();}catch(_){} }
+    transport = null; isConnected = false;
+    setStatus('disconnected');
+    updateConnectionUI(false);
+  }finally{ btn.disabled = false; btn.innerHTML = orig; }
+}
+
+// ============ USB CONNECT ============
+async function connectUSB(){
+  if(!navigator.serial){
+    alert('Web Serial غير مدعوم على هذا المتصفح.\n\nاستخدم Chrome على الحاسوب أو أندرويد.');
+    return;
+  }
+  var btn = document.getElementById('usb-btn');
+  var orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try{
+    logInfo('جاري الاتصال عبر USB...');
+    usbPort = await navigator.serial.requestPort();
+    var baudRates = [38400, 115200, 9600, 57600];
+    var opened = false, lastError = null;
+    for(var bi=0; bi<baudRates.length; bi++){
+      try{
+        await usbPort.open({baudRate: baudRates[bi], dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none'});
+        opened = true; logInfo('Port @ ' + baudRates[bi]); break;
+      }catch(e){ lastError = e; try{await usbPort.close();}catch(_){} }
+    }
+    if(!opened) throw new Error((lastError && lastError.message) || 'فشل فتح المنفذ');
+    usbWriter = usbPort.writable.getWriter();
+    transport = 'usb';
+    startUSBReadLoop();
+    isConnected = true;
+    setStatus('connected');
+    updateConnectionUI(true);
+    logSuccess('متصل USB');
+    logInfo('تهيئة ELM327...');
+    await sendCmd('AT Z', 4000);
+    await sendCmd('AT E0', 2000);
+    await sendCmd('AT L0', 2000);
+    await sendCmd('AT S0', 2000);
+    var protocols = ['AT SP 6', 'AT SP 7', 'AT SP 5', 'AT SP 0'];
+    for(var pi=0; pi<protocols.length; pi++){
+      await sendCmd(protocols[pi], 2000);
+      var test = await sendCmd('0100', 3000);
+      if(test && test.indexOf('41 00') >= 0){ logSuccess('البروتوكول: ' + protocols[pi]); break; }
+    }
+    logSuccess('جاهز');
+    await readVIN();
+    startRealLiveLoop();
+  }catch(e){
+    logError('USB: ' + e.message);
+    await cleanupUSB();
+    transport = null; isConnected = false;
+    setStatus('disconnected');
+    updateConnectionUI(false);
+  }finally{ btn.disabled = false; btn.innerHTML = orig; }
+}
+
+async function startUSBReadLoop(){
+  if(!usbPort || !usbPort.readable) return;
+  usbReadLoopActive = true;
+  var decoder = new TextDecoder();
+  while(usbPort && usbPort.readable && usbReadLoopActive){
+    usbReader = usbPort.readable.getReader();
+    try{
+      while(usbReadLoopActive){
+        var v = await usbReader.read();
+        if(v.done) break;
+        if(v.value){
+          recvBuf += decoder.decode(v.value, {stream: true});
+          if(recvBuf.indexOf('>') >= 0 && curResolve){
+            clearTimeout(curTimeout);
+            var r = recvBuf; recvBuf = '';
+            var res = curResolve; curResolve = null;
+            res(r);
+          }
+        }
+      }
+    }catch(e){ if(usbReadLoopActive) logError('USB read: ' + e.message); }
+    finally{ try{usbReader.releaseLock();}catch(_){} }
+  }
+}
+
+async function cleanupUSB(){
+  usbReadLoopActive = false;
+  try{ if(usbReader){ await usbReader.cancel(); usbReader.releaseLock(); } }catch(_){}
+  try{ if(usbWriter){ usbWriter.releaseLock(); } }catch(_){}
+  try{ if(usbPort){ await usbPort.close(); } }catch(_){}
+  usbReader = null; usbWriter = null; usbPort = null;
+  cmdQueue = []; isProcessing = false; curResolve = null;
+  if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
+}
+
+// ============ DISCONNECT ============
+async function handleDisconnect(){
+  isConnected = false; isDemo = false;
+  if(liveTimer) clearInterval(liveTimer); liveTimer = null;
+  if(transport === 'usb'){ await cleanupUSB(); }
+  if(uartChar){
+    try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotification); }catch(_){}
+    try{ await uartChar.stopNotifications(); }catch(_){}
+    uartChar = null;
+  }
+  if(btDevice && btDevice.gatt.connected){ try{ btDevice.gatt.disconnect(); }catch(_){} }
+  transport = null;
+  setStatus('disconnected');
+  updateConnectionUI(false);
+  logInfo('تم قطع الاتصال');
+}
+
+function updateConnectionUI(connected){
+  var c = document.getElementById('connect-btn'), u = document.getElementById('usb-btn'), d = document.getElementById('demo-btn'), db = document.getElementById('disconnect-btn');
+  if(!c||!u||!d||!db) return;
+  if(connected){ c.classList.add('hidden'); u.classList.add('hidden'); d.classList.add('hidden'); db.classList.remove('hidden'); db.classList.add('flex'); }
+  else{
+    c.classList.remove('hidden');
+    if(!hasSerial) u.classList.add('hidden'); else u.classList.remove('hidden');
+    d.classList.remove('hidden');
+    db.classList.add('hidden'); db.classList.remove('flex');
+  }
+}
+
+// ============ VIN READING ============
+async function readVIN(){
+  logInfo('قراءة VIN...');
+  try{
+    var res = await sendCmd('09 02', 5000);
+    parseVINResponse(res);
+  }catch(e){ logError('VIN: ' + e.message); }
+}
+
+function parseVINResponse(res){
+  if(!res) return;
+  var lines = res.split('\n');
+  var fullHex = '';
+  for(var li=0; li<lines.length; li++){
+    var clean = lines[li].replace(/^[0-9A-Fa-f]{3}\s*/, '').trim();
+    if(!clean) continue;
+    clean = clean.replace(/[^0-9A-Fa-f\s]/g, '');
+    var bytes = clean.split(/\s+/).filter(function(b){ return b.length === 2; });
+    var startIdx = 0;
+    if(bytes[0] === '10' && bytes.length > 3) startIdx = 3;
+    else if(bytes[0]==='21' || bytes[0]==='22' || bytes[0]==='23' || bytes[0]==='24' || bytes[0]==='25') startIdx = 1;
+    for(var i=startIdx; i<bytes.length; i++){ fullHex += bytes[i]; }
+  }
+  var vin = '';
+  for(var vi=0; vi<fullHex.length; vi+=2){
+    var code = parseInt(fullHex.substr(vi, 2), 16);
+    if(code >= 32 && code <= 126) vin += String.fromCharCode(code);
+  }
+  vin = vin.replace(/[^A-HJ-NPR-Z0-9]/gi, '');
+  var markers = ['1HG','WBA','WVW','JHM','JTD','KMH','VF1','WDD','JT2','1FA'];
+  for(var mi=0; mi<markers.length; mi++){
+    var idx = vin.indexOf(markers[mi]);
+    if(idx >= 0 && vin.length >= idx+17){ vin = vin.substr(idx, 17); break; }
+  }
+  if(vin.length >= 15){
+    var vd = document.getElementById('vin-display'); if(vd) vd.textContent = 'VIN: ' + vin.trim();
+    var vr = document.getElementById('vinResult'); if(vr) vr.textContent = vin.trim();
+    displayVINInfo(vin.trim());
+    logSuccess('VIN: ' + vin.trim());
+  }
+}
+
+// ============ PARSERS ============
+function parseHexBytes(txt){
+  var clean = txt.replace(/[^0-9A-Fa-f]/g, ' ');
+  var parts = clean.trim().split(/\s+/);
+  var bytes = [];
+  for(var i=0; i<parts.length; i++){
+    var p = parts[i];
+    if(p.length === 2) bytes.push(parseInt(p, 16));
+    else if(p.length > 2 && p.length % 2 === 0){
+      for(var j=0; j<p.length; j+=2) bytes.push(parseInt(p.substr(j, 2), 16));
+    }
+  }
+  return bytes;
+}
+
+function parseRPM(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x0C && b.length>=i+4) return Math.round(((b[i+2]*256)+(b[i+3]||0))/4); } return 0; }
+function parseSpeed(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x0D && b.length>=i+3) return b[i+2]; } return 0; }
+function parseCoolant(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x05 && b.length>=i+3) return b[i+2]-40; } return 0; }
+function parseFuelLevel(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x2F && b.length>=i+3) return Math.round(b[i+2]*100/255); } return 75; }
+function parseBatteryVoltage(res){
+  var b = parseHexBytes(res);
+  for(var i=0; i<b.length-3; i++){
+    if(b[i]===0x41 && b[i+1]===0x42 && b.length>=i+4) return ((b[i+2]*256) + b[i+3]) / 1000;
+  }
+  return null;
+}
+
+function parseDTCsFromBytes(bytes){
+  var codes = [];
+  for(var i=0; i<bytes.length-1; i++){
+    if(bytes[i]===0x43 || bytes[i]===0x47 || bytes[i]===0x4A){
+      for(var j=i+1; j<bytes.length-1; j+=2){
+        var b1 = bytes[j], b2 = bytes[j+1];
+        if(b1 === undefined || b2 === undefined) break;
+        var letter = ['P','C','B','U'][(b1 & 0xC0) >> 6];
+        var code = letter + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
+        if(code !== 'P0000' && b1 !== 0) codes.push(code);
+      }
+      break;
+    }
+  }
+  return codes;
+}
+
+// ============ LIVE DATA ============
+async function startRealLiveLoop(){
+  if(liveTimer) return;
+  var tick = 0;
+  liveTimer = setInterval(async function(){
+    if(!isConnected || isDemo || liveReading) return;
+    liveReading = true;
+    try{
+      var rpm = parseRPM(await sendCmd('01 0C', 800, 1));
+      var speed = parseSpeed(await sendCmd('01 0D', 800, 1));
+      if(tick % 4 === 0){
+        var coolant = parseCoolant(await sendCmd('01 05', 800, 1));
+        var fuel = parseFuelLevel(await sendCmd('01 2F', 800, 1));
+        updateDashboard(rpm, speed, coolant, fuel);
+      }else{
+        updateAllGauges({rpm: rpm, speed: speed, coolant: lastCoolant, fuelLevel: lastFuel});
+        try{ updateChart(rpm, speed); }catch(e){}
+        runAutoAnalysis({rpm: rpm, speed: speed, coolant: lastCoolant, runtime: 420});
+      }
+      tick++;
+    }catch(e){}finally{ liveReading = false; }
+  }, 1000);
+}
 
 function updateDashboard(rpm, speed, coolant, fuel){
   lastCoolant = coolant; lastFuel = fuel;
-  updateAllGauges({rpm:rpm, speed:speed, coolant:coolant, fuelLevel:fuel});
-  try{updateChart(rpm, speed);}catch(e){}
-  runAutoAnalysis({rpm:rpm, speed:speed, coolant:coolant, runtime:420});
+  updateAllGauges({rpm: rpm, speed: speed, coolant: coolant, fuelLevel: fuel});
+  try{ updateChart(rpm, speed); }catch(e){}
+  runAutoAnalysis({rpm: rpm, speed: speed, coolant: coolant, runtime: 420});
 }
 
-// ============ FIX #3: إصلاح ticks داخل initChart ============
 function initChart(){
   if(chartInstance) return;
   var canvas = document.getElementById('liveChart');
@@ -767,14 +1123,14 @@ function initChart(){
       y1:{type:'linear', position:'right', grid:{display:false}, ticks:{color:'#94a3b8'}},
       x:{grid:{color:'#374151'}, ticks:{color:'#94a3b8', font:{size:9}}}
     }}});
-  }catch(e){console.warn('Chart init error:', e);}
+  }catch(e){}
 }
 
 function updateChart(rpm, speed){
   if(!chartInstance) initChart();
   if(!chartInstance) return;
-  var time = new Date().toLocaleTimeString(currentLang === 'ar' ? 'ar' : 'en', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-  if(chartData.labels.length > 20){chartData.labels.shift(); chartData.rpm.shift(); chartData.speed.shift();}
+  var time = new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  if(chartData.labels.length > 20){ chartData.labels.shift(); chartData.rpm.shift(); chartData.speed.shift(); }
   chartData.labels.push(time); chartData.rpm.push(rpm); chartData.speed.push(speed);
   chartInstance.data.labels = chartData.labels.slice();
   chartInstance.data.datasets[0].data = chartData.rpm.slice();
@@ -786,106 +1142,257 @@ function runAutoAnalysis(v){
   var el = document.getElementById('autoAnalysis');
   if(!el) return;
   var items = [];
-  if(v.coolant > 105) items.push({icon:'[HOT]', text: t('overheating') + ' ' + v.coolant + ' C'});
-  if(v.coolant < 75 && v.runtime > 300) items.push({icon:'[COLD]', text: t('lowTemp')});
-  if(items.length === 0) el.innerHTML = '<div class="text-green-400">' + t('allNormal') + '</div>';
-  else el.innerHTML = items.map(function(i){return '<div class="bg-amber-900/40 rounded-lg p-2 mb-1">' + i.icon + ' ' + i.text + '</div>';}).join('');
+  if(v.coolant > 105) items.push({icon:'[HOT]', text:'ارتفاع حرارة! ' + v.coolant + ' C'});
+  if(v.coolant < 75 && v.runtime > 300) items.push({icon:'[COLD]', text:'حرارة منخفضة'});
+  if(items.length === 0) el.innerHTML = '<div class="text-green-400">كل القيم طبيعية</div>';
+  else el.innerHTML = items.map(function(i){ return '<div class="bg-amber-900/40 rounded-lg p-2 mb-1">' + i.icon + ' ' + i.text + '</div>'; }).join('');
 }
 
+// ============ READ DTCs ============
+async function readDTCs(){
+  var list = document.getElementById('dtcList');
+  if(!list) return;
+  if(!isConnected && !isDemo){ list.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
+  var showProgress = function(msg){ list.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> ' + msg + '</p>'; };
+  showProgress('قراءة الأعطال المؤكدة...');
+  if(isDemo){ await runDemoScan(); return; }
+  try{
+    var allFaults = [];
+    var res03 = await sendCmd('03', 8000);
+    parseDTCsFromBytes(parseHexBytes(res03)).forEach(function(c){ allFaults.push({code: c, system: 'engine', type: 'confirmed'}); });
+    showProgress('قراءة الأعطال المؤقتة...');
+    await sendCmd('AT SH 7E0', 200);
+    var res07 = await sendCmd('07', 8000);
+    parseDTCsFromBytes(parseHexBytes(res07)).forEach(function(c){
+      if(!allFaults.some(function(f){ return f.code === c; })) allFaults.push({code: c, system: 'engine', type: 'pending'});
+    });
+    showProgress('قراءة الأعطال الدائمة...');
+    await sendCmd('AT SH 7E0', 200);
+    var res0A = await sendCmd('0A', 8000);
+    parseDTCsFromBytes(parseHexBytes(res0A)).forEach(function(c){
+      if(!allFaults.some(function(f){ return f.code === c; })) allFaults.push({code: c, system: 'engine', type: 'permanent'});
+    });
+    if(allFaults.length === 0){
+      lastFaults = [];
+      list.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">السيارة سليمة - لا أعطال</div>';
+      var sd = document.getElementById('smartDiagnosis'); if(sd) sd.classList.add('hidden');
+      var hb = document.getElementById('healthBadge'); if(hb) hb.classList.add('hidden');
+      hideExport(); updateSystemGrid([]); return;
+    }
+    renderFaults(allFaults);
+    var diag = runDiagnosis(allFaults.map(function(f){ return f.code; }));
+    displaySmartDiagnosis(allFaults.map(function(f){ return f.code; }));
+    displayHealth(allFaults, diag);
+    updateSystemGrid(allFaults);
+    showExport();
+  }catch(e){ logError(e.message); }
+}
+
+async function scanAllSystems(){
+  var list = document.getElementById('dtcList');
+  if(!list) return;
+  if(!isConnected && !isDemo){ list.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
+  list.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
+  if(isDemo){ await runDemoScan(); return; }
+  var ecus = [{addr:'7E0', name:'engine'}, {addr:'7E1', name:'transmission'}, {addr:'7E3', name:'abs'}, {addr:'7E6', name:'airbag'}];
+  var allFaults = [];
+  for(var ei=0; ei<ecus.length; ei++){
+    var ecu = ecus[ei];
+    await sendCmd('AT SH ' + ecu.addr, 200);
+    var res = await sendCmd('19 02 FF', 2000);
+    if(res.indexOf('NO DATA') < 0 && res.indexOf('ERROR') < 0 && res.indexOf('UNABLE') < 0){
+      var bytes = parseHexBytes(res);
+      for(var i=0; i<bytes.length-1; i++){
+        if(bytes[i] === 0x59 && bytes[i+1] === 0x02){
+          for(var j=i+2; j<bytes.length-3; j+=4){
+            var b1 = bytes[j], b2 = bytes[j+1];
+            if(b1 === undefined || b2 === undefined) break;
+            var letter = ['P','C','B','U'][(b1 & 0xC0) >> 6];
+            var code = letter + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
+            if(code !== 'P0000' && b1 !== 0) allFaults.push({code: code, system: ecu.name, type: 'confirmed'});
+          }
+          break;
+        }
+      }
+    }
+  }
+  await sendCmd('AT SH 7E0', 200);
+  if(allFaults.length === 0){
+    lastFaults = [];
+    list.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">لا توجد أعطال في كل الأنظمة</div>';
+    return;
+  }
+  renderFaults(allFaults);
+  var diag = runDiagnosis(allFaults.map(function(f){ return f.code; }));
+  displaySmartDiagnosis(allFaults.map(function(f){ return f.code; }));
+  displayHealth(allFaults, diag);
+  updateSystemGrid(allFaults);
+  showExport();
+}
+
+async function clearDTCs(){
+  if(!isConnected && !isDemo){ alert('غير متصل'); return; }
+  if(!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
+  if(isDemo){
+    lastFaults = [];
+    var l = document.getElementById('dtcList'); if(l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم المسح</p>';
+    resetSystemGrid(); return;
+  }
+  logInfo('جاري مسح الأعطال...');
+  await sendCmd('04', 3000);
+  lastFaults = [];
+  var list = document.getElementById('dtcList');
+  if(list) list.innerHTML = '<p class="text-green-400 text-center py-4">تم المسح بنجاح</p>';
+  var sd = document.getElementById('smartDiagnosis'); if(sd) sd.classList.add('hidden');
+  var hb = document.getElementById('healthBadge'); if(hb) hb.classList.add('hidden');
+  hideExport(); resetSystemGrid();
+}
+
+// ============ RENDER FAULTS ============
 function renderFaults(faults){
   lastFaults = faults || [];
   var list = document.getElementById('dtcList');
   if(!list) return;
-  if(!faults.length){list.innerHTML = '<p class="text-gray-500 text-center py-4">' + t('noFaults') + '</p>'; return;}
-  var sysMap = {'engine':t('zoneEngine'), 'exhaust':t('zoneExhaust'), 'electronics':t('zoneElectronics'), 'fuel':t('zoneFuel'), 'cooling':t('zoneCooling'), 'brakes':t('zoneBrakes'), 'airbag':t('zoneAirbag'), 'battery':t('zoneBattery'), 'transmission':t('zoneTrans'), 'abs':'ABS'};
+  if(!faults.length){ list.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد أعطال</p>'; return; }
+  var sysMap = {'engine':'المحرك', 'exhaust':'العوادم', 'electronics':'الكهرباء', 'fuel':'الوقود', 'cooling':'التبريد', 'brakes':'الفرامل', 'airbag':'الوسائد', 'battery':'البطارية', 'transmission':'الجير', 'abs':'ABS'};
   var html = '';
-  for(var i=0;i<faults.length;i++){
+  for(var i=0; i<faults.length; i++){
     var f = faults[i];
     var info = getFaultInfo(f.code);
     var type = f.type || 'confirmed';
-    var typeLabel = type === 'pending' ? t('legendPending') : type === 'permanent' ? t('legendPermanent') : t('legendConfirmed');
+    var typeLabel = type === 'pending' ? 'مؤقت' : type === 'permanent' ? 'دائم' : 'مؤكد';
     var typeClass = type === 'pending' ? 'dtc-type-pending' : type === 'permanent' ? 'dtc-type-permanent' : 'dtc-type-confirmed';
     var itemClass = type === 'pending' ? 'dtc-item-pending' : type === 'permanent' ? 'dtc-item-permanent' : '';
     var hasDetails = info && (info.causes || info.symptoms || info.steps);
-    var displayTitle = currentLang === 'en' ? (info.title_en || info.title) : info.title;
-    var displaySystem = sysMap[f.system] || f.system;
     html += '<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in ' + itemClass + '" data-code="' + f.code + '">';
     html += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    html += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + displaySystem + '</span>';
+    html += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
     html += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
     if(info.brand) html += '<span class="text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded-full">' + info.brand + '</span>';
     html += '<span class="dtc-type-badge ' + typeClass + '">' + typeLabel + '</span>';
     html += '</div>';
-    html += '<div class="text-xs text-gray-300 mb-2">' + displayTitle + '</div>';
+    html += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
     html += '<div class="flex gap-2 flex-wrap">';
-    if(hasDetails) html += '<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-details="' + f.code + '"><i class="fa-solid fa-book-medical"></i> ' + t('faultDetails') + '</button>';
-    html += '<button class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-copy="' + f.code + '"><i class="fa-solid fa-copy"></i> ' + t('copyCode') + '</button>';
+    if(hasDetails) html += '<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-details="' + f.code + '"><i class="fa-solid fa-book-medical"></i> تفاصيل</button>';
+    html += '<button class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-copy="' + f.code + '"><i class="fa-solid fa-copy"></i> نسخ</button>';
     html += '</div></div>';
   }
   list.innerHTML = html;
-  list.querySelectorAll('[data-details]').forEach(function(btn){btn.onclick = function(e){e.stopPropagation(); showDTCDetails(btn.dataset.details);};});
+  list.querySelectorAll('[data-details]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); showDTCDetails(btn.dataset.details); }; });
   list.querySelectorAll('[data-copy]').forEach(function(btn){
     btn.onclick = async function(e){
       e.stopPropagation();
       try{
         await navigator.clipboard.writeText(btn.dataset.copy);
         var orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> ' + t('copied');
-        setTimeout(function(){btn.innerHTML = orig;}, 1500);
-      }catch(err){logError('Copy failed');}
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
+        setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+      }catch(err){}
     };
   });
+}
+
+// ============ READINESS ============
+function parseMonitor(byte, bit){
+  var available = (byte & (1<<bit)) !== 0;
+  if(!available) return 'n/a';
+  var incomplete = (byte & (1<<(bit+4))) !== 0;
+  return incomplete ? 'not-ready' : 'ready';
 }
 
 function renderReadiness(data){
   var c = document.getElementById('readinessContent');
   if(!c) return;
   var milClass = data.mil ? 'mil-on' : 'mil-off';
-  var milText = data.mil ? t('milOn') : t('milOff');
+  var milText = data.mil ? 'لمبة الأعطال مضاءة' : 'لمبة الأعطال مطفأة';
   function ri(name, status){
     var cls = status === 'ready' ? 'ready-ready' : status === 'not-ready' ? 'ready-not-ready' : 'ready-na';
-    var label = status === 'ready' ? t('statusReady') : status === 'not-ready' ? t('statusNotReady') : t('statusNA');
-    var icon = status === 'ready' ? 'v' : status === 'not-ready' ? '!' : '-';
-    return '<div class="ready-item"><span class="name">' + name + '</span><span class="ready-badge ' + cls + '">' + icon + ' ' + label + '</span></div>';
+    var label = status === 'ready' ? 'جاهز' : status === 'not-ready' ? 'غير جاهز' : 'غير مدعوم';
+    return '<div class="ready-item"><span class="name">' + name + '</span><span class="ready-badge ' + cls + '">' + label + '</span></div>';
   }
-  var html = '<div class="mil-status ' + milClass + '"><span>' + milText + '</span><span style="font-size:13px">' + t('dtcCount') + ': ' + data.dtcCount + '</span></div>';
-  html += '<div class="mb-3"><div class="text-xs font-bold text-blue-300 mb-2">' + t('continuousMonitors') + '</div>';
-  html += '<div class="ready-grid">';
-  html += ri(t('monMisfire'), data.continuous.misfire);
-  html += ri(t('monFuel'), data.continuous.fuel);
-  html += ri(t('monComponents'), data.continuous.components);
+  var html = '<div class="mil-status ' + milClass + '"><span>' + milText + '</span><span>عدد الأعطال: ' + data.dtcCount + '</span></div>';
+  html += '<div class="mb-3"><div class="text-xs font-bold text-blue-300 mb-2">المراقبة المستمرة</div><div class="ready-grid">';
+  html += ri('الاشتعال المتقطع', data.continuous.misfire);
+  html += ri('نظام الوقود', data.continuous.fuel);
+  html += ri('المكونات', data.continuous.components);
   html += '</div></div>';
-  html += '<div><div class="text-xs font-bold text-purple-300 mb-2">' + t('nonContinuousMonitors') + '</div>';
-  html += '<div class="ready-grid">';
-  html += ri(t('monCatalyst'), data.nonContinuous.catalyst);
-  html += ri(t('monHeatedCat'), data.nonContinuous.heatedCat);
-  html += ri(t('monEvap'), data.nonContinuous.evap);
-  html += ri(t('monO2'), data.nonContinuous.o2);
-  html += ri(t('monO2Heater'), data.nonContinuous.o2Heater);
-  html += ri(t('monEgr'), data.nonContinuous.egr);
+  html += '<div><div class="text-xs font-bold text-purple-300 mb-2">المراقبة غير المستمرة</div><div class="ready-grid">';
+  html += ri('الكتلايزر', data.nonContinuous.catalyst);
+  html += ri('الكتلايزر المسخن', data.nonContinuous.heatedCat);
+  html += ri('نظام EVAP', data.nonContinuous.evap);
+  html += ri('حساس O2', data.nonContinuous.o2);
+  html += ri('سخان O2', data.nonContinuous.o2Heater);
+  html += ri('صمام EGR', data.nonContinuous.egr);
   html += '</div></div>';
   c.innerHTML = html;
+}
+
+async function checkReadiness(){
+  var c = document.getElementById('readinessContent');
+  if(!c) return;
+  c.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
+  if(!isConnected && !isDemo){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
+  if(isDemo){
+    renderReadiness({mil:true, dtcCount:3, continuous:{misfire:'not-ready', fuel:'ready', components:'ready'}, nonContinuous:{catalyst:'ready', heatedCat:'n/a', evap:'not-ready', o2:'ready', o2Heater:'ready', egr:'n/a'}});
+    return;
+  }
+  try{
+    var res = await sendCmd('01 01', 3500);
+    var bytes = parseHexBytes(res);
+    var idx = -1;
+    for(var i=0; i<bytes.length-5; i++){ if(bytes[i]===0x41 && bytes[i+1]===0x01){ idx=i; break; } }
+    if(idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
+    var A = bytes[idx+2], B = bytes[idx+3], C = bytes[idx+4];
+    var mil = (A & 0x80) !== 0;
+    var dtcCount = A & 0x7F;
+    renderReadiness({mil: mil, dtcCount: dtcCount,
+      continuous: {misfire: parseMonitor(B, 0), fuel: parseMonitor(B, 1), components: parseMonitor(B, 2)},
+      nonContinuous: {catalyst: parseMonitor(C, 0), heatedCat: parseMonitor(C, 1), evap: parseMonitor(C, 2), secondaryAir: parseMonitor(C, 3), acRef: parseMonitor(C, 4), o2: parseMonitor(C, 5), o2Heater: parseMonitor(C, 6), egr: parseMonitor(C, 7)}
+    });
+  }catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ</p>'; }
+}
+
+// ============ MODE 06 ============
+var MODE06_MIDS = {0x01:'O2 Sensor Bank 1', 0x02:'O2 Sensor Bank 2', 0x21:'Catalyst Bank 1', 0x22:'Catalyst Bank 2', 0x31:'EGR Monitor', 0x41:'EVAP Monitor', 0x61:'Misfire General', 0xA1:'Misfire Cyl 1', 0xA2:'Misfire Cyl 2', 0xA3:'Misfire Cyl 3', 0xA4:'Misfire Cyl 4'};
+
+function parseMode06Response(response){
+  var bytes = parseHexBytes(response);
+  var results = [];
+  var i = 0;
+  while(i < bytes.length-4){
+    if(bytes[i] === 0x46){
+      var mid = bytes[i+1], tid = bytes[i+2];
+      if(mid === undefined || tid === undefined) break;
+      var value = (bytes[i+4] || 0);
+      var min = 0, max = 255, status = 'unknown';
+      if(bytes.length > i+6){ min = bytes[i+5] || 0; max = bytes[i+6] || 255; }
+      if(value >= min && value <= max) status = 'pass';
+      else if(value !== 0) status = 'fail';
+      results.push({mid: mid, tid: tid, midName: MODE06_MIDS[mid] || ('Monitor 0x' + mid.toString(16)), value: value, min: min, max: max, status: status});
+      i += 8;
+    } else { i++; }
+  }
+  return results;
 }
 
 function renderMode06(results){
   var c = document.getElementById('mode06Content');
   if(!c) return;
-  if(!results || results.length === 0){c.innerHTML = '<p class="text-gray-500 text-center py-4">' + t('mode06NoData') + '</p>'; return;}
-  var passCount = results.filter(function(r){return r.status === 'pass';}).length;
-  var failCount = results.filter(function(r){return r.status === 'fail';}).length;
+  if(!results || results.length === 0){ c.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد بيانات Mode 06</p>'; return; }
+  var passCount = results.filter(function(r){ return r.status === 'pass'; }).length;
+  var failCount = results.filter(function(r){ return r.status === 'fail'; }).length;
   var html = '<div class="mb-3 p-3 bg-gray-900/60 rounded-xl border border-gray-700"><div class="flex justify-between items-center flex-wrap gap-2 text-sm">';
-  html += '<div class="font-bold text-cyan-300">' + t('mode06Results') + ': ' + results.length + '</div>';
-  html += '<div class="flex gap-3 text-xs"><span class="text-green-400">' + passCount + ' ' + t('mode06Pass') + '</span><span class="text-red-400">' + failCount + ' ' + t('mode06Fail') + '</span></div>';
+  html += '<div class="font-bold text-cyan-300">النتائج: ' + results.length + '</div>';
+  html += '<div class="flex gap-3 text-xs"><span class="text-green-400">' + passCount + ' ناجح</span><span class="text-red-400">' + failCount + ' فاشل</span></div>';
   html += '</div></div>';
   results.forEach(function(r){
     var cls = r.status === 'pass' ? 'pass' : r.status === 'fail' ? 'fail' : 'unknown';
     var badgeCls = r.status === 'pass' ? 'mode06-pass' : r.status === 'fail' ? 'mode06-fail' : 'mode06-unknown';
-    var icon = r.status === 'pass' ? 'v' : r.status === 'fail' ? 'x' : '?';
-    var label = r.status === 'pass' ? t('mode06Pass') : r.status === 'fail' ? t('mode06Fail') : t('mode06Unknown');
+    var label = r.status === 'pass' ? 'ناجح' : r.status === 'fail' ? 'فاشل' : 'غير معروف';
     html += '<div class="mode06-item ' + cls + '">';
-    html += '<div class="mode06-header"><div class="mode06-title">' + r.midName + '</div><span class="mode06-result-badge ' + badgeCls + '">' + icon + ' ' + label + '</span></div>';
+    html += '<div class="mode06-header"><div class="mode06-title">' + r.midName + '</div><span class="mode06-result-badge ' + badgeCls + '">' + label + '</span></div>';
     html += '<div class="mode06-ids">MID: 0x' + r.mid.toString(16).padStart(2, '0').toUpperCase() + ' | TID: 0x' + r.tid.toString(16).padStart(2, '0').toUpperCase() + '</div>';
-    html += '<div class="mode06-values"><div><span class="v-label">' + t('mode06Value') + '</span><span class="v-num">' + r.value + '</span></div><div><span class="v-label">' + t('mode06Min') + '</span><span class="v-num">' + r.min + '</span></div><div><span class="v-label">' + t('mode06Max') + '</span><span class="v-num">' + r.max + '</span></div></div>';
+    html += '<div class="mode06-values"><div><span class="v-label">القيمة</span><span class="v-num">' + r.value + '</span></div><div><span class="v-label">الأدنى</span><span class="v-num">' + r.min + '</span></div><div><span class="v-label">الأعلى</span><span class="v-num">' + r.max + '</span></div></div>';
     html += '</div>';
   });
   c.innerHTML = html;
@@ -897,32 +1404,94 @@ async function runMode06(){
   if(!c || !btn) return;
   var orig = btn.innerHTML;
   btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  c.innerHTML = '<p class="text-cyan-400 text-center py-4"><span class="spinner"></span> ' + t('scanning') + '</p>';
-  if(!isConnected && !isDemo){
-    c.innerHTML = '<p class="text-amber-400 text-center py-4">' + t('disconnected') + '</p>';
-    btn.innerHTML = orig; btn.disabled = false; return;
-  }
+  c.innerHTML = '<p class="text-cyan-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
+  if(!isConnected && !isDemo){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; btn.innerHTML = orig; btn.disabled = false; return; }
   if(isDemo){
     renderMode06([
-      {mid:0x01, tid:0x01, midName:'O2 Sensor Bank 1', tidName:'Test 1', value:45, min:10, max:90, status:'pass'},
-      {mid:0x21, tid:0x02, midName:'Catalyst Bank 1', tidName:'Test 2', value:78, min:0, max:50, status:'fail'},
-      {mid:0x31, tid:0x01, midName:'EGR Monitor', tidName:'Test 1', value:25, min:10, max:40, status:'pass'}
+      {mid:0x01, tid:0x01, midName:'O2 Sensor Bank 1', value:45, min:10, max:90, status:'pass'},
+      {mid:0x21, tid:0x02, midName:'Catalyst Bank 1', value:78, min:0, max:50, status:'fail'},
+      {mid:0x31, tid:0x01, midName:'EGR Monitor', value:25, min:10, max:40, status:'pass'}
     ]);
     btn.innerHTML = orig; btn.disabled = false; return;
   }
-  btn.innerHTML = orig; btn.disabled = false;
+  try{
+    var results = [];
+    var commonMIDs = [0x01, 0x02, 0x21, 0x22, 0x31, 0x41, 0x51, 0x61, 0xA1, 0xA2, 0xA3, 0xA4];
+    for(var mi=0; mi<commonMIDs.length; mi++){
+      var midHex = commonMIDs[mi].toString(16).padStart(2, '0').toUpperCase();
+      var resp = await sendCmd('06 ' + midHex + ' 01', 1500);
+      if(resp && resp.indexOf('NO DATA') < 0 && resp.indexOf('ERROR') < 0){
+        var parsed = parseMode06Response(resp);
+        if(parsed.length > 0) results.push.apply(results, parsed);
+      }
+    }
+    if(results.length === 0) c.innerHTML = '<p class="text-amber-400 text-center py-4">لا توجد بيانات Mode 06</p>';
+    else renderMode06(results);
+  }catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">' + e.message + '</p>'; }
+  finally{ btn.innerHTML = orig; btn.disabled = false; }
 }
 
-async function readDTCs(){
-  if(isDemo){await runDemoScan(); return;}
-  var list = document.getElementById('dtcList');
-  if(list && !isConnected) list.innerHTML = '<p class="text-amber-400 text-center py-4">' + t('disconnected') + '</p>';
+// ============ BATTERY TEST ============
+function classifyBattery(v, min, max){
+  if(v >= min && v <= max) return 'good';
+  if(v >= min-0.5 && v <= max+0.5) return 'warn';
+  return 'bad';
+}
+function renderBatteryStage(stage, voltage, min, max){
+  var box = document.getElementById('bat-box-' + stage);
+  var valEl = document.getElementById('bat-val-' + stage);
+  if(!box || !valEl) return;
+  var statusEl = box.querySelector('.b-status');
+  var status = classifyBattery(voltage, min, max);
+  box.classList.remove('good', 'warn', 'bad');
+  box.classList.add(status);
+  valEl.textContent = voltage.toFixed(2) + 'V';
+  var label = status === 'good' ? 'جيد' : status === 'warn' ? 'يحتاج فحص' : 'ضعيف';
+  if(statusEl) statusEl.textContent = label;
 }
 
-async function scanAllSystems(){
-  if(isDemo){await runDemoScan(); return;}
+async function runBatteryTest(){
+  var verdict = document.getElementById('batteryVerdict');
+  var btn = document.getElementById('btnBatteryTest');
+  if(!verdict || !btn) return;
+  var orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
+  verdict.classList.add('hidden');
+  if(!isConnected && !isDemo){ alert('غير متصل'); btn.innerHTML = orig; btn.disabled = false; return; }
+  try{
+    var v1, v2, v3;
+    if(isDemo){
+      v1 = 12.5 + Math.random()*0.3;
+      renderBatteryStage(1, v1, 12.4, 12.8);
+      await new Promise(function(r){ setTimeout(r, 2000); });
+      v2 = 14.0 + Math.random()*0.5;
+      renderBatteryStage(2, v2, 13.8, 14.8);
+      await new Promise(function(r){ setTimeout(r, 2000); });
+      v3 = 13.6 + Math.random()*0.4;
+      renderBatteryStage(3, v3, 13.5, 14.8);
+    } else {
+      var res = await sendCmd('01 42', 2000);
+      var v = parseBatteryVoltage(res);
+      if(!v) throw new Error('لا يمكن قراءة الجهد');
+      v1 = v2 = v3 = v;
+      renderBatteryStage(1, v, 12.4, 12.8);
+      renderBatteryStage(2, v, 13.8, 14.8);
+      renderBatteryStage(3, v, 13.5, 14.8);
+    }
+    var allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
+    var anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
+    var verdictClass, verdictText;
+    if(allGood){ verdictClass = 'verdict-pass'; verdictText = 'نظام الشحن ممتاز'; }
+    else if(anyBad){ verdictClass = 'verdict-fail'; verdictText = 'نظام الشحن تالف'; }
+    else{ verdictClass = 'verdict-warn'; verdictText = 'يحتاج فحص'; }
+    verdict.className = 'battery-verdict ' + verdictClass;
+    verdict.textContent = verdictText;
+    verdict.classList.remove('hidden');
+  }catch(e){ logError('Battery: ' + e.message); }
+  finally{ btn.innerHTML = orig; btn.disabled = false; }
 }
 
+// ============ DEMO MODE ============
 async function runDemoScan(){
   var demoFaults = [
     {code:'P0301', system:'engine', type:'confirmed'},
@@ -932,18 +1501,16 @@ async function runDemoScan(){
     {code:'U0100', system:'electronics', type:'confirmed'}
   ];
   renderFaults(demoFaults);
-  var diag = runDiagnosis(demoFaults.map(function(f){return f.code;}));
-  displaySmartDiagnosis(demoFaults.map(function(f){return f.code;}));
+  var diag = runDiagnosis(demoFaults.map(function(f){ return f.code; }));
+  displaySmartDiagnosis(demoFaults.map(function(f){ return f.code; }));
   displayHealth(demoFaults, diag);
   updateSystemGrid(demoFaults);
   showExport();
-  logSuccess('Demo scan complete');
 }
 
-var demoTimer = null;
 function startDemo(){
   try{
-    logInfo('Starting demo...');
+    logInfo('بدء الوضع التجريبي...');
     isDemo = true; isConnected = true; transport = null;
     setStatus('demo');
     updateConnectionUI(true);
@@ -957,12 +1524,12 @@ function startDemo(){
       {code:'U0100', system:'electronics', type:'confirmed'}
     ];
     renderFaults(demoFaults);
-    var diag = runDiagnosis(demoFaults.map(function(f){return f.code;}));
-    displaySmartDiagnosis(demoFaults.map(function(f){return f.code;}));
+    var diag = runDiagnosis(demoFaults.map(function(f){ return f.code; }));
+    displaySmartDiagnosis(demoFaults.map(function(f){ return f.code; }));
     displayHealth(demoFaults, diag);
     updateSystemGrid(demoFaults);
     showExport();
-    setTimeout(function(){if(!chartInstance) initChart();}, 300);
+    setTimeout(function(){ if(!chartInstance) initChart(); }, 300);
     if(demoTimer) clearInterval(demoTimer);
     demoTimer = setInterval(function(){
       var rpm = Math.floor(900 + Math.random()*2500);
@@ -971,47 +1538,29 @@ function startDemo(){
       var fuel = 40 + Math.floor(Math.random()*50);
       updateDashboard(rpm, speed, coolant, fuel);
     }, 1500);
-    setTimeout(function(){updateDashboard(2500, 60, 90, 75);}, 100);
-    logSuccess('Demo mode ready');
-  }catch(e){logError('Demo: ' + e.message);}
+    setTimeout(function(){ updateDashboard(2500, 60, 90, 75); }, 100);
+    logSuccess('الوضع التجريبي جاهز');
+  }catch(e){ logError('Demo: ' + e.message); }
 }
-function stopDemo(){if(demoTimer) clearInterval(demoTimer); demoTimer = null; isDemo = false;}
+function stopDemo(){ if(demoTimer) clearInterval(demoTimer); demoTimer = null; isDemo = false; }
 
-function updateConnectionUI(connected){
-  var c = document.getElementById('connect-btn'), u = document.getElementById('usb-btn'), d = document.getElementById('demo-btn'), db = document.getElementById('disconnect-btn');
-  if(!c||!u||!d||!db) return;
-  if(connected){c.classList.add('hidden'); u.classList.add('hidden'); d.classList.add('hidden'); db.classList.remove('hidden'); db.classList.add('flex');}
-  else{
-    if(hasBluetooth) c.classList.remove('hidden'); else c.classList.add('hidden');
-    if(hasSerial) u.classList.remove('hidden'); else u.classList.add('hidden');
-    d.classList.remove('hidden');
-    db.classList.add('hidden'); db.classList.remove('flex');
-  }
-}
-
-async function handleDisconnect(){
-  isConnected = false; isDemo = false;
-  if(liveTimer) clearInterval(liveTimer); liveTimer = null;
-  transport = null;
-  setStatus('disconnected');
-  updateConnectionUI(false);
-}
-
+// ============ VIN ============
 function displayVINInfo(vin){
   lastVinInfo = vin;
   var c = document.getElementById('vinInfo');
   if(!c) return;
   var d = decodeVIN(vin);
-  if(!d){c.innerHTML = '<p class="text-red-400 text-center text-sm">Invalid VIN</p>'; return;}
+  if(!d){ c.innerHTML = '<p class="text-red-400 text-center text-sm">VIN غير صحيح</p>'; return; }
   var html = '<div class="text-center mb-4"><div class="font-mono text-sm bg-black text-green-400 p-3 rounded-xl mb-2 break-all">' + d.vin + '</div></div>';
   html += '<div class="grid grid-cols-2 gap-2 text-sm">';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">Country</div><div class="font-bold">' + d.country + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">Maker</div><div class="font-bold text-xs">' + d.manufacturer + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">Year</div><div class="font-bold">' + d.year + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">البلد</div><div class="font-bold">' + d.country + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">الصانع</div><div class="font-bold text-xs">' + d.manufacturer + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">السنة</div><div class="font-bold">' + d.year + '</div></div>';
   html += '</div>';
   c.innerHTML = html;
 }
 
+// ============ SEARCH ============
 var currentBrandFilter = 'all';
 var searchTimer = null;
 function initSearch(){
@@ -1019,14 +1568,14 @@ function initSearch(){
   if(!input) return;
   input.addEventListener('input', function(e){
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(function(){searchDTC(e.target.value);}, 200);
+    searchTimer = setTimeout(function(){ searchDTC(e.target.value); }, 200);
   });
 }
 function searchDTC(query){
   var div = document.getElementById('searchResults');
   if(!div) return;
   var q = query.trim().toUpperCase();
-  if(q.length < 2){div.innerHTML = ''; return;}
+  if(q.length < 2){ div.innerHTML = ''; return; }
   var matches = [];
   var seenCodes = new Set();
   for(var code in DTC_DATABASE){
@@ -1035,41 +1584,39 @@ function searchDTC(query){
     var info = DTC_DATABASE[code];
     if(currentBrandFilter !== 'all' && info.brand !== currentBrandFilter) continue;
     var displayCode = code.replace(/_[A-Z]+$/, '');
-    var titleEn = info.title_en || '';
-    if(code.indexOf(q)>=0 || displayCode.indexOf(q)>=0 || (info.title && info.title.indexOf(query)>=0) || titleEn.toUpperCase().indexOf(q)>=0 || (info.brand && info.brand.toUpperCase().indexOf(q)>=0)){
+    if(code.indexOf(q) >= 0 || displayCode.indexOf(q) >= 0 || (info.title && info.title.indexOf(query) >= 0) || (info.title_en && info.title_en.toUpperCase().indexOf(q) >= 0)){
       var uniqKey = displayCode + '_' + (info.brand || 'base');
       if(seenCodes.has(uniqKey)) continue;
       seenCodes.add(uniqKey);
       matches.push([code, info, displayCode]);
     }
   }
-  if(matches.length === 0){div.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">' + t('noResults') + '</p>'; return;}
+  if(matches.length === 0){ div.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>'; return; }
   var html = '<div class="space-y-1 mb-3">';
   matches.forEach(function(m){
     var k = m[0], i = m[1], dc = m[2];
-    var title = currentLang === 'en' ? (i.title_en || i.title) : i.title;
     html += '<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700 flex justify-between items-center" data-key="' + k + '">';
     html += '<span><span class="font-mono text-red-300 font-bold">' + dc + '</span>';
     if(i.brand) html += ' <span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">' + i.brand + '</span>';
-    html += ' - ' + title + '</span>';
+    html += ' - ' + i.title + '</span>';
     html += '<i class="fa-solid fa-chevron-left text-blue-400 text-xs"></i></div>';
   });
   html += '</div>';
   div.innerHTML = html;
-  div.querySelectorAll('[data-key]').forEach(function(el){el.onclick = function(){showDTCDetails(el.dataset.key);};});
+  div.querySelectorAll('[data-key]').forEach(function(el){ el.onclick = function(){ showDTCDetails(el.dataset.key); }; });
 }
 function initBrandFilters(){
   var container = document.getElementById('brandFilters');
   if(!container) return;
   var brands = ['all', 'Toyota', 'BMW', 'VW', 'Ford', 'GM', 'Honda', 'Nissan', 'Hyundai', 'Mercedes', 'Renault', 'Diesel'];
   var labels = {all:'الكل', Toyota:'Toyota', BMW:'BMW', VW:'VW', Ford:'Ford', GM:'GM', Honda:'Honda', Nissan:'Nissan', Hyundai:'Hyundai', Mercedes:'Mercedes', Renault:'Renault', Diesel:'Diesel'};
-  container.innerHTML = brands.map(function(b){return '<button data-brand="' + b + '" class="' + (b === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300') + ' text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">' + labels[b] + '</button>';}).join('');
+  container.innerHTML = brands.map(function(b){ return '<button data-brand="' + b + '" class="' + (b === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300') + ' text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">' + labels[b] + '</button>'; }).join('');
   container.querySelectorAll('[data-brand]').forEach(function(btn){
     btn.onclick = function(){
       currentBrandFilter = btn.dataset.brand;
       container.querySelectorAll('[data-brand]').forEach(function(b){
-        if(b.dataset.brand === currentBrandFilter){b.classList.remove('bg-gray-700', 'text-gray-300'); b.classList.add('bg-purple-600', 'text-white');}
-        else{b.classList.add('bg-gray-700', 'text-gray-300'); b.classList.remove('bg-purple-600', 'text-white');}
+        if(b.dataset.brand === currentBrandFilter){ b.classList.remove('bg-gray-700', 'text-gray-300'); b.classList.add('bg-purple-600', 'text-white'); }
+        else{ b.classList.add('bg-gray-700', 'text-gray-300'); b.classList.remove('bg-purple-600', 'text-white'); }
       });
       var input = document.getElementById('dtcSearchInput');
       if(input && input.value.length >= 2) searchDTC(input.value);
@@ -1077,31 +1624,38 @@ function initBrandFilters(){
   });
 }
 
+// ============ REPORT ============
 function buildReport(){
-  var isAr = currentLang === 'ar';
-  var date = new Date().toLocaleString(isAr ? 'ar-EG' : 'en-US');
+  var date = new Date().toLocaleString('ar-EG');
   var vinEl = document.getElementById('vinResult');
   var vin = vinEl ? vinEl.textContent : '-';
   var d = vin.length === 17 ? decodeVIN(vin) : null;
   var items = document.querySelectorAll('#dtcList [data-code]');
   var faults = [];
-  items.forEach(function(el){if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)});});
-  var diag = runDiagnosis(faults.map(function(f){return f.code;}));
+  items.forEach(function(el){ if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)}); });
+  var diag = runDiagnosis(faults.map(function(f){ return f.code; }));
   var hs = calcHealth(faults, diag);
   var hc = hs >= 80 ? '#10b981' : hs >= 50 ? '#f59e0b' : '#ef4444';
-  var html = '<div style="padding:30px;font-family:Cairo;background:#fff;color:#1e293b;width:700px;direction:' + (isAr ? 'rtl' : 'ltr') + '">';
+  var html = '<div style="padding:30px;font-family:Cairo;background:#fff;color:#1e293b;width:700px;direction:rtl">';
   html += '<div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px;border-radius:14px;margin-bottom:20px"><div style="font-size:24px;font-weight:700">CheckDiga</div><div style="font-size:12px;opacity:.8;margin-top:4px">' + date + '</div></div>';
-  html += '<div style="background:' + hc + ';color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:16px;font-weight:700">' + t('vehicleHealth') + '</div><div style="font-size:36px;font-weight:700">' + hs + '/100</div></div>';
-  html += '<div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;margin-bottom:10px">' + t('vehicleInfo') + '</div><div>VIN: <strong style="font-family:monospace">' + vin + '</strong></div>' + (d ? '<div>' + d.manufacturer + ' - ' + d.year + ' - ' + d.country + '</div>' : '') + '</div>';
-  html += '<div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;color:#991b1b;margin-bottom:10px">' + t('detectedFaults') + ' (' + faults.length + ')</div>';
+  html += '<div style="background:' + hc + ';color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:16px;font-weight:700">مؤشر صحة السيارة</div><div style="font-size:36px;font-weight:700">' + hs + '/100</div></div>';
+  html += '<div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;margin-bottom:10px">معلومات السيارة</div><div>VIN: <strong style="font-family:monospace">' + vin + '</strong></div>' + (d ? '<div>' + d.manufacturer + ' - ' + d.year + ' - ' + d.country + '</div>' : '') + '</div>';
+  html += '<div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;color:#991b1b;margin-bottom:10px">الأعطال (' + faults.length + ')</div>';
   faults.forEach(function(f, i){
-    var title = currentLang === 'en' ? (f.info.title_en || f.info.title) : f.info.title;
-    html += '<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px"><strong style="color:#b91c1c;font-family:monospace">#' + (i+1) + '. ' + f.code + '</strong> - ' + title + '</div>';
+    html += '<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px"><strong style="color:#b91c1c;font-family:monospace">#' + (i+1) + '. ' + f.code + '</strong> - ' + f.info.title + '</div>';
   });
   html += '</div>';
-  html += '<div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1">' + t('generatedBy') + '</div></div>';
+  if(diag.length){
+    html += '<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;color:#5b21b6;margin-bottom:10px">التشخيص الذكي</div>';
+    diag.forEach(function(dd){
+      html += '<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px"><strong>' + dd.title + ' (' + dd.confidence + '%)</strong><div style="color:#475569;margin-top:4px">' + dd.description + '</div></div>';
+    });
+    html += '</div>';
+  }
+  html += '<div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1">تم إنشاء التقرير بواسطة CheckDiga</div></div>';
   return html;
 }
+
 async function exportPDF(){
   var btn = document.getElementById('btnExportPDF');
   if(!btn || !window.html2pdf) return;
@@ -1114,8 +1668,8 @@ async function exportPDF(){
     document.body.appendChild(c);
     await html2pdf().set({margin:0, filename:'CheckDiga-' + new Date().toISOString().slice(0, 10) + '.pdf', image:{type:'jpeg', quality:.98}, html2canvas:{scale:2, useCORS:true, backgroundColor:'#fff', logging:false}, jsPDF:{unit:'mm', format:'a4', compress:true}}).from(c.firstElementChild).save();
     document.body.removeChild(c);
-  }catch(e){logError('PDF failed');}
-  finally{btn.innerHTML = orig; btn.disabled = false;}
+  }catch(e){ logError('PDF failed'); }
+  finally{ btn.innerHTML = orig; btn.disabled = false; }
 }
 
 function buildWhatsAppMessage(){
@@ -1124,22 +1678,23 @@ function buildWhatsAppMessage(){
   var vinDecoded = vinText.length === 17 ? decodeVIN(vinText) : null;
   var faultItems = document.querySelectorAll('#dtcList [data-code]');
   var faults = [];
-  faultItems.forEach(function(el){if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)});});
-  var diag = runDiagnosis(faults.map(function(f){return f.code;}));
+  faultItems.forEach(function(el){ if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)}); });
+  var diag = runDiagnosis(faults.map(function(f){ return f.code; }));
   var health = calcHealth(faults, diag);
-  var msg = '*' + t('reportTitle') + '*\n----------------\n\n';
-  msg += '*' + t('vehicleInfo') + ':*\nVIN: ' + vinText + '\n';
+  var msg = '*تقرير فحص سيارة - CheckDiga*\n----------------\n\n';
+  msg += '*معلومات السيارة:*\nVIN: ' + vinText + '\n';
   if(vinDecoded) msg += vinDecoded.manufacturer + ' - ' + vinDecoded.year + '\n';
-  msg += '\n*' + t('vehicleHealth') + ':* ' + health + '/100\n\n';
+  msg += '\n*مؤشر صحة السيارة:* ' + health + '/100\n\n';
   if(faults.length > 0){
-    msg += '*' + t('detectedFaults') + ' (' + faults.length + '):*\n';
-    faults.forEach(function(f, i){
-      var title = currentLang === 'en' ? (f.info.title_en || f.info.title) : f.info.title;
-      msg += (i+1) + '. *' + f.code + '* - ' + title + '\n';
-    });
+    msg += '*الأعطال (' + faults.length + '):*\n';
+    faults.forEach(function(f, i){ msg += (i+1) + '. *' + f.code + '* - ' + f.info.title + '\n'; });
     msg += '\n';
   }
-  msg += '----------------\nCheckDiga\nhttps://ishakdiga55-ops.github.io/Diga-scaner/';
+  if(diag.length > 0){
+    msg += '*التشخيص:*\n';
+    diag.forEach(function(d){ msg += '*' + d.title + '* (' + d.confidence + '%)\n'; });
+  }
+  msg += '----------------\n*CheckDiga*\nhttps://ishakdiga55-ops.github.io/Diga-scaner/';
   return msg;
 }
 function shareWhatsApp(){
@@ -1147,22 +1702,18 @@ function shareWhatsApp(){
   if(!btn) return;
   var orig = btn.innerHTML;
   btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  try{window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage()), '_blank');}
-  catch(e){logError('WhatsApp failed');}
-  finally{setTimeout(function(){btn.innerHTML = orig; btn.disabled = false;}, 1000);}
+  try{ window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage()), '_blank'); }
+  catch(e){ logError('WhatsApp failed'); }
+  finally{ setTimeout(function(){ btn.innerHTML = orig; btn.disabled = false; }, 1000); }
 }
 
+// ============ THEME ============
 function applyTheme(){
   var theme = localStorage.getItem('checkdiga_theme') || 'dark';
   var body = document.body;
   var icon = document.getElementById('themeIcon');
-  if(theme === 'light'){
-    body.classList.add('light-mode');
-    if(icon) icon.className = 'fa-solid fa-moon';
-  } else {
-    body.classList.remove('light-mode');
-    if(icon) icon.className = 'fa-solid fa-sun';
-  }
+  if(theme === 'light'){ body.classList.add('light-mode'); if(icon) icon.className = 'fa-solid fa-moon'; }
+  else { body.classList.remove('light-mode'); if(icon) icon.className = 'fa-solid fa-sun'; }
 }
 function toggleTheme(){
   var current = localStorage.getItem('checkdiga_theme') || 'dark';
@@ -1171,6 +1722,7 @@ function toggleTheme(){
   applyTheme();
 }
 
+// ============ AI ============
 function toggleAI(){
   var m = document.getElementById('aiModal');
   if(!m) return;
@@ -1181,12 +1733,8 @@ function toggleAI(){
       localStorage.setItem('checkdiga_gemini_key', newKey);
       GEMINI_API_KEY = newKey;
       GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey;
-    } else if(newKey !== null){
-      alert('مفتاح غير صحيح');
-      return;
-    } else {
-      return;
-    }
+    } else if(newKey !== null){ alert('مفتاح غير صحيح'); return; }
+    else return;
   }
   m.classList.toggle('hidden');
 }
@@ -1213,18 +1761,18 @@ function addAITyping(){
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
-function removeAITyping(){var el = document.getElementById('aiTyping'); if(el) el.remove();}
+function removeAITyping(){ var el = document.getElementById('aiTyping'); if(el) el.remove(); }
 function buildAIContext(){
   var context = 'أنت مساعد ذكي متخصص في تشخيص أعطال السيارات. أجب بالعربية باختصار ووضوح.\n\n';
   if(lastFaults && lastFaults.length > 0){
     context += 'السيارة الحالية لديها هذه الأعطال:\n';
-    lastFaults.forEach(function(f){var info = getFaultInfo(f.code); context += '- ' + f.code + ': ' + info.title + '\n';});
+    lastFaults.forEach(function(f){ var info = getFaultInfo(f.code); context += '- ' + f.code + ': ' + info.title + '\n'; });
     context += '\n';
   }
   context += 'أجب باختصار (3-5 أسطر) مع ذكر الأسباب الأكثر احتمالاً + خطوات الفحص.';
   return context;
 }
-function askAI(question){var input = document.getElementById('aiInput'); if(input) input.value = question; sendAI();}
+function askAI(question){ var input = document.getElementById('aiInput'); if(input) input.value = question; sendAI(); }
 async function sendAI(){
   var input = document.getElementById('aiInput');
   if(!input) return;
@@ -1242,17 +1790,17 @@ async function sendAI(){
     if(!response.ok) throw new Error('HTTP ' + response.status);
     var data = await response.json();
     var text = 'عذراً، لم أتمكن من الرد.';
-    if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts){text = data.candidates[0].content.parts[0].text || text;}
+    if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts){ text = data.candidates[0].content.parts[0].text || text; }
     removeAITyping();
     addAIMessage('ai', text);
   }catch(e){
     removeAITyping();
     var errMsg = 'حدث خطأ: ' + e.message;
-    if(e.message.indexOf('HTTP 400')>=0) errMsg = 'مفتاح API غير صحيح.';
-    if(e.message.indexOf('HTTP 403')>=0) errMsg = 'المفتاح محظور.';
-    if(e.message.indexOf('HTTP 429')>=0) errMsg = 'تجاوزت الحد. جرب بعد دقيقة.';
+    if(e.message.indexOf('HTTP 400') >= 0) errMsg = 'مفتاح API غير صحيح.';
+    if(e.message.indexOf('HTTP 403') >= 0) errMsg = 'المفتاح محظور.';
+    if(e.message.indexOf('HTTP 429') >= 0) errMsg = 'تجاوزت الحد. جرب بعد دقيقة.';
     addAIMessage('ai', '⚠️ ' + errMsg);
-  }finally{if(sendBtn) sendBtn.disabled = false;}
+  }finally{ if(sendBtn) sendBtn.disabled = false; }
 }
 
 window.toggleAI = toggleAI;
@@ -1260,152 +1808,91 @@ window.askAI = askAI;
 window.sendAI = sendAI;
 window.toggleTheme = toggleTheme;
 
-function reRenderDynamicContent(){
-  if(lastFaults.length > 0){
-    renderFaults(lastFaults);
-    displaySmartDiagnosis(lastFaults.map(function(f){return f.code;}));
-    displayHealth(lastFaults, lastDiagnosis);
-    updateSystemGrid(lastFaults);
-  }
-  if(lastVinInfo) displayVINInfo(lastVinInfo);
-}
-
-function applyLanguage(){
-  var isRTL = currentLang === 'ar';
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-  var langText = document.getElementById('langText');
-  if(langText) langText.textContent = isRTL ? 'English' : 'العربية';
-  var subtitle = document.getElementById('subtitleText');
-  if(subtitle) subtitle.textContent = t('subtitle');
-  var conn = document.getElementById('connection-status');
-  if(conn){
-    if(isConnected && isDemo) conn.textContent = t('demoMode');
-    else if(isConnected) conn.textContent = t('connected');
-    else conn.textContent = t('disconnected');
-  }
-  var btnSpans = {'connect-btn':'bluetooth', 'usb-btn':'usb', 'demo-btn':'demo', 'disconnect-btn':'disconnect', 'clear-btn':'clearDTC'};
-  for(var id in btnSpans){
-    if(!btnSpans.hasOwnProperty(id)) continue;
-    var btn = document.getElementById(id);
-    if(btn){var span = btn.querySelector('span'); if(span) span.textContent = t(btnSpans[id]);}
-  }
-  var iosN = document.getElementById('iosNotice');
-  if(iosN){var span2 = iosN.querySelector('span'); if(span2) span2.textContent = t('iosNotice');}
-  var tabMap = {faults:'tabFaults', live:'tabLive', vin:'tabVin', history:'tabHistory', stats:'tabStats'};
-  document.querySelectorAll('.tab').forEach(function(tab){
-    var key = tabMap[tab.dataset.tab];
-    if(key){var span3 = tab.querySelector('.tab-text'); if(span3) span3.textContent = t(key);}
-  });
-  var sysMap = {engine:'sysEngine', transmission:'sysTrans', brakes:'sysBrakes', airbag:'sysAirbag', fuel:'sysFuel', exhaust:'sysExhaust', cooling:'sysCooling', battery:'sysBattery', electronics:'sysElectronics'};
-  document.querySelectorAll('[data-sys-name]').forEach(function(el){
-    var key = sysMap[el.dataset.sysName];
-    if(key) el.textContent = t(key);
-  });
-  var sysTitle = document.getElementById('sysStatusTitle');
-  if(sysTitle) sysTitle.textContent = t('sysStatus');
-  document.querySelectorAll('[data-t]').forEach(function(el){el.textContent = t(el.dataset.t);});
-  var searchInput = document.getElementById('dtcSearchInput');
-  if(searchInput) searchInput.placeholder = t('searchPlaceholder');
-  initBrandFilters();
-  if(isConnected || isDemo) setStatus(isDemo ? 'demo' : 'connected');
-  reRenderDynamicContent();
-}
-
+// ============ INIT ============
 function init(){
-  function bind(id, fn){var el = document.getElementById(id); if(el) el.onclick = fn;}
+  function bind(id, fn){ var el = document.getElementById(id); if(el) el.onclick = fn; }
+  bind('connect-btn', connectOBD);
+  bind('usb-btn', connectUSB);
   bind('demo-btn', startDemo);
-  bind('disconnect-btn', async function(){stopDemo(); await handleDisconnect();});
-  bind('clear-btn', function(){
-    if(!isDemo && !isConnected) return;
-    if(!confirm(t('confirmClear'))) return;
-    var list = document.getElementById('dtcList');
-    if(list) list.innerHTML = '<p class="text-green-400 text-center py-4">' + t('cleared') + '</p>';
-    hideExport(); resetSystemGrid();
-  });
+  bind('disconnect-btn', async function(){ stopDemo(); await handleDisconnect(); });
+  bind('clear-btn', clearDTCs);
   bind('btnReadDTC', readDTCs);
   bind('btnScanAll', scanAllSystems);
   bind('btnExportPDF', exportPDF);
   bind('btnShareWhatsApp', shareWhatsApp);
-  bind('btnLoadStats', function(){
-    var c = document.getElementById('statsContent');
-    if(c) c.innerHTML = '<p class="text-amber-400 text-center py-4">' + t('firebaseUnavailable') + '</p>';
-  });
-  bind('btnReadiness', function(){
-    if(!isDemo && !isConnected) return;
-    renderReadiness({
-      mil: true,
-      dtcCount: 3,
-      continuous: {misfire: 'not-ready', fuel: 'ready', components: 'ready'},
-      nonContinuous: {catalyst: 'ready', heatedCat: 'n/a', evap: 'not-ready', o2: 'ready', o2Heater: 'ready', egr: 'n/a'}
-    });
-  });
+  bind('btnReadiness', checkReadiness);
+  bind('btnBatteryTest', runBatteryTest);
   bind('btnMode06', runMode06);
   bind('btnTheme', toggleTheme);
-  bind('btnLang', function(){
-    currentLang = currentLang === 'ar' ? 'en' : 'ar';
-    localStorage.setItem('checkdiga_lang', currentLang);
-    applyLanguage();
-    logInfo('Language changed');
-  });
-  bind('btnReadVIN', function(){
-    if(!isConnected && !isDemo){alert(t('disconnected')); return;}
-    document.getElementById('vinResult').textContent = '1HGCG5655WA123456';
-    displayVINInfo('1HGCG5655WA123456');
+  bind('btnLang', function(){ logInfo('Language switch coming soon'); });
+  bind('btnReadVIN', async function(){
+    if(!isConnected && !isDemo){ alert('غير متصل'); return; }
+    if(isDemo){ document.getElementById('vinResult').textContent = '1HGCG5655WA123456'; displayVINInfo('1HGCG5655WA123456'); return; }
+    await readVIN();
   });
   bind('btnDecodeVIN', function(){
     var v = document.getElementById('vinInput').value.trim().toUpperCase();
-    if(v.length !== 17){alert('VIN must be 17 chars'); return;}
+    if(v.length !== 17){ alert('VIN يجب أن يكون 17 حرفاً'); return; }
     document.getElementById('vinResult').textContent = v;
     displayVINInfo(v);
   });
-  bind('btnCloseDetail', function(){document.getElementById('dtcDetailModal').classList.add('hidden');});
+  bind('btnCloseDetail', function(){ document.getElementById('dtcDetailModal').classList.add('hidden'); });
+  bind('btnLoadStats', function(){
+    var c = document.getElementById('statsContent');
+    if(c) c.innerHTML = '<p class="text-gray-500 text-center py-4">الإحصائيات السحابية قريباً</p>';
+  });
 
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.onclick = function(){
-      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('bg-blue-600', 'text-white'); t.classList.add('bg-gray-800', 'text-gray-400');});
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('bg-blue-600', 'text-white'); t.classList.add('bg-gray-800', 'text-gray-400'); });
       tab.classList.remove('bg-gray-800', 'text-gray-400'); tab.classList.add('bg-blue-600', 'text-white');
-      document.querySelectorAll('.panel').forEach(function(p){p.classList.add('hidden');});
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.add('hidden'); });
       var target = document.getElementById('panel-' + tab.dataset.tab);
       if(target) target.classList.remove('hidden');
-      if(tab.dataset.tab === 'live') setTimeout(function(){if(!chartInstance) initChart(); else try{chartInstance.resize();}catch(e){}}, 200);
+      if(tab.dataset.tab === 'live') setTimeout(function(){ if(!chartInstance) initChart(); else try{ chartInstance.resize(); }catch(e){} }, 200);
       if(tab.dataset.tab === 'history') {
         var hc = document.getElementById('historyContent');
-        if(hc) hc.innerHTML = '<p class="text-gray-500 text-center py-4">' + t('noHistory') + '</p>';
+        if(hc) hc.innerHTML = '<p class="text-gray-500 text-center py-4">لا يوجد سجل بعد</p>';
       }
     };
   });
 
   var dd = document.getElementById('dtcDetailModal');
-  if(dd) dd.onclick = function(e){if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden');};
+  if(dd) dd.onclick = function(e){ if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
   initSearch();
   initBrandFilters();
 
-  // iOS adjustments
-  if(isIOS){
-    var n = document.getElementById('iosNotice'); if(n) n.classList.remove('hidden');
-    var c = document.getElementById('connect-btn'); if(c) c.classList.add('hidden');
-    var u = document.getElementById('usb-btn'); if(u) u.classList.add('hidden');
-    logInfo('iOS detected — استخدم الوضع التجريبي.');
-  } else {
-    if(!hasSerial){var u2 = document.getElementById('usb-btn'); if(u2) u2.style.display = 'none';}
-    if(!hasBluetooth){var c2 = document.getElementById('connect-btn'); if(c2) c2.style.display = 'none';}
+  // iOS banner
+  if(isIOS && !isBluefy && !hasBluetooth){
+    var bb = document.getElementById('bluefyBanner');
+    if(bb) bb.classList.remove('hidden');
+  }
+  if(!hasSerial){
+    var ub = document.getElementById('usbBanner');
+    if(ub) ub.classList.remove('hidden');
+    var u = document.getElementById('usb-btn');
+    if(u) u.classList.add('hidden');
+  }
+
+  if('serial' in navigator){
+    navigator.serial.addEventListener('disconnect', function(e){
+      if(usbPort && e.target === usbPort){ logInfo('USB disconnected'); handleDisconnect(); }
+    });
   }
 
   applyTheme();
-  applyLanguage();
 
-  setTimeout(function(){updateAllGauges({rpm:0, speed:0, coolant:0, fuelLevel:0});}, 300);
+  setTimeout(function(){ updateAllGauges({rpm:0, speed:0, coolant:0, fuelLevel:0}); }, 300);
+
   logSuccess(Object.keys(DTC_DATABASE).length + ' codes ready');
-  logInfo(isIOS ? 'Tap "تجريبي" to start.' : 'Tap "تجريبي" or USB/Bluetooth.');
+  if(isBluefy) logInfo('Bluefy detected — Bluetooth supported');
+  else if(isIOS) logInfo('iOS: استخدم Bluefy للاتصال بالبلوتوث');
+  logInfo('Tap Demo or Bluetooth');
 }
 
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', init);
-}else{
-  init();
-}
+if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
+else { init(); }
 </script>
 </body>
 </html>
