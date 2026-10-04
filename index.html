@@ -2,92 +2,152 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga - فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>body{font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent}.sp{border:3px solid #334155;border-top-color:#3b82f6;border-radius:50%;width:20px;height:20px;animation:s .8s linear infinite;display:inline-block}@keyframes s{to{transform:rotate(360deg)}}</style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding-bottom:40px;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+.head{text-align:center;padding:24px 0}
+.logo{width:64px;height:64px;margin:0 auto 12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff}
+h1{font-size:24px;font-weight:800;margin-bottom:4px}
+.sub{color:#94a3b8;font-size:14px}
+.cnt{color:#64748b;font-size:12px;margin-top:8px}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 4px 6px rgba(0,0,0,.3)}
+.st{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dot{width:12px;height:12px;border-radius:50%;background:#ef4444}
+.dot.on{background:#10b981}
+.dot.dm{background:#f59e0b}
+.st-txt{font-weight:700;font-size:14px;color:#ef4444}
+.st-txt.on{color:#10b981}
+.st-txt.dm{color:#f59e0b}
+.vin{font-size:12px;color:#64748b;margin-top:2px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.btn{border:none;padding:14px 8px;border-radius:12px;font-family:inherit;font-weight:700;font-size:13px;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .2s}
+.btn:active{opacity:.7}
+.btn i{font-size:18px}
+.btn-bt{background:#2563eb}
+.btn-usb{background:#059669}
+.btn-demo{background:#d97706}
+.btn-disc{background:#dc2626;width:100%;margin-bottom:8px;display:none}
+.btn-clear{background:#b91c1c;width:100%;margin-top:8px}
+.btn-disc.on{display:flex}
+.notice{background:rgba(37,99,235,.15);border:1px solid #2563eb;border-radius:12px;padding:12px;font-size:12px;color:#93c5fd;line-height:1.6;margin-top:12px}
+.notice b{color:#60a5fa}
+.title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.title i{color:#3b82f6}
+.title-r{color:#94a3b8;font-size:13px;font-weight:600}
+.results{padding:20px;text-align:center;color:#64748b;font-size:14px}
+.dtc{background:rgba(220,38,38,.15);border-right:4px solid #ef4444;border-radius:10px;padding:12px;margin-bottom:8px}
+.dtc-h{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.dtc-sys{background:#2563eb;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700}
+.dtc-code{font-family:monospace;font-weight:700;color:#fca5a5;font-size:14px}
+.dtc-type{background:#374151;color:#e2e8f0;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700}
+.dtc-title{font-size:13px;color:#cbd5e1}
+.health{background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:14px;padding:16px;color:#fff;margin-bottom:12px}
+.health-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.health-score{font-size:36px;font-weight:800}
+.health-score span{font-size:16px;opacity:.8}
+.health-bar{background:rgba(0,0,0,.2);height:8px;border-radius:4px;overflow:hidden;margin-top:8px}
+.health-bar div{height:100%;background:#fff;border-radius:4px;transition:width .6s}
+.health-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-top:10px}
+.health-stats>div{background:rgba(0,0,0,.2);padding:8px;border-radius:8px;display:flex;align-items:center;gap:6px}
+input[type=text]{width:100%;background:#0f172a;border:2px solid #334155;border-radius:12px;padding:10px 12px;color:#fff;font-family:inherit;font-size:14px;outline:none}
+input[type=text]:focus{border-color:#3b82f6}
+.sr{background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sr-code{font-family:monospace;color:#fca5a5;font-weight:700}
+.sev{padding:2px 8px;border-radius:4px;font-size:10px;color:#fff;
+;font-weight:700;white -space:nowrap}
+ c.sev-critical{background.sc:#dc2626}
+.sev-high{background:#ea580c}
+.sev-medium{background:#f59e0b}
+.sev-low{background:#10b981}
+#log{background:#000;color:#10b981;padding:12px;border-radius:12px;font-family:monospace;font-size:11px;max-height:140px;overflow-y:auto;margin-top:16px;white-space:pre-wrap;text-align:start;unicode-bidi:plaintext}
+footer{text-align:center;padding:24px;font-size:12px;color:#475569;border-top:1px solid #1e293b;margin-top:24px}
+footer b{color:#94a3b8}
+.topbar{background:rgba(30,58,95,.5);border-bottom:1px solid rgba(37,99,235,.5);padding:8px;text-align:center;font-size:12px;color:#93c5fd}
+</style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen pb-10">
+<body>
 
-<div class="bg-blue-900/30 border-b border-blue-600/50 px-3 py-2 text-center text-xs text-blue-200">
-<i class="fa-solid fa-info-circle"></i> فحص السيارات من هاتفك
-</div>
-
-<div class="max-w-2xl mx-auto p-4">
-
-<div class="text-center py-6">
-<div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-3">
-<i class="fa-solid fa-wrench text-white text-2xl"></i>
-</div>
-<h1 class="text-2xl font-extrabold">CheckDiga</h1>
-<p class="text-gray-400 text-sm">أداة فحص السيارات</p>
-<div id="count" class="text-xs text-gray-500 mt-2">جاري التحميل...</div>
+<div class="topbar">
+<i class="fa-solid fa-circle-info"></i> فحص السيارات من هاتفك
 </div>
 
-<div class="bg-gray-800 rounded-2xl p-4 mb-4">
-<div class="flex items-center gap-3 mb-3">
-<div id="dot" class="w-3 h-3 rounded-full bg-red-500"></div>
-<div class="flex-1">
-<p id="status" class="font-bold text-red-400 text-sm">غير متصل</p>
-<p class="text-xs text-gray-500">VIN: --</p>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-2 mb-2">
-<button id="btBtn" class="bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold text-sm">
-<i class="fa-brands fa-bluetooth-b"></i> Bluetooth
-</button>
-<button id="usbBtn" class="bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm">
-<i class="fa-solid fa-usb"></i> USB
-</button>
-<button id="demoBtn" class="bg-amber-600 hover:bg-amber-700 py-3 rounded-xl font-bold text-sm">
-<i class="fa-solid fa-flask"></i> تجريبي
-</button>
-</div>
-<button id="disconnectBtn" class="hidden w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold text-sm mb-2">
-<i class="fa-solid fa-plug-circle-xmark.json"></i> قطع الاتصال
-</button>
-<button'
- id="clearBtn" class="];
+<div class="wrap">
 
-w-full bg-red-700 hoverlog:bg-red-800 py-3 rounded('-xl font-bold text-sm">
-<i class="fa-solid fa-trash"></i> مسح الأعطال
+<div class="head">
+<div class="logo"><i class="fa-solid fa-wrench"></i></div>
+<h1>CheckDiga</h1>
+<p class="sub">أداة فحص السيارات</p>
+<p class="cnt" id="count">جاري التحميل...</p>
+</div>
+
+<div class="card">
+<div class="st">
+<div class="dot" id="dot"></div>
+<div style="flex:1">
+<div class="st-txt" id="status">غير متصل</div>
+<div class="vin">VIN: --</div>
+</div>
+</div>
+
+<div class="grid3">
+<button class="btn btn-bt" id="btBtn">
+<i class="fa-brands fa-bluetooth-b"></i>
+<span>Bluetooth</span>
 </button>
-<div class="mt-3 bg-blue-900/40 border border-blue-600 rounded-xl p-3 text-xs text-blue-200 leading-relaxed">
+<button class="btn btn-usb" id="usbBtn">
+<i class="fa-solid fa-usb"></i>
+<span>USB</span>
+</button>
+<button class="btn btn-demo" id="demoBtn">
+<i class="fa-solid fa-flask"></i>
+<span>تجريبي</span>
+</button>
+</div>
+
+<button class="btn btn-disc" id="disconnectBtn">
+<i class="fa-solid fa-plug-circle-xmark"></i>
+<span>قطع الاتصال</span>
+</button>
+
+<button class="btn btn-clear" id="clearBtn">
+<i class="fa-solid fa-trash"></i>
+<span>مسح الأعطال</span>
+</button>
+
+<div class="notice">
 <i class="fa-solid fa-mobile-screen-button"></i> على iPhone: حمّل متصفح <b>Bluefy</b> لتفعيل Bluetooth
 </div>
 </div>
 
-<div class="bg-gray-800 rounded-2xl p-4">
-<div class="flex items-center justify-between mb-3">
-<h3 class="font-bold flex items-center gap-2">
-<i class="fa-solid fa-triangle-exclamation text-red-400"></i> النتائج
-</h3>
-<span id="hc" class="text-sm font-bold text-gray-400">--</span>
+<div class="card">
+<div class="title">
+<span><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i> النتائج</span>
+<span class="title-r" id="hc">--</span>
 </div>
-<div id="list" class="text-sm text-gray-500 text-center py-4">اضغط "تجريبي" للبدء</div>
+<div id="list" class="results">اضغط "تجريبي" للبدء</div>
 </div>
 
-<div class="bg-gray-800 rounded-2xl p-4 mt-4">
-<h3 class="font-bold mb-3">
-<i class="fa-solid fa-search text-blue-400"></i> ابحث عن كود
-</h3>
-<input id="search" type="text" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 outline-none text-sm" placeholder="مثال: P0301, C0035, U0100">
-<div id="results" class="mt-3"></div>
+<div class="card">
+<div class="title">
+<span><i class="fa-solid fa-search"></i> ابحث عن كود</span>
+</div>
+<input type="text" id="search" placeholder="مثال: P0301, C0035, U0100">
+<div id="results"></div>
 </div>
 
-<div id="log" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs mt-4 max-h-32 overflow-y-auto" style="unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;">> مرحباً!</div>
+<div id="log">> مرحباً!</div>
 
 </div>
 
-<footer class="text-center py-6 text-xs text-gray-600 border-t border-gray-800 mt-8">
-<div class="flex items-center justify-center gap-2 mb-2">
-<div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
-<i class="fa-solid fa-wrench text-white text-xs"></i>
-</div>
-<span class="font-extrabold text-gray-300">CheckDiga</span>
+<footer>
+<div style="margin-bottom:8px">
+<b>CheckDiga</b>
 </div>
 صُنع في الجزائر 2026
 </footer>
@@ -101,8 +161,7 @@ function log(m){
   var c = document.getElementById('log');
   if(!c) return;
   var t = new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  c.textContent += '\n[' + t + '] ' + m;
-  c.scrollTop = c.scrollHeight;
+  c.textContent += '\n[' + t + '] ' + mrollTop = c.scrollHeight;
 }
 
 function setStatus(s){
@@ -114,73 +173,69 @@ function setStatus(s){
   var demo = document.getElementById('demoBtn');
   
   if(s === 'demo'){
-    d.className = 'w-3 h-3 rounded-full bg-amber-500';
+    d.className = 'dot dm';
+    st.className = 'st-txt dm';
     st.textContent = 'وضع تجريبي';
-    st.className = 'font-bold text-amber-400 text-sm';
-    bt.classList.add('hidden');
-    usb.classList.add('hidden');
-    demo.classList.add('hidden');
-    db.classList.remove('hidden');
+    bt.style.display = 'none';
+    usb.style.display = 'none';
+    demo.style.display = 'none';
+    db.classList.add('on');
   } else if(s === 'connected'){
-    d.className = 'w-3 h-3 rounded-full bg-green-500';
+    d.className = 'dot on';
+    st.className = 'st-txt on';
     st.textContent = 'متصل';
-    st.className = 'font-bold text-green-400 text-sm';
-    bt.classList.add('hidden');
-    usb.classList.add('hidden');
-    demo.classList.add('hidden');
-    db.classList.remove('hidden');
+    bt.style.display = 'none';
+    usb.style.display = 'none';
+    demo.style.display = 'none';
+    db.classList.add('on');
   } else {
-    d.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';
+    d.className = 'dot';
+    st.className = 'st-txt';
     st.textContent = 'غير متصل';
-    st.className = 'font-bold text-red-400 text-sm';
-    bt.classList.remove('hidden');
-    usb.classList.remove('hidden');
-    demo.classList.remove('hidden');
-    db.classList.add('hidden');
+    bt.style.display = '';
+    usb.style.display = '';
+    demo.style.display = '';
+    db.classList.remove('on');
   }
 }
 
-// ============ تحميل كل ملفات JSON ============
-var files = [
-  'dtc_core.json',
-  'dtc_p.json',
-  'dtc_u.json',
-  'dtc_b.json',
-  'dtc_c.json',
-  'dtc_full.json',
-  'dtc_modern.json',
-  'dtc_details.json',
-  'dtc_chineseINFO: جاري تحميل الأكواد...');
+// تحميل جميع ملفات JSON
+var files = ['dtc_core.json','dtc_p.json','dtc_u.json','dtc_b.json','dtc_c.json','dtc_full.json','dtc_modern.json','dtc_details.json','dtc_chinese.json'];
 
-Promise.all(files.map(function(f){
-  return fetch(f + '?v=' + Date.now())
-    .then(function(r){
-      if(r.ok){
-        log('OK: ' + f);
-        return r.json();
+log('INFO: تحميل الأكواد...');
+
+var loaded = 0;
+files.forEach(function(f){
+  fetch(f + '?v=' + Date.now())
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      loaded++;
+      if(data){
+        for(var k in data){ if(!DB[k]) DB[k] = data[k]; }
+        log('OK: ' + f + ' (' + Object.keys(data).length + ')');
+      } else {
+        log('INFO: ' + f + ' غير موجود');
       }
-      return {};
+      if(loaded === files.length){
+        var n = Object.keys(DB).length;
+        document.getElementById('count').textContent = n + ' كود جاهز للفحص';
+        log('OK: ================');
+        log('OK: ' + n + ' كود محمّل بنجاح!');
+        log('INFO: اضغط "تجريبي" للبدء');
+      }
     })
     .catch(function(){
-      log('INFO: ' + f + ' غير موجود');
-      return {};
+      loaded++;
+      log('INFO: ' + f + ' خطأ');
+      if(loaded === files.length){
+        var n = Object.keys(DB).length;
+        document.getElementById('count').textContent = n + ' كود جاهز للفحص';
+        log('OK: ' + n + ' كود محمّل');
+      }
     });
-})).then(function(results){
-  results.forEach(function(data){
-    for(var k in data){
-      if(!DB[k]) DB[k] = data[k];
-    }
-  });
-  var n = Object.keys(DB).length;
-  document.getElementById('count').textContent = n + ' كود جاهز للفحص';
-  log('OK: ================');
-  log('OK: ' + n + ' كود محمّل بنجاح!');
-  log('INFO: اضغط "تجريبي" للبدء');
-}).catch(function(e){
-  log('ERR: ' + e.message);
 });
 
-// ============ زر تجريبي ============
+// زر تجريبي
 document.getElementById('demoBtn').onclick = function(){
   if(Object.keys(DB).length === 0){
     alert('انتظر تحميل الأكواد...');
@@ -189,7 +244,7 @@ document.getElementById('demoBtn').onclick = function(){
   isDemo = true;
   isConnected = true;
   setStatus('demo');
-  log('OK: وضع تجريبي نشط - ' + Object.keys(DB).length + ' كود');
+  log('OK: وضع تجريبي - ' + Object.keys(DB).length + ' كود');
   
   var demoFaults = [
     {code:'P0301', type:'مؤكد', system:'المحرك'},
@@ -201,96 +256,105 @@ document.getElementById('demoBtn').onclick = function(){
   renderFaults(demoFaults);
 };
 
-// ============ زر Bluetooth ============
+// زر Bluetooth
 document.getElementById('btBtn').onclick = function(){
   if(!navigator.bluetooth){
-    alert('Bluetooth غير مدعوم على هذا المتصفح.\n\n📱 على iPhone: استخدم متصفح Bluefy\n💻 على الكمبيوتر: استخدم Chrome\n📱 على أندرويد: استخدم Chrome');
+    alert('Bluetooth غير مدعوم على هذا المتصفح.\n\n📱 على iPhone: استخدم متصفح Bluefy\n💻 على الكمبيوتر: استخدم Chrome');
     return;
   }
-  log('INFO: Bluetooth مدعوم على هذا المتصفح');
-  alert('Bluetooth مدعوم!\n\nلتوصيل قطعة ELM327:\n1. شغّل القطعة في السيارة\n2. اضغط Bluetooth مرة أخرى\n3. اختر الجهاز من القائمة');
-  // هنا يمكن إضافة كود الاتصال الحقيقي بـ Web Bluetooth
+  log('INFO: Bluetooth مدعوم');
+  alert('Bluetooth مدعوم!\n\nلتوصيل قطعة ELM327:\n1. شغّل القطعة في السيارة\n2. اضغط Bluetooth\n3. اختر الجهاز من القائمة');
 };
 
-// ============ زر USB ============
+// زر USB
 document.getElementById('usbBtn').onclick = function(){
   if(!navigator.serial){
     alert('USB Serial غير مدعوم.\n\nاستخدم Chrome على الحاسوب أو أندرويد.');
     return;
   }
-  log('INFO: USB Serial مدعوم');
-  alert('USB مدعوم!\n\nلتوصيل قطعة ELM327:\n1. وصّل القطعة بالحاسوب\n2. اضغط USB مرة أخرى\n3. اختر المنفذ');
+  log('INFO: USB مدعوم');
 };
 
-// ============ زر قطع الاتصال ============
+// زر قطع
 document.getElementById('disconnectBtn').onclick = function(){
   isDemo = false;
   isConnected = false;
   setStatus('x');
-  document.getElementById('list').innerHTML = '<p class="text-gray-500 text-center py-4">تم قطع الاتصال</p>';
+  document.getElementById('list').innerHTML = 'تم قطع الاتصال';
+  document.getElementById('list').className = 'results';
   document.getElementById('hc').textContent = '--';
   log('INFO: تم قطع الاتصال');
 };
 
-// ============ زر مسح الأعطال ============
+// زر مسح
 document.getElementById('clearBtn').onclick = function(){
-  if(!isConnected && !isDemo){
-    alert('غير متصل');
-    return;
-  }
+  if(!isConnected && !isDemo){ alert('غير متصل'); return; }
   if(!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
-  document.getElementById('list').innerHTML = '<p class="text-green-400 text-center py-4">تم المسح بنجاح</p>';
+  document.getElementById('list').innerHTML = '<span style="color:#10b981">تم مسح الأعطال بنجاح</span>';
   document.getElementById('hc').textContent = '--';
-  log('OK: تم مسح الأعطال');
+  log('OK: تم المسح');
 };
 
-// ============ عرض الأعطال ============
+// عرض الأعطال
 function renderFaults(faults){
   var list = document.getElementById('list');
-  var totalScore = 100;
-  var h = '';
+  var score = 100;
+  var h = '<div class="health">';
   
+  // حساب النتيجة أولاً
+  faults.forEach(function(f){
+    var c = f.code.toUpperCase();
+    if(c.indexOf('P0') === 0) score -= 2;
+    else if(c.indexOf('P1') === 0 || c.indexOf('P2') === 0 || c.indexOf('P3') === 0) score -= 2.5;
+    else if(c[0] === 'C') score -= 3;
+    else if(c[0] === 'B') score -= 4;
+    else if(c[0] === 'U') score -= 5;
+  });
+  score = Math.max(25, Math.min(100, Math.round(score)));
+  
+  var label = score >= 75 ? 'تحتاج مراقبة' : score >= 50 ? 'تحتاج صيانة' : 'خطيرة';
+  
+  h += '<div class="health-h">';
+  h += '<div><div style="font-size:14px;font-weight:700">[!] ' + label + '</div>';
+  h += '<div style="font-size:11px;opacity:.9;margin-top:2px">أعطال تحتاج إصلاح قريب</div></div>';
+  h += '<div style="text-align:left"><div class="health-score">' + score + '<span>/100</span></div>';
+  h += '<div style="font-size:10px;opacity:.8">مؤشر الصحة</div></div>';
+  h += '</div>';
+  h += '<div class="health-bar"><div style="width:' + score + '%"></div></div>';
+  h += '<div class="health-stats">';
+  h += '<div><i class="fa-solid fa-triangle-exclamation"></i> ' + faults.length + ' عطل مسجل</div>';
+  h += '<div><i class="fa-solid fa-brain"></i> ' + faults.length + ' تشخيص</div>';
+  h += '</div>';
+  h += '</div>';
+  
+  // قائمة الأعطال
   faults.forEach(function(f){
     var info = DB[f.code] || {};
     var title = info.t || info.title || 'عطل';
     var sev = info.s || info.severity || 'medium';
     
-    // خصم من الصحة
-    var c = f.code.toUpperCase();
-    if(c.indexOf('P0') === 0) totalScore -= 2;
-    else if(c.indexOf('P1') === 0 || c.indexOf('P2') === 0 || c.indexOf('P3') === 0) totalScore -= 2.5;
-    else if(c[0] === 'C') totalScore -= 3;
-    else if(c[0] === 'B') totalScore -= 4;
-    else if(c[0] === 'U') totalScore -= 5;
-    
-    var color = sev === 'critical' ? '#dc2626' : sev === 'high' ? '#f97316' : sev === 'medium' ? '#f59e0b' : '#10b981';
-    
-    h += '<div class="bg-red-900/30 border-r-4 rounded-xl p-3 mb-2" style="border-color:' + color + '">';
-    h += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    h += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (f.system || 'المحرك') + '</span>';
-    h += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
-    h += '<span class="text-xs bg-gray-700 text-white px-2 py-0.5 rounded">' + f.type + '</span>';
+    h += '<div class="dtc">';
+    h += '<div class="dtc-h">';
+    h += '<span class="dtc-sys">' + (f.system || 'المحرك') + '</span>';
+    h += '<span class="dtc-code">' + f.code + '</span>';
+    h += '<span class="dtc-type">' + f.type + '</span>';
     h += '</div>';
-    h += '<div class="text-xs text-gray-300">' + title + '</div>';
+    h += '<div class="dtc-title">' + title + '</div>';
     h += '</div>';
   });
   
-  totalScore = Math.max(25, Math.min(100, Math.round(totalScore)));
-  
   list.innerHTML = h;
-  document.getElementById('hc').textContent = 'الصحة: ' + totalScore + '/100';
+  list.className = '';
+  document.getElementById('hc').textContent = score + '/100';
 }
 
-// ============ البحث ============
+// البحث
 document.getElementById('search').addEventListener('input', function(e){
   var q = e.target.value.trim().toUpperCase();
   var div = document.getElementById('results');
-  if(q.length < 2){
-    div.innerHTML = '';
-    return;
-  }
+  if(q.length < 2){ div.innerHTML = ''; return; }
   if(Object.keys(DB).length === 0){
-    div.innerHTML = '<p class="text-gray-500 text-sm text-center">الأكواد لم تُحمّل بعد</p>';
+    div.innerHTML = '<p style="color:#64748b;font-size:12px;text-align:center;padding:10px">الأكواد لم تُحمّل بعد</p>';
     return;
   }
   
@@ -299,33 +363,30 @@ document.getElementById('search').addEventListener('input', function(e){
     var info = DB[code];
     var title = (info.t || info.title || '').toString();
     var titleEn = (info.e || info.title_en || '').toString();
-    if(code.indexOf(q) >= 0>';
- || title.indexOf(e.target.value) >= 0 || titleEn.toUpperCase().indexOf(q) >= 0){
+    if(code.indexOf(q) >= 0 || title.indexOf(e.target.value) >= 0 || titleEn.toUpperCase().indexOf(q) >= 0){
       found.push([code, info]);
       if(found.length >= 30) break;
     }
   }
   
   if(found.length === 0){
-    div.innerHTML = '<p class="text-gray-500 text-sm text-center py-2">لا نتائج</p>';
+    div.innerHTML = '<p style="color:#64748b;font-size:12px;text-align:center;padding:10px">لا نتائج</p>';
     return;
   }
   
-  var h = '<div class="space-y-1">';
+  var h = '';
   found.forEach(function(x){
     var code = x[0], info = x[1];
     var title = info.t || info.title || 'عطل';
     var sev = info.s || info.severity || 'medium';
-    var color = sev === 'critical' ? 'bg-red-600' : sev === 'high' ? 'bg-orange-600' : sev === 'medium' ? 'bg-amber-600' : 'bg-green-600';
-    h += '<div class="bg-gray-900 rounded-lg p-2 text-sm flex justify-between items-center gap-2">';
-    h += '<div><span class="font-mono text-red-300 font-bold">' + code + '</span> - ' + title + '</div>';
-    h += '<span class="text-xs ' + color + ' text-white px-2 py-0.5 rounded whitespace-nowrap">' + sev + '</span>';
-    h += '</div  });
-  h += '</div>';
+    h += '<div class="sr">';
+    h += '<div><span class="sr-code">' + code + '</span> - ' + title + '</div>';
+    h += '<span class="sev sev-' + sev + '">' + sev + '</span>';
+    h += '</div>';
+  });
   div.innerHTML = h;
 });
 
-// ============ تشغيل ============
 setStatus('x');
 log('INFO: اضغط "تجريبي" للبدء');
 </script>
