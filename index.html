@@ -1,1898 +1,330 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CheckDiga - فحص السيارات</title>
-<meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات مع مساعد ذكي - 1696+ كود">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body{font-family:'Cairo',sans-serif;transition:background-color .3s ease,color .3s ease;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
-.scrollbar-thin::-webkit-scrollbar{width:6px}
-.scrollbar-thin::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
-.fade-in{animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.spinner{border:3px solid #334155;border-top-color:#3b82f6;border-radius:50%;width:20px;height:20px;animation:spin .8s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.gauge-box{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:20px;padding:14px;border:1px solid #334155;position:relative;overflow:hidden}
-.gauge-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gauge-color,#3b82f6)}
-.gauge-label{font-size:11px;color:#94a3b8;text-align:center;margin-bottom:6px;font-weight:700}
-.gauge-svg{width:100%;height:auto;display:block}
-.gauge-value{font-size:22px;font-weight:800;text-align:center;margin-top:4px;color:#fff}
-.gauge-unit{font-size:10px;color:#64748b;text-align:center;margin-top:-2px}
-.gauge-arc{transition:stroke-dashoffset .6s ease-out}
-.gauge-needle{transform-origin:100px 100px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-.system-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.sys-item{background:linear-gradient(145deg,#1e293b,#0f172a);border:1.5px solid #334155;border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px}
-.sys-item .sys-icon{font-size:18px;color:#64748b}
-.sys-item .sys-label{font-size:9px;color:#64748b;font-weight:700;text-align:center;line-height:1.1}
-.sys-item.good{border-color:#10b981}.sys-item.good .sys-icon{color:#10b981}.sys-item.good .sys-label{color:#6ee7b7}
-.sys-item.bad{border-color:#ef4444}.sys-item.bad .sys-icon{color:#ef4444}.sys-item.bad .sys-label{color:#fca5a5}
-.dtc-type-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;display:inline-flex;align-items:center;gap:3px}
-.dtc-type-confirmed{background:#dc2626;color:#fff}
-.dtc-type-pending{background:#f59e0b;color:#fff}
-.dtc-type-permanent{background:#7c3aed;color:#fff}
-.dtc-legend{display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;background:rgba(15,23,42,.6);border-radius:10px;border:1px solid #334155;font-size:10px;margin-bottom:10px}
-.dtc-legend-item{display:flex;align-items:center;gap:5px;color:#94a3b8;font-weight:700}
-.dtc-legend-dot{width:10px;height:10px;border-radius:50%}
-.dtc-item-pending{background:rgba(245,158,11,.15)!important}
-.dtc-item-permanent{background:rgba(124,58,237,.15)!important}
-.ready-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.ready-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(15,23,42,.5);border-radius:10px;border:1px solid #334155;font-size:12px}
-.ready-item .name{color:#cbd5e1;font-weight:600}
-.ready-badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700}
-.ready-ready{background:#10b981;color:#fff}
-.ready-not-ready{background:#ef4444;color:#fff}
-.ready-na{background:#64748b;color:#fff}
-.mil-status{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:12px;font-weight:700}
-.mil-on{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff}
-.mil-off{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
-.battery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.battery-box{background:linear-gradient(145deg,#1e293b,#0f172a);border:1.5px solid #334155;border-radius:14px;padding:12px 6px;text-align:center}
-.battery-box .b-icon{font-size:22px;margin-bottom:6px;color:#64748b}
-.battery-box .b-title{font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px}
-.battery-box .b-value{font-size:20px;font-weight:800;color:#94a3b8}
-.battery-box .b-status{font-size:10px;color:#64748b;margin-top:2px;font-weight:700}
-.battery-box.good{border-color:#10b981}.battery-box.good .b-icon,.battery-box.good .b-value{color:#10b981}.battery-box.good .b-status{color:#6ee7b7}
-.battery-box.warn{border-color:#f59e0b}.battery-box.warn .b-icon,.battery-box.warn .b-value{color:#f59e0b}
-.battery-box.bad{border-color:#ef4444}.battery-box.bad .b-icon,.battery-box.bad .b-value{color:#ef4444}
-.battery-verdict{padding:14px 16px;border-radius:12px;font-weight:700;text-align:center;font-size:14px}
-.verdict-pass{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
-.verdict-warn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
-.verdict-fail{background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff}
-.mode06-item{background:linear-gradient(145deg,#1e293b,#0f172a);border:1.5px solid #334155;border-radius:12px;padding:12px;margin-bottom:8px}
-.mode06-item.pass{border-color:#10b981}
-.mode06-item.fail{border-color:#ef4444}
-.mode06-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px}
-.mode06-title{font-weight:700;font-size:13px;color:#e2e8f0}
-.mode06-result-badge{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700}
-.mode06-pass{background:#10b981;color:#fff}
-.mode06-fail{background:#ef4444;color:#fff}
-.mode06-unknown{background:#64748b;color:#fff}
-.mode06-ids{font-size:10px;color:#94a3b8;font-family:monospace;margin-bottom:6px}
-.mode06-values{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px}
-.mode06-values>div{background:rgba(15,23,42,.6);padding:6px;border-radius:6px;text-align:center}
-.mode06-values .v-label{color:#64748b;font-size:9px;display:block;margin-bottom:2px}
-.mode06-values .v-num{color:#e2e8f0;font-weight:700;font-family:monospace}
-.transport-badge{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:700}
-.badge-usb{background:#059669;color:#fff}
-.badge-ble{background:#2563eb;color:#fff}
-.hero-blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
-.safe-area{padding-bottom:env(safe-area-inset-bottom)}
-.bluefy-banner{background:linear-gradient(135deg,#1e3a5f,#0f172a);border:2px solid #3b82f6;border-radius:14px;padding:14px;margin-top:12px;font-size:12px;color:#93c5fd;line-height:1.7}
-.bluefy-banner a{color:#60a5fa;font-weight:800;text-decoration:underline}
-body.light-mode{background:#f1f5f9!important;color:#0f172a!important}
-body.light-mode .bg-gray-900{background:#ffffff!important}
-body.light-mode .bg-gray-800{background:#f8fafc!important;border-color:#e2e8f0!important}
-body.light-mode .bg-black{background:#1e293b!important;color:#10b981!important}
-body.light-mode .text-gray-100{color:#0f172a!important}
-body.light-mode .text-gray-300{color:#475569!important}
-body.light-mode .text-gray-400{color:#64748b!important}
-body.light-mode .text-white{color:#0f172a!important}
-body.light-mode .gauge-box{background:#ffffff!important}
-body.light-mode .sys-item{background:#ffffff!important}
-body.light-mode .gauge-value{color:#0f172a!important}
-</style>
-</head>
-<body class="bg-gray-900 text-gray-100 min-h-screen pb-10 safe-area">
-
-<section class="relative overflow-hidden pt-10 pb-12 px-4 border-b border-gray-800/50">
-  <div class="hero-blob top-0 right-0 w-72 h-72 bg-blue-600/20"></div>
-  <div class="hero-blob bottom-0 left-0 w-72 h-72 bg-purple-600/20"></div>
-  <div class="relative max-w-4xl mx-auto text-center">
-    <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
-      <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
-      1696+ كود عطل محدّث
-    </div>
-    <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
-      افحص سيارتك من هاتفك
-      <span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mt-1">الآن</span>
-    </h1>
-    <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">أداة فحص احترافية تعمل في المتصفح — بدون تحميل، بدون تسجيل</p>
-    <button onclick="document.getElementById('app-start').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 hover:opacity-90 px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/25 inline-flex items-center gap-2 transition">
-      <i class="fa-solid fa-wrench"></i> ابدأ الفحص الآن
-    </button>
-    <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-7">
-      <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400">1696+</div><div class="text-[10px] text-gray-500 mt-0.5">كود عطل</div></div>
-      <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500 mt-0.5">حقيقي</div></div>
-      <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">AI</div><div class="text-[10px] text-gray-500 mt-0.5">مساعد ذكي</div></div>
-    </div>
-  </div>
-</section>
-
-<div id="app-start" class="max-w-4xl mx-auto p-3 space-y-4 pt-6">
-<div class="flex justify-between items-center pt-2 flex-wrap gap-2">
-  <div class="text-right flex-1">
-    <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga</h1>
-    <p id="subtitleText" class="text-xs text-gray-400">أداة فحص السيارات المتكاملة</p>
-  </div>
-  <div class="flex gap-2">
-    <button id="btnTheme" class="bg-gray-800 hover:bg-gray-700 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
-    <button id="btnLang" class="bg-gray-800 hover:bg-gray-700 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-globe"></i><span id="langText">English</span></button>
-  </div>
-</div>
-
-<header class="bg-gray-800 p-4 rounded-2xl shadow-lg">
-<div class="flex items-center gap-3 mb-3">
-<div id="statusDot" class="w-3 h-3 rounded-full bg-red-500"></div>
-<div class="flex-1">
-<p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
-<p id="vin-display" class="text-xs text-gray-500 mt-0.5">VIN: --</p>
-</div>
-<span id="transportBadge" class="hidden transport-badge"></span>
-</div>
-<div class="grid grid-cols-3 gap-2 mb-2">
-<button id="connect-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> <span>Bluetooth</span></button>
-<button id="usb-btn" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> <span>USB</span></button>
-<button id="demo-btn" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> <span>تجريبي</span></button>
-</div>
-<div class="grid grid-cols-1 gap-2">
-<button id="disconnect-btn" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2.5 rounded-xl text-sm font-bold items-center justify-center gap-2"><i class="fa-solid fa-plug-circle-xmark"></i> <span>قطع</span></button>
-<button id="clear-btn" class="bg-red-700 hover:bg-red-800 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> <span>مسح الأعطال</span></button>
-</div>
-<div id="bluefyBanner" class="hidden bluefy-banner">
-<i class="fa-solid fa-info-circle text-blue-400"></i>
-<span>لتشغيل Bluetooth على iPhone، حمّل متصفح <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank">Bluefy</a> من App Store وافتح الموقع داخله.</span>
-</div>
-<div id="usbBanner" class="hidden bluefy-banner">
-<i class="fa-solid fa-plug text-emerald-400"></i>
-<span>USB Serial يعمل فقط على Chrome للحاسوب أو أندرويد.</span>
-</div>
-</header>
-
-<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
-<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> <span class="tab-text">الأعطال</span></button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live"><i class="fa-solid fa-chart-line"></i> <span class="tab-text">بيانات حية</span></button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="vin"><i class="fa-solid fa-barcode"></i> <span class="tab-text">VIN</span></button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-folder"></i> <span class="tab-text">السجل</span></button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> <span class="tab-text">إحصائيات</span></button>
-</div>
-
-<div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin" style="unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;">> مرحباً! اضغط "Bluetooth" أو "USB" أو "تجريبي".</div>
-
-<div id="panel-faults" class="panel space-y-4">
-<div id="healthBadge" class="hidden"></div>
-
-<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4 border border-slate-700">
-<div class="gauge-grid">
-<div class="gauge-box" style="--gauge-color:#ef4444">
-<div class="gauge-label">RPM x 1000</div>
-<svg viewBox="0 0 200 200" class="gauge-svg">
-<defs><linearGradient id="rpmGrad" x1="0%" x2="100%"><stop offset="0%" stop-color="#10b981"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
-<path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-<path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#rpmGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-<g class="gauge-needle" id="rpmNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/></g>
-</svg>
-<div class="gauge-value" id="gauge-rpm">0</div>
-<div class="gauge-unit">دورة/دقيقة</div>
-</div>
-<div class="gauge-box" style="--gauge-color:#3b82f6">
-<div class="gauge-label">SPEED</div>
-<svg viewBox="0 0 200 200" class="gauge-svg">
-<defs><linearGradient id="spdGrad" x1="0%" x2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs>
-<path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-<path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#spdGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-<g class="gauge-needle" id="spdNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/></g>
-</svg>
-<div class="gauge-value" id="gauge-speed">0</div>
-<div class="gauge-unit">كم/ساعة</div>
-</div>
-<div class="gauge-box" style="--gauge-color:#f59e0b">
-<div class="gauge-label">TEMP</div>
-<svg viewBox="0 0 200 200" class="gauge-svg">
-<defs><linearGradient id="colGrad" x1="0%" x2="100%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
-<path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-<path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#colGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-<g class="gauge-needle" id="colNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/></g>
-</svg>
-<div class="gauge-value" id="gauge-coolant">0</div>
-<div class="gauge-unit">درجة مئوية</div>
-</div>
-<div class="gauge-box" style="--gauge-color:#10b981">
-<div class="gauge-label">FUEL</div>
-<svg viewBox="0 0 200 200" class="gauge-svg">
-<defs><linearGradient id="fuelGrad" x1="0%" x2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs>
-<path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
-<path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#fuelGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-<g class="gauge-needle" id="fuelNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/></g>
-</svg>
-<div class="gauge-value" id="gauge-fuel">0</div>
-<div class="gauge-unit">نسبة مئوية</div>
-</div>
-</div>
-
-<div>
-<div class="flex items-center gap-2 mb-2 px-1"><i class="fa-solid fa-microchip text-blue-400 text-sm"></i><span class="text-xs font-bold text-gray-400" id="sysStatusTitle">حالة الأنظمة</span></div>
-<div class="system-grid">
-<div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear sys-icon"></i><span class="sys-label">المحرك</span></div>
-<div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs sys-icon"></i><span class="sys-label">الجير</span></div>
-<div class="sys-item" data-sys="abs"><i class="fa-solid fa-circle-exclamation sys-icon"></i><span class="sys-label">ABS</span></div>
-<div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand sys-icon"></i><span class="sys-label">الفرامل</span></div>
-<div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved sys-icon"></i><span class="sys-label">الوسائد</span></div>
-<div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump sys-icon"></i><span class="sys-label">الوقود</span></div>
-<div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog sys-icon"></i><span class="sys-label">العوادم</span></div>
-<div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half sys-icon"></i><span class="sys-label">التبريد</span></div>
-<div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery sys-icon"></i><span class="sys-label">البطارية</span></div>
-<div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt sys-icon"></i><span class="sys-label">الكهرباء</span></div>
-</div>
-</div>
-</div>
-
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<div class="flex items-center justify-between flex-wrap gap-2">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> <span>جاهزية الانبعاثات</span></h3>
-<button id="btnReadiness" class="bg-green-700 hover:bg-green-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-clipboard-check"></i> <span>فحص الجاهزية</span></button>
-</div>
-<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية" للبدء</p></div>
-</div>
-
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<div class="flex items-center justify-between flex-wrap gap-2">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-car-battery text-yellow-400"></i> <span>اختبار البطارية</span></h3>
-<button id="btnBatteryTest" class="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-bolt"></i> <span>بدء الاختبار</span></button>
-</div>
-<div id="batteryContent">
-<div class="battery-grid">
-<div class="battery-box" id="bat-box-1"><div class="b-icon"><i class="fa-solid fa-battery-half"></i></div><div class="b-title">محرك مطفأ</div><div class="b-value" id="bat-val-1">--</div><div class="b-status">في الانتظار</div></div>
-<div class="battery-box" id="bat-box-2"><div class="b-icon"><i class="fa-solid fa-bolt"></i></div><div class="b-title">محرك يعمل</div><div class="b-value" id="bat-val-2">--</div><div class="b-status">في الانتظار</div></div>
-<div class="battery-box" id="bat-box-3"><div class="b-icon"><i class="fa-solid fa-lightbulb"></i></div><div class="b-title">تحت الحمل</div><div class="b-value" id="bat-val-3">--</div><div class="b-status">في الانتظار</div></div>
-</div>
-<div id="batteryVerdict" class="hidden"></div>
-</div>
-</div>
-
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<div class="flex items-center justify-between flex-wrap gap-2">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-microscope text-cyan-400"></i> <span>Mode 06</span></h3>
-<button id="btnMode06" class="bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-flask-vial"></i> <span>بدء الفحص</span></button>
-</div>
-<div id="mode06Content"><p class="text-gray-500 text-center py-4">اضغط "بدء الفحص"</p></div>
-</div>
-
-<div id="smartDiagnosis" class="hidden"></div>
-
-<div id="exportCard" class="hidden bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3">
-<div class="flex items-center justify-between gap-3 flex-wrap">
-<div><div class="font-bold text-emerald-300 text-sm">شارك النتائج</div></div>
-<div class="flex gap-2">
-<button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-<button id="btnShareWhatsApp" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</button>
-</div>
-</div>
-</div>
-
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> <span>أكواد الأعطال</span></h3>
-<div class="dtc-legend">
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#dc2626"></div><span>مؤكد</span></div>
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#f59e0b"></div><span>مؤقت</span></div>
-<div class="dtc-legend-item"><div class="dtc-legend-dot" style="background:#7c3aed"></div><span>دائم</span></div>
-</div>
-<div class="grid grid-cols-2 gap-2">
-<button id="btnReadDTC" class="bg-amber-600 hover:bg-amber-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-list"></i> <span>فحص المحرك</span></button>
-<button id="btnScanAll" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-radar"></i> <span>فحص الكل</span></button>
-</div>
-<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none" placeholder="ابحث عن كود (P0301, BMW...)">
-<div id="brandFilters" class="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1"></div>
-<div id="searchResults"></div>
-<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
-</div>
-</div>
-
-<div id="panel-live" class="panel hidden space-y-4">
-<div class="bg-gray-800 p-4 rounded-2xl">
-<h3 class="text-base font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> <span>الرسوم البيانية</span></h3>
-<div class="h-56"><canvas id="liveChart"></canvas></div>
-</div>
-<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4">
-<h3 class="text-amber-200 font-bold text-sm mb-2"><i class="fa-solid fa-brain"></i> <span>التحليل التلقائي</span></h3>
-<div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div>
-</div>
-</div>
-
-<div id="panel-vin" class="panel hidden space-y-4">
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> <span>رقم الهيكل VIN</span></h3>
-<button id="btnReadVIN" class="w-full bg-amber-600 hover:bg-amber-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-satellite-dish"></i> <span>قراءة من السيارة</span></button>
-<input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase" placeholder="VIN يدوي (17 حرفاً)">
-<button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> <span>فك الشيفرة</span></button>
-<div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة.</div>
-<div id="vinInfo"></div>
-</div>
-</div>
-
-<div id="panel-history" class="panel hidden">
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder text-blue-400"></i> <span>سجل الفحوصات</span></h3>
-<div id="historyContent"><p class="text-center text-gray-500 py-4">...</p></div>
-</div>
-</div>
-
-<div id="panel-stats" class="panel hidden">
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> <span>إحصائيات حية</span></h3>
-<button id="btnLoadStats" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> <span>تحديث</span></button>
-<div id="statsContent"><p class="text-center text-gray-500 py-4">اضغط "تحديث".</p></div>
-</div>
-</div>
-</div>
-
-<button id="aiBtn" onclick="window.toggleAI()" class="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 shadow-2xl shadow-purple-500/50 flex items-center justify-center hover:scale-110 transition-transform"><i class="fa-solid fa-robot text-white text-xl"></i></button>
-
-<div id="aiModal" class="hidden fixed inset-0 z-50 bg-black/80 p-3">
-<div class="max-w-2xl mx-auto mt-4 bg-gray-900 rounded-3xl border-2 border-purple-500/50 flex flex-col" style="height:calc(100vh - 32px);max-height:700px;">
-<div class="flex items-center justify-between p-4 border-b border-gray-700">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"><i class="fa-solid fa-robot text-white"></i></div>
-<div><div class="font-bold text-white">المساعد الذكي</div><div class="text-[10px] text-green-400">متصل</div></div>
-</div>
-<button onclick="window.toggleAI()" class="w-9 h-9 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"><i class="fa-solid fa-times"></i></button>
-</div>
-<div id="aiChat" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin" style="background:#0a0f1e;">
-<div class="flex gap-2">
-<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
-<div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200 max-w-[85%]">مرحباً! أنا مساعد CheckDiga الذكي.</div>
-</div>
-</div>
-<div class="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-thin">
-<button onclick="window.askAI('اشرح P0301')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">P0301</button>
-<button onclick="window.askAI('سيارتي تهتز')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">اهتزاز</button>
-<button onclick="window.askAI('Check Engine')" class="bg-gray-800 text-xs px-3 py-1.5 rounded-full text-gray-300 whitespace-nowrap">Check Engine</button>
-</div>
-<div class="p-3 border-t border-gray-700 flex gap-2">
-<input id="aiInput" type="text" placeholder="اكتب سؤالك..." class="flex-1 bg-gray-800 border-2 border-gray-700 rounded-2xl px-4 py-3 text-sm text-white outline-none" onkeydown="if(event.key==='Enter')window.sendAI()">
-<button onclick="window.sendAI()" id="aiSendBtn" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-white"></i></button>
-</div>
-</div>
-</div>
-
-<footer class="border-t border-gray-800 py-8 px-4 mt-10">
-  <div class="max-w-4xl mx-auto text-center space-y-3">
-    <div class="flex items-center justify-center gap-2 mb-2">
-      <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"><i class="fa-solid fa-wrench text-white text-sm"></i></div>
-      <span class="font-extrabold">CheckDiga</span>
-    </div>
-    <p class="text-xs text-gray-500">أداة فحص سيارات مع مساعد ذكي</p>
-    <div class="text-xs text-gray-600 pt-3 border-t border-gray-800/50">CheckDiga 2026 - صُنع في الجزائر</div>
-  </div>
-</footer>
-
-<div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto">
-<div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative border border-gray-700">
-<button id="btnCloseDetail" class="absolute top-3 left-3 bg-red-600 w-8 h-8 rounded-full text-sm font-bold">x</button>
-<div id="dtcDetailContent" class="pt-2"></div>
-</div>
-</div>
-
-<script type="module">
-// ============ GEMINI KEY ============
-var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";
-var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
-
-var ua = navigator.userAgent;
-var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-var isBluefy = /Bluefy/i.test(ua);
-var hasSerial = 'serial' in navigator;
-var hasBluetooth = 'bluetooth' in navigator;
-
-// ============ OBD2 STATE ============
-var btDevice=null, btServer=null, uartChar=null;
-var usbPort=null, usbWriter=null, usbReader=null, usbReadLoopActive=false;
-var transport=null;
-var isConnected=false, isDemo=false;
-var recvBuf='', cmdQueue=[], isProcessing=false, curResolve=null, curTimeout=null;
-var liveReading=false;
-var liveTimer=null, chartInstance=null;
-var chartData={labels:[], rpm:[], speed:[]};
-var lastCoolant=0, lastFuel=75;
-var lastFaults=[], lastDiagnosis=[], lastVinInfo=null;
-var demoTimer=null;
-var KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb'];
-var KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb','0000fff2-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb'];
-
-// ============ DTC DATABASE ============
-var DTC_DATABASE = {
-"P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
-"P0101":{zone:"engine",title:"حساس MAF - أداء",title_en:"MAF Sensor Performance",severity:"medium"},
-"P0102":{zone:"engine",title:"حساس MAF - منخفض",title_en:"MAF Sensor Low",severity:"medium"},
-"P0103":{zone:"engine",title:"حساس MAF - مرتفع",title_en:"MAF Sensor High",severity:"medium"},
-"P0105":{zone:"engine",title:"حساس MAP",title_en:"MAP Sensor Circuit",severity:"medium"},
-"P0106":{zone:"engine",title:"حساس MAP - أداء",title_en:"MAP Performance",severity:"medium"},
-"P0107":{zone:"engine",title:"حساس MAP - منخفض",title_en:"MAP Low",severity:"medium"},
-"P0108":{zone:"engine",title:"حساس MAP - مرتفع",title_en:"MAP High",severity:"medium"},
-"P0110":{zone:"engine",title:"حساس IAT",title_en:"IAT Sensor",severity:"low"},
-"P0113":{zone:"engine",title:"IAT - مرتفع",title_en:"IAT High",severity:"low"},
-"P0115":{zone:"cooling",title:"حساس حرارة التبريد",title_en:"Coolant Temp Sensor",severity:"medium"},
-"P0117":{zone:"cooling",title:"حرارة - منخفض",title_en:"Coolant Low",severity:"medium"},
-"P0118":{zone:"cooling",title:"حرارة - مرتفع",title_en:"Coolant High",severity:"medium"},
-"P0120":{zone:"engine",title:"حساس TPS",title_en:"TPS Circuit",severity:"high"},
-"P0121":{zone:"engine",title:"TPS - أداء",title_en:"TPS Performance",severity:"high"},
-"P0122":{zone:"engine",title:"TPS - منخفض",title_en:"TPS Low",severity:"high"},
-"P0123":{zone:"engine",title:"TPS - مرتفع",title_en:"TPS High",severity:"high"},
-"P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat Faulty",desc:"المحرك لا يصل لحرارة التشغيل",desc_en:"Engine doesn't reach operating temp",severity:"medium",causes:["ترموستات عالق مفتوح","حساس الحرارة تالف","هواء في نظام التبريد"],causes_en:["Thermostat stuck open","Faulty temp sensor","Air in cooling"],symptoms:["مؤشر الحرارة لا يصل للمنتصف","استهلاك وقود مرتفع"],symptoms_en:["Temp gauge doesn't reach middle","High fuel consumption"],steps:["افحص مستوى سائل التبريد","افحص الترموستات","استبدل الترموستات"],steps_en:["Check coolant level","Test thermostat","Replace thermostat"]},
-"P0130":{zone:"exhaust",title:"حساس O2 B1S1",title_en:"O2 B1S1",severity:"medium"},
-"P0131":{zone:"exhaust",title:"O2 B1S1 - منخفض",title_en:"O2 B1S1 Low",severity:"medium"},
-"P0132":{zone:"exhaust",title:"O2 B1S1 - مرتفع",title_en:"O2 B1S1 High",severity:"medium"},
-"P0133":{zone:"exhaust",title:"O2 B1S1 - بطيء",title_en:"O2 B1S1 Slow",severity:"medium"},
-"P0134":{zone:"exhaust",title:"O2 B1S1 - لا نشاط",title_en:"O2 No Activity",severity:"high"},
-"P0135":{zone:"exhaust",title:"سخان O2 B1S1",title_en:"O2 B1S1 Heater",severity:"medium"},
-"P0136":{zone:"exhaust",title:"حساس O2 B1S2",title_en:"O2 B1S2",severity:"medium"},
-"P0141":{zone:"exhaust",title:"سخان O2 B1S2",title_en:"O2 B1S2 Heater",severity:"medium"},
-"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"System Too Lean Bank 1",desc:"الخليط فقير جداً",desc_en:"Air/fuel too lean",severity:"high",causes:["تسرب هواء","حساس MAF متسخ","فلتر هواء مسدود","مضخة وقود ضعيفة"],causes_en:["Vacuum leak","Dirty MAF","Clogged air filter","Weak fuel pump"],symptoms:["اهتزاز عند الخمول","تسارع ضعيف","استهلاك مرتفع"],symptoms_en:["Idle vibration","Poor acceleration","High fuel consumption"],steps:["افحص خراطيم الفاكيوم","نظف MAF","افحص ضغط الوقود"],steps_en:["Check vacuum hoses","Clean MAF","Check fuel pressure"]},
-"P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"System Too Rich Bank 1",severity:"high"},
-"P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"System Too Lean Bank 2",severity:"high"},
-"P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"System Too Rich Bank 2",severity:"high"},
-"P0200":{zone:"fuel",title:"دائرة الحاقن",title_en:"Injector Circuit",severity:"high"},
-"P0201":{zone:"fuel",title:"الحاقن 1",title_en:"Injector Cylinder 1",severity:"high"},
-"P0202":{zone:"fuel",title:"الحاقن 2",title_en:"Injector Cylinder 2",severity:"high"},
-"P0203":{zone:"fuel",title:"الحاقن 3",title_en:"Injector Cylinder 3",severity:"high"},
-"P0204":{zone:"fuel",title:"الحاقن 4",title_en:"Injector Cylinder 4",severity:"high"},
-"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Engine Overheating",desc:"أوقف السيارة فوراً",desc_en:"Stop immediately",severity:"critical",causes:["نقص سائل التبريد","ترموستات تالف","مروحة معطلة"],causes_en:["Low coolant","Bad thermostat","Broken fan"],symptoms:["ارتفاع مؤشر الحرارة","دخان من المحرك"],symptoms_en:["High temp gauge","Smoke"],steps:["أوقف فوراً","افحص سائل التبريد","افحص المراوح"],steps_en:["Stop immediately","Check coolant","Check fans"]},
-"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",desc:"التيربو لا ينتج الضغط المطلوب",desc_en:"Turbo not producing boost",severity:"high",causes:["خرطوم تيربو مشقوق","Wastegate عالق","Blow-off معطل","حساس MAP تالف"],causes_en:["Cracked turbo hose","Stuck wastegate","Faulty blow-off","Bad MAP"],symptoms:["فقدان قوة","دخان أسود","صوت صفير"],symptoms_en:["Power loss","Black smoke","Whistling"],steps:["افحص خراطيم التيربو","افحص Wastegate","افحص MAP"],steps_en:["Check turbo hoses","Check wastegate","Check MAP"]},
-"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Multiple Misfire",desc:"اشتعال غير منتظم",desc_en:"Irregular combustion",severity:"high",causes:["بواجي مستهلكة","كويلات تالفة","تسرب هواء","ضغط وقود منخفض"],causes_en:["Worn plugs","Bad coils","Vacuum leak","Low fuel pressure"],symptoms:["اهتزاز المحرك","فقدان قوة","صوت غير منتظم"],symptoms_en:["Engine vibration","Power loss"],steps:["افحص البواجي","افحص الكويلات","افحص ضغط الوقود"],steps_en:["Check plugs","Check coils","Check fuel pressure"]},
-"P0301":{zone:"engine",title:"اشتعال متقطع - أسطوانة 1",title_en:"Cylinder 1 Misfire",desc:"اشتعال غير كامل",desc_en:"Incomplete combustion",severity:"high",causes:["بوجيه تالف","كويل معطل","حاقن مسدود","ضغط منخفض"],causes_en:["Bad plug","Bad coil","Clogged injector","Low compression"],symptoms:["اهتزاز عند الخمول","فقدان قوة"],symptoms_en:["Idle vibration","Power loss"],steps:["افحص البوجيه","بدل الكويل","افحص الضغط"],steps_en:["Check plug","Swap coil","Check compression"]},
-"P0302":{zone:"engine",title:"اشتعال متقطع - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
-"P0303":{zone:"engine",title:"اشتعال متقطع - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
-"P0304":{zone:"engine",title:"اشتعال متقطع - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
-"P0305":{zone:"engine",title:"اشتعال متقطع - أسطوانة 5",title_en:"Cylinder 5 Misfire",severity:"high"},
-"P0306":{zone:"engine",title:"اشتعال متقطع - أسطوانة 6",title_en:"Cylinder 6 Misfire",severity:"high"},
-"P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crankshaft Position Sensor",desc:"قد يمنع التشغيل",desc_en:"May prevent start",severity:"critical",causes:["حساس كرنك تالف","أسلاك مقطوعة"],causes_en:["Bad crank sensor","Broken wires"],symptoms:["السيارة لا تشتغل","توقف مفاجئ"],symptoms_en:["Car won't start","Sudden stall"],steps:["افحص الحساس","افحص الأسلاك"],steps_en:["Check sensor","Check wires"]},
-"P0336":{zone:"engine",title:"حساس الكرنك - نطاق",title_en:"Crank Range",severity:"high"},
-"P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor A",severity:"high"},
-"P0350":{zone:"engine",title:"دائرة الكويل",title_en:"Coil Circuit",severity:"high"},
-"P0351":{zone:"engine",title:"دائرة الكويل A",title_en:"Coil A",severity:"high"},
-"P0352":{zone:"engine",title:"دائرة الكويل B",title_en:"Coil B",severity:"high"},
-"P0401":{zone:"exhaust",title:"EGR غير كافي",title_en:"EGR Insufficient",desc:"صمام EGR مسدود",desc_en:"Clogged EGR valve",severity:"medium",causes:["صمام EGR مسدود","خط EGR مسدود"],causes_en:["Clogged EGR valve","Clogged EGR line"],symptoms:["خمول غير مستقر","تسارع ضعيف"],symptoms_en:["Unstable idle","Poor acceleration"],steps:["نظف صمام EGR","افحص الخطوط"],steps_en:["Clean EGR","Check lines"]},
-"P0420":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 1",title_en:"Catalyst Below Threshold Bank 1",desc:"شائع - افحص O2 قبل الاستبدال",desc_en:"Common - check O2 first",severity:"medium",causes:["كتلايزر متآكل","حساس O2 الأمامي تالف","حساس O2 الخلفي تالف"],causes_en:["Worn catalyst","Bad upstream O2","Bad downstream O2"],symptoms:["Check Engine فقط","رائحة كبريت"],symptoms_en:["Check Engine only","Sulfur smell"],steps:["افحص P0300/P0301","قارن O2 الأمامي والخلفي"],steps_en:["Check P0300/P0301","Compare O2 sensors"]},
-"P0430":{zone:"exhaust",title:"كتلايزر ضعيف - Bank 2",title_en:"Catalyst Bank 2",severity:"medium"},
-"P0442":{zone:"exhaust",title:"تسرب EVAP صغير",title_en:"EVAP Small Leak",severity:"low"},
-"P0455":{zone:"exhaust",title:"تسرب EVAP كبير",title_en:"EVAP Large Leak",severity:"medium"},
-"P0456":{zone:"exhaust",title:"تسرب EVAP صغير جداً",title_en:"EVAP Very Small",severity:"low"},
-"P0457":{zone:"exhaust",title:"غطاء البنزين",title_en:"Fuel Cap Loose",severity:"low"},
-"P0460":{zone:"fuel",title:"حساس مستوى الوقود",title_en:"Fuel Level",severity:"low"},
-"P0480":{zone:"cooling",title:"مروحة التبريد 1",title_en:"Cooling Fan 1",severity:"high"},
-"P0481":{zone:"cooling",title:"مروحة التبريد 2",title_en:"Cooling Fan 2",severity:"high"},
-"P0500":{zone:"transmission",title:"حساس سرعة المركبة",title_en:"Vehicle Speed Sensor",severity:"medium"},
-"P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
-"P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Too Low",severity:"critical"},
-"P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage",severity:"high"},
-"P0562":{zone:"electronics",title:"جهد منخفض",title_en:"Voltage Low",severity:"high"},
-"P0563":{zone:"electronics",title:"جهد مرتفع",title_en:"Voltage High",severity:"high"},
-"P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM Error",severity:"high"},
-"P0606":{zone:"electronics",title:"PCM معالج",title_en:"PCM Processor Fault",severity:"critical"},
-"P0620":{zone:"electronics",title:"دائرة الدينامو",title_en:"Alternator Circuit",severity:"high"},
-"P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission MIL Request",desc:"افحص كمبيوتر الجير",desc_en:"Check TCM",severity:"high",causes:["مشكلة داخلية","TCM أرسل إشارة"],causes_en:["Internal problem","TCM signal"],symptoms:["صعوبة تغيير التروس","Limp Mode"],symptoms_en:["Hard shifting","Limp mode"],steps:["افحص TCM","اقرأ الأكواد الفرعية"],steps_en:["Check TCM","Read subcodes"]},
-"P0705":{zone:"transmission",title:"حساس نطاق",title_en:"Trans Range Sensor",severity:"medium"},
-"P0715":{zone:"transmission",title:"حساس سرعة الدخل",title_en:"Input Speed Sensor",severity:"high"},
-"P0720":{zone:"transmission",title:"حساس سرعة الخرج",title_en:"Output Speed Sensor",severity:"high"},
-"P0730":{zone:"transmission",title:"نسبة تروس",title_en:"Incorrect Gear Ratio",severity:"critical"},
-"P0740":{zone:"transmission",title:"Torque Converter",title_en:"Torque Converter Circuit",severity:"high"},
-"P0741":{zone:"transmission",title:"TCC أداء",title_en:"TCC Performance",severity:"high"},
-"P0750":{zone:"transmission",title:"Shift Solenoid A",title_en:"Shift Solenoid A",severity:"high"},
-"P0755":{zone:"transmission",title:"Shift Solenoid B",title_en:"Shift Solenoid B",severity:"high"},
-"P0760":{zone:"transmission",title:"Shift Solenoid C",title_en:"Shift Solenoid C",severity:"high"},
-"P0A80":{zone:"electronics",title:"استبدل HV",title_en:"Replace HV Battery",severity:"critical"},
-"P2002":{brand:"Diesel",zone:"exhaust",title:"فلتر DPF مسدود",title_en:"DPF Efficiency Low",severity:"high"},
-"P2043":{brand:"Diesel",zone:"engine",title:"مضخة اليوريا",title_en:"Urea Pump",severity:"high"},
-"P20EE":{brand:"Diesel",zone:"exhaust",title:"SCR أقل من الحد",title_en:"SCR Below Threshold",severity:"high"},
-"P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم سخام DPF",title_en:"DPF Soot Accumulation",severity:"high"},
-"C0035":{zone:"brakes",title:"حساس عجلة أمامية يسرى",title_en:"FL Wheel Speed Sensor",severity:"high"},
-"C0040":{zone:"brakes",title:"حساس عجلة أمامية يمنى",title_en:"FR Wheel Speed Sensor",severity:"high"},
-"C0045":{zone:"brakes",title:"حساس عجلة خلفية يسرى",title_en:"RL Wheel Speed Sensor",severity:"high"},
-"C0050":{zone:"brakes",title:"حساس عجلة خلفية يمنى",title_en:"RR Wheel Speed Sensor",severity:"high"},
-"B0001":{zone:"airbag",title:"عطل الوسائد",title_en:"Airbag System Fault",desc:"نظام SRS معطل",desc_en:"SRS faulty",severity:"critical",causes:["وحدة SRS تالفة","حساس صدمة","أسلاك"],causes_en:["Bad SRS module","Impact sensor","Wires"],symptoms:["لمبة الوسائد مضاءة"],symptoms_en:["Airbag light on"],steps:["افحص وحدة SRS","افحص الحساسات"],steps_en:["Check SRS module","Check sensors"]},
-"B1000":{zone:"airbag",title:"وحدة الوسائد",title_en:"Airbag Module",severity:"critical"},
-"U0001":{zone:"electronics",title:"CAN عام",title_en:"CAN General Error",severity:"high"},
-"U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost Comm With ECM/PCM",desc:"كمبيوتر المحرك لا يستجيب",desc_en:"Engine computer not responding",severity:"critical",causes:["فيوز محروق","سلك CAN مقطوع","ECM تالف"],causes_en:["Blown fuse","Broken CAN wire","Bad ECM"],symptoms:["السيارة لا تشتغل","Limp Mode"],symptoms_en:["Car won't start","Limp mode"],steps:["افحص فيوز ECM","افحص مقاومة CAN 60 اوم"],steps_en:["Check ECM fuse","Check CAN 60 ohm"]},
-"U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost Comm With TCM",severity:"critical"},
-"U0121":{zone:"abs",title:"فقدان ABS",title_en:"Lost Comm With ABS",severity:"critical"},
-"U0140":{zone:"electronics",title:"فقدان BCM",title_en:"Lost Comm With BCM",desc:"شائع جداً",desc_en:"Very common",severity:"high",causes:["BCM تالف","أسلاك","فيوز"],causes_en:["Bad BCM","Wires","Fuse"],symptoms:["أضواء لا تعمل","نوافذ لا تعمل"],symptoms_en:["Lights not working","Windows not working"],steps:["افحص فيوز BCM","افحص BCM"],steps_en:["Check BCM fuse","Check BCM"]},
-"U0155":{zone:"electronics",title:"فقدان Instrument Panel",title_en:"Lost Comm Instrument",severity:"high"},
-"U0167":{zone:"electronics",title:"فقدان Immobilizer",title_en:"Lost Comm Immob",severity:"critical"},
-"U1001":{zone:"electronics",title:"فقدان CAN",title_en:"CAN Communication Lost",severity:"critical"},
-"P1326_HYU":{brand:"Hyundai/Kia",zone:"engine",title:"اهتزاز المحرك - مصنعي",title_en:"Engine Vibration Manufacturing",desc:"مشكلة مصنعية شهيرة - قد يكون مشمولاً بالضمان",desc_en:"Famous manufacturing issue - may be under warranty",severity:"critical",causes:["مشكلة مصنعية في المحرك","تراكم رواسب كربونية"],causes_en:["Manufacturing defect","Carbon buildup"],symptoms:["صوت قرقعة","فقدان قوة","اهتزاز شديد"],symptoms_en:["Knocking noise","Power loss","Severe vibration"],steps:["افحص رقم VIN للضمان","اتصل بالوكيل"],steps_en:["Check VIN for warranty","Contact dealer"]}
-};
-
-var BRAND_INDEX = new Map();
-function buildDTCIndex(){
-  BRAND_INDEX.clear();
-  var keys = Object.keys(DTC_DATABASE);
-  for(var i=0;i<keys.length;i++){
-    var k = keys[i];
-    var base = k.split('_')[0].toUpperCase();
-    if(!BRAND_INDEX.has(base)) BRAND_INDEX.set(base, []);
-    BRAND_INDEX.get(base).push(k);
-  }
-}
-buildDTCIndex();
-
-var RULES = [
-  {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',title_en:'Air Leak in Intake',confidence:90,severity:'high',description:'خليط فقير في البنكين.',description_en:'Lean mixture both banks',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص MAF'],actions_en:['Check vacuum hoses','Check intake gasket','Check MAF']},
-  {required:['P0171'],anyOf:['P0300','P0301','P0302','P0303','P0304'],title:'تسرب هواء يسبب اشتعال متقطع',title_en:'Air Leak Causing Misfire',confidence:85,severity:'high',description:'الخليط الفقير أدى لاشتعال متقطع.',description_en:'Lean mixture caused misfire',actions:['افحص تسرب الهواء أولاً'],actions_en:['Check air leaks first']},
-  {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',title_en:'Ignition System Issue',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',description_en:'Multiple misfire',actions:['استبدل البواجي','افحص الكويلات'],actions_en:['Replace plugs','Check coils']},
-  {required:['P0420'],anyOf:['P0300','P0301','P0302','P0303'],title:'تلف الكتلايزر',title_en:'Catalyst Damage',confidence:90,severity:'high',description:'الاشتعال المتقطع أتلف الكتلايزر.',description_en:'Misfire damaged catalyst',actions:['أصلح الإشعال أولاً','استبدل الكتلايزر'],actions_en:['Fix ignition first','Replace catalyst']},
-  {required:['P0299'],title:'ضغط التيربو منخفض',title_en:'Turbo Underboost',confidence:90,severity:'high',description:'التيربو لا ينتج الضغط المطلوب.',description_en:'Turbo not producing boost',actions:['افحص خراطيم التيربو','افحص Wastegate','افحص MAP'],actions_en:['Check turbo hoses','Check wastegate','Check MAP']},
-  {required:['P2002'],anyOf:['P2463'],title:'فلتر DPF مسدود',title_en:'DPF Clogged',confidence:95,severity:'high',description:'فلتر DPF يحتاج تجديد.',description_en:'DPF needs regeneration',actions:['قيادة سريعة 20 دقيقة','منظف DPF'],actions_en:['20 min fast drive','DPF cleaner']},
-  {required:['P0335'],title:'عطل حساس الكرنك',title_en:'Crank Sensor Fault',confidence:95,severity:'critical',description:'قد يمنع التشغيل.',description_en:'May prevent start',actions:['استبدل حساس الكرنك'],actions_en:['Replace crank sensor']},
-  {required:['P0217'],title:'ارتفاع حرارة المحرك',title_en:'Engine Overheating',confidence:100,severity:'critical',description:'أوقف السيارة فوراً!',description_en:'Stop immediately!',actions:['أوقف فوراً','افحص سائل التبريد'],actions_en:['Stop immediately','Check coolant']},
-  {required:['U0100'],title:'فقدان الاتصال بـ ECU',title_en:'Lost Comm With ECU',confidence:90,severity:'critical',description:'لا يوجد تواصل مع الكمبيوتر.',description_en:'No comm with ECU',actions:['افحص الأسلاك','افحص الفيوزات'],actions_en:['Check wires','Check fuses']},
-  {required:['U0140'],title:'فقدان الاتصال بـ BCM',title_en:'Lost Comm With BCM',confidence:85,severity:'high',description:'وحدة الجسم لا تتواصل.',description_en:'BCM not communicating',actions:['افحص فيوز BCM','افحص BCM'],actions_en:['Check BCM fuse','Check BCM']},
-  {required:['B0001'],title:'عطل الوسائد الهوائية',title_en:'Airbag System Fault',confidence:90,severity:'critical',description:'نظام SRS معطل!',description_en:'SRS faulty!',actions:['افحص وحدة SRS'],actions_en:['Check SRS module']},
-  {required:['P0128'],title:'ترموستات عاطل',title_en:'Thermostat Faulty',confidence:90,severity:'medium',description:'المحرك لا يصل للحرارة.',description_en:'Engine not reaching temp',actions:['استبدل الترموستات'],actions_en:['Replace thermostat']},
-  {required:['P0700'],title:'عطل ناقل الحركة',title_en:'Transmission Fault',confidence:95,severity:'high',description:'كمبيوتر الجير أرسل عطل.',description_en:'TCM sent fault',actions:['افحص كمبيوتر الجير'],actions_en:['Check TCM']},
-  {required:['P1326_HYU'],title:'عطل مصنعي Hyundai/Kia',title_en:'Hyundai/Kia Manufacturing Issue',confidence:100,severity:'critical',description:'مشكلة مصنعية شهيرة!',description_en:'Famous manufacturing issue!',actions:['اتصل بالوكيل','افحص شمول الضمان'],actions_en:['Contact dealer','Check warranty']}
-];
-
-var VIN_COUNTRY = {'1':'USA','2':'Canada','3':'Mexico','J':'Japan','K':'Korea','L':'China','S':'UK','V':'France','W':'Germany','Y':'Sweden','Z':'Italy'};
-var VIN_YEARS = {'A':'1980/2010','B':'1981/2011','C':'1982/2012','D':'1983/2013','E':'1984/2014','F':'1985/2015','G':'1986/2016','H':'1987/2017','J':'1988/2018','K':'1989/2019','L':'1990/2020','M':'1991/2021','N':'1992/2022','P':'1993/2023','R':'1994/2024','S':'1995/2025','T':'1996/2026','V':'1997/2027','W':'1998/2028','X':'1999/2029','Y':'2000/2030','1':'2001/2031','2':'2002/2032','3':'2003/2033','4':'2004/2034','5':'2005/2035','6':'2006/2036','7':'2007/2037','8':'2008/2038','9':'2009/2039'};
-var VIN_WMI = {'JHM':'Honda','JT2':'Toyota','JTD':'Toyota','JTH':'Lexus','JN1':'Nissan','WBA':'BMW','WDB':'Mercedes','WDD':'Mercedes','WVW':'Volkswagen','WAU':'Audi','1FA':'Ford','1FT':'Ford','1G1':'Chevrolet','1HG':'Honda','4T1':'Toyota','5N1':'Nissan','KMH':'Hyundai','KNA':'Kia','VF1':'Renault','VF3':'Peugeot','VF7':'Citroen','ZFA':'Fiat','SAV':'Land Rover','YV1':'Volvo'};
-
-function decodeVIN(vin){
-  if(!vin||vin.length!==17)return null;
-  var v = vin.toUpperCase();
-  return {vin:v,country:VIN_COUNTRY[v[0]]||'Unknown',manufacturer:VIN_WMI[v.substring(0,3)]||'Unknown',year:VIN_YEARS[v[9]]||'Unknown',plant:'Plant '+v[10]};
-}
-
-// ============ LOGGING ============
-function log(msg){
-  var c = document.getElementById('console');
-  if(!c) return;
-  var time = new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  c.textContent += '\n[' + time + '] ' + msg;
-  c.scrollTop = c.scrollHeight;
-}
-function logSuccess(m){ log('OK: ' + m); }
-function logInfo(m){ log('INFO: ' + m); }
-function logError(m){ log('ERR: ' + m); }
-
-function setStatus(state){
-  var s = document.getElementById('connection-status');
-  var d = document.getElementById('statusDot');
-  var tb = document.getElementById('transportBadge');
-  if(!s||!d) return;
-  if(state === 'connected'){s.textContent = 'متصل'; s.className = 'text-sm font-bold text-green-400'; d.className = 'w-3 h-3 rounded-full bg-green-500';}
-  else if(state === 'demo'){s.textContent = 'وضع تجريبي'; s.className = 'text-sm font-bold text-amber-400'; d.className = 'w-3 h-3 rounded-full bg-amber-500';}
-  else{s.textContent = 'غير متصل'; s.className = 'text-sm font-bold text-red-400'; d.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';}
-  if(tb){
-    if(state === 'connected' && transport){tb.classList.remove('hidden'); tb.className = transport === 'usb' ? 'transport-badge badge-usb' : 'transport-badge badge-ble'; tb.textContent = transport === 'usb' ? 'USB' : 'BLE';}
-    else tb.classList.add('hidden');
-  }
-}
-
-// ============ UI HELPERS ============
-function updateGauge(arcId, needleId, valueId, value, max){
-  var arc = document.getElementById(arcId), needle = document.getElementById(needleId), valEl = document.getElementById(valueId);
-  if(!arc||!needle||!valEl) return;
-  var cv = Math.max(0, Math.min(max, value)), pct = cv/max;
-  arc.setAttribute('stroke-dashoffset', 220*(1-pct));
-  needle.style.transform = 'rotate(' + (-90+pct*180) + 'deg)';
-  valEl.textContent = Math.round(cv);
-}
-function updateAllGauges(v){
-  updateGauge('rpmArc','rpmNeedle','gauge-rpm',v.rpm||0,8000);
-  updateGauge('spdArc','spdNeedle','gauge-speed',v.speed||0,220);
-  updateGauge('colArc','colNeedle','gauge-coolant',v.coolant||0,130);
-  updateGauge('fuelArc','fuelNeedle','gauge-fuel',v.fuelLevel!==undefined?v.fuelLevel:75,100);
-}
-function resetSystemGrid(){document.querySelectorAll('.sys-item').forEach(function(el){el.classList.remove('good','bad');});}
-function updateSystemGrid(faults){
-  resetSystemGrid();
-  if(!faults||faults.length===0){document.querySelectorAll('.sys-item').forEach(function(el){el.classList.add('good');}); return;}
-  var affected = new Set();
-  faults.forEach(function(f){var info = getFaultInfo(f.code); affected.add(info.zone);});
-  document.querySelectorAll('.sys-item').forEach(function(el){el.classList.add(affected.has(el.dataset.sys) ? 'bad' : 'good');});
-}
-function getFaultInfo(code){
-  var c = String(code).trim().toUpperCase();
-  if(DTC_DATABASE[c]) return DTC_DATABASE[c];
-  var variants = BRAND_INDEX.get(c);
-  if(variants && variants.length>0) return Object.assign({}, DTC_DATABASE[variants[0]], {code:c});
-  return {zone:'engine', title:'عطل غير معروف', title_en:'Unknown fault', desc:''};
-}
-function runDiagnosis(codes){
-  if(!codes||codes.length===0) return [];
-  var s = new Set(codes.map(function(c){return String(c).toUpperCase();}));
-  var r = [];
-  for(var i=0;i<RULES.length;i++){
-    var rule = RULES[i];
-    var allMatch = true;
-    for(var j=0;j<rule.required.length;j++){if(!s.has(rule.required[j])){allMatch = false; break;}}
-    if(!allMatch) continue;
-    if(rule.anyOf && rule.anyOf.length>0){
-      var anyMatch = false;
-      for(var k=0;k<rule.anyOf.length;k++){if(s.has(rule.anyOf[k])){anyMatch = true; break;}}
-      if(!anyMatch) continue;
-    }
-    r.push(Object.assign({}, rule, {matchedCodes: rule.required}));
-  }
-  return r.sort(function(a,b){return b.confidence - a.confidence;}).slice(0,5);
-}
-function calcHealth(faults, diag){
-  if(!faults||faults.length===0) return 100;
-  var sc = 100;
-  faults.forEach(function(f){
-    var c = (f.code||'').toUpperCase();
-    var d = 0;
-    if(c.startsWith('P0') && !c.includes('P0A')) d = 2;
-    else if(c.startsWith('P1')||c.startsWith('P2')||c.startsWith('P3')) d = 2.5;
-    else if(c.startsWith('P0A')) d = 5;
-    else if(c.startsWith('C')) d = 3;
-    else if(c.startsWith('B')) d = 4;
-    else if(c.startsWith('U')) d = 5;
-    sc -= d;
-  });
-  (diag||[]).forEach(function(d){
-    if(d.severity === 'critical') sc -= 4;
-    else if(d.severity === 'high') sc -= 3;
-    else if(d.severity === 'medium') sc -= 2;
-    else sc -= 1;
-  });
-  return Math.round(Math.max(25, Math.min(100, sc)));
-}
-
-function displaySmartDiagnosis(codes){
-  lastDiagnosis = runDiagnosis(codes);
-  var c = document.getElementById('smartDiagnosis');
-  if(!c) return;
-  var diag = lastDiagnosis;
-  if(diag.length===0){c.classList.add('hidden'); c.innerHTML = ''; return;}
-  c.classList.remove('hidden');
-  var html = '<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4 fade-in">';
-  html += '<h3 class="font-bold text-purple-200 mb-3 flex items-center gap-2"><i class="fa-solid fa-brain"></i> التشخيص الذكي</h3>';
-  diag.forEach(function(d){
-    var color = d.severity === 'critical' ? '#dc2626' : d.severity === 'high' ? '#ef4444' : d.severity === 'medium' ? '#f59e0b' : '#10b981';
-    var icon = d.severity === 'critical' ? '[!!]' : d.severity === 'high' ? '[H]' : d.severity === 'medium' ? '[M]' : '[L]';
-    html += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid ' + color + ';">';
-    html += '<div class="flex justify-between items-center mb-2 flex-wrap gap-2">';
-    html += '<div class="font-bold text-sm">' + icon + ' ' + d.title + '</div>';
-    html += '<span class="text-xs px-2 py-1 rounded-full text-white font-bold" style="background:' + color + ';">' + d.confidence + '%</span>';
-    html += '</div>';
-    html += '<p class="text-xs text-gray-300 mb-2">' + d.description + '</p>';
-    html += '<ul class="text-xs space-y-1">';
-    (d.actions||[]).forEach(function(a){html += '<li class="bg-gray-800/60 rounded p-1.5">- ' + a + '</li>';});
-    html += '</ul></div>';
-  });
-  html += '</div>';
-  c.innerHTML = html;
-}
-
-function displayHealth(faults, diag){
-  var b = document.getElementById('healthBadge');
-  if(!b) return;
-  if(!faults||faults.length===0){b.classList.add('hidden'); return;}
-  var sc = calcHealth(faults, diag);
-  var gradient, status, desc, icon;
-  if(sc>=90){gradient='from-green-500 to-emerald-600';status='ممتازة';desc='لا توجد مشاكل';icon='[+]';}
-  else if(sc>=75){gradient='from-emerald-500 to-green-600';status='جيدة';desc='أعطال بسيطة تحتاج مراقبة';icon='[+]';}
-  else if(sc>=50){gradient='from-amber-500 to-orange-600';status='تحتاج صيانة';desc='أعطال تحتاج إصلاح قريب';icon='[!]';}
-  else if(sc>=30){gradient='from-red-500 to-rose-600';status='خطيرة';desc='أعطال مهمة - إصلاح فوري';icon='[!]';}
-  else{gradient='from-red-700 to-red-900';status='حرجة';desc='أعطال خطيرة - لا تقُد';icon='[!!]';}
-  b.classList.remove('hidden');
-  var html = '<div class="bg-gradient-to-l ' + gradient + ' rounded-2xl p-4 text-white fade-in">';
-  html += '<div class="flex justify-between items-center">';
-  html += '<div><div class="text-sm font-bold">' + icon + ' ' + status + '</div><div class="text-xs opacity-90 mt-1">' + desc + '</div></div>';
-  html += '<div class="text-right"><div class="text-4xl font-bold">' + sc + '<span class="text-base opacity-80">/100</span></div><div class="text-[10px] opacity-80 mt-1">مؤشر صحة السيارة</div></div>';
-  html += '</div>';
-  html += '<div class="grid grid-cols-2 gap-2 mt-3 text-xs">';
-  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i><span>' + faults.length + ' عطل مسجل</span></div>';
-  html += '<div class="bg-black/20 rounded-lg p-2 flex items-center gap-2"><i class="fa-solid fa-brain"></i><span>' + (diag||[]).length + ' تشخيص</span></div>';
-  html += '</div>';
-  html += '<div class="mt-3 bg-black/20 rounded-lg p-2"><div class="w-full bg-black/30 rounded-full h-2 overflow-hidden"><div class="h-full rounded-full transition-all duration-700" style="width:' + sc + '%; background:white;"></div></div></div>';
-  html += '</div>';
-  b.innerHTML = html;
-}
-
-function showExport(){var el = document.getElementById('exportCard'); if(el) el.classList.remove('hidden');}
-function hideExport(){var el = document.getElementById('exportCard'); if(el) el.classList.add('hidden');}
-
-function showDTCDetails(codeOrKey){
-  var isKey = /_[A-Z]+$/.test(codeOrKey);
-  var displayCode = codeOrKey.replace(/_[A-Z]+$/, '');
-  var info = isKey ? (DTC_DATABASE[codeOrKey] || {}) : getFaultInfo(codeOrKey);
-  var modal = document.getElementById('dtcDetailModal');
-  var content = document.getElementById('dtcDetailContent');
-  if(!modal||!content) return;
-  var sevMap = {critical:{bg:'#dc2626',label:'حرج'}, high:{bg:'#ef4444',label:'خطير'}, medium:{bg:'#f59e0b',label:'متوسط'}, low:{bg:'#10b981',label:'منخفض'}};
-  var sev = sevMap[info.severity] || {bg:'#64748b', label:'غير محدد'};
-  var html = '<div class="text-center mb-4">';
-  html += '<div class="font-mono font-bold text-3xl text-red-400 mb-1">' + displayCode + '</div>';
-  html += '<div class="text-base font-bold text-white">' + (info.title || 'عطل غير معروف') + '</div>';
-  html += '<div class="flex justify-center gap-2 mt-3 flex-wrap">';
-  html += '<span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:' + sev.bg + ';">' + sev.label + '</span>';
-  if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + info.zone + '</span>';
-  if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + info.brand + '</span>';
-  html += '</div></div>';
-  if(info.desc){
-    html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + info.desc + '</div></div>';
-  }
-  function listBlock(items, title, color){
-    if(!items||items.length===0) return '';
-    var h = '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + color + ';">';
-    h += '<div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div><ul class="space-y-1.5">';
-    items.forEach(function(i){h += '<li class="text-xs text-gray-300">- ' + i + '</li>';});
-    h += '</ul></div>';
-    return h;
-  }
-  html += listBlock(info.causes, 'الأسباب', '#f59e0b');
-  html += listBlock(info.symptoms, 'الأعراض', '#ef4444');
-  html += listBlock(info.steps, 'الخطوات', '#10b981');
-  content.innerHTML = html;
-  modal.classList.remove('hidden');
-}
-
-// ============ OBD2 NOTIFICATION HANDLER ============
-function handleNotification(e){
-  recvBuf += new TextDecoder().decode(e.target.value);
-  if(recvBuf.indexOf('>') >= 0 && curResolve){
-    clearTimeout(curTimeout);
-    var r = recvBuf; recvBuf = '';
-    var res = curResolve; curResolve = null;
-    res(r);
-  }
-}
-
-// ============ SEND COMMAND ============
-function sendCmd(cmd, timeout, retries){
-  timeout = timeout || 3000;
-  retries = retries || 1;
-  return new Promise(function(resolve, reject){
-    var attempts = 0;
-    var settled = false;
-    function safeResolve(val){ if(settled) return; settled = true; resolve(val); }
-    function safeReject(err){ if(settled) return; settled = true; reject(err); }
-    function tryOnce(){
-      attempts++;
-      cmdQueue.push({
-        cmd: cmd,
-        resolve: function(r){
-          var isBad = !r || r.indexOf('NO DATA')>=0 || r.indexOf('UNABLE')>=0 || r.indexOf('ERROR')>=0 || r.trim()==='>';
-          if(isBad && attempts <= retries){ setTimeout(tryOnce, 300); return; }
-          safeResolve(r); isProcessing = false; processQueue();
-        },
-        reject: function(e){
-          if(attempts <= retries) setTimeout(tryOnce, 300);
-          else{ safeReject(e); isProcessing = false; processQueue(); }
-        },
-        timeout: timeout
-      });
-      processQueue();
-    }
-    tryOnce();
-  });
-}
-
-async function processQueue(){
-  if(isProcessing || cmdQueue.length === 0) return;
-  var hasChannel = (transport === 'usb' && usbWriter) || (transport === 'ble' && uartChar);
-  if(!hasChannel){ isProcessing = false; return; }
-  isProcessing = true;
-  var item = cmdQueue.shift();
-  curResolve = item.resolve; recvBuf = '';
-  try{
-    var data = new TextEncoder().encode(item.cmd + '\r');
-    if(transport === 'usb'){ await usbWriter.write(data); }
-    else{ await uartChar.writeValue(data); }
-    curTimeout = setTimeout(function(){
-      if(curResolve){
-        var r = recvBuf; recvBuf = '';
-        var res = curResolve; curResolve = null;
-        res(r); isProcessing = false; processQueue();
-      }
-    }, item.timeout);
-  }catch(e){ item.reject(e); curResolve = null; isProcessing = false; processQueue(); }
-}
-
-// ============ BLE CONNECT ============
-async function connectOBD(){
-  if(!navigator.bluetooth){
-    alert('المتصفح لا يدعم Web Bluetooth.\n\n📱 على iPhone: استخدم متصفح Bluefy\n💻 على الكمبيوتر: استخدم Chrome\n📱 على أندرويد: استخدم Chrome');
-    return;
-  }
-  var btn = document.getElementById('connect-btn');
-  var orig = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try{
-    logInfo('جاري البحث عن أجهزة BLE...');
-    btDevice = await navigator.bluetooth.requestDevice({
-      filters: [
-        {services: KNOWN_SVC},
-        {namePrefix:'OBD'},{namePrefix:'ELM'},{namePrefix:'V-Link'},{namePrefix:'Vgate'},{namePrefix:'Viecar'},{namePrefix:'KONNWEI'}
-      ],
-      optionalServices: KNOWN_SVC
-    });
-    logInfo('الجهاز: ' + btDevice.name);
-    btDevice.addEventListener('gattserverdisconnected', handleDisconnect);
-    btServer = await btDevice.gatt.connect();
-    logInfo('متصل بـ GATT');
-    var svc = null, chr = null;
-    for(var si=0; si<KNOWN_SVC.length; si++){
-      try{ svc = await btServer.getPrimaryService(KNOWN_SVC[si]); logSuccess('Service found'); break; }catch(e){}
-    }
-    if(!svc) throw new Error('لم يتم العثور على Service');
-    for(var chi=0; chi<KNOWN_CHR.length; chi++){
-      try{ chr = await svc.getCharacteristic(KNOWN_CHR[chi]); logSuccess('Char found'); break; }catch(e){}
-    }
-    if(!chr) throw new Error('لم يتم العثور على Characteristic');
-    uartChar = chr;
-    await uartChar.startNotifications();
-    uartChar.addEventListener('characteristicvaluechanged', handleNotification);
-    transport = 'ble';
-    isConnected = true;
-    setStatus('connected');
-    updateConnectionUI(true);
-    logSuccess('متصل Bluetooth');
-    logInfo('تهيئة ELM327...');
-    await sendCmd('AT Z', 4000);
-    await sendCmd('AT E0', 2000);
-    await sendCmd('AT L0', 2000);
-    await sendCmd('AT S0', 2000);
-    logInfo('اكتشاف البروتوكول...');
-    var protocols = ['AT SP 6', 'AT SP 7', 'AT SP 5', 'AT SP 0'];
-    for(var pi=0; pi<protocols.length; pi++){
-      await sendCmd(protocols[pi], 2000);
-      var test = await sendCmd('0100', 3000);
-      if(test && test.indexOf('41 00') >= 0){
-        logSuccess('البروتوكول: ' + protocols[pi]);
-        break;
-      }
-    }
-    logSuccess('جاهز للقراءة');
-    await readVIN();
-    startRealLiveLoop();
-  }catch(e){
-    logError('BLE: ' + e.message);
-    if(uartChar){ try{uartChar.removeEventListener('characteristicvaluechanged', handleNotification);}catch(_){} try{await uartChar.stopNotifications();}catch(_){} uartChar = null; }
-    if(btDevice && btDevice.gatt.connected){ try{btDevice.gatt.disconnect();}catch(_){} }
-    transport = null; isConnected = false;
-    setStatus('disconnected');
-    updateConnectionUI(false);
-  }finally{ btn.disabled = false; btn.innerHTML = orig; }
-}
-
-// ============ USB CONNECT ============
-async function connectUSB(){
-  if(!navigator.serial){
-    alert('Web Serial غير مدعوم على هذا المتصفح.\n\nاستخدم Chrome على الحاسوب أو أندرويد.');
-    return;
-  }
-  var btn = document.getElementById('usb-btn');
-  var orig = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try{
-    logInfo('جاري الاتصال عبر USB...');
-    usbPort = await navigator.serial.requestPort();
-    var baudRates = [38400, 115200, 9600, 57600];
-    var opened = false, lastError = null;
-    for(var bi=0; bi<baudRates.length; bi++){
-      try{
-        await usbPort.open({baudRate: baudRates[bi], dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none'});
-        opened = true; logInfo('Port @ ' + baudRates[bi]); break;
-      }catch(e){ lastError = e; try{await usbPort.close();}catch(_){} }
-    }
-    if(!opened) throw new Error((lastError && lastError.message) || 'فشل فتح المنفذ');
-    usbWriter = usbPort.writable.getWriter();
-    transport = 'usb';
-    startUSBReadLoop();
-    isConnected = true;
-    setStatus('connected');
-    updateConnectionUI(true);
-    logSuccess('متصل USB');
-    logInfo('تهيئة ELM327...');
-    await sendCmd('AT Z', 4000);
-    await sendCmd('AT E0', 2000);
-    await sendCmd('AT L0', 2000);
-    await sendCmd('AT S0', 2000);
-    var protocols = ['AT SP 6', 'AT SP 7', 'AT SP 5', 'AT SP 0'];
-    for(var pi=0; pi<protocols.length; pi++){
-      await sendCmd(protocols[pi], 2000);
-      var test = await sendCmd('0100', 3000);
-      if(test && test.indexOf('41 00') >= 0){ logSuccess('البروتوكول: ' + protocols[pi]); break; }
-    }
-    logSuccess('جاهز');
-    await readVIN();
-    startRealLiveLoop();
-  }catch(e){
-    logError('USB: ' + e.message);
-    await cleanupUSB();
-    transport = null; isConnected = false;
-    setStatus('disconnected');
-    updateConnectionUI(false);
-  }finally{ btn.disabled = false; btn.innerHTML = orig; }
-}
-
-async function startUSBReadLoop(){
-  if(!usbPort || !usbPort.readable) return;
-  usbReadLoopActive = true;
-  var decoder = new TextDecoder();
-  while(usbPort && usbPort.readable && usbReadLoopActive){
-    usbReader = usbPort.readable.getReader();
-    try{
-      while(usbReadLoopActive){
-        var v = await usbReader.read();
-        if(v.done) break;
-        if(v.value){
-          recvBuf += decoder.decode(v.value, {stream: true});
-          if(recvBuf.indexOf('>') >= 0 && curResolve){
-            clearTimeout(curTimeout);
-            var r = recvBuf; recvBuf = '';
-            var res = curResolve; curResolve = null;
-            res(r);
-          }
-        }
-      }
-    }catch(e){ if(usbReadLoopActive) logError('USB read: ' + e.message); }
-    finally{ try{usbReader.releaseLock();}catch(_){} }
-  }
-}
-
-async function cleanupUSB(){
-  usbReadLoopActive = false;
-  try{ if(usbReader){ await usbReader.cancel(); usbReader.releaseLock(); } }catch(_){}
-  try{ if(usbWriter){ usbWriter.releaseLock(); } }catch(_){}
-  try{ if(usbPort){ await usbPort.close(); } }catch(_){}
-  usbReader = null; usbWriter = null; usbPort = null;
-  cmdQueue = []; isProcessing = false; curResolve = null;
-  if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
-}
-
-// ============ DISCONNECT ============
-async function handleDisconnect(){
-  isConnected = false; isDemo = false;
-  if(liveTimer) clearInterval(liveTimer); liveTimer = null;
-  if(transport === 'usb'){ await cleanupUSB(); }
-  if(uartChar){
-    try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotification); }catch(_){}
-    try{ await uartChar.stopNotifications(); }catch(_){}
-    uartChar = null;
-  }
-  if(btDevice && btDevice.gatt.connected){ try{ btDevice.gatt.disconnect(); }catch(_){} }
-  transport = null;
-  setStatus('disconnected');
-  updateConnectionUI(false);
-  logInfo('تم قطع الاتصال');
-}
-
-function updateConnectionUI(connected){
-  var c = document.getElementById('connect-btn'), u = document.getElementById('usb-btn'), d = document.getElementById('demo-btn'), db = document.getElementById('disconnect-btn');
-  if(!c||!u||!d||!db) return;
-  if(connected){ c.classList.add('hidden'); u.classList.add('hidden'); d.classList.add('hidden'); db.classList.remove('hidden'); db.classList.add('flex'); }
-  else{
-    c.classList.remove('hidden');
-    if(!hasSerial) u.classList.add('hidden'); else u.classList.remove('hidden');
-    d.classList.remove('hidden');
-    db.classList.add('hidden'); db.classList.remove('flex');
-  }
-}
-
-// ============ VIN READING ============
-async function readVIN(){
-  logInfo('قراءة VIN...');
-  try{
-    var res = await sendCmd('09 02', 5000);
-    parseVINResponse(res);
-  }catch(e){ logError('VIN: ' + e.message); }
-}
-
-function parseVINResponse(res){
-  if(!res) return;
-  var lines = res.split('\n');
-  var fullHex = '';
-  for(var li=0; li<lines.length; li++){
-    var clean = lines[li].replace(/^[0-9A-Fa-f]{3}\s*/, '').trim();
-    if(!clean) continue;
-    clean = clean.replace(/[^0-9A-Fa-f\s]/g, '');
-    var bytes = clean.split(/\s+/).filter(function(b){ return b.length === 2; });
-    var startIdx = 0;
-    if(bytes[0] === '10' && bytes.length > 3) startIdx = 3;
-    else if(bytes[0]==='21' || bytes[0]==='22' || bytes[0]==='23' || bytes[0]==='24' || bytes[0]==='25') startIdx = 1;
-    for(var i=startIdx; i<bytes.length; i++){ fullHex += bytes[i]; }
-  }
-  var vin = '';
-  for(var vi=0; vi<fullHex.length; vi+=2){
-    var code = parseInt(fullHex.substr(vi, 2), 16);
-    if(code >= 32 && code <= 126) vin += String.fromCharCode(code);
-  }
-  vin = vin.replace(/[^A-HJ-NPR-Z0-9]/gi, '');
-  var markers = ['1HG','WBA','WVW','JHM','JTD','KMH','VF1','WDD','JT2','1FA'];
-  for(var mi=0; mi<markers.length; mi++){
-    var idx = vin.indexOf(markers[mi]);
-    if(idx >= 0 && vin.length >= idx+17){ vin = vin.substr(idx, 17); break; }
-  }
-  if(vin.length >= 15){
-    var vd = document.getElementById('vin-display'); if(vd) vd.textContent = 'VIN: ' + vin.trim();
-    var vr = document.getElementById('vinResult'); if(vr) vr.textContent = vin.trim();
-    displayVINInfo(vin.trim());
-    logSuccess('VIN: ' + vin.trim());
-  }
-}
-
-// ============ PARSERS ============
-function parseHexBytes(txt){
-  var clean = txt.replace(/[^0-9A-Fa-f]/g, ' ');
-  var parts = clean.trim().split(/\s+/);
-  var bytes = [];
-  for(var i=0; i<parts.length; i++){
-    var p = parts[i];
-    if(p.length === 2) bytes.push(parseInt(p, 16));
-    else if(p.length > 2 && p.length % 2 === 0){
-      for(var j=0; j<p.length; j+=2) bytes.push(parseInt(p.substr(j, 2), 16));
-    }
-  }
-  return bytes;
-}
-
-function parseRPM(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x0C && b.length>=i+4) return Math.round(((b[i+2]*256)+(b[i+3]||0))/4); } return 0; }
-function parseSpeed(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x0D && b.length>=i+3) return b[i+2]; } return 0; }
-function parseCoolant(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x05 && b.length>=i+3) return b[i+2]-40; } return 0; }
-function parseFuelLevel(res){ var b = parseHexBytes(res); for(var i=0; i<b.length-1; i++){ if(b[i]===0x41 && b[i+1]===0x2F && b.length>=i+3) return Math.round(b[i+2]*100/255); } return 75; }
-function parseBatteryVoltage(res){
-  var b = parseHexBytes(res);
-  for(var i=0; i<b.length-3; i++){
-    if(b[i]===0x41 && b[i+1]===0x42 && b.length>=i+4) return ((b[i+2]*256) + b[i+3]) / 1000;
-  }
-  return null;
-}
-
-function parseDTCsFromBytes(bytes){
-  var codes = [];
-  for(var i=0; i<bytes.length-1; i++){
-    if(bytes[i]===0x43 || bytes[i]===0x47 || bytes[i]===0x4A){
-      for(var j=i+1; j<bytes.length-1; j+=2){
-        var b1 = bytes[j], b2 = bytes[j+1];
-        if(b1 === undefined || b2 === undefined) break;
-        var letter = ['P','C','B','U'][(b1 & 0xC0) >> 6];
-        var code = letter + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
-        if(code !== 'P0000' && b1 !== 0) codes.push(code);
-      }
-      break;
-    }
-  }
-  return codes;
-}
-
-// ============ LIVE DATA ============
-async function startRealLiveLoop(){
-  if(liveTimer) return;
-  var tick = 0;
-  liveTimer = setInterval(async function(){
-    if(!isConnected || isDemo || liveReading) return;
-    liveReading = true;
-    try{
-      var rpm = parseRPM(await sendCmd('01 0C', 800, 1));
-      var speed = parseSpeed(await sendCmd('01 0D', 800, 1));
-      if(tick % 4 === 0){
-        var coolant = parseCoolant(await sendCmd('01 05', 800, 1));
-        var fuel = parseFuelLevel(await sendCmd('01 2F', 800, 1));
-        updateDashboard(rpm, speed, coolant, fuel);
-      }else{
-        updateAllGauges({rpm: rpm, speed: speed, coolant: lastCoolant, fuelLevel: lastFuel});
-        try{ updateChart(rpm, speed); }catch(e){}
-        runAutoAnalysis({rpm: rpm, speed: speed, coolant: lastCoolant, runtime: 420});
-      }
-      tick++;
-    }catch(e){}finally{ liveReading = false; }
-  }, 1000);
-}
-
-function updateDashboard(rpm, speed, coolant, fuel){
-  lastCoolant = coolant; lastFuel = fuel;
-  updateAllGauges({rpm: rpm, speed: speed, coolant: coolant, fuelLevel: fuel});
-  try{ updateChart(rpm, speed); }catch(e){}
-  runAutoAnalysis({rpm: rpm, speed: speed, coolant: coolant, runtime: 420});
-}
-
-function initChart(){
-  if(chartInstance) return;
-  var canvas = document.getElementById('liveChart');
-  if(!canvas || !window.Chart) return;
-  var ctx = canvas.getContext('2d');
-  try{
-    chartInstance = new Chart(ctx, {type:'line', data:{labels:[], datasets:[
-      {label:'RPM', data:[], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.1)', tension:.3, yAxisID:'y', fill:true},
-      {label:'Speed', data:[], borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.1)', tension:.3, yAxisID:'y1', fill:true}
-    ]}, options:{responsive:true, maintainAspectRatio:false, animation:{duration:300}, plugins:{legend:{labels:{color:'#94a3b8', font:{family:'Cairo', size:11}}}}, scales:{
-      y:{type:'linear', position:'left', grid:{color:'#374151'}, ticks:{color:'#94a3b8'}},
-      y1:{type:'linear', position:'right', grid:{display:false}, ticks:{color:'#94a3b8'}},
-      x:{grid:{color:'#374151'}, ticks:{color:'#94a3b8', font:{size:9}}}
-    }}});
-  }catch(e){}
-}
-
-function updateChart(rpm, speed){
-  if(!chartInstance) initChart();
-  if(!chartInstance) return;
-  var time = new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-  if(chartData.labels.length > 20){ chartData.labels.shift(); chartData.rpm.shift(); chartData.speed.shift(); }
-  chartData.labels.push(time); chartData.rpm.push(rpm); chartData.speed.push(speed);
-  chartInstance.data.labels = chartData.labels.slice();
-  chartInstance.data.datasets[0].data = chartData.rpm.slice();
-  chartInstance.data.datasets[1].data = chartData.speed.slice();
-  chartInstance.update('none');
-}
-
-function runAutoAnalysis(v){
-  var el = document.getElementById('autoAnalysis');
-  if(!el) return;
-  var items = [];
-  if(v.coolant > 105) items.push({icon:'[HOT]', text:'ارتفاع حرارة! ' + v.coolant + ' C'});
-  if(v.coolant < 75 && v.runtime > 300) items.push({icon:'[COLD]', text:'حرارة منخفضة'});
-  if(items.length === 0) el.innerHTML = '<div class="text-green-400">كل القيم طبيعية</div>';
-  else el.innerHTML = items.map(function(i){ return '<div class="bg-amber-900/40 rounded-lg p-2 mb-1">' + i.icon + ' ' + i.text + '</div>'; }).join('');
-}
-
-// ============ READ DTCs ============
-async function readDTCs(){
-  var list = document.getElementById('dtcList');
-  if(!list) return;
-  if(!isConnected && !isDemo){ list.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
-  var showProgress = function(msg){ list.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> ' + msg + '</p>'; };
-  showProgress('قراءة الأعطال المؤكدة...');
-  if(isDemo){ await runDemoScan(); return; }
-  try{
-    var allFaults = [];
-    var res03 = await sendCmd('03', 8000);
-    parseDTCsFromBytes(parseHexBytes(res03)).forEach(function(c){ allFaults.push({code: c, system: 'engine', type: 'confirmed'}); });
-    showProgress('قراءة الأعطال المؤقتة...');
-    await sendCmd('AT SH 7E0', 200);
-    var res07 = await sendCmd('07', 8000);
-    parseDTCsFromBytes(parseHexBytes(res07)).forEach(function(c){
-      if(!allFaults.some(function(f){ return f.code === c; })) allFaults.push({code: c, system: 'engine', type: 'pending'});
-    });
-    showProgress('قراءة الأعطال الدائمة...');
-    await sendCmd('AT SH 7E0', 200);
-    var res0A = await sendCmd('0A', 8000);
-    parseDTCsFromBytes(parseHexBytes(res0A)).forEach(function(c){
-      if(!allFaults.some(function(f){ return f.code === c; })) allFaults.push({code: c, system: 'engine', type: 'permanent'});
-    });
-    if(allFaults.length === 0){
-      lastFaults = [];
-      list.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">السيارة سليمة - لا أعطال</div>';
-      var sd = document.getElementById('smartDiagnosis'); if(sd) sd.classList.add('hidden');
-      var hb = document.getElementById('healthBadge'); if(hb) hb.classList.add('hidden');
-      hideExport(); updateSystemGrid([]); return;
-    }
-    renderFaults(allFaults);
-    var diag = runDiagnosis(allFaults.map(function(f){ return f.code; }));
-    displaySmartDiagnosis(allFaults.map(function(f){ return f.code; }));
-    displayHealth(allFaults, diag);
-    updateSystemGrid(allFaults);
-    showExport();
-  }catch(e){ logError(e.message); }
-}
-
-async function scanAllSystems(){
-  var list = document.getElementById('dtcList');
-  if(!list) return;
-  if(!isConnected && !isDemo){ list.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
-  list.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
-  if(isDemo){ await runDemoScan(); return; }
-  var ecus = [{addr:'7E0', name:'engine'}, {addr:'7E1', name:'transmission'}, {addr:'7E3', name:'abs'}, {addr:'7E6', name:'airbag'}];
-  var allFaults = [];
-  for(var ei=0; ei<ecus.length; ei++){
-    var ecu = ecus[ei];
-    await sendCmd('AT SH ' + ecu.addr, 200);
-    var res = await sendCmd('19 02 FF', 2000);
-    if(res.indexOf('NO DATA') < 0 && res.indexOf('ERROR') < 0 && res.indexOf('UNABLE') < 0){
-      var bytes = parseHexBytes(res);
-      for(var i=0; i<bytes.length-1; i++){
-        if(bytes[i] === 0x59 && bytes[i+1] === 0x02){
-          for(var j=i+2; j<bytes.length-3; j+=4){
-            var b1 = bytes[j], b2 = bytes[j+1];
-            if(b1 === undefined || b2 === undefined) break;
-            var letter = ['P','C','B','U'][(b1 & 0xC0) >> 6];
-            var code = letter + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
-            if(code !== 'P0000' && b1 !== 0) allFaults.push({code: code, system: ecu.name, type: 'confirmed'});
-          }
-          break;
-        }
-      }
-    }
-  }
-  await sendCmd('AT SH 7E0', 200);
-  if(allFaults.length === 0){
-    lastFaults = [];
-    list.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center">لا توجد أعطال في كل الأنظمة</div>';
-    return;
-  }
-  renderFaults(allFaults);
-  var diag = runDiagnosis(allFaults.map(function(f){ return f.code; }));
-  displaySmartDiagnosis(allFaults.map(function(f){ return f.code; }));
-  displayHealth(allFaults, diag);
-  updateSystemGrid(allFaults);
-  showExport();
-}
-
-async function clearDTCs(){
-  if(!isConnected && !isDemo){ alert('غير متصل'); return; }
-  if(!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
-  if(isDemo){
-    lastFaults = [];
-    var l = document.getElementById('dtcList'); if(l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم المسح</p>';
-    resetSystemGrid(); return;
-  }
-  logInfo('جاري مسح الأعطال...');
-  await sendCmd('04', 3000);
-  lastFaults = [];
-  var list = document.getElementById('dtcList');
-  if(list) list.innerHTML = '<p class="text-green-400 text-center py-4">تم المسح بنجاح</p>';
-  var sd = document.getElementById('smartDiagnosis'); if(sd) sd.classList.add('hidden');
-  var hb = document.getElementById('healthBadge'); if(hb) hb.classList.add('hidden');
-  hideExport(); resetSystemGrid();
-}
-
-// ============ RENDER FAULTS ============
-function renderFaults(faults){
-  lastFaults = faults || [];
-  var list = document.getElementById('dtcList');
-  if(!list) return;
-  if(!faults.length){ list.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد أعطال</p>'; return; }
-  var sysMap = {'engine':'المحرك', 'exhaust':'العوادم', 'electronics':'الكهرباء', 'fuel':'الوقود', 'cooling':'التبريد', 'brakes':'الفرامل', 'airbag':'الوسائد', 'battery':'البطارية', 'transmission':'الجير', 'abs':'ABS'};
-  var html = '';
-  for(var i=0; i<faults.length; i++){
-    var f = faults[i];
-    var info = getFaultInfo(f.code);
-    var type = f.type || 'confirmed';
-    var typeLabel = type === 'pending' ? 'مؤقت' : type === 'permanent' ? 'دائم' : 'مؤكد';
-    var typeClass = type === 'pending' ? 'dtc-type-pending' : type === 'permanent' ? 'dtc-type-permanent' : 'dtc-type-confirmed';
-    var itemClass = type === 'pending' ? 'dtc-item-pending' : type === 'permanent' ? 'dtc-item-permanent' : '';
-    var hasDetails = info && (info.causes || info.symptoms || info.steps);
-    html += '<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in ' + itemClass + '" data-code="' + f.code + '">';
-    html += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    html += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
-    html += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
-    if(info.brand) html += '<span class="text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded-full">' + info.brand + '</span>';
-    html += '<span class="dtc-type-badge ' + typeClass + '">' + typeLabel + '</span>';
-    html += '</div>';
-    html += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
-    html += '<div class="flex gap-2 flex-wrap">';
-    if(hasDetails) html += '<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-details="' + f.code + '"><i class="fa-solid fa-book-medical"></i> تفاصيل</button>';
-    html += '<button class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1" data-copy="' + f.code + '"><i class="fa-solid fa-copy"></i> نسخ</button>';
-    html += '</div></div>';
-  }
-  list.innerHTML = html;
-  list.querySelectorAll('[data-details]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); showDTCDetails(btn.dataset.details); }; });
-  list.querySelectorAll('[data-copy]').forEach(function(btn){
-    btn.onclick = async function(e){
-      e.stopPropagation();
-      try{
-        await navigator.clipboard.writeText(btn.dataset.copy);
-        var orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
-        setTimeout(function(){ btn.innerHTML = orig; }, 1500);
-      }catch(err){}
-    };
-  });
-}
-
-// ============ READINESS ============
-function parseMonitor(byte, bit){
-  var available = (byte & (1<<bit)) !== 0;
-  if(!available) return 'n/a';
-  var incomplete = (byte & (1<<(bit+4))) !== 0;
-  return incomplete ? 'not-ready' : 'ready';
-}
-
-function renderReadiness(data){
-  var c = document.getElementById('readinessContent');
-  if(!c) return;
-  var milClass = data.mil ? 'mil-on' : 'mil-off';
-  var milText = data.mil ? 'لمبة الأعطال مضاءة' : 'لمبة الأعطال مطفأة';
-  function ri(name, status){
-    var cls = status === 'ready' ? 'ready-ready' : status === 'not-ready' ? 'ready-not-ready' : 'ready-na';
-    var label = status === 'ready' ? 'جاهز' : status === 'not-ready' ? 'غير جاهز' : 'غير مدعوم';
-    return '<div class="ready-item"><span class="name">' + name + '</span><span class="ready-badge ' + cls + '">' + label + '</span></div>';
-  }
-  var html = '<div class="mil-status ' + milClass + '"><span>' + milText + '</span><span>عدد الأعطال: ' + data.dtcCount + '</span></div>';
-  html += '<div class="mb-3"><div class="text-xs font-bold text-blue-300 mb-2">المراقبة المستمرة</div><div class="ready-grid">';
-  html += ri('الاشتعال المتقطع', data.continuous.misfire);
-  html += ri('نظام الوقود', data.continuous.fuel);
-  html += ri('المكونات', data.continuous.components);
-  html += '</div></div>';
-  html += '<div><div class="text-xs font-bold text-purple-300 mb-2">المراقبة غير المستمرة</div><div class="ready-grid">';
-  html += ri('الكتلايزر', data.nonContinuous.catalyst);
-  html += ri('الكتلايزر المسخن', data.nonContinuous.heatedCat);
-  html += ri('نظام EVAP', data.nonContinuous.evap);
-  html += ri('حساس O2', data.nonContinuous.o2);
-  html += ri('سخان O2', data.nonContinuous.o2Heater);
-  html += ri('صمام EGR', data.nonContinuous.egr);
-  html += '</div></div>';
-  c.innerHTML = html;
-}
-
-async function checkReadiness(){
-  var c = document.getElementById('readinessContent');
-  if(!c) return;
-  c.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
-  if(!isConnected && !isDemo){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
-  if(isDemo){
-    renderReadiness({mil:true, dtcCount:3, continuous:{misfire:'not-ready', fuel:'ready', components:'ready'}, nonContinuous:{catalyst:'ready', heatedCat:'n/a', evap:'not-ready', o2:'ready', o2Heater:'ready', egr:'n/a'}});
-    return;
-  }
-  try{
-    var res = await sendCmd('01 01', 3500);
-    var bytes = parseHexBytes(res);
-    var idx = -1;
-    for(var i=0; i<bytes.length-5; i++){ if(bytes[i]===0x41 && bytes[i+1]===0x01){ idx=i; break; } }
-    if(idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
-    var A = bytes[idx+2], B = bytes[idx+3], C = bytes[idx+4];
-    var mil = (A & 0x80) !== 0;
-    var dtcCount = A & 0x7F;
-    renderReadiness({mil: mil, dtcCount: dtcCount,
-      continuous: {misfire: parseMonitor(B, 0), fuel: parseMonitor(B, 1), components: parseMonitor(B, 2)},
-      nonContinuous: {catalyst: parseMonitor(C, 0), heatedCat: parseMonitor(C, 1), evap: parseMonitor(C, 2), secondaryAir: parseMonitor(C, 3), acRef: parseMonitor(C, 4), o2: parseMonitor(C, 5), o2Heater: parseMonitor(C, 6), egr: parseMonitor(C, 7)}
-    });
-  }catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ</p>'; }
-}
-
-// ============ MODE 06 ============
-var MODE06_MIDS = {0x01:'O2 Sensor Bank 1', 0x02:'O2 Sensor Bank 2', 0x21:'Catalyst Bank 1', 0x22:'Catalyst Bank 2', 0x31:'EGR Monitor', 0x41:'EVAP Monitor', 0x61:'Misfire General', 0xA1:'Misfire Cyl 1', 0xA2:'Misfire Cyl 2', 0xA3:'Misfire Cyl 3', 0xA4:'Misfire Cyl 4'};
-
-function parseMode06Response(response){
-  var bytes = parseHexBytes(response);
-  var results = [];
-  var i = 0;
-  while(i < bytes.length-4){
-    if(bytes[i] === 0x46){
-      var mid = bytes[i+1], tid = bytes[i+2];
-      if(mid === undefined || tid === undefined) break;
-      var value = (bytes[i+4] || 0);
-      var min = 0, max = 255, status = 'unknown';
-      if(bytes.length > i+6){ min = bytes[i+5] || 0; max = bytes[i+6] || 255; }
-      if(value >= min && value <= max) status = 'pass';
-      else if(value !== 0) status = 'fail';
-      results.push({mid: mid, tid: tid, midName: MODE06_MIDS[mid] || ('Monitor 0x' + mid.toString(16)), value: value, min: min, max: max, status: status});
-      i += 8;
-    } else { i++; }
-  }
-  return results;
-}
-
-function renderMode06(results){
-  var c = document.getElementById('mode06Content');
-  if(!c) return;
-  if(!results || results.length === 0){ c.innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد بيانات Mode 06</p>'; return; }
-  var passCount = results.filter(function(r){ return r.status === 'pass'; }).length;
-  var failCount = results.filter(function(r){ return r.status === 'fail'; }).length;
-  var html = '<div class="mb-3 p-3 bg-gray-900/60 rounded-xl border border-gray-700"><div class="flex justify-between items-center flex-wrap gap-2 text-sm">';
-  html += '<div class="font-bold text-cyan-300">النتائج: ' + results.length + '</div>';
-  html += '<div class="flex gap-3 text-xs"><span class="text-green-400">' + passCount + ' ناجح</span><span class="text-red-400">' + failCount + ' فاشل</span></div>';
-  html += '</div></div>';
-  results.forEach(function(r){
-    var cls = r.status === 'pass' ? 'pass' : r.status === 'fail' ? 'fail' : 'unknown';
-    var badgeCls = r.status === 'pass' ? 'mode06-pass' : r.status === 'fail' ? 'mode06-fail' : 'mode06-unknown';
-    var label = r.status === 'pass' ? 'ناجح' : r.status === 'fail' ? 'فاشل' : 'غير معروف';
-    html += '<div class="mode06-item ' + cls + '">';
-    html += '<div class="mode06-header"><div class="mode06-title">' + r.midName + '</div><span class="mode06-result-badge ' + badgeCls + '">' + label + '</span></div>';
-    html += '<div class="mode06-ids">MID: 0x' + r.mid.toString(16).padStart(2, '0').toUpperCase() + ' | TID: 0x' + r.tid.toString(16).padStart(2, '0').toUpperCase() + '</div>';
-    html += '<div class="mode06-values"><div><span class="v-label">القيمة</span><span class="v-num">' + r.value + '</span></div><div><span class="v-label">الأدنى</span><span class="v-num">' + r.min + '</span></div><div><span class="v-label">الأعلى</span><span class="v-num">' + r.max + '</span></div></div>';
-    html += '</div>';
-  });
-  c.innerHTML = html;
-}
-
-async function runMode06(){
-  var c = document.getElementById('mode06Content');
-  var btn = document.getElementById('btnMode06');
-  if(!c || !btn) return;
-  var orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  c.innerHTML = '<p class="text-cyan-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
-  if(!isConnected && !isDemo){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; btn.innerHTML = orig; btn.disabled = false; return; }
-  if(isDemo){
-    renderMode06([
-      {mid:0x01, tid:0x01, midName:'O2 Sensor Bank 1', value:45, min:10, max:90, status:'pass'},
-      {mid:0x21, tid:0x02, midName:'Catalyst Bank 1', value:78, min:0, max:50, status:'fail'},
-      {mid:0x31, tid:0x01, midName:'EGR Monitor', value:25, min:10, max:40, status:'pass'}
-    ]);
-    btn.innerHTML = orig; btn.disabled = false; return;
-  }
-  try{
-    var results = [];
-    var commonMIDs = [0x01, 0x02, 0x21, 0x22, 0x31, 0x41, 0x51, 0x61, 0xA1, 0xA2, 0xA3, 0xA4];
-    for(var mi=0; mi<commonMIDs.length; mi++){
-      var midHex = commonMIDs[mi].toString(16).padStart(2, '0').toUpperCase();
-      var resp = await sendCmd('06 ' + midHex + ' 01', 1500);
-      if(resp && resp.indexOf('NO DATA') < 0 && resp.indexOf('ERROR') < 0){
-        var parsed = parseMode06Response(resp);
-        if(parsed.length > 0) results.push.apply(results, parsed);
-      }
-    }
-    if(results.length === 0) c.innerHTML = '<p class="text-amber-400 text-center py-4">لا توجد بيانات Mode 06</p>';
-    else renderMode06(results);
-  }catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">' + e.message + '</p>'; }
-  finally{ btn.innerHTML = orig; btn.disabled = false; }
-}
-
-// ============ BATTERY TEST ============
-function classifyBattery(v, min, max){
-  if(v >= min && v <= max) return 'good';
-  if(v >= min-0.5 && v <= max+0.5) return 'warn';
-  return 'bad';
-}
-function renderBatteryStage(stage, voltage, min, max){
-  var box = document.getElementById('bat-box-' + stage);
-  var valEl = document.getElementById('bat-val-' + stage);
-  if(!box || !valEl) return;
-  var statusEl = box.querySelector('.b-status');
-  var status = classifyBattery(voltage, min, max);
-  box.classList.remove('good', 'warn', 'bad');
-  box.classList.add(status);
-  valEl.textContent = voltage.toFixed(2) + 'V';
-  var label = status === 'good' ? 'جيد' : status === 'warn' ? 'يحتاج فحص' : 'ضعيف';
-  if(statusEl) statusEl.textContent = label;
-}
-
-async function runBatteryTest(){
-  var verdict = document.getElementById('batteryVerdict');
-  var btn = document.getElementById('btnBatteryTest');
-  if(!verdict || !btn) return;
-  var orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  verdict.classList.add('hidden');
-  if(!isConnected && !isDemo){ alert('غير متصل'); btn.innerHTML = orig; btn.disabled = false; return; }
-  try{
-    var v1, v2, v3;
-    if(isDemo){
-      v1 = 12.5 + Math.random()*0.3;
-      renderBatteryStage(1, v1, 12.4, 12.8);
-      await new Promise(function(r){ setTimeout(r, 2000); });
-      v2 = 14.0 + Math.random()*0.5;
-      renderBatteryStage(2, v2, 13.8, 14.8);
-      await new Promise(function(r){ setTimeout(r, 2000); });
-      v3 = 13.6 + Math.random()*0.4;
-      renderBatteryStage(3, v3, 13.5, 14.8);
-    } else {
-      var res = await sendCmd('01 42', 2000);
-      var v = parseBatteryVoltage(res);
-      if(!v) throw new Error('لا يمكن قراءة الجهد');
-      v1 = v2 = v3 = v;
-      renderBatteryStage(1, v, 12.4, 12.8);
-      renderBatteryStage(2, v, 13.8, 14.8);
-      renderBatteryStage(3, v, 13.5, 14.8);
-    }
-    var allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
-    var anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
-    var verdictClass, verdictText;
-    if(allGood){ verdictClass = 'verdict-pass'; verdictText = 'نظام الشحن ممتاز'; }
-    else if(anyBad){ verdictClass = 'verdict-fail'; verdictText = 'نظام الشحن تالف'; }
-    else{ verdictClass = 'verdict-warn'; verdictText = 'يحتاج فحص'; }
-    verdict.className = 'battery-verdict ' + verdictClass;
-    verdict.textContent = verdictText;
-    verdict.classList.remove('hidden');
-  }catch(e){ logError('Battery: ' + e.message); }
-  finally{ btn.innerHTML = orig; btn.disabled = false; }
-}
-
-// ============ DEMO MODE ============
-async function runDemoScan(){
-  var demoFaults = [
-    {code:'P0301', system:'engine', type:'confirmed'},
-    {code:'P0171', system:'engine', type:'confirmed'},
-    {code:'P0299', system:'engine', type:'confirmed'},
-    {code:'P0420', system:'exhaust', type:'pending'},
-    {code:'U0100', system:'electronics', type:'confirmed'}
-  ];
-  renderFaults(demoFaults);
-  var diag = runDiagnosis(demoFaults.map(function(f){ return f.code; }));
-  displaySmartDiagnosis(demoFaults.map(function(f){ return f.code; }));
-  displayHealth(demoFaults, diag);
-  updateSystemGrid(demoFaults);
-  showExport();
-}
-
-function startDemo(){
-  try{
-    logInfo('بدء الوضع التجريبي...');
-    isDemo = true; isConnected = true; transport = null;
-    setStatus('demo');
-    updateConnectionUI(true);
-    var vd = document.getElementById('vin-display'); if(vd) vd.textContent = 'VIN: 1HGCG5655WA123456';
-    var vr = document.getElementById('vinResult'); if(vr) vr.textContent = '1HGCG5655WA123456';
-    var demoFaults = [
-      {code:'P0301', system:'engine', type:'confirmed'},
-      {code:'P0171', system:'engine', type:'confirmed'},
-      {code:'P0299', system:'engine', type:'confirmed'},
-      {code:'P0420', system:'exhaust', type:'pending'},
-      {code:'U0100', system:'electronics', type:'confirmed'}
-    ];
-    renderFaults(demoFaults);
-    var diag = runDiagnosis(demoFaults.map(function(f){ return f.code; }));
-    displaySmartDiagnosis(demoFaults.map(function(f){ return f.code; }));
-    displayHealth(demoFaults, diag);
-    updateSystemGrid(demoFaults);
-    showExport();
-    setTimeout(function(){ if(!chartInstance) initChart(); }, 300);
-    if(demoTimer) clearInterval(demoTimer);
-    demoTimer = setInterval(function(){
-      var rpm = Math.floor(900 + Math.random()*2500);
-      var speed = Math.floor(Math.random()*110);
-      var coolant = 82 + Math.floor(Math.random()*18);
-      var fuel = 40 + Math.floor(Math.random()*50);
-      updateDashboard(rpm, speed, coolant, fuel);
-    }, 1500);
-    setTimeout(function(){ updateDashboard(2500, 60, 90, 75); }, 100);
-    logSuccess('الوضع التجريبي جاهز');
-  }catch(e){ logError('Demo: ' + e.message); }
-}
-function stopDemo(){ if(demoTimer) clearInterval(demoTimer); demoTimer = null; isDemo = false; }
-
-// ============ VIN ============
-function displayVINInfo(vin){
-  lastVinInfo = vin;
-  var c = document.getElementById('vinInfo');
-  if(!c) return;
-  var d = decodeVIN(vin);
-  if(!d){ c.innerHTML = '<p class="text-red-400 text-center text-sm">VIN غير صحيح</p>'; return; }
-  var html = '<div class="text-center mb-4"><div class="font-mono text-sm bg-black text-green-400 p-3 rounded-xl mb-2 break-all">' + d.vin + '</div></div>';
-  html += '<div class="grid grid-cols-2 gap-2 text-sm">';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">البلد</div><div class="font-bold">' + d.country + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">الصانع</div><div class="font-bold text-xs">' + d.manufacturer + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">السنة</div><div class="font-bold">' + d.year + '</div></div>';
-  html += '</div>';
-  c.innerHTML = html;
-}
-
-// ============ SEARCH ============
-var currentBrandFilter = 'all';
-var searchTimer = null;
-function initSearch(){
-  var input = document.getElementById('dtcSearchInput');
-  if(!input) return;
-  input.addEventListener('input', function(e){
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(function(){ searchDTC(e.target.value); }, 200);
-  });
-}
-function searchDTC(query){
-  var div = document.getElementById('searchResults');
-  if(!div) return;
-  var q = query.trim().toUpperCase();
-  if(q.length < 2){ div.innerHTML = ''; return; }
-  var matches = [];
-  var seenCodes = new Set();
-  for(var code in DTC_DATABASE){
-    if(!DTC_DATABASE.hasOwnProperty(code)) continue;
-    if(matches.length >= 30) break;
-    var info = DTC_DATABASE[code];
-    if(currentBrandFilter !== 'all' && info.brand !== currentBrandFilter) continue;
-    var displayCode = code.replace(/_[A-Z]+$/, '');
-    if(code.indexOf(q) >= 0 || displayCode.indexOf(q) >= 0 || (info.title && info.title.indexOf(query) >= 0) || (info.title_en && info.title_en.toUpperCase().indexOf(q) >= 0)){
-      var uniqKey = displayCode + '_' + (info.brand || 'base');
-      if(seenCodes.has(uniqKey)) continue;
-      seenCodes.add(uniqKey);
-      matches.push([code, info, displayCode]);
-    }
-  }
-  if(matches.length === 0){ div.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>'; return; }
-  var html = '<div class="space-y-1 mb-3">';
-  matches.forEach(function(m){
-    var k = m[0], i = m[1], dc = m[2];
-    html += '<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700 flex justify-between items-center" data-key="' + k + '">';
-    html += '<span><span class="font-mono text-red-300 font-bold">' + dc + '</span>';
-    if(i.brand) html += ' <span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">' + i.brand + '</span>';
-    html += ' - ' + i.title + '</span>';
-    html += '<i class="fa-solid fa-chevron-left text-blue-400 text-xs"></i></div>';
-  });
-  html += '</div>';
-  div.innerHTML = html;
-  div.querySelectorAll('[data-key]').forEach(function(el){ el.onclick = function(){ showDTCDetails(el.dataset.key); }; });
-}
-function initBrandFilters(){
-  var container = document.getElementById('brandFilters');
-  if(!container) return;
-  var brands = ['all', 'Toyota', 'BMW', 'VW', 'Ford', 'GM', 'Honda', 'Nissan', 'Hyundai', 'Mercedes', 'Renault', 'Diesel'];
-  var labels = {all:'الكل', Toyota:'Toyota', BMW:'BMW', VW:'VW', Ford:'Ford', GM:'GM', Honda:'Honda', Nissan:'Nissan', Hyundai:'Hyundai', Mercedes:'Mercedes', Renault:'Renault', Diesel:'Diesel'};
-  container.innerHTML = brands.map(function(b){ return '<button data-brand="' + b + '" class="' + (b === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300') + ' text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">' + labels[b] + '</button>'; }).join('');
-  container.querySelectorAll('[data-brand]').forEach(function(btn){
-    btn.onclick = function(){
-      currentBrandFilter = btn.dataset.brand;
-      container.querySelectorAll('[data-brand]').forEach(function(b){
-        if(b.dataset.brand === currentBrandFilter){ b.classList.remove('bg-gray-700', 'text-gray-300'); b.classList.add('bg-purple-600', 'text-white'); }
-        else{ b.classList.add('bg-gray-700', 'text-gray-300'); b.classList.remove('bg-purple-600', 'text-white'); }
-      });
-      var input = document.getElementById('dtcSearchInput');
-      if(input && input.value.length >= 2) searchDTC(input.value);
-    };
-  });
-}
-
-// ============ REPORT ============
-function buildReport(){
-  var date = new Date().toLocaleString('ar-EG');
-  var vinEl = document.getElementById('vinResult');
-  var vin = vinEl ? vinEl.textContent : '-';
-  var d = vin.length === 17 ? decodeVIN(vin) : null;
-  var items = document.querySelectorAll('#dtcList [data-code]');
-  var faults = [];
-  items.forEach(function(el){ if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)}); });
-  var diag = runDiagnosis(faults.map(function(f){ return f.code; }));
-  var hs = calcHealth(faults, diag);
-  var hc = hs >= 80 ? '#10b981' : hs >= 50 ? '#f59e0b' : '#ef4444';
-  var html = '<div style="padding:30px;font-family:Cairo;background:#fff;color:#1e293b;width:700px;direction:rtl">';
-  html += '<div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:20px;border-radius:14px;margin-bottom:20px"><div style="font-size:24px;font-weight:700">CheckDiga</div><div style="font-size:12px;opacity:.8;margin-top:4px">' + date + '</div></div>';
-  html += '<div style="background:' + hc + ';color:#fff;padding:18px;border-radius:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:16px;font-weight:700">مؤشر صحة السيارة</div><div style="font-size:36px;font-weight:700">' + hs + '/100</div></div>';
-  html += '<div style="background:#f8fafc;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;margin-bottom:10px">معلومات السيارة</div><div>VIN: <strong style="font-family:monospace">' + vin + '</strong></div>' + (d ? '<div>' + d.manufacturer + ' - ' + d.year + ' - ' + d.country + '</div>' : '') + '</div>';
-  html += '<div style="background:#fef2f2;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;color:#991b1b;margin-bottom:10px">الأعطال (' + faults.length + ')</div>';
-  faults.forEach(function(f, i){
-    html += '<div style="background:#fff;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px"><strong style="color:#b91c1c;font-family:monospace">#' + (i+1) + '. ' + f.code + '</strong> - ' + f.info.title + '</div>';
-  });
-  html += '</div>';
-  if(diag.length){
-    html += '<div style="background:#f5f3ff;padding:16px;border-radius:12px;margin-bottom:20px"><div style="font-weight:700;color:#5b21b6;margin-bottom:10px">التشخيص الذكي</div>';
-    diag.forEach(function(dd){
-      html += '<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px"><strong>' + dd.title + ' (' + dd.confidence + '%)</strong><div style="color:#475569;margin-top:4px">' + dd.description + '</div></div>';
-    });
-    html += '</div>';
-  }
-  html += '<div style="text-align:center;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px dashed #cbd5e1">تم إنشاء التقرير بواسطة CheckDiga</div></div>';
-  return html;
-}
-
-async function exportPDF(){
-  var btn = document.getElementById('btnExportPDF');
-  if(!btn || !window.html2pdf) return;
-  var orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  try{
-    var c = document.createElement('div');
-    c.innerHTML = buildReport();
-    c.style.position = 'fixed'; c.style.left = '-9999px';
-    document.body.appendChild(c);
-    await html2pdf().set({margin:0, filename:'CheckDiga-' + new Date().toISOString().slice(0, 10) + '.pdf', image:{type:'jpeg', quality:.98}, html2canvas:{scale:2, useCORS:true, backgroundColor:'#fff', logging:false}, jsPDF:{unit:'mm', format:'a4', compress:true}}).from(c.firstElementChild).save();
-    document.body.removeChild(c);
-  }catch(e){ logError('PDF failed'); }
-  finally{ btn.innerHTML = orig; btn.disabled = false; }
-}
-
-function buildWhatsAppMessage(){
-  var vinEl = document.getElementById('vinResult');
-  var vinText = vinEl ? vinEl.textContent : '-';
-  var vinDecoded = vinText.length === 17 ? decodeVIN(vinText) : null;
-  var faultItems = document.querySelectorAll('#dtcList [data-code]');
-  var faults = [];
-  faultItems.forEach(function(el){ if(el.dataset.code) faults.push({code: el.dataset.code, info: getFaultInfo(el.dataset.code)}); });
-  var diag = runDiagnosis(faults.map(function(f){ return f.code; }));
-  var health = calcHealth(faults, diag);
-  var msg = '*تقرير فحص سيارة - CheckDiga*\n----------------\n\n';
-  msg += '*معلومات السيارة:*\nVIN: ' + vinText + '\n';
-  if(vinDecoded) msg += vinDecoded.manufacturer + ' - ' + vinDecoded.year + '\n';
-  msg += '\n*مؤشر صحة السيارة:* ' + health + '/100\n\n';
-  if(faults.length > 0){
-    msg += '*الأعطال (' + faults.length + '):*\n';
-    faults.forEach(function(f, i){ msg += (i+1) + '. *' + f.code + '* - ' + f.info.title + '\n'; });
-    msg += '\n';
-  }
-  if(diag.length > 0){
-    msg += '*التشخيص:*\n';
-    diag.forEach(function(d){ msg += '*' + d.title + '* (' + d.confidence + '%)\n'; });
-  }
-  msg += '----------------\n*CheckDiga*\nhttps://ishakdiga55-ops.github.io/Diga-scaner/';
-  return msg;
-}
-function shareWhatsApp(){
-  var btn = document.getElementById('btnShareWhatsApp');
-  if(!btn) return;
-  var orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
-  try{ window.open('https://wa.me/?text=' + encodeURIComponent(buildWhatsAppMessage()), '_blank'); }
-  catch(e){ logError('WhatsApp failed'); }
-  finally{ setTimeout(function(){ btn.innerHTML = orig; btn.disabled = false; }, 1000); }
-}
-
-// ============ THEME ============
-function applyTheme(){
-  var theme = localStorage.getItem('checkdiga_theme') || 'dark';
-  var body = document.body;
-  var icon = document.getElementById('themeIcon');
-  if(theme === 'light'){ body.classList.add('light-mode'); if(icon) icon.className = 'fa-solid fa-moon'; }
-  else { body.classList.remove('light-mode'); if(icon) icon.className = 'fa-solid fa-sun'; }
-}
-function toggleTheme(){
-  var current = localStorage.getItem('checkdiga_theme') || 'dark';
-  var newTheme = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('checkdiga_theme', newTheme);
-  applyTheme();
-}
-
-// ============ AI ============
-function toggleAI(){
-  var m = document.getElementById('aiModal');
-  if(!m) return;
-  var key = localStorage.getItem('checkdiga_gemini_key') || "";
-  if(!key){
-    var newKey = prompt('الصق مفتاح Gemini API من Google AI Studio:', '');
-    if(newKey && newKey.length > 20){
-      localStorage.setItem('checkdiga_gemini_key', newKey);
-      GEMINI_API_KEY = newKey;
-      GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey;
-    } else if(newKey !== null){ alert('مفتاح غير صحيح'); return; }
-    else return;
-  }
-  m.classList.toggle('hidden');
-}
-function addAIMessage(role, text){
-  var chat = document.getElementById('aiChat');
-  if(!chat) return;
-  var div = document.createElement('div');
-  div.className = 'flex gap-2 ' + (role === 'user' ? 'justify-end' : '');
-  if(role === 'user'){
-    div.innerHTML = '<div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl rounded-tl-sm p-3 text-sm text-white max-w-[85%]">' + text + '</div><div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div>';
-  }else{
-    div.innerHTML = '<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200 max-w-[85%] whitespace-pre-wrap">' + text + '</div>';
-  }
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-function addAITyping(){
-  var chat = document.getElementById('aiChat');
-  if(!chat) return;
-  var div = document.createElement('div');
-  div.id = 'aiTyping';
-  div.className = 'flex gap-2';
-  div.innerHTML = '<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 rounded-2xl rounded-tr-sm p-3 text-sm text-gray-200"><span class="spinner"></span> يفكر...</div>';
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-function removeAITyping(){ var el = document.getElementById('aiTyping'); if(el) el.remove(); }
-function buildAIContext(){
-  var context = 'أنت مساعد ذكي متخصص في تشخيص أعطال السيارات. أجب بالعربية باختصار ووضوح.\n\n';
-  if(lastFaults && lastFaults.length > 0){
-    context += 'السيارة الحالية لديها هذه الأعطال:\n';
-    lastFaults.forEach(function(f){ var info = getFaultInfo(f.code); context += '- ' + f.code + ': ' + info.title + '\n'; });
-    context += '\n';
-  }
-  context += 'أجب باختصار (3-5 أسطر) مع ذكر الأسباب الأكثر احتمالاً + خطوات الفحص.';
-  return context;
-}
-function askAI(question){ var input = document.getElementById('aiInput'); if(input) input.value = question; sendAI(); }
-async function sendAI(){
-  var input = document.getElementById('aiInput');
-  if(!input) return;
-  var question = input.value.trim();
-  if(!question) return;
-  input.value = '';
-  addAIMessage('user', question);
-  addAITyping();
-  var sendBtn = document.getElementById('aiSendBtn');
-  if(sendBtn) sendBtn.disabled = true;
-  try{
-    var sysContext = buildAIContext();
-    var body = {contents: [{role:'user', parts:[{text: sysContext + '\n\nسؤال المستخدم: ' + question}]}], generationConfig: {temperature: 0.7, maxOutputTokens: 500, topP: 0.95, topK: 40}};
-    var response = await fetch(GEMINI_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    if(!response.ok) throw new Error('HTTP ' + response.status);
-    var data = await response.json();
-    var text = 'عذراً، لم أتمكن من الرد.';
-    if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts){ text = data.candidates[0].content.parts[0].text || text; }
-    removeAITyping();
-    addAIMessage('ai', text);
-  }catch(e){
-    removeAITyping();
-    var errMsg = 'حدث خطأ: ' + e.message;
-    if(e.message.indexOf('HTTP 400') >= 0) errMsg = 'مفتاح API غير صحيح.';
-    if(e.message.indexOf('HTTP 403') >= 0) errMsg = 'المفتاح محظور.';
-    if(e.message.indexOf('HTTP 429') >= 0) errMsg = 'تجاوزت الحد. جرب بعد دقيقة.';
-    addAIMessage('ai', '⚠️ ' + errMsg);
-  }finally{ if(sendBtn) sendBtn.disabled = false; }
-}
-
-window.toggleAI = toggleAI;
-window.askAI = askAI;
-window.sendAI = sendAI;
-window.toggleTheme = toggleTheme;
-
-// ============ INIT ============
-function init(){
-  function bind(id, fn){ var el = document.getElementById(id); if(el) el.onclick = fn; }
-  bind('connect-btn', connectOBD);
-  bind('usb-btn', connectUSB);
-  bind('demo-btn', startDemo);
-  bind('disconnect-btn', async function(){ stopDemo(); await handleDisconnect(); });
-  bind('clear-btn', clearDTCs);
-  bind('btnReadDTC', readDTCs);
-  bind('btnScanAll', scanAllSystems);
-  bind('btnExportPDF', exportPDF);
-  bind('btnShareWhatsApp', shareWhatsApp);
-  bind('btnReadiness', checkReadiness);
-  bind('btnBatteryTest', runBatteryTest);
-  bind('btnMode06', runMode06);
-  bind('btnTheme', toggleTheme);
-  bind('btnLang', function(){ logInfo('Language switch coming soon'); });
-  bind('btnReadVIN', async function(){
-    if(!isConnected && !isDemo){ alert('غير متصل'); return; }
-    if(isDemo){ document.getElementById('vinResult').textContent = '1HGCG5655WA123456'; displayVINInfo('1HGCG5655WA123456'); return; }
-    await readVIN();
-  });
-  bind('btnDecodeVIN', function(){
-    var v = document.getElementById('vinInput').value.trim().toUpperCase();
-    if(v.length !== 17){ alert('VIN يجب أن يكون 17 حرفاً'); return; }
-    document.getElementById('vinResult').textContent = v;
-    displayVINInfo(v);
-  });
-  bind('btnCloseDetail', function(){ document.getElementById('dtcDetailModal').classList.add('hidden'); });
-  bind('btnLoadStats', function(){
-    var c = document.getElementById('statsContent');
-    if(c) c.innerHTML = '<p class="text-gray-500 text-center py-4">الإحصائيات السحابية قريباً</p>';
-  });
-
-  document.querySelectorAll('.tab').forEach(function(tab){
-    tab.onclick = function(){
-      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('bg-blue-600', 'text-white'); t.classList.add('bg-gray-800', 'text-gray-400'); });
-      tab.classList.remove('bg-gray-800', 'text-gray-400'); tab.classList.add('bg-blue-600', 'text-white');
-      document.querySelectorAll('.panel').forEach(function(p){ p.classList.add('hidden'); });
-      var target = document.getElementById('panel-' + tab.dataset.tab);
-      if(target) target.classList.remove('hidden');
-      if(tab.dataset.tab === 'live') setTimeout(function(){ if(!chartInstance) initChart(); else try{ chartInstance.resize(); }catch(e){} }, 200);
-      if(tab.dataset.tab === 'history') {
-        var hc = document.getElementById('historyContent');
-        if(hc) hc.innerHTML = '<p class="text-gray-500 text-center py-4">لا يوجد سجل بعد</p>';
-      }
-    };
-  });
-
-  var dd = document.getElementById('dtcDetailModal');
-  if(dd) dd.onclick = function(e){ if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
-
-  initSearch();
-  initBrandFilters();
-
-  // iOS banner
-  if(isIOS && !isBluefy && !hasBluetooth){
-    var bb = document.getElementById('bluefyBanner');
-    if(bb) bb.classList.remove('hidden');
-  }
-  if(!hasSerial){
-    var ub = document.getElementById('usbBanner');
-    if(ub) ub.classList.remove('hidden');
-    var u = document.getElementById('usb-btn');
-    if(u) u.classList.add('hidden');
-  }
-
-  if('serial' in navigator){
-    navigator.serial.addEventListener('disconnect', function(e){
-      if(usbPort && e.target === usbPort){ logInfo('USB disconnected'); handleDisconnect(); }
-    });
-  }
-
-  applyTheme();
-
-  setTimeout(function(){ updateAllGauges({rpm:0, speed:0, coolant:0, fuelLevel:0}); }, 300);
-
-  logSuccess(Object.keys(DTC_DATABASE).length + ' codes ready');
-  if(isBluefy) logInfo('Bluefy detected — Bluetooth supported');
-  else if(isIOS) logInfo('iOS: استخدم Bluefy للاتصال بالبلوتوث');
-  logInfo('Tap Demo or Bluetooth');
-}
-
-if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
-else { init(); }
-</script>
-</body>
-</html>
+,// ============ أكواد جديدة - تحديث 2026 ============
+// ---- حساسات المحرك والوقود ----
+"P0001":{zone:"fuel",title:"منظم ضغط الوقود",title_en:"Fuel Volume Regulator",severity:"medium"},
+"P0010":{zone:"engine",title:"VVT - Bank 1 Intake",title_en:"VVT Bank 1 Intake",severity:"medium"},
+"P0011":{zone:"engine",title:"VVT Bank 1 متقدم",title_en:"VVT Bank 1 Advanced",severity:"high",desc:"توقيت الكام متقدم عن المطلوب",desc_en:"Cam timing advanced",causes:["زيت متسخ","صمام VVT معطل","سلسلة توقيت مرتخية"],symptoms:["خمول غير مستقر","فقدان قوة"],steps:["غير الزيت","افحص VVT","افحص سلسلة التوقيت"]},
+"P0012":{zone:"engine",title:"VVT Bank 1 متأخر",title_en:"VVT Bank 1 Retarded",severity:"high"},
+"P0016":{zone:"engine",title:"تزامن الكرنك والكام A",title_en:"Crank/Cam A Correlation",severity:"critical",desc:"سلسلة التوقيت قد تكون مرتخية",desc_en:"Timing chain may be loose",causes:["سلسلة توقيت مرتخية","VVT معطل","حساس كام تالف"],symptoms:["صوت قرقعة","السيارة لا تشتغل"],steps:["افحص سلسلة التوقيت","افحص VVT"]},
+"P0017":{zone:"engine",title:"تزامن الكرنك والكام B",title_en:"Crank/Cam B Correlation",severity:"critical"},
+"P0018":{zone:"engine",title:"تزامن الكام A/B Bank 2",title_en:"Cam A/B Bank 2",severity:"critical"},
+"P0020":{zone:"engine",title:"VVT Bank 2 Intake",title_en:"VVT Bank 2 Intake",severity:"medium"},
+"P0021":{zone:"engine",title:"VVT Bank 2 متقدم",title_en:"VVT Bank 2 Advanced",severity:"high"},
+"P0022":{zone:"engine",title:"VVT Bank 2 متأخر",title_en:"VVT Bank 2 Retarded",severity:"high"},
+"P0030":{zone:"exhaust",title:"سخان O2 B1S1 - دائرة",title_en:"O2 B1S1 Heater",severity:"medium"},
+"P0031":{zone:"exhaust",title:"سخان O2 B1S1 منخفض",title_en:"O2 B1S1 Heater Low",severity:"medium"},
+"P0032":{zone:"exhaust",title:"سخان O2 B1S1 مرتفع",title_en:"O2 B1S1 Heater High",severity:"medium"},
+"P0036":{zone:"exhaust",title:"سخان O2 B1S2",title_en:"O2 B1S2 Heater",severity:"medium"},
+"P0050":{zone:"exhaust",title:"سخان O2 B2S1",title_en:"O2 B2S1 Heater",severity:"medium"},
+"P0056":{zone:"exhaust",title:"سخان O2 B2S2",title_en:"O2 B2S2 Heater",severity:"medium"},
+"P0068":{zone:"engine",title:"MAP/MAF - عدم توافق",title_en:"MAP/MAF Throttle Position",severity:"high"},
+"P0069":{zone:"engine",title:"MAP-Barometric - عدم توافق",title_en:"MAP-Barometric Correlation",severity:"medium"},
+"P0087":{zone:"fuel",title:"ضغط الوقود منخفض جداً",title_en:"Fuel Rail Pressure Too Low",severity:"critical",desc:"ضغط مشعب الوقود منخفض",desc_en:"Fuel rail pressure low",causes:["مضخة وقود ضعيفة","فلتر وقود مسدود","مضخة HPFP تالفة"],symptoms:["السيارة تطفي","فقدان قوة شديد"],steps:["افحص مضخة الوقود","غير فلتر الوقود","افحص HPFP"]},
+"P0088":{zone:"fuel",title:"ضغط الوقود مرتفع جداً",title_en:"Fuel Rail Pressure Too High",severity:"high"},
+"P0089":{zone:"fuel",title:"منظم ضغط الوقود - أداء",title_en:"Fuel Pressure Regulator",severity:"high"},
+"P0093":{zone:"fuel",title:"تسرب كبير في نظام الوقود",title_en:"Large Fuel Leak",severity:"critical"},
+"P0096":{zone:"engine",title:"حساس IAT 2",title_en:"IAT Sensor 2",severity:"low"},
+"P00B7":{zone:"cooling",title:"تدفق سائل التبريد منخفض",title_en:"Coolant Flow Low",severity:"high"},
+"P00B8":{zone:"cooling",title:"حساس ضغط التبريد",title_en:"MAP Coolant Sensor",severity:"medium"},
+"P010B":{zone:"engine",title:"MAF - نطاق B1",title_en:"MAF Sensor Range B1",severity:"medium"},
+"P00C6":{zone:"fuel",title:"ضغط قضيب الوقود منخفض (DI)",title_en:"DI Fuel Rail Pressure Low",severity:"high"},
+"P0104":{zone:"engine",title:"MAF - متقطع",title_en:"MAF Intermittent",severity:"medium"},
+"P0116":{zone:"cooling",title:"حساس حرارة التبريد - أداء",title_en:"Coolant Sensor Performance",severity:"medium"},
+"P0119":{zone:"cooling",title:"حساس الحرارة - متقطع",title_en:"Coolant Sensor Intermittent",severity:"medium"},
+"P0125":{zone:"cooling",title:"محرك لا يصل للحرارة الكافية",title_en:"Insufficient Coolant Temp",severity:"medium"},
+"P0126":{zone:"cooling",title:"حرارة التبريد غير مستقرة",title_en:"Coolant Temp Unstable",severity:"medium"},
+"P0137":{zone:"exhaust",title:"O2 B1S2 منخفض",title_en:"O2 B1S2 Low",severity:"medium"},
+"P0138":{zone:"exhaust",title:"O2 B1S2 مرتفع",title_en:"O2 B1S2 High",severity:"medium"},
+"P0140":{zone:"exhaust",title:"O2 B1S2 لا نشاط",title_en:"O2 B1S2 No Activity",severity:"medium"},
+"P0151":{zone:"exhaust",title:"O2 B2S1 منخفض",title_en:"O2 B2S1 Low",severity:"medium"},
+"P0152":{zone:"exhaust",title:"O2 B2S1 مرتفع",title_en:"O2 B2S1 High",severity:"medium"},
+"P0154":{zone:"exhaust",title:"O2 B2S1 لا نشاط",title_en:"O2 B2S1 No Activity",severity:"medium"},
+"P0161":{zone:"exhaust",title:"سخان O2 B2S2",title_en:"O2 B2S2 Heater",severity:"medium"},
+"P0173":{zone:"fuel",title:"Fuel Trim Bank 2",title_en:"Fuel Trim Bank 2",severity:"high"},
+"P0181":{zone:"fuel",title:"حساس حرارة الوقود A",title_en:"Fuel Temp Sensor A",severity:"low"},
+"P0183":{zone:"fuel",title:"حساس حرارة الوقود A مرتفع",title_en:"Fuel Temp A High",severity:"low"},
+"P018C":{zone:"fuel",title:"حساس ضغط الوقود B منخفض",title_en:"Fuel Pressure B Low",severity:"high"},
+"P0192":{zone:"fuel",title:"ضغط الوقود منخفض - دائرة",title_en:"Fuel Pressure Low Circuit",severity:"high"},
+"P0193":{zone:"fuel",title:"ضغط الوقود مرتفع - دائرة",title_en:"Fuel Pressure High Circuit",severity:"high"},
+"P0194":{zone:"fuel",title:"ضغط الوقود - متقطع",title_en:"Fuel Pressure Intermittent",severity:"high"},
+"P0196":{zone:"engine",title:"حساس حرارة الزيت - نطاق",title_en:"Oil Temp Sensor Range",severity:"low"},
+"P0197":{zone:"engine",title:"حساس حرارة الزيت منخفض",title_en:"Oil Temp Low",severity:"low"},
+"P0198":{zone:"engine",title:"حساس حرارة الزيت مرتفع",title_en:"Oil Temp High",severity:"low"},
+"P0205":{zone:"fuel",title:"الحاقن 5",title_en:"Injector Cylinder 5",severity:"high"},
+"P0206":{zone:"fuel",title:"الحاقن 6",title_en:"Injector Cylinder 6",severity:"high"},
+"P0207":{zone:"fuel",title:"الحاقن 7",title_en:"Injector Cylinder 7",severity:"high"},
+"P0208":{zone:"fuel",title:"الحاقن 8",title_en:"Injector Cylinder 8",severity:"high"},
+"P0213":{zone:"fuel",title:"الحاقن البارد 1",title_en:"Cold Start Injector 1",severity:"medium"},
+"P0218":{zone:"transmission",title:"حرارة ناقل الحركة مرتفعة",title_en:"Trans Fluid Over Temperature",severity:"high",desc:"زيت الجير ساخن جداً",desc_en:"Transmission fluid too hot",causes:["سائل جير قديم","مبرد الزيت معطل","حمل زائد"],symptoms:["الجير لا يغير","قفل في ترس معين"],steps:["أوقف السيارة","افحص مبرد الجير","غير سائل الجير"]},
+"P0219":{zone:"engine",title:"فرط دوران المحرك",title_en:"Engine Overspeed",severity:"critical"},
+"P0220":{zone:"engine",title:"حساس TPS B",title_en:"TPS B Circuit",severity:"high"},
+"P0221":{zone:"engine",title:"TPS B - أداء",title_en:"TPS B Performance",severity:"high"},
+"P0222":{zone:"engine",title:"TPS B منخفض",title_en:"TPS B Low",severity:"high"},
+"P0223":{zone:"engine",title:"TPS B مرتفع",title_en:"TPS B High",severity:"high"},
+"P0227":{zone:"engine",title:"حساس دواسة الوقود C",title_en:"Pedal Position C",severity:"high"},
+"P0228":{zone:"engine",title:"حساس دواسة الوقود C مرتفع",title_en:"Pedal Position C High",severity:"high"},
+"P0230":{zone:"fuel",title:"دائرة مضخة الوقود الأولية",title_en:"Fuel Pump Primary Circuit",severity:"high"},
+"P0231":{zone:"fuel",title:"مضخة الوقود منخفضة",title_en:"Fuel Pump Low",severity:"high"},
+"P0232":{zone:"fuel",title:"مضخة الوقود مرتفعة",title_en:"Fuel Pump High",severity:"high"},
+"P023B":{zone:"engine",title:"ضغط التيربو مرتفع جداً",title_en:"Turbo Overboost Extreme",severity:"critical"},
+"P0243":{zone:"engine",title:"Wastegate Solenoid A",title_en:"Wastegate Solenoid A",severity:"high"},
+"P0245":{zone:"engine",title:"Wastegate Solenoid A منخفض",title_en:"Wastegate A Low",severity:"high"},
+"P0246":{zone:"engine",title:"Wastegate Solenoid A مرتفع",title_en:"Wastegate A High",severity:"high"},
+"P0251":{zone:"fuel",title:"مضخة الحقن A - الكامة",title_en:"Injection Pump A Cam",severity:"high"},
+"P0252":{zone:"fuel",title:"مضخة الحقن A - نطاق",title_en:"Injection Pump A Range",severity:"high"},
+"P0261":{zone:"fuel",title:"الحاقن 1 منخفض",title_en:"Injector 1 Low",severity:"high"},
+"P0262":{zone:"fuel",title:"الحاقن 1 مرتفع",title_en:"Injector 1 High",severity:"high"},
+"P0263":{zone:"fuel",title:"الحاقن 1 - توازن",title_en:"Injector 1 Balance",severity:"high"},
+"P0272":{zone:"fuel",title:"الحاقن 4 - توازن",title_en:"Injector 4 Balance",severity:"high"},
+"P0281":{zone:"fuel",title:"الحاقن 7 - توازن",title_en:"Injector 7 Balance",severity:"high"},
+"P029A":{zone:"engine",title:"اشتعال متقطع Cyl 1 - ضغط",title_en:"Cyl 1 Misfire Compression",severity:"high"},
+"P02CC":{zone:"fuel",title:"الحاقن 1 - أداء Calibration",title_en:"Injector 1 Performance",severity:"high"},
+"P02E0":{zone:"engine",title:"محرك الخانق Diesel",title_en:"Diesel Intake Air Throttle",severity:"high"},
+
+// ---- Diesel & DPF/SCR ----
+"P2004":{brand:"Diesel",zone:"engine",title:"مانع دخول الهواء Intake متوقف",title_en:"Intake Manifold Runner Stuck",severity:"high"},
+"P2005":{brand:"Diesel",zone:"engine",title:"Intake Runner Bank 2 عالق",title_en:"Intake Runner Bank 2",severity:"high"},
+"P2006":{brand:"Diesel",zone:"engine",title:"Intake Runner مغلق",title_en:"Intake Runner Closed",severity:"medium"},
+"P2007":{brand:"Diesel",zone:"engine",title:"Intake Runner Bank 2 مغلق",title_en:"Intake Runner B2 Closed",severity:"medium"},
+"P2008":{brand:"Diesel",zone:"engine",title:"Intake Runner Control - دائرة",title_en:"Intake Runner Circuit",severity:"high"},
+"P2009":{brand:"Diesel",zone:"engine",title:"Intake Runner منخفض",title_en:"Intake Runner Low",severity:"high"},
+"P200A":{brand:"Diesel",zone:"engine",title:"Intake Runner Bank 1 - أداء",title_en:"Intake Runner B1 Performance",severity:"high"},
+"P200C":{brand:"Diesel",zone:"exhaust",title:"DPF - حرارة مرتفعة جداً",title_en:"DPF Over Temperature",severity:"critical"},
+"P200E":{brand:"Diesel",zone:"exhaust",title:"DPF Bank 1 - حرارة",title_en:"DPF B1 Over Temp",severity:"critical"},
+"P2010":{brand:"Diesel",zone:"engine",title:"Intake Runner Bank 1 مغلق",title_en:"Intake Runner B1 Closed",severity:"medium"},
+"P2015":{brand:"Diesel",zone:"engine",title:"Intake Manifold Runner",title_en:"Intake Manifold Runner",severity:"high"},
+"P2016":{brand:"Diesel",zone:"engine",title:"Intake Runner Position",title_en:"Intake Runner Position",severity:"high"},
+"P2020":{brand:"Diesel",zone:"engine",title:"Intake Runner B2",title_en:"Intake Runner B2 Position",severity:"high"},
+"P2031":{brand:"Diesel",zone:"exhaust",title:"EGT Bank 1 Sensor 2",title_en:"EGT B1S2",severity:"medium"},
+"P2032":{brand:"Diesel",zone:"exhaust",title:"EGT B1S2 منخفض",title_en:"EGT B1S2 Low",severity:"medium"},
+"P2033":{brand:"Diesel",zone:"exhaust",title:"EGT B1S2 مرتفع",title_en:"EGT B1S2 High",severity:"medium"},
+"P203D":{brand:"Diesel",zone:"exhaust",title:"EGT B1S4",title_en:"EGT B1S4",severity:"medium"},
+"P204F":{brand:"Diesel",zone:"exhaust",title:"SCR - أداء عام",title_en:"SCR System Performance",severity:"high"},
+"P205C":{brand:"Diesel",zone:"exhaust",title:"حساس حرارة DEF",title_en:"DEF Temp Sensor",severity:"medium"},
+"P205D":{brand:"Diesel",zone:"exhaust",title:"حساس حرارة DEF مرتفع",title_en:"DEF Temp High",severity:"medium"},
+"P206B":{brand:"Diesel",zone:"engine",title:"حاقن اليوريا Circuit",title_en:"Reductant Injector Circuit",severity:"high"},
+"P207A":{brand:"Diesel",zone:"engine",title:"حاقن اليوريا 1",title_en:"Reductant Injector 1",severity:"high"},
+"P207B":{brand:"Diesel",zone:"engine",title:"حاقن اليوريا 2",title_en:"Reductant Injector 2",severity:"high"},
+"P2080":{brand:"Diesel",zone:"exhaust",title:"EGT B1S1 - نطاق",title_en:"EGT B1S1 Range",severity:"medium"},
+"P2084":{brand:"Diesel",zone:"exhaust",title:"EGT B1S2 - نطاق",title_en:"EGT B1S2 Range",severity:"medium"},
+"P20B9":{brand:"Diesel",zone:"exhaust",title:"خط DEF - تسرب",title_en:"DEF Line Leak",severity:"high"},
+"P20BA":{brand:"Diesel",zone:"exhaust",title:"سخان DEF",title_en:"DEF Heater",severity:"high"},
+"P20BD":{brand:"Diesel",zone:"exhaust",title:"سخان DEF - كفاءة",title_en:"DEF Heater Efficiency",severity:"medium"},
+"P20E9":{brand:"Diesel",zone:"exhaust",title:"ضغط DEF مرتفع",title_en:"DEF Pressure High",severity:"high"},
+"P20F4":{brand:"Diesel",zone:"exhaust",title:"مستوى DEF منخفض",title_en:"DEF Level Low",severity:"medium"},
+"P20F5":{brand:"Diesel",zone:"exhaust",title:"DEF Level - نطاق",title_en:"DEF Level Range",severity:"medium"},
+"P2146":{brand:"Diesel",zone:"fuel",title:"الحاقن Group A - جهد",title_en:"Injector Group A Voltage",severity:"high"},
+"P2149":{brand:"Diesel",zone:"fuel",title:"الحاقن Group B - جهد",title_en:"Injector Group B Voltage",severity:"high"},
+"P2152":{brand:"Diesel",zone:"fuel",title:"الحاقن Group C - جهد",title_en:"Injector Group C Voltage",severity:"high"},
+"P2452":{brand:"Diesel",zone:"exhaust",title:"حساس ضغط DPF",title_en:"DPF Pressure Sensor",severity:"high"},
+"P2453":{brand:"Diesel",zone:"exhaust",title:"DPF Sensor - نطاق",title_en:"DPF Pressure Range",severity:"high"},
+"P2454":{brand:"Diesel",zone:"exhaust",title:"DPF Sensor منخفض",title_en:"DPF Pressure Low",severity:"high"},
+"P2455":{brand:"Diesel",zone:"exhaust",title:"DPF Sensor مرتفع",title_en:"DPF Pressure High",severity:"high"},
+"P2459":{brand:"Diesel",zone:"exhaust",title:"تكرار تجديد DPF",title_en:"DPF Regeneration Frequency",severity:"medium"},
+"P2464":{brand:"Diesel",zone:"exhaust",title:"حساس حرارة DPF",title_en:"DPF Temperature Sensor",severity:"medium"},
+"P2465":{brand:"Diesel",zone:"exhaust",title:"DPF Sensor 2",title_en:"DPF Pressure Sensor 2",severity:"medium"},
+"P246C":{brand:"Diesel",zone:"exhaust",title:"DPF - انسداد كامل",title_en:"DPF Fully Restricted",severity:"critical"},
+"P246E":{brand:"Diesel",zone:"exhaust",title:"EGT B2S3",title_en:"EGT B2S3",severity:"medium"},
+"P2470":{brand:"Diesel",zone:"exhaust",title:"EGT B2S4",title_en:"EGT B2S4",severity:"medium"},
+"P249C":{brand:"Diesel",zone:"exhaust",title:"حاقن DEF - Circuit",title_en:"DEF Injector Circuit",severity:"high"},
+"P2563":{brand:"Diesel",zone:"engine",title:"Turbo Vane Position",title_en:"Turbo Vane Position",severity:"high"},
+"P2564":{brand:"Diesel",zone:"engine",title:"Turbo Vane Position منخفض",title_en:"Turbo Vane Low",severity:"high"},
+"P2565":{brand:"Diesel",zone:"engine",title:"Turbo Vane Position مرتفع",title_en:"Turbo Vane High",severity:"high"},
+
+// ---- ناقل الحركة الأوتوماتيكي والحديث ----
+"P2714":{zone:"transmission",title:"PC Solenoid D - عالق مفتوح",title_en:"Pressure Control Solenoid D Stuck",severity:"high"},
+"P2715":{zone:"transmission",title:"PC Solenoid D - عالق",title_en:"PC Solenoid D Stuck",severity:"high"},
+"P2716":{zone:"transmission",title:"PC Solenoid D - كهربائي",title_en:"PC Solenoid D Electrical",severity:"high"},
+"P2718":{zone:"transmission",title:"PC Solenoid E - دائرة",title_en:"PC Solenoid E Circuit",severity:"high"},
+"P2720":{zone:"transmission",title:"PC Solenoid E - Control",title_en:"PC Solenoid E Control",severity:"high"},
+"P2721":{zone:"transmission",title:"PC Solenoid E - كهربائي",title_en:"PC Solenoid E Electrical",severity:"high"},
+"P2723":{zone:"transmission",title:"PC Solenoid F - عالق",title_en:"PC Solenoid F Stuck",severity:"high"},
+"P2731":{zone:"transmission",title:"PC Solenoid G - كهربائي",title_en:"PC Solenoid G Electrical",severity:"high"},
+"P2740":{zone:"transmission",title:"حساس حرارة C - نطاق",title_en:"Fluid Temp Sensor C Range",severity:"medium"},
+"P2742":{zone:"transmission",title:"حساس حرارة C منخفض",title_en:"Fluid Temp C Low",severity:"medium"},
+"P2743":{zone:"transmission",title:"حساس حرارة C مرتفع",title_en:"Fluid Temp C High",severity:"medium"},
+"P2757":{zone:"transmission",title:"TCC Solenoid - أداء",title_en:"TCC Solenoid Performance",severity:"high"},
+"P2758":{zone:"transmission",title:"TCC Solenoid - عالق",title_en:"TCC Solenoid Stuck",severity:"high"},
+"P2764":{zone:"transmission",title:"TCC PC Solenoid منخفض",title_en:"TCC PC Solenoid Low",severity:"high"},
+"P2769":{zone:"transmission",title:"TCC Solenoid - دائرة منخفضة",title_en:"TCC Solenoid Low",severity:"high"},
+"P2770":{zone:"transmission",title:"TCC Solenoid - دائرة مرتفعة",title_en:"TCC Solenoid High",severity:"high"},
+"P2787":{zone:"transmission",title:"حرارة القابض مرتفعة",title_en:"Clutch Temp Too High",severity:"critical"},
+"P2789":{zone:"transmission",title:"قابض Clutch Adaptive",title_en:"Clutch Adaptive Learning",severity:"high"},
+"P2796":{zone:"transmission",title:"مضخة الزيت الإضافية - دائرة",title_en:"Aux Transmission Fluid Pump",severity:"high"},
+"P2800":{zone:"transmission",title:"حساس نطاق PRNDL",title_en:"Transmission Range Sensor",severity:"high"},
+"P2801":{zone:"transmission",title:"حساس نطاق B",title_en:"Range Sensor B",severity:"high"},
+"P2805":{zone:"transmission",title:"نطاق PRNDL - نطاق",title_en:"Range Sensor Range",severity:"high"},
+"P2810":{zone:"transmission",title:"ضغط القابض",title_en:"Clutch Pressure",severity:"high"},
+"P2811":{zone:"transmission",title:"ضغط القابض - دائرة",title_en:"Clutch Pressure Circuit",severity:"high"},
+"P2813":{zone:"transmission",title:"مشغل قابض DSG",title_en:"DSG Clutch Actuator",severity:"critical"},
+"P2815":{zone:"transmission",title:"مشغل قابض CVT",title_en:"CVT Clutch Actuator",severity:"critical"},
+"P2817":{zone:"transmission",title:"مشغل قابض DCT",title_en:"DCT Clutch Actuator",severity:"critical"},
+
+// ---- Hybrid & Electric ----
+"P0A09":{zone:"electronics",title:"فقدان محول DC/DC",title_en:"DC/DC Converter Fault",severity:"high"},
+"P0A0A":{zone:"electronics",title:"فقدان المحرك الكهربائي",title_en:"Electric Motor Fault",severity:"critical"},
+"P0A0B":{zone:"electronics",title:"فشل عزم المحرك الكهربائي",title_en:"Motor Torque Fault",severity:"critical"},
+"P0A3F":{zone:"electronics",title:"فقدان المحرك الكهربائي - موضع",title_en:"Motor Position Sensor",severity:"critical"},
+"P0A40":{zone:"electronics",title:"حساس موضع المحرك",title_en:"Motor Position Circuit",severity:"critical"},
+"P0A41":{zone:"electronics",title:"حساس موضع المحرك - نطاق",title_en:"Motor Position Range",severity:"critical"},
+"P0A43":{zone:"electronics",title:"حساس موضع Rotor",title_en:"Rotor Position Sensor",severity:"high"},
+"P0A46":{zone:"electronics",title:"حساس Rotor - نطاق",title_en:"Rotor Position Range",severity:"high"},
+"P0A78":{zone:"electronics",title:"محرك Drive Motor A - Inverter",title_en:"Drive Motor A Inverter",severity:"critical"},
+"P0A79":{zone:"electronics",title:"محرك A - أداء Inverter",title_en:"Motor A Inverter Performance",severity:"critical"},
+"P0A7A":{zone:"electronics",title:"محرك A - Inverter Over Temp",title_en:"Motor A Inverter Over Temp",severity:"high"},
+"P0A8D":{zone:"electronics",title:"جهد بطارية 12V منخفض",title_en:"12V Battery Low (Hybrid)",severity:"medium"},
+"P0A8E":{zone:"electronics",title:"جهد بطارية 12V مرتفع",title_en:"12V Battery High",severity:"medium"},
+"P0A95":{zone:"electronics",title:"جهد بطارية HV مرتفع جداً",title_en:"HV Battery Voltage High",severity:"critical"},
+"P0A9C":{zone:"electronics",title:"حساس حرارة بطارية HV",title_en:"HV Battery Temp Sensor",severity:"high"},
+"P0AA1":{zone:"electronics",title:"Relay بطارية HV - إغلاق",title_en:"HV Battery Contactor Stuck Closed",severity:"critical"},
+"P0AA4":{zone:"electronics",title:"Relay سلبي - عالق مفتوح",title_en:"Negative Contactor Stuck Open",severity:"critical"},
+"P0AA6":{zone:"electronics",title:"عزل HV - خطأ",title_en:"HV Isolation Fault",severity:"critical",desc:"خطأ في عزل الجهد العالي - خطير!",desc_en:"HV isolation fault - dangerous!",causes:["تسرب سائل","أسلاك HV تالفة","رطوبة"],symptoms:["السيارة لا تشتغل","لمبة HV"],steps:["أوقف فوراً","لا تلمس أي شيء","اتصل بالوكيل"]},
+"P0AC4":{zone:"electronics",title:"HV Battery Pack - حالة",title_en:"HV Battery Pack State",severity:"high"},
+"P0AE2":{zone:"electronics",title:"تسرب بطارية HV",title_en:"HV Battery Leak",severity:"critical"},
+"P0C73":{zone:"electronics",title:"قدرة البطارية منخفضة",title_en:"Battery Power Reduced",severity:"high"},
+"P0C76":{zone:"electronics",title:"مروحة تبريد البطارية",title_en:"HV Battery Cooling Fan",severity:"medium"},
+"P0D2E":{zone:"electronics",title:"مقاومة Inverter عالية",title_en:"Inverter Resistance High",severity:"critical"},
+"P0D2F":{zone:"electronics",title:"مقاومة Inverter - نطاق",title_en:"Inverter Resistance Range",severity:"critical"},
+
+// ---- ADAS وأنظمة السلامة الحديثة ----
+"C0561":{zone:"electronics",title:"نظام ESC - عطل",title_en:"ESC System Fault",severity:"high"},
+"C0562":{zone:"electronics",title:"TCS - عطل",title_en:"TCS System Fault",severity:"high"},
+"C0565":{zone:"electronics",title:"أداء مستشعر عجلة",title_en:"Wheel Speed Performance",severity:"high"},
+"C0710":{zone:"electronics",title:"ABS - نظام",title_en:"ABS System",severity:"high"},
+"C0800":{zone:"electronics",title:"حساس ضغط الفرامل",title_en:"Brake Pressure Sensor",severity:"high"},
+"C0895":{zone:"electronics",title:"ESP - Calibration",title_en:"ESP Calibration",severity:"high"},
+"C1095":{zone:"electronics",title:"حساس زاوية الدركسون",title_en:"Steering Angle Sensor",severity:"high",desc:"يؤثر على ESP و ADAS",desc_en:"Affects ESP and ADAS",causes:["حساس SAS تالف","Calibration مفقود","بطارية جديدة"],symptoms:["لمبة ESP","لمبة الدركسون"],steps:["إعادة معايرة","افحص SAS"]},
+"C1132":{zone:"electronics",title:"مستشعر الرادار الأمامي",title_en:"Front Radar Sensor",severity:"high"},
+"C1142":{zone:"electronics",title:"مستشعر الرادار - علبة",title_en:"Radar Sensor Fault",severity:"high"},
+"C1435":{zone:"electronics",title:"TPMS - وحدة",title_en:"TPMS Module",severity:"medium"},
+"C1440":{zone:"electronics",title:"حساس ضغط الإطار 1",title_en:"Tire Pressure Sensor 1",severity:"low"},
+"C1441":{zone:"electronics",title:"حساس ضغط الإطار 2",title_en:"Tire Pressure Sensor 2",severity:"low"},
+"C1442":{zone:"electronics",title:"حساس ضغط الإطار 3",title_en:"Tire Pressure Sensor 3",severity:"low"},
+"C1443":{zone:"electronics",title:"حساس ضغط الإطار 4",title_en:"Tire Pressure Sensor 4",severity:"low"},
+"C1513":{zone:"electronics",title:"نظام التعليق الهوائي",title_en:"Air Suspension",severity:"high"},
+"C1520":{zone:"electronics",title:"ضغط التعليق منخفض",title_en:"Suspension Pressure Low",severity:"medium"},
+"C1531":{zone:"electronics",title:"مستشعر الرادار الخلفي 1",title_en:"Rear Radar Sensor 1",severity:"medium"},
+"C1532":{zone:"electronics",title:"مستشعر الرادار الخلفي 2",title_en:"Rear Radar Sensor 2",severity:"medium"},
+"C2000":{zone:"electronics",title:"مستشعر ميل السيارة",title_en:"Yaw Rate Sensor",severity:"high"},
+"C2010":{zone:"electronics",title:"مستشعر تسارع جانبي",title_en:"Lateral Acceleration Sensor",severity:"high"},
+"C2200":{zone:"electronics",title:"حساس ESP - نطاق",title_en:"ESP Sensor Range",severity:"high"},
+"C2301":{zone:"electronics",title:"مستشعر عمودي - Front Left",title_en:"Vertical Acceleration FL",severity:"medium"},
+"C2700":{zone:"electronics",title:"نظام EPB - عطل",title_en:"EPB System Fault",severity:"high",desc:"فرامل اليد الإلكترونية",desc_en:"Electronic Parking Brake",causes:["موتور EPB","كابلات","ECU"],symptoms:["EPB لا يعمل","لمبة الفرامل"],steps:["افحص موتور EPB","افحص الكابلات"]},
+
+// ---- BCM والإلكترونيات ----
+"B1004":{zone:"electronics",title:"BCM - دائرة الطاقة",title_en:"BCM Power Circuit",severity:"high"},
+"B1015":{zone:"electronics",title:"مفتاح السائق",title_en:"Driver Door Switch",severity:"low"},
+"B1020":{zone:"electronics",title:"مفتاح الباب الخلفي",title_en:"Rear Door Switch",severity:"low"},
+"B1030":{zone:"electronics",title:"مفتاح الصندوق",title_en:"Trunk Switch",severity:"low"},
+"B1040":{zone:"electronics",title:"نافذة كهربائية - سائق",title_en:"Power Window Driver",severity:"medium"},
+"B1050":{zone:"electronics",title:"نافذة كهربائية - رفيق",title_en:"Power Window Passenger",severity:"medium"},
+"B1102":{zone:"electronics",title:"بطارية منخفضة - Ford",title_en:"Battery Voltage Low Ford",severity:"medium"},
+"B1142":{zone:"electronics",title:"مفتاح - التعرف",title_en:"Key Identification",severity:"high"},
+"B1200":{zone:"electronics",title:"مفتاح ذكي - لم يتم التعرف",title_en:"Smart Key Not Detected",severity:"high"},
+"B1213":{zone:"electronics",title:"مفتاح - منخفض",title_en:"Key Battery Low",severity:"low"},
+"B1318":{zone:"battery",title:"جهد البطارية منخفض",title_en:"Battery Voltage Low",severity:"medium"},
+"B1342":{zone:"electronics",title:"ECM - عطل داخلي",title_en:"ECM Internal Fault",severity:"critical"},
+"B1350":{zone:"electronics",title:"Immobilizer - لم يُبرمج",title_en:"Immobilizer Not Programmed",severity:"critical"},
+"B1601":{zone:"electronics",title:"مفتاح - كلمة سر",title_en:"Key Code Incorrect",severity:"high"},
+"B1602":{zone:"electronics",title:"مفتاح - إشارة تالفة",title_en:"Key Signal Invalid",severity:"high"},
+"B1681":{zone:"electronics",title:"Immobilizer - عطل",title_en:"PATs Fault",severity:"critical"},
+"B2103":{zone:"electronics",title:"مفتاح - لم يتم اكتشافه",title_en:"Key Not Detected",severity:"high"},
+"B2204":{zone:"electronics",title:"وحدة الترفيه",title_en:"Infotainment Unit",severity:"low"},
+"B2415":{zone:"electronics",title:"كاميرا خلفية",title_en:"Rear Camera",severity:"low"},
+"B2425":{zone:"electronics",title:"كاميرا أمامية",title_en:"Front Camera",severity:"medium"},
+"B2461":{zone:"electronics",title:"مستشعر المطر",title_en:"Rain Sensor",severity:"low"},
+"B2470":{zone:"electronics",title:"مستشعر الإضاءة التلقائية",title_en:"Auto Light Sensor",severity:"low"},
+"B2500":{zone:"electronics",title:"حساس المطر - أداء",title_en:"Rain Sensor Performance",severity:"low"},
+"B2600":{zone:"electronics",title:"Immobilizer - مفتاح",title_en:"Immobilizer Key",severity:"high"},
+
+// ---- UDS و CAN Bus ----
+"U0003":{zone:"electronics",title:"CAN Bus A - مرتفع",title_en:"CAN Bus A High",severity:"critical"},
+"U0004":{zone:"electronics",title:"CAN Bus A - منخفض",title_en:"CAN Bus A Low",severity:"critical"},
+"U0005":{zone:"electronics",title:"CAN Bus A - نطاق",title_en:"CAN Bus A Range",severity:"critical"},
+"U0006":{zone:"electronics",title:"CAN Bus A - مفتوح",title_en:"CAN Bus A Open",severity:"critical"},
+"U0007":{zone:"electronics",title:"CAN Bus B - خطأ",title_en:"CAN Bus B Fault",severity:"critical"},
+"U0103":{zone:"electronics",title:"فقدان Gear Shift Module",title_en:"Lost Comm With Gear Shift",severity:"high"},
+"U0104":{zone:"electronics",title:"فقدان Cruise Control",title_en:"Lost Comm With Cruise",severity:"medium"},
+"U0105":{zone:"electronics",title:"فقدان Injector Control",title_en:"Lost Comm With Injector",severity:"high"},
+"U0108":{zone:"electronics",title:"فقدان حساس ضغط الوقود",title_en:"Lost Comm With Fuel Pressure",severity:"high"},
+"U0110":{zone:"electronics",title:"فقدان Drive Motor",title_en:"Lost Comm With Drive Motor",severity:"critical"},
+"U0111":{zone:"electronics",title:"فقدان Battery Energy Control",title_en:"Lost Comm With BECM",severity:"critical"},
+"U0114":{zone:"electronics",title:"فقدان 4WD Control",title_en:"Lost Comm With 4WD Control",severity:"high"},
+"U0115":{zone:"electronics",title:"فقدان ECM/PCM B",title_en:"Lost Comm With ECM/PCM B",severity:"critical"},
+"U0120":{zone:"electronics",title:"فقدان Starter/Generator",title_en:"Lost Comm With Starter",severity:"high"},
+"U0123":{zone:"electronics",title:"فقدان Yaw Rate Sensor",title_en:"Lost Comm With Yaw Sensor",severity:"medium"},
+"U0124":{zone:"electronics",title:"فقدان Lateral Accel",title_en:"Lost Comm With Lat Accel",severity:"medium"},
+"U0125":{zone:"electronics",title:"فقدان Multi-axis Accel",title_en:"Lost Comm With Multi-Axis",severity:"medium"},
+"U0127":{zone:"electronics",title:"فقدان TPMS",title_en:"Lost Comm With TPMS",severity:"low"},
+"U0131":{zone:"electronics",title:"فقدان EPS",title_en:"Lost Comm With EPS",severity:"high"},
+"U0132":{zone:"electronics",title:"فقدان Ride Control",title_en:"Lost Comm With Ride Control",severity:"medium"},
+"U0137":{zone:"electronics",title:"فقدان Trailer Brake",title_en:"Lost Comm With Trailer Brake",severity:"medium"},
+"U0143":{zone:"electronics",title:"فقدان Body Control C",title_en:"Lost Comm With BCM C",severity:"high"},
+"U0144":{zone:"electronics",title:"فقدان Body Control D",title_en:"Lost Comm With BCM D",severity:"high"},
+"U0145":{zone:"electronics",title:"فقدان Body Control E",title_en:"Lost Comm With BCM E",severity:"high"},
+"U0146":{zone:"electronics",title:"فقدان Gateway A",title_en:"Lost Comm With Gateway A",severity:"high"},
+"U0147":{zone:"electronics",title:"فقدان Gateway B",title_en:"Lost Comm With Gateway B",severity:"high"},
+"U0150":{zone:"electronics",title:"فقدان Rear Seat",title_en:"Lost Comm With Rear Seat",severity:"low"},
+"U0151":{zone:"airbag",title:"فقدان Restraint Control",title_en:"Lost Comm With SRS",severity:"critical"},
+"U0159":{zone:"electronics",title:"فقدان Parking Assist",title_en:"Lost Comm With Park Assist",severity:"medium"},
+"U0160":{zone:"electronics",title:"فقدان HVAC Rear",title_en:"Lost Comm With HVAC Rear",severity:"low"},
+"U0161":{zone:"electronics",title:"فقدان Compass Module",title_en:"Lost Comm With Compass",severity:"low"},
+"U0162":{zone:"electronics",title:"فقدان HUD",title_en:"Lost Comm With HUD",severity:"low"},
+"U0163":{zone:"electronics",title:"فقدان Navigation",title_en:"Lost Comm With Navigation",severity:"low"},
+"U0165":{zone:"electronics",title:"فقدان HVAC Rear",title_en:"Lost Comm With HVAC Rear 2",severity:"low"},
+"U0166":{zone:"electronics",title:"فقدان Auxiliary Heater",title_en:"Lost Comm With Aux Heater",severity:"low"},
+"U0168":{zone:"electronics",title:"فقدان Vehicle Security",title_en:"Lost Comm With Security",severity:"high"},
+"U0169":{zone:"electronics",title:"فقدان Sunroof",title_en:"Lost Comm With Sunroof",severity:"low"},
+"U0170":{zone:"airbag",title:"فقدان Sensor A - SRS",title_en:"Lost Comm With SRS Sensor A",severity:"critical"},
+"U0171":{zone:"airbag",title:"فقدان Sensor B - SRS",title_en:"Lost Comm With SRS Sensor B",severity:"critical"},
+"U0172":{zone:"airbag",title:"فقدان Sensor C - SRS",title_en:"Lost Comm With SRS Sensor C",severity:"critical"},
+"U0173":{zone:"airbag",title:"فقدان Sensor D - SRS",title_en:"Lost Comm With SRS Sensor D",severity:"critical"},
+"U0181":{zone:"electronics",title:"فقدان Headlamp Control",title_en:"Lost Comm With Headlamp",severity:"medium"},
+"U0182":{zone:"electronics",title:"فقدان Front Lighting",title_en:"Lost Comm With Front Lighting",severity:"medium"},
+"U0183":{zone:"electronics",title:"فقدان Rear Lighting",title_en:"Lost Comm With Rear Lighting",severity:"medium"},
+"U0186":{zone:"electronics",title:"فقدان Audio Amplifier",title_en:"Lost Comm With Audio Amp",severity:"low"},
+"U0191":{zone:"electronics",title:"فقدان TV Module",title_en:"Lost Comm With TV",severity:"low"},
+"U0193":{zone:"electronics",title:"فقدان Digital Audio",title_en:"Lost Comm With Digital Audio",severity:"low"},
+"U0197":{zone:"electronics",title:"فقدان Phone Module",title_en:"Lost Comm With Phone",severity:"low"},
+"U0198":{zone:"electronics",title:"فقدان Telematic",title_en:"Lost Comm With Telematic",severity:"low"},
+"U0199":{zone:"electronics",title:"فقدان Door Control A",title_en:"Lost Comm With Door A",severity:"medium"},
+"U0200":{zone:"electronics",title:"فقدان Door Control B",title_en:"Lost Comm With Door B",severity:"medium"},
+"U0201":{zone:"electronics",title:"فقدان Door Control C",title_en:"Lost Comm With Door C",severity:"medium"},
+"U0203":{zone:"electronics",title:"فقدان Door Control E",title_en:"Lost Comm With Door E",severity:"medium"},
+"U0204":{zone:"electronics",title:"فقدان Door Control F",title_en:"Lost Comm With Door F",severity:"medium"},
+"U0205":{zone:"electronics",title:"فقدان Door Control G",title_en:"Lost Comm With Door G",severity:"medium"},
+"U0206":{zone:"electronics",title:"فقدان Roof Top Module",title_en:"Lost Comm With Roof",severity:"medium"},
+"U0209":{zone:"electronics",title:"فقدان Memory Seat",title_en:"Lost Comm With Mem Seat",severity:"low"},
+"U0210":{zone:"electronics",title:"فقدان Sunroof Module",title_en:"Lost Comm With Sunroof",severity:"low"},
+"U0212":{zone:"electronics",title:"فقدان Steering Column",title_en:"Lost Comm With Steering Col",severity:"high"},
+"U0214":{zone:"electronics",title:"فقدان Remote Function",title_en:"Lost Comm With Remote",severity:"medium"},
+"U0230":{zone:"electronics",title:"فقدان Tailgate Module",title_en:"Lost Comm With Tailgate",severity:"medium"},
+"U0231":{zone:"electronics",title:"فقدان Rain Sensor",title_en:"Lost Comm With Rain Sensor",severity:"low"},
+"U0232":{zone:"electronics",title:"فقدان Blind Spot L",title_en:"Lost Comm With Blind Spot L",severity:"medium"},
+"U0233":{zone:"electronics",title:"فقدان Blind Spot R",title_en:"Lost Comm With Blind Spot R",severity:"medium"},
+"U0237":{zone:"electronics",title:"فقدان Digital Camera Rear",title_en:"Lost Comm With Rear Camera",severity:"low"},
+"U0238":{zone:"electronics",title:"فقدان Digital Camera Front",title_en:"Lost Comm With Front Camera",severity:"medium"},
+"U0239":{zone:"electronics",title:"فقدان Digital Camera Left",title_en:"Lost Comm With Left Camera",severity:"medium"},
+"U0240":{zone:"electronics",title:"فقدان Digital Camera Right",title_en:"Lost Comm With Right Camera",severity:"medium"},
+"U0241":{zone:"electronics",title:"فقدان Headlamp Control A",title_en:"Lost Comm With Headlamp A",severity:"medium"},
+"U0242":{zone:"electronics",title:"فقدان Headlamp Control B",title_en:"Lost Comm With Headlamp B",severity:"medium"},
+"U0244":{zone:"electronics",title:"فقدان Running Board",title_en:"Lost Comm With Running Board",severity:"low"},
+"U0245":{zone:"electronics",title:"فقدان Entertainment A",title_en:"Lost Comm With Entertain A",severity:"low"},
+"U0246":{zone:"electronics",title:"فقدان Seat A",title_en:"Lost Comm With Seat A",severity:"low"},
+"U0248":{zone:"electronics",title:"فقدان Remote Accessory",title_en:"Lost Comm With Remote Acc",severity:"low"},
+"U0250":{zone:"electronics",title:"فقدان Impact Sensor",title_en:"Lost Comm With Impact Sensor",severity:"high"},
+"U0251":{zone:"electronics",title:"فقدان Run/Start Control",title_en:"Lost Comm With Run/Start",severity:"high"},
+"U0253":{zone:"electronics",title:"فقدان Accessory Protocol",title_en:"Lost Comm With Acc Protocol",severity:"medium"},
+"U0254":{zone:"electronics",title:"فقدان Remote Starter",title_en:"Lost Comm With Remote Starter",severity:"medium"},
+"U0255":{zone:"electronics",title:"فقدان Front Controls",title_en:"Lost Comm With Front Controls",severity:"medium"},
+"U0256":{zone:"electronics",title:"فقدان Front Controls B",title_en:"Lost Comm With Front Controls B",severity:"medium"},
+"U0257":{zone:"electronics",title:"فقدان Front Controls C",title_en:"Lost Comm With Front Controls C",severity:"medium"},
+"U0258":{zone:"electronics",title:"فقدان Rear Controls",title_en:"Lost Comm With Rear Controls",severity:"low"},
+"U0259":{zone:"electronics",title:"فقدان Special Purpose",title_en:"Lost Comm With Special Purpose",severity:"low"},
+"U0260":{zone:"electronics",title:"فقدان Seat A",title_en:"Lost Comm With Seat A",severity:"low"},
+"U0263":{zone:"electronics",title:"فقدان Head Up Display",title_en:"Lost Comm With HUD",severity:"low"},
+"U0264":{zone:"electronics",title:"فقدان Camera Module",title_en:"Lost Comm With Camera",severity:"medium"},
+"U0265":{zone:"electronics",title:"فقدان Image Processing",title_en:"Lost Comm With Image Proc",severity:"medium"},
+"U0266":{zone:"electronics",title:"فقدان Parking Assist",title_en:"Lost Comm With Park Assist",severity:"medium"},
+"U0267":{zone:"electronics",title:"فقدان Night Vision",title_en:"Lost Comm With Night Vision",severity:"medium"},
+"U0269":{zone:"electronics",title:"فقدان Rear Camera",title_en:"Lost Comm With Rear Camera",severity:"low"},
+"U0270":{zone:"electronics
