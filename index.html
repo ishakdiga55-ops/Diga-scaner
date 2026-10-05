@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://raw.githubusercontent.com https://generativelanguage.googleapis.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=*, bluetooth=*">
 <title>CheckDiga - فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
 <meta name="description" content="أداة فحص سيارات مع مساعد ذكي - 9500+ كود">
@@ -223,6 +228,34 @@ window.addEventListener('error', function(e){
 </script>
 
 <script>
+// ============ SECURITY HELPERS ============
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+function sanitizeCode(str){
+  if(str === null || str === undefined) return '';
+  return String(str).toUpperCase().replace(/[^A-Z0-9_]/g, '').slice(0, 20);
+}
+function checkRateLimit(action, maxPerMinute){
+  maxPerMinute = maxPerMinute || 5;
+  try{
+    var now = Date.now();
+    var key = 'checkdiga_rate_' + action;
+    var calls = JSON.parse(localStorage.getItem(key) || '[]');
+    calls = calls.filter(function(t){ return now - t < 60000; });
+    if(calls.length >= maxPerMinute) return false;
+    calls.push(now);
+    localStorage.setItem(key, JSON.stringify(calls));
+    return true;
+  }catch(e){ return true; }
+}
+
 var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 
@@ -562,9 +595,9 @@ function displaySmartDiagnosis(codes){
   lastDiagnosis.forEach(function(d){
     var color = d.severity === 'critical' ? '#dc2626' : d.severity === 'high' ? '#ef4444' : '#f59e0b';
     html += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid ' + color + ';">';
-    html += '<div class="flex justify-between mb-2"><div class="font-bold text-sm">' + d.title + '</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold" style="background:' + color + ';">' + d.confidence + '%</span></div>';
-    html += '<p class="text-xs text-gray-300 mb-2">' + d.description + '</p><ul class="text-xs space-y-1">';
-    (d.actions||[]).forEach(function(a){html += '<li class="bg-gray-800/60 rounded p-1.5">- ' + a + '</li>';});
+    html += '<div class="flex justify-between mb-2"><div class="font-bold text-sm">' + escapeHtml(d.title) + '</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold" style="background:' + color + ';">' + d.confidence + '%</span></div>';
+    html += '<p class="text-xs text-gray-300 mb-2">' + escapeHtml(d.description) + '</p><ul class="text-xs space-y-1">';
+    (d.actions||[]).forEach(function(a){html += '<li class="bg-gray-800/60 rounded p-1.5">- ' + escapeHtml(a) + '</li>';});
     html += '</ul></div>';
   });
   c.innerHTML = html + '</div>';
@@ -586,7 +619,7 @@ function displayHealth(faults, diag){
 
 function showDTCDetails(codeOrKey){
   var isKey = /_[A-Z]+$/.test(codeOrKey);
-  var displayCode = codeOrKey.replace(/_[A-Z]+$/, '');
+  var displayCode = sanitizeCode(codeOrKey.replace(/_[A-Z]+$/, ''));
   var info = isKey ? (DTC_DATABASE[codeOrKey]||{}) : getFaultInfo(codeOrKey);
   var modal = document.getElementById('dtcDetailModal');
   var content = document.getElementById('dtcDetailContent');
@@ -594,13 +627,13 @@ function showDTCDetails(codeOrKey){
   var sevMap = {critical:{bg:'#dc2626',label:'حرج'},high:{bg:'#ef4444',label:'خطير'},medium:{bg:'#f59e0b',label:'متوسط'},low:{bg:'#10b981',label:'منخفض'}};
   var sev = sevMap[info.severity] || {bg:'#64748b',label:'غير محدد'};
   var html = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">' + displayCode + '</div>';
-  html += '<div class="text-base font-bold text-white">' + (info.title || 'عطل غير معروف') + '</div>';
-  if(info.title_en && info.title_en !== info.title) html += '<div class="text-xs text-gray-500 mt-1" dir="ltr">' + info.title_en + '</div>';
+  html += '<div class="text-base font-bold text-white">' + escapeHtml(info.title || 'عطل غير معروف') + '</div>';
+  if(info.title_en && info.title_en !== info.title) html += '<div class="text-xs text-gray-500 mt-1" dir="ltr">' + escapeHtml(info.title_en) + '</div>';
   html += '<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:' + sev.bg + ';">' + sev.label + '</span>';
-  if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + info.zone + '</span>';
-  if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + info.brand + '</span>';
+  if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + escapeHtml(info.zone) + '</span>';
+  if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + escapeHtml(info.brand) + '</span>';
   html += '</div></div>';
-  if(info.desc) html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + info.desc + '</div></div>';
+  if(info.desc) html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + escapeHtml(info.desc) + '</div></div>';
   var r = info.repair || {};
   if(r.difficulty || r.hoursMin !== undefined || r.diyPossible !== undefined){
     html += '<div class="bg-gradient-to-br from-emerald-900/40 to-gray-900/60 rounded-xl p-4 mb-3 border border-emerald-700/50">';
@@ -629,15 +662,16 @@ function showDTCDetails(codeOrKey){
   }
   function block(items, title, color){
     if(!items||!items.length) return '';
-    return '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + color + ';"><div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div><ul class="space-y-1.5">' + items.map(function(i){return '<li class="text-xs text-gray-300">• ' + i + '</li>';}).join('') + '</ul></div>';
+    return '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + color + ';"><div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div><ul class="space-y-1.5">' + items.map(function(i){return '<li class="text-xs text-gray-300">• ' + escapeHtml(i) + '</li>';}).join('') + '</ul></div>';
   }
   html += block(info.symptoms, '🔴 الأعراض', '#ef4444');
   html += block(info.causes, '⚙️ الأسباب المحتملة', '#f59e0b');
   html += block(info.steps, '📋 خطوات الفحص', '#10b981');
   if(info.related && info.related.length){
     html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-purple-700/50"><div class="font-bold text-sm mb-3 text-purple-300"><i class="fa-solid fa-link"></i> أكواد مرتبطة</div><div class="flex flex-wrap gap-2">';
-    info.related.forEach(function(rc){
-      var clean = String(rc).trim().toUpperCase();
+    info.related.slice(0,20).forEach(function(rc){
+      var clean = sanitizeCode(rc);
+      if(!clean) return;
       html += '<button class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-mono font-bold px-3 py-1.5 rounded-lg" onclick="window.showRelatedCode(\'' + clean + '\')">' + clean + '</button>';
     });
     html += '</div></div>';
@@ -645,8 +679,10 @@ function showDTCDetails(codeOrKey){
   if(info.sources && info.sources.length){
     html += '<div class="bg-gray-900/60 rounded-xl p-3 mb-3 border border-gray-700"><div class="text-[10px] text-gray-500 mb-2">📚 المصادر</div><div class="flex flex-wrap gap-2">';
     info.sources.slice(0,5).forEach(function(src){
-      var label = String(src).replace(/^https?:\/\//,'').split('/')[0];
-      html += '<a href="' + src + '" target="_blank" class="text-[10px] text-blue-400 underline">' + label + '</a>';
+      var s = String(src);
+      if(!/^https?:\/\//.test(s)) return;
+      var label = s.replace(/^https?:\/\//,'').split('/')[0];
+      html += '<a href="' + escapeHtml(s) + '" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-400 underline">' + escapeHtml(label) + '</a>';
     });
     html += '</div></div>';
   }
@@ -657,7 +693,8 @@ function showDTCDetails(codeOrKey){
 window.showRelatedCode = function(code){
   var modal = document.getElementById('dtcDetailModal');
   if(modal) modal.classList.add('hidden');
-  setTimeout(function(){ showDTCDetails(code); }, 100);
+  var clean = sanitizeCode(code);
+  setTimeout(function(){ showDTCDetails(clean); }, 100);
 };
 
 function handleNotification(e){
@@ -1044,17 +1081,18 @@ function renderFaults(faults){
   var sysMap = {engine:'المحرك', exhaust:'العوادم', electronics:'الكهرباء', fuel:'الوقود', cooling:'التبريد', brakes:'الفرامل', airbag:'الوسائد', transmission:'الجير', abs:'ABS'};
   var html = '';
   faults.forEach(function(f){
-    var info = getFaultInfo(f.code);
+    var safeCode = sanitizeCode(f.code);
+    var info = getFaultInfo(safeCode);
     var type = f.type || 'confirmed';
     var typeLabel = type === 'pending' ? 'مؤقت' : type === 'permanent' ? 'دائم' : 'مؤكد';
     var typeClass = type === 'pending' ? 'dtc-type-pending' : type === 'permanent' ? 'dtc-type-permanent' : 'dtc-type-confirmed';
-    html += '<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in" data-code="' + f.code + '">';
+    html += '<div class="bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 fade-in" data-code="' + safeCode + '">';
     html += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    html += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
-    html += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
+    html += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + escapeHtml(sysMap[f.system] || f.system) + '</span>';
+    html += '<span class="font-mono font-bold text-red-300">' + safeCode + '</span>';
     html += '<span class="dtc-type-badge ' + typeClass + '">' + typeLabel + '</span>';
-    html += '</div><div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
-    html += '<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold" data-details="' + f.code + '"><i class="fa-solid fa-book-medical"></i> تفاصيل</button>';
+    html += '</div><div class="text-xs text-gray-300 mb-2">' + escapeHtml(info.title) + '</div>';
+    html += '<button class="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1.5 rounded-lg font-bold" data-details="' + safeCode + '"><i class="fa-solid fa-book-medical"></i> تفاصيل</button>';
     html += '</div>';
   });
   list.innerHTML = html;
@@ -1099,7 +1137,8 @@ var VIN_WMI = {'JHM':'Honda','JT2':'Toyota','JTD':'Toyota','JTH':'Lexus','JN1':'
 
 function decodeVIN(vin){
   if(!vin||vin.length!==17)return null;
-  var v = vin.toUpperCase();
+  var v = vin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');
+  if(v.length !== 17) return null;
   return {vin:v,country:VIN_COUNTRY[v[0]]||'Unknown',manufacturer:VIN_WMI[v.substring(0,3)]||'Unknown',year:VIN_YEARS[v[9]]||'Unknown'};
 }
 
@@ -1109,9 +1148,9 @@ function displayVINInfo(vin){
   var d = decodeVIN(vin);
   if(!d){ c.innerHTML = '<p class="text-red-400 text-center text-sm">VIN غير صحيح</p>'; return; }
   var html = '<div class="grid grid-cols-2 gap-2 text-sm mt-3">';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">البلد</div><div class="font-bold">' + d.country + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">الصانع</div><div class="font-bold text-xs">' + d.manufacturer + '</div></div>';
-  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">السنة</div><div class="font-bold">' + d.year + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">البلد</div><div class="font-bold">' + escapeHtml(d.country) + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">الصانع</div><div class="font-bold text-xs">' + escapeHtml(d.manufacturer) + '</div></div>';
+  html += '<div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">السنة</div><div class="font-bold">' + escapeHtml(d.year) + '</div></div>';
   html += '</div>';
   c.innerHTML = html;
 }
@@ -1128,7 +1167,8 @@ function initSearch(){
 function searchDTC(query){
   var div = document.getElementById('searchResults');
   if(!div) return;
-  var q = query.trim().toUpperCase();
+  var rawQ = String(query).slice(0, 50);
+  var q = rawQ.trim().toUpperCase();
   if(q.length < 2){ div.innerHTML = ''; return; }
   var matches = [], count = 0;
   for(var code in DTC_DATABASE){
@@ -1136,15 +1176,15 @@ function searchDTC(query){
     if(count >= 30) break;
     var info = DTC_DATABASE[code];
     var displayCode = code.replace(/_[A-Z]+$/, '');
-    if(code.indexOf(q) >= 0 || displayCode.indexOf(q) >= 0 || (info.title && info.title.indexOf(query) >= 0) || (info.title_en && info.title_en.toUpperCase().indexOf(q) >= 0)){
+    if(code.indexOf(q) >= 0 || displayCode.indexOf(q) >= 0 || (info.title && info.title.indexOf(rawQ) >= 0) || (info.title_en && info.title_en.toUpperCase().indexOf(q) >= 0)){
       matches.push([code, info, displayCode]); count++;
     }
   }
   if(matches.length === 0){ div.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>'; return; }
   var html = '<div class="space-y-1 mb-3">';
   matches.forEach(function(m){
-    html += '<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700 flex justify-between items-center" data-key="' + m[0] + '">';
-    html += '<span><span class="font-mono text-red-300 font-bold">' + m[2] + '</span> - ' + m[1].title + '</span>';
+    html += '<div class="bg-gray-900 rounded-lg p-2 text-xs cursor-pointer hover:bg-gray-700 flex justify-between items-center" data-key="' + sanitizeCode(m[0]) + '">';
+    html += '<span><span class="font-mono text-red-300 font-bold">' + escapeHtml(m[2]) + '</span> - ' + escapeHtml(m[1].title) + '</span>';
     html += '<i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
   });
   div.innerHTML = html + '</div>';
@@ -1167,10 +1207,18 @@ function toggleAI(){
   var m = document.getElementById('aiModal');
   if(!m) return;
   var key = localStorage.getItem('checkdiga_gemini_key') || "";
+  var keyTime = parseInt(localStorage.getItem('checkdiga_gemini_time') || '0', 10);
+  var maxAge = 30 * 24 * 60 * 60 * 1000;
+  if(key && (Date.now() - keyTime) > maxAge){
+    localStorage.removeItem('checkdiga_gemini_key');
+    localStorage.removeItem('checkdiga_gemini_time');
+    key = "";
+  }
   if(!key){
     var newKey = prompt('الصق مفتاح Gemini API:', '');
-    if(newKey && newKey.length > 20){
+    if(newKey && newKey.length > 20 && newKey.length < 200){
       localStorage.setItem('checkdiga_gemini_key', newKey);
+      localStorage.setItem('checkdiga_gemini_time', String(Date.now()));
       GEMINI_API_KEY = newKey;
       GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey;
     } else return;
@@ -1182,9 +1230,12 @@ function addAIMessage(role, text){
   if(!chat) return;
   var div = document.createElement('div');
   div.className = 'flex gap-2 ' + (role === 'user' ? 'justify-end' : '');
-  div.innerHTML = role === 'user'
-    ? '<div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-3 text-sm text-white max-w-[85%]">' + text + '</div>'
-    : '<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 rounded-2xl p-3 text-sm text-gray-200 max-w-[85%] whitespace-pre-wrap">' + text + '</div>';
+  var safeText = escapeHtml(text);
+  if(role === 'user'){
+    div.innerHTML = '<div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-3 text-sm text-white max-w-[85%]">' + safeText + '</div>';
+  } else {
+    div.innerHTML = '<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 rounded-2xl p-3 text-sm text-gray-200 max-w-[85%] whitespace-pre-wrap">' + safeText + '</div>';
+  }
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -1198,12 +1249,16 @@ function addAITyping(){
   chat.scrollTop = chat.scrollHeight;
 }
 function removeAITyping(){ var el = document.getElementById('aiTyping'); if(el) el.remove(); }
-function askAI(q){ var i = document.getElementById('aiInput'); if(i) i.value = q; sendAI(); }
+function askAI(q){ var i = document.getElementById('aiInput'); if(i) i.value = String(q).slice(0,500); sendAI(); }
 async function sendAI(){
   var input = document.getElementById('aiInput');
   if(!input) return;
-  var q = input.value.trim();
+  var q = input.value.trim().slice(0, 500);
   if(!q) return;
+  if(!checkRateLimit('ai', 5)){
+    addAIMessage('ai', '⚠️ تجاوزت الحد المسموح (5 رسائل في الدقيقة). انتظر قليلاً.');
+    return;
+  }
   input.value = '';
   addAIMessage('user', q); addAITyping();
   try{
@@ -1233,7 +1288,7 @@ function init(){
   bind('btnScanAll', scanAllSystems);
   bind('btnTheme', toggleTheme);
   bind('btnDecodeVIN', function(){
-    var v = document.getElementById('vinInput').value.trim().toUpperCase();
+    var v = document.getElementById('vinInput').value.trim().toUpperCase().slice(0,17);
     if(v.length !== 17){ alert('VIN يجب أن يكون 17 حرفاً'); return; }
     document.getElementById('vinResult').textContent = v;
     displayVINInfo(v);
