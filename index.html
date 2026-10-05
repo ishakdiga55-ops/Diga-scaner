@@ -472,7 +472,7 @@ function checkRateLimit(action, max){
   if (HAS_COMPRESSION){
     console.log('✅ Cache system ready with gzip compression');
   } else {
-    console.warn('⚠️ CompressionStream not available');
+    console.warn('⚠️ CompressionStream not available — cache may not fit');
   }
 })();
 </script>
@@ -756,6 +756,7 @@ function getFaultInfo(code){
   if(variants && variants.length>0) return Object.assign({},DTC_DATABASE[variants[0]],{code:c});
   return {zone:'engine',title:'عطل غير معروف',title_en:'Unknown fault',desc:''};
 }
+
 function isFavorite(code){ return favorites.indexOf(sanitizeCode(code)) >= 0; }
 function toggleFavorite(code){
   var c = sanitizeCode(code);
@@ -1034,137 +1035,34 @@ async function initELM(){
   }
   return false;
 }
-
-/* ============ CONNECT BLE - IMPROVED ============ */
 async function connectOBD(){
-  if(!navigator.bluetooth){
-    alert('المتصفح لا يدعم Web Bluetooth.\n\nعلى iPhone: استخدم Bluefy\nعلى Android: استخدم Chrome');
-    return;
-  }
-  var btn = document.getElementById('connect-btn');
-  var orig = btn.innerHTML;
+  if(!navigator.bluetooth){ alert('المتصفح لا يدعم Web Bluetooth.\n\nعلى iPhone: استخدم Bluefy'); return; }
+  var btn = document.getElementById('connect-btn'); var orig = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-
   try{
     logInfo('جاري البحث عن أجهزة BLE...');
-
-    var deviceOptions = {
-      filters: [
-        {services: KNOWN_SVC},
-        {namePrefix:'OBD'},
-        {namePrefix:'OBDII'},
-        {namePrefix:'ELM'},
-        {namePrefix:'Vgate'},
-        {namePrefix:'Viecar'},
-        {namePrefix:'V-Link'},
-        {namePrefix:'Vlink'},
-        {namePrefix:'KONNWEI'},
-        {namePrefix:'iCar'},
-        {namePrefix:'IOS'},
-        {namePrefix:'VEEPEAK'},
-        {namePrefix:'Kingbolen'},
-        {namePrefix:'KINGBOLEN'},
-        {namePrefix:'KOBOLEN'}
-      ],
-      optionalServices: KNOWN_SVC
-    };
-
-    try{
-      btDevice = await navigator.bluetooth.requestDevice(deviceOptions);
-    }catch(filterErr){
-      logInfo('لم يُعثر على الجهاز في الفلاتر — جرب البحث الشامل...');
-      btDevice = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: KNOWN_SVC
-      });
-    }
-
-    logInfo('الجهاز: ' + (btDevice.name || 'بدون اسم'));
+    btDevice = await navigator.bluetooth.requestDevice({ filters:[{services:KNOWN_SVC},{namePrefix:'OBD'},{namePrefix:'ELM'},{namePrefix:'Vgate'},{namePrefix:'Viecar'},{namePrefix:'KONNWEI'},{namePrefix:'V-Link'}], optionalServices: KNOWN_SVC });
+    logInfo('الجهاز: ' + btDevice.name);
     btDevice.addEventListener('gattserverdisconnected', handleDisconnect);
     btServer = await btDevice.gatt.connect();
-    logInfo('متصل بـ GATT — جاري اكتشاف الخدمات...');
-
-    var svc = null, chr = null;
+    var svc=null,chr=null;
     for(var si=0; si<KNOWN_SVC.length; si++){
-      try{
-        var tmpSvc = await btServer.getPrimaryService(KNOWN_SVC[si]);
-        for(var chi=0; chi<KNOWN_CHR.length; chi++){
-          try{
-            var tmpChr = await tmpSvc.getCharacteristic(KNOWN_CHR[chi]);
-            svc = tmpSvc; chr = tmpChr;
-            logSuccess('خدمة معروفة: ' + KNOWN_SVC[si].substring(0,8) + '...');
-            break;
-          }catch(e){}
-        }
-        if(chr) break;
-      }catch(e){}
+      try{ svc = await btServer.getPrimaryService(KNOWN_SVC[si]); for(var chi=0; chi<KNOWN_CHR.length; chi++){ try{ chr = await svc.getCharacteristic(KNOWN_CHR[chi]); break; }catch(e){} } if(chr) break; }catch(e){}
     }
-
-    if(!chr){
-      logInfo('UUIDs المعروفة فشلت — جرب enumerate تلقائي...');
-      try{
-        var services = await btServer.getPrimaryServices();
-        logInfo('عدد الخدمات: ' + services.length);
-        for(var s=0; s<services.length; s++){
-          try{
-            var chars = await services[s].getCharacteristics();
-            logInfo('  خدمة ' + s + ': ' + chars.length + ' ميزة');
-            for(var c=0; c<chars.length; c++){
-              var ch = chars[c];
-              if((ch.properties.write || ch.properties.writeWithoutResponse) &&
-                 (ch.properties.notify || ch.properties.indicate)){
-                try{
-                  await ch.startNotifications();
-                  svc = services[s]; chr = ch;
-                  logSuccess('Auto-detect: ' + ch.uuid.substring(0,8) + '...');
-                  break;
-                }catch(e){}
-              }
-            }
-          }catch(e){}
-          if(chr) break;
-        }
-      }catch(e){ logError('Auto-detect فشل: ' + e.message); }
-    }
-
-    if(!chr) throw new Error('لم يتم العثور على قناة اتصال (Characteristic). تأكد أن الجهاز BLE 4.0');
-
-    uartChar = chr;
-    try{ await uartChar.startNotifications(); }catch(e){}
-    uartChar.removeEventListener('characteristicvaluechanged', handleNotification);
+    if(!chr) throw new Error('لم يتم العثور على Characteristic');
+    uartChar = chr; await uartChar.startNotifications();
     uartChar.addEventListener('characteristicvaluechanged', handleNotification);
-
-    transport = 'ble';
-    isConnected = true;
-    setStatus('connected');
-    updateConnectionUI(true);
-    logSuccess('متصل Bluetooth بنجاح!');
-
-    var ok = await initELM();
-    if(!ok) throw new Error('فشل تهيئة ELM327 — قد يكون جهاز Classic Bluetooth غير مدعوم');
-    logSuccess('جاهز للقراءة');
-    startRealLiveLoop();
-
+    transport = 'ble'; isConnected = true;
+    setStatus('connected'); updateConnectionUI(true); logSuccess('متصل Bluetooth');
+    if(!await initELM()) throw new Error('فشل التهيئة');
+    logSuccess('جاهز'); startRealLiveLoop();
   }catch(e){
     logError('BLE: ' + e.message);
-    if(e.message && (e.message.indexOf('cancel') >= 0 || e.message.indexOf('chooser') >= 0)){
-      logInfo('تم إلغاء البحث');
-    }
-    if(uartChar){
-      try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotification); }catch(_){}
-      try{ await uartChar.stopNotifications(); }catch(_){}
-      uartChar = null;
-    }
-    if(btDevice && btDevice.gatt.connected){ try{ btDevice.gatt.disconnect(); }catch(_){} }
-    transport = null; isConnected = false;
-    setStatus('disconnected');
-    updateConnectionUI(false);
-  }finally{
-    btn.disabled = false;
-    btn.innerHTML = orig;
-  }
+    if(uartChar){ try{await uartChar.stopNotifications();}catch(_){} uartChar = null; }
+    if(btDevice && btDevice.gatt.connected){ try{btDevice.gatt.disconnect();}catch(_){} }
+    transport = null; isConnected = false; setStatus('disconnected'); updateConnectionUI(false);
+  }finally{ btn.disabled = false; btn.innerHTML = orig; }
 }
-
 async function connectUSB(){
   if(!navigator.serial){ alert('Web Serial غير مدعوم.'); return; }
   var btn = document.getElementById('usb-btn'); var orig = btn.innerHTML;
@@ -1631,11 +1529,7 @@ function init(){
           var total = Object.keys(DTC_DATABASE).length;
           var critical = 0, high = 0, medium = 0, low = 0;
           for(var k in DTC_DATABASE){ if(DTC_DATABASE.hasOwnProperty(k)){ var s = DTC_DATABASE[k].severity; if(s === 'critical') critical++; else if(s === 'high') high++; else if(s === 'medium') medium++; else low++; } }
-          c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">' + total.toLocaleString() + '</div><div class="text-xs text-gray-400 mt-1">كود</div><div class="mt-2 text-xs text-gray-500">' + (OBDEX_LOADED ? '✅ القاعدة الكاملة' : '⏳ جاري التحميل...') + '</div></div><div class="grid grid-cols-2 gap-2"><div class="bg-red-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-red-400">' + critical + '</div><div class="text-[10px] text-gray-400">حرج</div></div><div class="bg-orange-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-orange-400">' + high + '</div><div class="text-[10px] text-gray-400">خطير</div></div><div class="bg-amber-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-amber-400">' + medium + '</div><div class="text-[10px] text-gray-400">متوسط</div></div><div class="bg-green-900/30 rounded-xl p-3 text-center"><اءdiv class="text-2xl font-bold text-green البحث-400">' + low + '</div"><div class="text-[10px] |
-
- text-gray-400">منخ---
-
-فض</div></div></div>';
+          c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">' + total.toLocaleString() + '</div><div class="text-xs text-gray-400 mt-1">كود</div><div class="mt-2 text-xs text-gray-500">' + (OBDEX_LOADED ? '✅ القاعدة الكاملة' : '⏳ جاري التحميل...') + '</div></div><div class="grid grid-cols-2 gap-2"><div class="bg-red-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-red-400">' + critical + '</div><div class="text-[10px] text-gray-400">حرج</div></div><div class="bg-orange-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-orange-400">' + high + '</div><div class="text-[10px] text-gray-400">خطير</div></div><div class="bg-amber-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-amber-400">' + medium + '</div><div class="text-[10px] text-gray-400">متوسط</div></div><div class="bg-green-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-green-400">' + low + '</div><div class="text-[10px] text-gray-400">منخفض</div></div></div>';
         }
       }
     };
