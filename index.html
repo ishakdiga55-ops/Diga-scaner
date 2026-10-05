@@ -7,7 +7,6 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=*, bluetooth=*">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -50,6 +49,7 @@ body{font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent;-web
 .badge-usb{background:#059669;color:#fff}
 .badge-ble{background:#2563eb;color:#fff}
 .pro-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:900;letter-spacing:.5px}
+.cache-badge{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:800}
 .filter-chip{background:rgba(51,65,85,.6);color:#cbd5e1;border:1px solid #475569;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;transition:all .2s}
 .filter-chip.active{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,130,246,.3)}
 .filter-chip:hover{transform:translateY(-1px)}
@@ -63,7 +63,6 @@ body{font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent;-web
 .code-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .stat-box{background:linear-gradient(145deg,rgba(30,41,59,.8),rgba(15,23,42,.9));border:1px solid #334155;border-radius:16px;padding:14px;text-align:center;transition:all .3s}
 .stat-box:hover{border-color:#3b82f6;transform:translateY(-2px)}
-.cache-badge{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:800}
 body.light-mode{background:#f1f5f9!important;color:#0f172a!important}
 body.light-mode .bg-gray-900{background:#fff!important}
 body.light-mode .bg-gray-800{background:#f8fafc!important;border-color:#e2e8f0!important}
@@ -267,7 +266,6 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 <div id="panel-readiness" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات</h3>
-<p class="text-[11px] text-gray-400">Readiness Monitors — جاهزية السيارة للفحص البيئي</p>
 <button id="btnReadReadiness" class="w-full bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
 <div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية"</p></div>
 </div>
@@ -346,21 +344,65 @@ function checkRateLimit(action, max){
 </script>
 
 <script>
-/* ============ CACHE SYSTEM ============ */
+/* ============ CACHE SYSTEM WITH GZIP COMPRESSION ============ */
 (function(){
-  var CK = 'checkdiga_db_cache_v1';
-  var CT = 'checkdiga_db_time_v1';
-  var CV = 'checkdiga_db_ver_v1';
-  var VER = 1;
+  var CK = 'checkdiga_db_cache_v2';
+  var CT = 'checkdiga_db_time_v2';
+  var CV = 'checkdiga_db_ver_v2';
+  var VER = 2;
   var MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+  var HAS_COMPRESSION = (typeof CompressionStream !== 'undefined');
 
-  window.tryLoadCache = function(){
+  function bytesToBase64(bytes){
+    var bin = '';
+    var chunk = 8192;
+    for (var i = 0; i < bytes.length; i += chunk){
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(bin);
+  }
+  function base64ToBytes(b64){
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  async function compress(str){
+    if (!HAS_COMPRESSION) return null;
+    try{
+      var blob = new Blob([str]);
+      var stream = blob.stream().pipeThrough(new CompressionStream('gzip'));
+      var buf = await new Response(stream).arrayBuffer();
+      return bytesToBase64(new Uint8Array(buf));
+    }catch(e){ return null; }
+  }
+  async function decompress(b64){
+    if (!HAS_COMPRESSION) return null;
+    try{
+      var bytes = base64ToBytes(b64);
+      var blob = new Blob([bytes]);
+      var stream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
+      return await new Response(stream).text();
+    }catch(e){ return null; }
+  }
+
+  window.tryLoadCache = async function(){
     try{
       if (parseInt(localStorage.getItem(CV) || '0', 10) !== VER) return false;
       var cached = localStorage.getItem(CK);
       var t = parseInt(localStorage.getItem(CT) || '0', 10);
       if (!cached || (Date.now() - t) > MAX_AGE) return false;
-      var parsed = JSON.parse(cached);
+
+      var json = null;
+      if (HAS_COMPRESSION){
+        json = await decompress(cached);
+      }
+      if (!json){
+        try{ JSON.parse(cached); json = cached; }catch(_){ return false; }
+      }
+      if (!json) return false;
+
+      var parsed = JSON.parse(json);
       var added = 0;
       for (var k in parsed){
         if (parsed.hasOwnProperty(k) && !DTC_DATABASE[k]){ DTC_DATABASE[k] = parsed[k]; added++; }
@@ -377,28 +419,61 @@ function checkRateLimit(action, max){
     }catch(e){ console.warn('Cache load failed:', e.message); return false; }
   };
 
-  window.saveCache = function(){
+  window.saveCache = async function(){
     try{
       if (!OBDEX_LOADED) return;
       var json = JSON.stringify(DTC_DATABASE);
-      if (json.length > 8 * 1024 * 1024){ console.warn('Cache too large'); return; }
-      localStorage.setItem(CK, json);
-      localStorage.setItem(CT, String(Date.now()));
-      localStorage.setItem(CV, String(VER));
-      var mb = (json.length / 1024 / 1024).toFixed(2);
-      logSuccess('💾 تم حفظ الكاش (' + mb + ' MB) — تحميل فوري في المرة القادمة');
-    }catch(e){
-      if (e.name === 'QuotaExceededError' || /quota/i.test(e.message)){
-        logInfo('⚠️ مساحة التخزين ممتلئة — لن يُحفظ الكاش');
-        try{ localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV); }catch(_){}
-      } else { console.warn('Cache save failed:', e.message); }
-    }
+      var payload = null;
+      var method = 'raw';
+
+      if (HAS_COMPRESSION){
+        payload = await compress(json);
+        if (payload) method = 'gzip';
+      }
+      if (!payload){
+        if (json.length > 4.5 * 1024 * 1024){
+          logInfo('⚠️ الملف كبير جداً بدون ضغط — لن يُحفظ الكاش');
+          return;
+        }
+        payload = json;
+      }
+
+      try{
+        localStorage.setItem(CK, payload);
+        localStorage.setItem(CT, String(Date.now()));
+        localStorage.setItem(CV, String(VER));
+        var kb = (payload.length / 1024).toFixed(0);
+        var originalKb = (json.length / 1024).toFixed(0);
+        var ratio = method === 'gzip' ? ' (' + originalKb + 'KB → ' + kb + 'KB)' : '';
+        logSuccess('💾 تم حفظ الكاش [' + method + ']' + ratio + ' — تحميل فوري في المرة القادمة');
+      }catch(innerErr){
+        if (innerErr.name === 'QuotaExceededError' || /quota/i.test(innerErr.message)){
+          try{
+            localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV);
+            localStorage.setItem(CK, payload);
+            localStorage.setItem(CT, String(Date.now()));
+            localStorage.setItem(CV, String(VER));
+            logSuccess('💾 تم حفظ الكاش بعد تنظيف المساحة');
+          }catch(e2){
+            logInfo('⚠️ مساحة التخزين ممتلئة — لن يُحفظ الكاش');
+          }
+        } else {
+          console.warn('Cache save failed:', innerErr.message);
+        }
+      }
+    }catch(e){ console.warn('Cache error:', e.message); }
   };
 
   window.clearCheckdigaCache = function(){
     localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV);
     alert('✅ تم حذف الكاش. حدّث الصفحة.');
   };
+
+  if (HAS_COMPRESSION){
+    console.log('✅ Cache system ready with gzip compression');
+  } else {
+    console.warn('⚠️ CompressionStream not available — cache may not fit');
+  }
 })();
 </script>
 
@@ -586,7 +661,7 @@ async function fetchOneYaml(filename){
 }
 async function loadFullDatabase(){
   if(OBDEX_LOADED) return;
-  if(tryLoadCache()) return;
+  if(await tryLoadCache()) return;
   if(!window.jsyaml) return;
   var banner = document.getElementById('dbStatus');
   var bannerText = document.getElementById('dbStatusText');
@@ -613,7 +688,7 @@ async function loadFullDatabase(){
   updateDTCCount(total);
   if(banner) banner.style.display = 'none';
   logSuccess('تم تحميل ' + totalAdded + ' كود — الإجمالي: ' + total);
-  saveCache();
+  await saveCache();
 }
 function updateDTCCount(n){
   var f = n.toLocaleString('en-US');
@@ -682,7 +757,6 @@ function getFaultInfo(code){
   return {zone:'engine',title:'عطل غير معروف',title_en:'Unknown fault',desc:''};
 }
 
-/* FAVORITES */
 function isFavorite(code){ return favorites.indexOf(sanitizeCode(code)) >= 0; }
 function toggleFavorite(code){
   var c = sanitizeCode(code);
@@ -709,8 +783,6 @@ function renderFavorites(){
   list.querySelectorAll('.code-card').forEach(function(el){ el.onclick = function(e){ if(e.target.closest('[data-remove-fav]')) return; showDTCDetails(el.dataset.code); }; });
   list.querySelectorAll('[data-remove-fav]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); toggleFavorite(btn.dataset.removeFav); renderFavorites(); }; });
 }
-
-/* RECENT */
 function addRecentSearch(query){
   var q = String(query).trim().slice(0, 30); if(!q) return;
   recentSearches = recentSearches.filter(function(r){ return r !== q; });
@@ -726,8 +798,6 @@ function renderRecentSearches(){
   el.innerHTML = html;
   el.querySelectorAll('[data-recent]').forEach(function(btn){ btn.onclick = function(){ var inp = document.getElementById('dtcSearchInput'); if(inp){ inp.value = btn.dataset.recent; searchDTC(btn.dataset.recent); } }; });
 }
-
-/* SYMPTOMS */
 function initSymptomChips(){
   var el = document.getElementById('symptomChips'); if(!el) return;
   var html = '';
@@ -750,8 +820,6 @@ function showSymptomResults(idx){
   if(countEl) countEl.textContent = '(' + s.codes.length + ')';
   div.querySelectorAll('.code-card').forEach(function(el){ el.onclick = function(){ showDTCDetails(el.dataset.code); }; });
 }
-
-/* POPULAR / FAMILY */
 function initPopularCodes(){
   var el = document.getElementById('popularCodes'); if(!el) return;
   el.innerHTML = POPULAR_CODES.map(function(c){ var info = getFaultInfo(c); return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="' + c + '"><div class="font-mono font-bold text-red-300 text-xs">' + c + '</div><div class="text-[10px] text-gray-500 mt-0.5 truncate">' + escapeHtml(info.title) + '</div></button>'; }).join('');
@@ -801,8 +869,6 @@ function initSeverityFilters(){
     };
   });
 }
-
-/* DIAGNOSIS */
 var RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',confidence:90,severity:'high',description:'خليط فقير في البنكين.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب']},
   {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',actions:['استبدل البواجي','افحص الكويلات']},
@@ -923,7 +989,6 @@ window.copyDetailCode = function(){ if(!currentDetailCode) return; if(navigator.
 window.shareDetailCode = function(){ if(!currentDetailCode) return; var info = getFaultInfo(currentDetailCode); var text = '*كود عطل: ' + currentDetailCode + '*\n' + (info.title || '') + '\n\n'; if(info.desc) text += info.desc + '\n\n'; text += 'تفاصيل أكثر: ' + window.location.origin + window.location.pathname; window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank'); };
 window.showRelatedCode = function(code){ var modal = document.getElementById('dtcDetailModal'); if(modal) modal.classList.add('hidden'); var clean = sanitizeCode(code); setTimeout(function(){ showDTCDetails(clean); }, 100); };
 
-/* OBD2 CORE */
 function handleNotification(e){ recvBuf += new TextDecoder().decode(e.target.value); if(recvBuf.indexOf('>') >= 0 && curResolve){ clearTimeout(curTimeout); curTimeout = null; var r = recvBuf; recvBuf = ''; var res = curResolve; curResolve = null; res(r); } }
 function isBadResponse(r){ if(!r) return true; var t = String(r).trim(); if(t === '' || t === '>') return true; if(/NO DATA|UNABLE TO CONNECT|ERROR|BUS INIT/i.test(r)) return true; return false; }
 function sendCmd(cmd, timeout, retries){
@@ -1317,7 +1382,6 @@ async function sendAI(){
 }
 window.toggleAI = toggleAI; window.askAI = askAI; window.sendAI = sendAI;
 
-/* READINESS */
 function parseMon(b, bit){ if(!(b & (1<<bit))) return 'na'; return (b & (1<<(bit+4))) ? 'no' : 'yes'; }
 function runReadiness(){
   var c = document.getElementById('readinessContent'); if(!c) return;
@@ -1344,7 +1408,6 @@ function renderReadiness(d){
   h += '<div class="text-xs font-bold text-purple-300 mb-2 mt-3">غير مستمرة:</div>'+ri('الكتلايزر',d.n1)+ri('EVAP',d.n3)+ri('O2',d.n4)+ri('EGR',d.n6);
   c.innerHTML = h;
 }
-/* BATTERY */
 function runBatteryTest(){
   var btn = document.getElementById('btnBatteryTest'); if(!btn) return;
   var orig = btn.innerHTML; btn.innerHTML = 'جاري القياس...'; btn.disabled = true;
@@ -1380,7 +1443,6 @@ function runBatteryTest(){
     btn.innerHTML = orig; btn.disabled = false;
   }
 }
-/* HISTORY */
 function saveToHistory(faults){
   try{
     var h = JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
@@ -1404,7 +1466,6 @@ function renderHistory(){
   c.innerHTML = html;
 }
 function clearHistory(){ if(confirm('حذف السجل؟')){ localStorage.removeItem('checkdiga_hist'); renderHistory(); } }
-/* PDF */
 function exportPDF(){
   var faults = lastFaults || [];
   if(!faults.length){ alert('لا توجد أعطال'); return; }
@@ -1420,7 +1481,6 @@ function exportPDF(){
   html += '<p style="text-align:center;color:#94a3b8;font-size:11px;margin-top:30px">CheckDiga Pro 2026</p></body></html>';
   var w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 500);
 }
-/* WHATSAPP */
 function shareWhatsApp(){
   var faults = lastFaults || [];
   if(!faults.length){ alert('لا توجد أعطال'); return; }
