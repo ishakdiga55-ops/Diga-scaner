@@ -10,7 +10,7 @@
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=*, bluetooth=*">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات احترافية - 9500+ كود مع بحث ذكي">
+<meta name="description" content="أداة فحص سيارات احترافية - 9500+ كود">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -80,7 +80,7 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen pb-10 safe-area">
 
-<div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px;vertical-align:middle"></span> <span id="dbStatusText">جاري تحميل قاعدة الأكواد (9500+)...</span></div>
+<div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px;vertical-align:middle"></span> <span id="dbStatusText">جاري تحميل قاعدة الأكواد...</span></div>
 
 <section class="relative overflow-hidden pt-10 pb-12 px-4 border-b border-gray-800/50">
   <div class="hero-blob top-0 right-0 w-72 h-72 bg-blue-600/20"></div>
@@ -96,7 +96,7 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
     <button onclick="document.getElementById('app-start').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 hover:opacity-90 px-6 py-3 rounded-xl font-bold text-sm shadow-lg inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الفحص الآن</button>
     <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-7">
       <div class="stat-box"><div class="text-xl font-extrabold text-blue-400" id="statCodes">110</div><div class="text-[10px] text-gray-500 mt-0.5">كود عطل</div></div>
-      <div class="stat-box"><div class="text-xl font-extrabold text-emerald-400" id="statSystems">10</div><div class="text-[10px] text-gray-500 mt-0.5">نظام فحص</div></div>
+      <div class="stat-box"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500 mt-0.5">حقيقي</div></div>
       <div class="stat-box"><div class="text-xl font-extrabold text-purple-400">AI</div><div class="text-[10px] text-gray-500 mt-0.5">مساعد ذكي</div></div>
     </div>
   </div>
@@ -143,6 +143,9 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live"><i class="fa-solid fa-chart-line"></i> بيانات حية</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="vin"><i class="fa-solid fa-barcode"></i> VIN</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
 </div>
 
 <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-40 overflow-y-auto scrollbar-thin" style="unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;">> مرحباً! اضغط "Bluetooth" أو "USB" أو "تجريبي".</div>
@@ -182,24 +185,31 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 </div>
 <div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
 </div>
+
+<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden">
+<div class="flex items-center justify-between gap-3 flex-wrap">
+<div class="font-bold text-emerald-300 text-sm"><i class="fa-solid fa-share-nodes"></i> شارك النتائج</div>
+<div class="flex gap-2">
+<button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+<button id="btnShareWA" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+</div>
+</div>
+</div>
 </div>
 
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي في 9500+ كود</h3>
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
 <div class="relative">
 <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-10 py-3 text-sm outline-none" placeholder="ابحث عن كود، عطل، أو اكتب بالأعراض...">
 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
 </div>
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
-
 <div class="bg-gradient-to-br from-purple-900/40 to-gray-900/60 border border-purple-700/50 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2 text-purple-300"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
-<p class="text-[11px] text-gray-400">اختر العَرَض من سيارتك، وسنقترح لك الأكواد المحتملة</p>
 <div class="flex flex-wrap gap-2" id="symptomChips"></div>
 </div>
-
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="severityFilters">
@@ -210,17 +220,14 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 <button class="filter-chip" data-severity="low">🟢 منخفض</button>
 </div>
 </div>
-
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
 <div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
 </div>
-
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
 <div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
 </div>
-
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
 <div id="searchResults"></div>
@@ -243,7 +250,7 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-barcode text-blue-400"></i> رقم الهيكل VIN</h3>
 <input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase" placeholder="VIN يدوي (17 حرفاً)">
-<button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> فك الشيفرة</button>
+<button id="btnDecodeVIN" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-magnifying-glass"></i> فك الشيفرة</button>
 <div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة.</div>
 <div id="vinInfo"></div>
 </div>
@@ -253,6 +260,38 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-400"></i> إحصائيات قاعدة الأكواد</h3>
 <div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
+</div>
+</div>
+
+<div id="panel-readiness" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات</h3>
+<p class="text-[11px] text-gray-400">Readiness Monitors — جاهزية السيارة للفحص البيئي</p>
+<button id="btnReadReadiness" class="w-full bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
+<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية"</p></div>
+</div>
+</div>
+
+<div id="panel-battery" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>
+<button id="btnBatteryTest" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>
+<div class="grid grid-cols-3 gap-2 mb-3">
+<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat1" style="border:2px solid #334155"><div class="text-2xl mb-1">🔋</div><div class="text-[10px] text-gray-500">محرك مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat2" style="border:2px solid #334155"><div class="text-2xl mb-1">⚡</div><div class="text-[10px] text-gray-500">محرك يعمل</div><div class="text-lg font-bold" id="batVal2">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat3" style="border:2px solid #334155"><div class="text-2xl mb-1">💡</div><div class="text-[10px] text-gray-500">تحت الحمل</div><div class="text-lg font-bold" id="batVal3">--</div></div>
+</div>
+<div id="batteryVerdict" class="hidden"></div>
+</div>
+</div>
+
+<div id="panel-history" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<div class="flex justify-between">
+<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>
+<button id="btnClearHistory" class="text-xs text-red-400 font-bold"><i class="fa-solid fa-trash"></i> مسح</button>
+</div>
+<div id="historyContent"></div>
 </div>
 </div>
 </div>
@@ -433,7 +472,6 @@ function mapCategory(cat){
   var map = {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'};
   return map[c] || 'engine';
 }
-
 function convertOBDexItem(item){
   if(!item || !item.code) return null;
   var code = String(item.code).toUpperCase().trim();
@@ -472,7 +510,6 @@ function convertOBDexItem(item){
   else if(repair.difficulty === 'easy') sev = 'low';
   return {zone:mapCategory(item.category),title:titleAr||titleEn,title_en:titleEn,desc:descAr||descEn,severity:sev,symptoms:symptoms,causes:causes,steps:[],repair:repair,flags:flags,related:related,sources:sources};
 }
-
 async function fetchOneYaml(filename){
   try{
     var response = await fetch(OBDEX_BASE + filename + '?v=' + Date.now());
@@ -489,7 +526,6 @@ async function fetchOneYaml(filename){
     return data;
   }catch(e){ return []; }
 }
-
 async function loadFullDatabase(){
   if(OBDEX_LOADED) return;
   if(!window.jsyaml) return;
@@ -519,13 +555,11 @@ async function loadFullDatabase(){
   if(banner) banner.style.display = 'none';
   logSuccess('تم تحميل ' + totalAdded + ' كود — الإجمالي: ' + total);
 }
-
 function updateDTCCount(n){
   var f = n.toLocaleString('en-US');
   var e1 = document.getElementById('heroCount'); if(e1) e1.textContent = f;
   var e2 = document.getElementById('statCodes'); if(e2) e2.textContent = f;
 }
-
 var BRAND_INDEX = new Map();
 function buildDTCIndex(){
   BRAND_INDEX.clear();
@@ -558,7 +592,6 @@ function setStatus(state){
     else tb.classList.add('hidden');
   }
 }
-
 function updateGauge(a,n,v,val,max){
   var arc=document.getElementById(a),needle=document.getElementById(n),valEl=document.getElementById(v);
   if(!arc||!needle||!valEl) return;
@@ -589,46 +622,39 @@ function getFaultInfo(code){
   return {zone:'engine',title:'عطل غير معروف',title_en:'Unknown fault',desc:''};
 }
 
-/* ============ FAVORITES ============ */
+/* FAVORITES */
 function isFavorite(code){ return favorites.indexOf(sanitizeCode(code)) >= 0; }
 function toggleFavorite(code){
   var c = sanitizeCode(code);
   var idx = favorites.indexOf(c);
-  if(idx >= 0) favorites.splice(idx, 1);
-  else favorites.push(c);
+  if(idx >= 0) favorites.splice(idx, 1); else favorites.push(c);
   localStorage.setItem('checkdiga_favs', JSON.stringify(favorites));
   updateFavCount();
   return isFavorite(c);
 }
 function updateFavCount(){
   var el = document.getElementById('favCount'); if(!el) return;
-  if(favorites.length > 0){ el.textContent = favorites.length; el.classList.remove('hidden'); }
-  else el.classList.add('hidden');
+  if(favorites.length > 0){ el.textContent = favorites.length; el.classList.remove('hidden'); } else el.classList.add('hidden');
 }
 function renderFavorites(){
   var list = document.getElementById('favoritesList'); if(!list) return;
-  if(favorites.length === 0){ list.innerHTML = '<p class="text-gray-500 text-center py-6"><i class="fa-solid fa-star text-3xl mb-2 opacity-30"></i><br>لا توجد أكواد في المفضلة بعد<br><span class="text-xs">اضغط ⭐ على أي كود لحفظه</span></p>'; return; }
+  if(favorites.length === 0){ list.innerHTML = '<p class="text-gray-500 text-center py-6"><i class="fa-solid fa-star text-3xl mb-2 opacity-30"></i><br>لا توجد أكواد في المفضلة بعد</p>'; return; }
   var html = '<div class="space-y-2">';
   favorites.forEach(function(c){
     var info = getFaultInfo(c);
-    html += '<div class="code-card bg-gray-900 rounded-xl p-3" data-code="' + c + '">';
-    html += '<div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">' + c + '</span><button class="text-red-400 hover:text-red-300 text-xs" data-remove-fav="' + c + '"><i class="fa-solid fa-trash"></i></button></div>';
-    html += '<div class="text-xs text-gray-400">' + escapeHtml(info.title) + '</div></div>';
+    html += '<div class="code-card bg-gray-900 rounded-xl p-3" data-code="' + c + '"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">' + c + '</span><button class="text-red-400 text-xs" data-remove-fav="' + c + '"><i class="fa-solid fa-trash"></i></button></div><div class="text-xs text-gray-400">' + escapeHtml(info.title) + '</div></div>';
   });
   html += '</div>';
   list.innerHTML = html;
   list.querySelectorAll('.code-card').forEach(function(el){ el.onclick = function(e){ if(e.target.closest('[data-remove-fav]')) return; showDTCDetails(el.dataset.code); }; });
-  list.querySelectorAll('[data-remove-fav]').forEach(function(btn){
-    btn.onclick = function(e){ e.stopPropagation(); toggleFavorite(btn.dataset.removeFav); renderFavorites(); };
-  });
+  list.querySelectorAll('[data-remove-fav]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); toggleFavorite(btn.dataset.removeFav); renderFavorites(); }; });
 }
 
-/* ============ RECENT ============ */
+/* RECENT */
 function addRecentSearch(query){
   var q = String(query).trim().slice(0, 30); if(!q) return;
   recentSearches = recentSearches.filter(function(r){ return r !== q; });
-  recentSearches.unshift(q);
-  recentSearches = recentSearches.slice(0, 6);
+  recentSearches.unshift(q); recentSearches = recentSearches.slice(0, 6);
   localStorage.setItem('checkdiga_recent', JSON.stringify(recentSearches));
   renderRecentSearches();
 }
@@ -638,12 +664,10 @@ function renderRecentSearches(){
   var html = '<span class="text-[10px] text-gray-500 font-bold self-center whitespace-nowrap">🕒 آخر البحث:</span>';
   recentSearches.forEach(function(r){ html += '<button class="recent-item" data-recent="' + escapeHtml(r) + '">' + escapeHtml(r) + '</button>'; });
   el.innerHTML = html;
-  el.querySelectorAll('[data-recent]').forEach(function(btn){
-    btn.onclick = function(){ var inp = document.getElementById('dtcSearchInput'); if(inp){ inp.value = btn.dataset.recent; searchDTC(btn.dataset.recent); } };
-  });
+  el.querySelectorAll('[data-recent]').forEach(function(btn){ btn.onclick = function(){ var inp = document.getElementById('dtcSearchInput'); if(inp){ inp.value = btn.dataset.recent; searchDTC(btn.dataset.recent); } }; });
 }
 
-/* ============ SYMPTOMS ============ */
+/* SYMPTOMS */
 function initSymptomChips(){
   var el = document.getElementById('symptomChips'); if(!el) return;
   var html = '';
@@ -654,15 +678,12 @@ function initSymptomChips(){
 function showSymptomResults(idx){
   var s = SYMPTOMS_DB[idx]; if(!s) return;
   var div = document.getElementById('searchResults'); var countEl = document.getElementById('searchCount'); if(!div) return;
-  var html = '<div class="bg-purple-900/30 rounded-xl p-3 mb-3 border-r-4 border-purple-500"><div class="font-bold text-sm text-purple-200 mb-1">' + s.icon + ' ' + escapeHtml(s.label) + '</div><div class="text-[11px] text-gray-400">أكواد محتملة (احتمالية بناءً على الشكوى):</div></div>';
+  var html = '<div class="bg-purple-900/30 rounded-xl p-3 mb-3 border-r-4 border-purple-500"><div class="font-bold text-sm text-purple-200 mb-1">' + s.icon + ' ' + escapeHtml(s.label) + '</div></div>';
   html += '<div class="space-y-2">';
   s.codes.forEach(function(c){
     var info = getFaultInfo(c);
     var sevColor = {critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[info.severity] || '#64748b';
-    html += '<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="' + c + '">';
-    html += '<div class="w-1 self-stretch rounded-full" style="background:' + sevColor + ';"></div>';
-    html += '<div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">' + c + '</div><div class="text-xs text-gray-400 mt-0.5">' + escapeHtml(info.title) + '</div></div>';
-    html += '<i class="fa-solid fa-chevron-left text-blue-400 text-xs"></i></div>';
+    html += '<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="' + c + '"><div class="w-1 self-stretch rounded-full" style="background:' + sevColor + ';"></div><div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">' + c + '</div><div class="text-xs text-gray-400 mt-0.5">' + escapeHtml(info.title) + '</div></div><i class="fa-solid fa-chevron-left text-blue-400 text-xs"></i></div>';
   });
   html += '</div>';
   div.innerHTML = html;
@@ -670,13 +691,10 @@ function showSymptomResults(idx){
   div.querySelectorAll('.code-card').forEach(function(el){ el.onclick = function(){ showDTCDetails(el.dataset.code); }; });
 }
 
-/* ============ POPULAR / FAMILY ============ */
+/* POPULAR / FAMILY */
 function initPopularCodes(){
   var el = document.getElementById('popularCodes'); if(!el) return;
-  el.innerHTML = POPULAR_CODES.map(function(c){
-    var info = getFaultInfo(c);
-    return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="' + c + '"><div class="font-mono font-bold text-red-300 text-xs">' + c + '</div><div class="text-[10px] text-gray-500 mt-0.5 truncate">' + escapeHtml(info.title) + '</div></button>';
-  }).join('');
+  el.innerHTML = POPULAR_CODES.map(function(c){ var info = getFaultInfo(c); return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="' + c + '"><div class="font-mono font-bold text-red-300 text-xs">' + c + '</div><div class="text-[10px] text-gray-500 mt-0.5 truncate">' + escapeHtml(info.title) + '</div></button>'; }).join('');
   el.querySelectorAll('[data-code]').forEach(function(b){ b.onclick = function(){ showDTCDetails(b.dataset.code); }; });
 }
 function initFamilyBrowser(){
@@ -690,9 +708,7 @@ function initFamilyBrowser(){
     {key:'U0', label:'U0xxx — الشبكة', icon:'📡', color:'#10b981'},
     {key:'U3', label:'U3xxx — HV', icon:'⚡', color:'#06b6d4'}
   ];
-  el.innerHTML = families.map(function(f){
-    return '<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:' + f.color + '" data-family="' + f.key + '"><div class="font-bold text-xs" style="color:' + f.color + '">' + f.icon + ' ' + escapeHtml(f.label) + '</div></button>';
-  }).join('');
+  el.innerHTML = families.map(function(f){ return '<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:' + f.color + '" data-family="' + f.key + '"><div class="font-bold text-xs" style="color:' + f.color + '">' + f.icon + ' ' + escapeHtml(f.label) + '</div></button>'; }).join('');
   el.querySelectorAll('[data-family]').forEach(function(b){ b.onclick = function(){ browseFamily(b.dataset.family); }; });
 }
 function browseFamily(prefix){
@@ -706,18 +722,13 @@ function browseFamily(prefix){
     if(results.length >= 50) break;
   }
   if(results.length === 0){ div.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>'; return; }
-  var html = '<div class="text-xs text-gray-400 mb-2">عائلة ' + prefix + 'xxx — ' + results.length + ' كود (يُعرض أول 50)</div><div class="space-y-1">';
-  results.forEach(function(c){
-    var info = getFaultInfo(c);
-    html += '<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="' + c + '"><span><span class="font-mono text-red-300 font-bold">' + c + '</span> — ' + escapeHtml(info.title) + '</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
-  });
+  var html = '<div class="text-xs text-gray-400 mb-2">عائلة ' + prefix + 'xxx — ' + results.length + ' كود</div><div class="space-y-1">';
+  results.forEach(function(c){ var info = getFaultInfo(c); html += '<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="' + c + '"><span><span class="font-mono text-red-300 font-bold">' + c + '</span> — ' + escapeHtml(info.title) + '</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'; });
   html += '</div>';
   div.innerHTML = html;
   if(countEl) countEl.textContent = '(' + results.length + ')';
   div.querySelectorAll('.code-card').forEach(function(el){ el.onclick = function(){ showDTCDetails(el.dataset.code); }; });
 }
-
-/* ============ FILTERS ============ */
 function initSeverityFilters(){
   var el = document.getElementById('severityFilters'); if(!el) return;
   el.querySelectorAll('[data-severity]').forEach(function(btn){
@@ -731,7 +742,7 @@ function initSeverityFilters(){
   });
 }
 
-/* ============ DIAGNOSIS ============ */
+/* DIAGNOSIS */
 var RULES = [
   {required:['P0171','P0174'],title:'تسرب هواء في نظام السحب',confidence:90,severity:'high',description:'خليط فقير في البنكين.',actions:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب']},
   {required:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',confidence:75,severity:'medium',description:'اشتعال متقطع متعدد.',actions:['استبدل البواجي','افحص الكويلات']},
@@ -787,8 +798,6 @@ function displayHealth(faults, diag){
   b.classList.remove('hidden');
   b.innerHTML = '<div class="bg-gradient-to-l ' + g + ' rounded-2xl p-4 text-white fade-in"><div class="flex justify-between items-center"><div><div class="text-sm font-bold">' + s + '</div><div class="text-xs opacity-90 mt-1">' + d + '</div></div><div class="text-4xl font-bold">' + sc + '<span class="text-base opacity-80">/100</span></div></div></div>';
 }
-
-/* ============ DETAILS ============ */
 function showDTCDetails(codeOrKey){
   var isKey = /_[A-Z]+$/.test(codeOrKey);
   var displayCode = sanitizeCode(codeOrKey.replace(/_[A-Z]+$/, ''));
@@ -808,7 +817,7 @@ function showDTCDetails(codeOrKey){
   if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + escapeHtml(info.brand) + '</span>';
   html += '</div></div>';
   html += '<div class="grid grid-cols-2 gap-2 mb-3">';
-  html += '<button onclick="window.copyDetailCode()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ الكود</button>';
+  html += '<button onclick="window.copyDetailCode()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button>';
   html += '<button onclick="window.shareDetailCode()" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> مشاركة</button>';
   html += '</div>';
   if(info.desc) html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + escapeHtml(info.desc) + '</div></div>';
@@ -825,9 +834,9 @@ function showDTCDetails(codeOrKey){
   var f = info.flags || {};
   if(f.mil || f.emissions_relevant || f.limp_mode_possible){
     html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-gray-700"><div class="font-bold text-sm mb-3 text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> إشارات مهمة</div><div class="space-y-2 text-xs">';
-    if(f.mil) html += '<div class="flex items-center gap-2">🚨 <span class="text-gray-300">يُضيء لمبة المحرك</span></div>';
-    if(f.emissions_relevant) html += '<div class="flex items-center gap-2">🌫️ <span class="text-gray-300">يؤثر على اختبار الانبعاثات</span></div>';
-    if(f.limp_mode_possible) html += '<div class="flex items-center gap-2">🐢 <span class="text-gray-300">قد يدخل وضع الطوارئ</span></div>';
+    if(f.mil) html += '<div>🚨 يُضيء لمبة المحرك</div>';
+    if(f.emissions_relevant) html += '<div>🌫️ يؤثر على اختبار الانبعاثات</div>';
+    if(f.limp_mode_possible) html += '<div>🐢 قد يدخل وضع الطوارئ</div>';
     html += '</div></div>';
   }
   function block(items, title, color){
@@ -853,7 +862,6 @@ function showDTCDetails(codeOrKey){
 window.copyDetailCode = function(){
   if(!currentDetailCode) return;
   if(navigator.clipboard) navigator.clipboard.writeText(currentDetailCode);
-  else { var t = document.createElement('textarea'); t.value = currentDetailCode; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
   alert('تم نسخ الكود: ' + currentDetailCode);
 };
 window.shareDetailCode = function(){
@@ -871,7 +879,7 @@ window.showRelatedCode = function(code){
   setTimeout(function(){ showDTCDetails(clean); }, 100);
 };
 
-/* ============ OBD2 CORE ============ */
+/* OBD2 CORE */
 function handleNotification(e){
   recvBuf += new TextDecoder().decode(e.target.value);
   if(recvBuf.indexOf('>') >= 0 && curResolve){
@@ -1147,6 +1155,9 @@ function renderFaults(faults){
   list.innerHTML = html;
   list.querySelectorAll('[data-fav]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); toggleFavorite(btn.dataset.fav); btn.classList.toggle('active', isFavorite(btn.dataset.fav)); }; });
   list.querySelectorAll('[data-details]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); showDTCDetails(btn.dataset.details); }; });
+  saveToHistory(faults);
+  var eb = document.getElementById('proExportBar');
+  if(eb && faults.length > 0) eb.classList.remove('hidden');
 }
 async function runDemoScan(){
   var demoFaults = [{code:'P0301', system:'engine', type:'confirmed'},{code:'P0171', system:'engine', type:'confirmed'},{code:'P0420', system:'exhaust', type:'pending'},{code:'U0100', system:'electronics', type:'confirmed'}];
@@ -1186,7 +1197,6 @@ function displayVINInfo(vin){
   html += '</div>';
   c.innerHTML = html;
 }
-
 var searchTimer = null;
 function initSearch(){
   var input = document.getElementById('dtcSearchInput'); if(!input) return;
@@ -1227,7 +1237,6 @@ function searchDTC(query){
   div.querySelectorAll('[data-fav]').forEach(function(btn){ btn.onclick = function(e){ e.stopPropagation(); toggleFavorite(btn.dataset.fav); btn.classList.toggle('active', isFavorite(btn.dataset.fav)); }; });
   div.querySelectorAll('[data-key]').forEach(function(el){ el.onclick = function(e){ if(e.target.closest('[data-fav]')) return; showDTCDetails(el.dataset.key); }; });
 }
-
 function applyTheme(){
   var theme = localStorage.getItem('checkdiga_theme') || 'dark';
   var icon = document.getElementById('themeIcon');
@@ -1235,16 +1244,12 @@ function applyTheme(){
   else{ document.body.classList.remove('light-mode'); if(icon) icon.className = 'fa-solid fa-sun'; }
 }
 function toggleTheme(){ var c = localStorage.getItem('checkdiga_theme') || 'dark'; localStorage.setItem('checkdiga_theme', c === 'dark' ? 'light' : 'dark'); applyTheme(); }
-
 function toggleAI(){
   var m = document.getElementById('aiModal'); if(!m) return;
   var key = localStorage.getItem('checkdiga_gemini_key') || "";
-  var keyTime = parseInt(localStorage.getItem('checkdiga_gemini_time') || '0', 10);
-  var maxAge = 30 * 24 * 60 * 60 * 1000;
-  if(key && (Date.now() - keyTime) > maxAge){ localStorage.removeItem('checkdiga_gemini_key'); localStorage.removeItem('checkdiga_gemini_time'); key = ""; }
   if(!key){
     var newKey = prompt('الصق مفتاح Gemini API:', '');
-    if(newKey && newKey.length > 20 && newKey.length < 200){ localStorage.setItem('checkdiga_gemini_key', newKey); localStorage.setItem('checkdiga_gemini_time', String(Date.now())); GEMINI_API_KEY = newKey; GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey; } else return;
+    if(newKey && newKey.length > 20){ localStorage.setItem('checkdiga_gemini_key', newKey); GEMINI_API_KEY = newKey; GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey; } else return;
   }
   m.classList.toggle('hidden');
 }
@@ -1262,11 +1267,11 @@ function askAI(q){ var i = document.getElementById('aiInput'); if(i) i.value = S
 async function sendAI(){
   var input = document.getElementById('aiInput'); if(!input) return;
   var q = input.value.trim().slice(0, 500); if(!q) return;
-  if(!checkRateLimit('ai', 5)){ addAIMessage('ai', '⚠️ تجاوزت الحد (5 رسائل/دقيقة)'); return; }
+  if(!checkRateLimit('ai', 5)){ addAIMessage('ai', '⚠️ تجاوزت الحد'); return; }
   input.value = ''; addAIMessage('user', q); addAITyping();
   try{
     var ctx = 'أنت مساعد ذكي متخصص في تشخيص أعطال السيارات. أجب بالعربية باختصار.\n\n';
-    if(lastFaults.length > 0) ctx += 'السيارة الحالية: ' + lastFaults.map(function(f){ return f.code; }).join(', ') + '\n\n';
+    if(lastFaults.length > 0) ctx += 'السيارة: ' + lastFaults.map(function(f){ return f.code; }).join(', ') + '\n\n';
     var body = {contents:[{role:'user', parts:[{text: ctx + 'سؤال: ' + q}]}], generationConfig:{temperature:.7, maxOutputTokens:500}};
     var r = await fetch(GEMINI_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
     if(!r.ok) throw new Error('HTTP ' + r.status);
@@ -1276,6 +1281,122 @@ async function sendAI(){
   }catch(e){ removeAITyping(); addAIMessage('ai', '⚠️ خطأ: ' + e.message); }
 }
 window.toggleAI = toggleAI; window.askAI = askAI; window.sendAI = sendAI;
+
+/* READINESS */
+function parseMon(b, bit){ if(!(b & (1<<bit))) return 'na'; return (b & (1<<(bit+4))) ? 'no' : 'yes'; }
+function runReadiness(){
+  var c = document.getElementById('readinessContent'); if(!c) return;
+  if (isDemo){ renderReadiness({mil:true,dtc:3,c1:'no',c2:'yes',c3:'yes',n1:'yes',n2:'na',n3:'no',n4:'yes',n5:'yes',n6:'na'}); return; }
+  if (!isConnected){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>'; return; }
+  c.innerHTML = '<p class="text-blue-400 text-center py-4">جاري الفحص...</p>';
+  sendCmd('01 01', 3500).then(function(res){
+    var b = parseHexBytes(res), idx = -1;
+    for(var i=0;i<b.length-5;i++){ if(b[i]===0x41 && b[i+1]===0x01){ idx=i; break; } }
+    if(idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
+    var A=b[idx+2], B=b[idx+3], C=b[idx+4];
+    renderReadiness({mil:(A&0x80)!==0, dtc:A&0x7F, c1:parseMon(B,0), c2:parseMon(B,1), c3:parseMon(B,2), n1:parseMon(C,0), n2:parseMon(C,1), n3:parseMon(C,2), n4:parseMon(C,5), n5:parseMon(C,6), n6:parseMon(C,7)});
+  }).catch(function(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ</p>'; });
+}
+function renderReadiness(d){
+  var c = document.getElementById('readinessContent'); if(!c) return;
+  function ri(n, s){
+    var cls = s==='yes'?'bg-green-600':s==='no'?'bg-red-600':'bg-gray-600';
+    var l = s==='yes'?'جاهز':s==='no'?'غير جاهز':'غير مدعوم';
+    return '<div class="flex justify-between items-center p-2 bg-gray-900 rounded-lg mb-1"><span class="text-xs">'+n+'</span><span class="text-[10px] px-2 py-1 rounded '+cls+' text-white font-bold">'+l+'</span></div>';
+  }
+  var h = '<div class="'+(d.mil?'bg-red-600':'bg-green-600')+' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">'+(d.mil?'🚨 لمبة مضاءة':'✅ لمبة مطفأة')+'</span><span>أعطال: '+d.dtc+'</span></div>';
+  h += '<div class="text-xs font-bold text-blue-300 mb-2">مستمرة:</div>'+ri('الاشتعال',d.c1)+ri('الوقود',d.c2)+ri('المكونات',d.c3);
+  h += '<div class="text-xs font-bold text-purple-300 mb-2 mt-3">غير مستمرة:</div>'+ri('الكتلايزر',d.n1)+ri('EVAP',d.n3)+ri('O2',d.n4)+ri('EGR',d.n6);
+  c.innerHTML = h;
+}
+/* BATTERY */
+function runBatteryTest(){
+  var btn = document.getElementById('btnBatteryTest'); if(!btn) return;
+  var orig = btn.innerHTML; btn.innerHTML = 'جاري القياس...'; btn.disabled = true;
+  var verdict = document.getElementById('batteryVerdict'); if(verdict) verdict.classList.add('hidden');
+  function setStage(n, v, mn, mx){
+    var box = document.getElementById('bat'+n), val = document.getElementById('batVal'+n);
+    if(!box||!val) return;
+    val.textContent = v.toFixed(2)+'V';
+    var ok = v>=mn && v<=mx, warn = v>=mn-0.5 && v<=mx+0.5;
+    var col = ok?'#10b981':warn?'#f59e0b':'#ef4444';
+    box.style.borderColor = col; val.style.color = col;
+  }
+  function finish(v1,v2,v3){
+    var allGood = v1>=12.4 && v1<=12.8 && v2>=13.8 && v3>=13.5;
+    var bad = v1<12.0 || v2<13.0 || v3<12.5;
+    var cls = allGood?'bg-green-600':bad?'bg-red-600':'bg-yellow-600';
+    var txt = allGood?'✅ نظام الشحن ممتاز':bad?'❌ نظام الشحن تالف':'⚠️ يحتاج فحص';
+    if (verdict){ verdict.className = 'p-3 rounded-xl text-white font-bold text-center '+cls; verdict.textContent = txt; verdict.classList.remove('hidden'); }
+  }
+  if (isDemo){
+    var v1 = 12.5+Math.random()*0.3; setStage(1,v1,12.4,12.8);
+    setTimeout(function(){ var v2 = 14.0+Math.random()*0.5; setStage(2,v2,13.8,14.8); }, 1000);
+    setTimeout(function(){ var v3 = 13.6+Math.random()*0.4; setStage(3,v3,13.5,14.8); finish(v1,14.3,13.8); btn.innerHTML = orig; btn.disabled = false; }, 2000);
+  } else if (isConnected){
+    sendCmd('01 42', 2000).then(function(res){
+      var b = parseHexBytes(res); var v = null;
+      for(var i=0;i<b.length-3;i++){ if(b[i]===0x41 && b[i+1]===0x42){ v = ((b[i+2]*256)+b[i+3])/1000; break; } }
+      if(!v){ finish(0,0,0); } else { setStage(1,v,12.4,12.8); setStage(2,v,13.8,14.8); setStage(3,v,13.5,14.8); finish(v,v,v); }
+      btn.innerHTML = orig; btn.disabled = false;
+    }).catch(function(){ btn.innerHTML = orig; btn.disabled = false; });
+  } else {
+    if (verdict){ verdict.className = 'p-3 rounded-xl bg-red-600 text-white font-bold text-center'; verdict.textContent = '⚠️ غير متصل'; verdict.classList.remove('hidden'); }
+    btn.innerHTML = orig; btn.disabled = false;
+  }
+}
+/* HISTORY */
+function saveToHistory(faults){
+  try{
+    var h = JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
+    h.unshift({date:new Date().toISOString(), faults:faults.map(function(f){return {code:f.code,type:f.type};})});
+    localStorage.setItem('checkdiga_hist', JSON.stringify(h.slice(0,20)));
+  } catch(e){}
+}
+function renderHistory(){
+  var c = document.getElementById('historyContent'); if(!c) return;
+  var h = JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
+  if(!h.length){ c.innerHTML = '<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>'; return; }
+  var html = '';
+  h.forEach(function(e){
+    var d = new Date(e.date);
+    html += '<div class="bg-gray-900 rounded-xl p-3 mb-2 border-r-4 border-blue-500">';
+    html += '<div class="flex justify-between mb-2"><span class="text-xs text-gray-400">'+d.toLocaleDateString('ar')+' '+d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})+'</span><span class="text-xs text-blue-400 font-bold">'+e.faults.length+' عطل</span></div>';
+    html += '<div class="flex flex-wrap gap-1">';
+    e.faults.slice(0,10).forEach(function(f){ html += '<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">'+f.code+'</span>'; });
+    html += '</div></div>';
+  });
+  c.innerHTML = html;
+}
+function clearHistory(){ if(confirm('حذف السجل؟')){ localStorage.removeItem('checkdiga_hist'); renderHistory(); } }
+/* PDF */
+function exportPDF(){
+  var faults = lastFaults || [];
+  if(!faults.length){ alert('لا توجد أعطال'); return; }
+  var date = new Date().toLocaleString('ar');
+  var diag = runDiagnosis(faults.map(function(f){return f.code;}));
+  var score = calcHealth(faults, diag);
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:Cairo,sans-serif;padding:30px;color:#1e293b}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:'+(score>=75?'#10b981':score>=50?'#f59e0b':'#ef4444')+';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}</style></head><body>';
+  html += '<h1>تقرير فحص CheckDiga Pro</h1><p><b>التاريخ:</b> '+date+'</p>';
+  html += '<div class="sc">صحة السيارة: '+score+'/100</div>';
+  html += '<h2>الأعطال ('+faults.length+')</h2>';
+  faults.forEach(function(f,i){ var info = getFaultInfo(f.code); html += '<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+f.code+'</b><br>'+info.title+'</div>'; });
+  if(diag.length){ html += '<h2>التشخيص</h2>'; diag.forEach(function(d){ html += '<div style="background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0"><b>'+d.title+' ('+d.confidence+'%)</b><br>'+d.description+'</div>'; }); }
+  html += '<p style="text-align:center;color:#94a3b8;font-size:11px;margin-top:30px">CheckDiga Pro 2026</p></body></html>';
+  var w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 500);
+}
+/* WHATSAPP */
+function shareWhatsApp(){
+  var faults = lastFaults || [];
+  if(!faults.length){ alert('لا توجد أعطال'); return; }
+  var diag = runDiagnosis(faults.map(function(f){return f.code;}));
+  var score = calcHealth(faults, diag);
+  var msg = '*تقرير CheckDiga Pro*\n----------------\n\nصحة السيارة: '+score+'/100\n\n*الأعطال ('+faults.length+'):*\n';
+  faults.forEach(function(f,i){ var info = getFaultInfo(f.code); msg += (i+1)+'. *'+f.code+'* — '+info.title+'\n'; });
+  if(diag.length){ msg += '\n*التشخيص:*\n'; diag.forEach(function(d){ msg += '• '+d.title+' ('+d.confidence+'%)\n'; }); }
+  msg += '\n----------------\n'+window.location.origin;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
 
 function init(){
   function bind(id, fn){ var el = document.getElementById(id); if(el) el.onclick = fn; }
@@ -1291,6 +1412,11 @@ function init(){
   bind('btnFavDetail', function(){ if(currentDetailCode){ toggleFavorite(currentDetailCode); this.classList.toggle('active', isFavorite(currentDetailCode)); updateFavCount(); } });
   bind('btnDecodeVIN', function(){ var v = document.getElementById('vinInput').value.trim().toUpperCase().slice(0,17); if(v.length !== 17){ alert('VIN يجب أن يكون 17 حرفاً'); return; } document.getElementById('vinResult').textContent = v; displayVINInfo(v); });
   bind('btnCloseDetail', function(){ document.getElementById('dtcDetailModal').classList.add('hidden'); });
+  bind('btnReadReadiness', runReadiness);
+  bind('btnBatteryTest', runBatteryTest);
+  bind('btnClearHistory', clearHistory);
+  bind('btnExportPDF', exportPDF);
+  bind('btnShareWA', shareWhatsApp);
 
   document.querySelectorAll('.tab').forEach(function(tab){
     tab.onclick = function(){
@@ -1301,13 +1427,14 @@ function init(){
       if(target) target.classList.remove('hidden');
       if(tab.dataset.tab === 'live') setTimeout(function(){ if(!chartInstance) initChart(); else try{chartInstance.resize();}catch(e){} }, 200);
       if(tab.dataset.tab === 'favorites') renderFavorites();
+      if(tab.dataset.tab === 'history') renderHistory();
       if(tab.dataset.tab === 'stats'){
         var c = document.getElementById('statsContent');
         if(c){
           var total = Object.keys(DTC_DATABASE).length;
           var critical = 0, high = 0, medium = 0, low = 0;
           for(var k in DTC_DATABASE){ if(DTC_DATABASE.hasOwnProperty(k)){ var s = DTC_DATABASE[k].severity; if(s === 'critical') critical++; else if(s === 'high') high++; else if(s === 'medium') medium++; else low++; } }
-          c.innerHTML = '<div class="space-y-3"><div class="text-center"><div class="text-5xl font-extrabold text-blue-400">' + total.toLocaleString() + '</div><div class="text-xs text-gray-400 mt-1">كود في القاعدة</div><div class="mt-2 text-xs text-gray-500">' + (OBDEX_LOADED ? '✅ القاعدة الكاملة محمّلة' : '⏳ جاري التحميل...') + '</div></div><div class="grid grid-cols-2 gap-2 mt-4"><div class="bg-red-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-red-400">' + critical + '</div><div class="text-[10px] text-gray-400">حرج</div></div><div class="bg-orange-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-orange-400">' + high + '</div><div class="text-[10px] text-gray-400">خطير</div></div><div class="bg-amber-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-amber-400">' + medium + '</div><div class="text-[10px] text-gray-400">متوسط</div></div><div class="bg-green-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-green-400">' + low + '</div><div class="text-[10px] text-gray-400">منخفض</div></div></div><div class="mt-4 text-center text-xs text-gray-500"><i class="fa-solid fa-star text-amber-400"></i> المفضلة: ' + favorites.length + ' كود</div></div>';
+          c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">' + total.toLocaleString() + '</div><div class="text-xs text-gray-400 mt-1">كود</div><div class="mt-2 text-xs text-gray-500">' + (OBDEX_LOADED ? '✅ القاعدة الكاملة' : '⏳ جاري التحميل...') + '</div></div><div class="grid grid-cols-2 gap-2"><div class="bg-red-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-red-400">' + critical + '</div><div class="text-[10px] text-gray-400">حرج</div></div><div class="bg-orange-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-orange-400">' + high + '</div><div class="text-[10px] text-gray-400">خطير</div></div><div class="bg-amber-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-amber-400">' + medium + '</div><div class="text-[10px] text-gray-400">متوسط</div></div><div class="bg-green-900/30 rounded-xl p-3 text-center"><div class="text-2xl font-bold text-green-400">' + low + '</div><div class="text-[10px] text-gray-400">منخفض</div></div></div>';
         }
       }
     };
@@ -1331,379 +1458,12 @@ function init(){
   setTimeout(function(){ updateAllGauges({rpm:0, speed:0, coolant:0, fuelLevel:0}); }, 300);
 
   logSuccess(Object.keys(DTC_DATABASE).length + ' كود أساسي جاهز');
-  logInfo('جاري تحميل القاعدة الكاملة من OBDex...');
+  logInfo('جاري تحميل القاعدة الكاملة...');
   loadFullDatabase();
   logInfo('Tap Demo or Bluetooth');
 }
-
 if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
 else { init(); }
-</script><script>
-/* ============================================================
-   CheckDiga Pro — Professional Tools Extension
-   إضافة الأدوات الاحترافية (جاهزية، بطارية، سجل، PDF، واتساب، Cache)
-============================================================ */
-
-// Wait for main app to load
-window.addEventListener('load', function(){ setTimeout(setupProTools, 800); });
-
-function setupProTools(){
-  if (typeof window.DTC_DATABASE === 'undefined') { setTimeout(setupProTools, 500); return; }
-  if (document.getElementById('panel-readiness')) return; // already added
-
-  // === 1) ADD NEW TABS ===
-  var tabBar = document.querySelector('.flex.gap-2.overflow-x-auto');
-  if (tabBar && !document.querySelector('[data-tab="readiness"]')){
-    tabBar.insertAdjacentHTML('beforeend', 
-      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>' +
-      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>' +
-      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>'
-    );
-  }
-
-  // === 2) ADD PANELS ===
-  var container = document.getElementById('app-start');
-  if (container && !document.getElementById('panel-readiness')){
-    container.insertAdjacentHTML('beforeend',
-      '<div id="panel-readiness" class="panel hidden space-y-4">' +
-        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
-          '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات (Mode 01 PID 01)</h3>' +
-          '<p class="text-[11px] text-gray-400">فحص Readiness Monitors — جاهزية السيارة لاختبار الانبعاثات</p>' +
-          '<button id="btnReadReadiness" class="w-full bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>' +
-          '<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية"</p></div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="panel-battery" class="panel hidden space-y-4">' +
-        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
-          '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>' +
-          '<p class="text-[11px] text-gray-400">قياس جهد النظام في 3 حالات مختلفة</p>' +
-          '<button id="btnBatteryTest" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>' +
-          '<div id="batteryContent">' +
-            '<div class="grid grid-cols-3 gap-2 mb-3">' +
-              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat1"><div class="text-2xl mb-1">🔋</div><div class="text-[10px] text-gray-500">محرك مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>' +
-              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat2"><div class="text-2xl mb-1">⚡</div><div class="text-[10px] text-gray-500">محرك يعمل</div><div class="text-lg font-bold" id="batVal2">--</div></div>' +
-              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat3"><div class="text-2xl mb-1">💡</div><div class="text-[10px] text-gray-500">تحت الحمل</div><div class="text-lg font-bold" id="batVal3">--</div></div>' +
-            '</div>' +
-            '<div id="batteryVerdict" class="hidden"></div>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="panel-history" class="panel hidden space-y-4">' +
-        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
-          '<div class="flex justify-between items-center">' +
-            '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>' +
-            '<button id="btnClearHistory" class="text-xs text-red-400 hover:text-red-300 font-bold"><i class="fa-solid fa-trash"></i> مسح الكل</button>' +
-          '</div>' +
-          '<div id="historyContent"></div>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  // === 3) ADD EXPORT BAR INSIDE FAULTS PANEL ===
-  var fp = document.getElementById('panel-faults');
-  if (fp && !document.getElementById('proExportBar')){
-    fp.insertAdjacentHTML('beforeend',
-      '<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden fade-in">' +
-        '<div class="flex items-center justify-between gap-3 flex-wrap">' +
-          '<div class="font-bold text-emerald-300 text-sm"><i class="fa-solid fa-share-nodes"></i> شارك النتائج</div>' +
-          '<div class="flex gap-2">' +
-            '<button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>' +
-            '<button id="btnShareWA" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> واتساب</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  // === 4) BIND TAB CLICKS FOR NEW PANELS ===
-  document.querySelectorAll('.tab').forEach(function(tab){
-    tab.onclick = function(){
-      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('bg-blue-600','text-white'); t.classList.add('bg-gray-800','text-gray-400'); });
-      tab.classList.remove('bg-gray-800','text-gray-400'); tab.classList.add('bg-blue-600','text-white');
-      document.querySelectorAll('.panel').forEach(function(p){ p.classList.add('hidden'); });
-      var target = document.getElementById('panel-' + tab.dataset.tab);
-      if (target) target.classList.remove('hidden');
-      if (tab.dataset.tab === 'history') renderHistory();
-    };
-  });
-
-  // === 5) BIND BUTTONS ===
-  var b1 = document.getElementById('btnReadReadiness'); if (b1) b1.onclick = runReadiness;
-  var b2 = document.getElementById('btnBatteryTest'); if (b2) b2.onclick = runBatteryTest;
-  var b3 = document.getElementById('btnClearHistory'); if (b3) b3.onclick = clearHistory;
-  var b4 = document.getElementById('btnExportPDF'); if (b4) b4.onclick = exportPDF;
-  var b5 = document.getElementById('btnShareWA'); if (b5) b5.onclick = shareWhatsApp;
-
-  // === 6) HOOK INTO renderFaults TO SHOW EXPORT BAR + SAVE HISTORY ===
-  var origRender = window.renderFaults;
-  window.renderFaults = function(faults){
-    origRender(faults);
-    if (faults && faults.length > 0){
-      saveToHistory(faults);
-      var eb = document.getElementById('proExportBar');
-      if (eb) eb.classList.remove('hidden');
-    }
-  };
-
-  console.log('✅ Pro Tools loaded');
-}
-
-/* ============ READINESS MONITORS ============ */
-function parseMonitor(byte, bit){
-  var available = (byte & (1 << bit)) !== 0;
-  if (!available) return 'n/a';
-  var incomplete = (byte & (1 << (bit + 4))) !== 0;
-  return incomplete ? 'not-ready' : 'ready';
-}
-
-async function runReadiness(){
-  var c = document.getElementById('readinessContent'); if (!c) return;
-
-  if (window.isDemo){
-    renderReadiness({mil:true, dtcCount:3,
-      continuous:{misfire:'not-ready', fuel:'ready', components:'ready'},
-      nonContinuous:{catalyst:'ready', heatedCat:'n/a', evap:'not-ready', o2:'ready', o2Heater:'ready', egr:'n/a'}
-    });
-    return;
-  }
-  if (!window.isConnected){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل بالسيارة</p>'; return; }
-
-  c.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
-  try{
-    var res = await window.sendCmd('01 01', 3500);
-    var bytes = window.parseHexBytes(res);
-    var idx = -1;
-    for (var i = 0; i < bytes.length - 5; i++){ if (bytes[i] === 0x41 && bytes[i+1] === 0x01){ idx = i; break; } }
-    if (idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
-    var A = bytes[idx+2], B = bytes[idx+3], C = bytes[idx+4];
-    renderReadiness({
-      mil: (A & 0x80) !== 0, dtcCount: A & 0x7F,
-      continuous: {misfire: parseMonitor(B,0), fuel: parseMonitor(B,1), components: parseMonitor(B,2)},
-      nonContinuous: {catalyst: parseMonitor(C,0), heatedCat: parseMonitor(C,1), evap: parseMonitor(C,2), o2: parseMonitor(C,5), o2Heater: parseMonitor(C,6), egr: parseMonitor(C,7)}
-    });
-  } catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>'; }
-}
-
-function renderReadiness(data){
-  var c = document.getElementById('readinessContent'); if (!c) return;
-  var milClass = data.mil ? 'bg-red-600' : 'bg-green-600';
-  var milText = data.mil ? '🚨 لمبة الأعطال مضاءة' : '✅ لمبة الأعطال مطفأة';
-  function ri(name, status){
-    var cls = status === 'ready' ? 'bg-green-600' : status === 'not-ready' ? 'bg-red-600' : 'bg-gray-600';
-    var label = status === 'ready' ? 'جاهز ✅' : status === 'not-ready' ? 'غير جاهز ⚠️' : 'غير مدعوم';
-    return '<div class="flex justify-between items-center p-2 bg-gray-900 rounded-lg mb-1"><span class="text-xs">' + name + '</span><span class="text-[10px] px-2 py-1 rounded ' + cls + ' text-white font-bold">' + label + '</span></div>';
-  }
-  var html = '<div class="' + milClass + ' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">' + milText + '</span><span class="text-sm">أعطال: ' + data.dtcCount + '</span></div>';
-  html += '<div class="mb-3"><div class="text-xs font-bold text-blue-300 mb-2">🔵 المراقبة المستمرة</div>';
-  html += ri('الاشتعال المتقطع', data.continuous.misfire) + ri('نظام الوقود', data.continuous.fuel) + ri('المكونات', data.continuous.components) + '</div>';
-  html += '<div><div class="text-xs font-bold text-purple-300 mb-2">🟣 المراقبة غير المستمرة</div>';
-  html += ri('الكتلايزر', data.nonContinuous.catalyst) + ri('الكتلايزر المسخن', data.nonContinuous.heatedCat) + ri('نظام EVAP', data.nonContinuous.evap) + ri('حساس O2', data.nonContinuous.o2) + ri('سخان O2', data.nonContinuous.o2Heater) + ri('صمام EGR', data.nonContinuous.egr) + '</div>';
-  c.innerHTML = html;
-}
-
-/* ============ BATTERY TEST ============ */
-async function runBatteryTest(){
-  var verdict = document.getElementById('batteryVerdict');
-  var btn = document.getElementById('btnBatteryTest'); if (!btn) return;
-  var orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span> جاري القياس...'; btn.disabled = true;
-  if (verdict) verdict.classList.add('hidden');
-
-  try{
-    var v1, v2, v3;
-    if (window.isDemo){
-      v1 = 12.5 + Math.random() * 0.3; setBatStage(1, v1, 12.4, 12.8);
-      await new Promise(r => setTimeout(r, 1200));
-      v2 = 14.0 + Math.random() * 0.5; setBatStage(2, v2, 13.8, 14.8);
-      await new Promise(r => setTimeout(r, 1200));
-      v3 = 13.6 + Math.random() * 0.4; setBatStage(3, v3, 13.5, 14.8);
-    } else if (window.isConnected){
-      var res = await window.sendCmd('01 42', 2000);
-      var bytes = window.parseHexBytes(res);
-      var v = null;
-      for (var i = 0; i < bytes.length - 3; i++){
-        if (bytes[i] === 0x41 && bytes[i+1] === 0x42){ v = ((bytes[i+2]*256) + bytes[i+3]) / 1000; break; }
-      }
-      if (!v) throw new Error('لا يمكن قراءة الجهد من السيارة');
-      v1 = v2 = v3 = v;
-      setBatStage(1, v, 12.4, 12.8); setBatStage(2, v, 13.8, 14.8); setBatStage(3, v, 13.5, 14.8);
-    } else { throw new Error('غير متصل بالسيارة'); }
-
-    var allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
-    var anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
-    var cls = allGood ? 'bg-green-600' : anyBad ? 'bg-red-600' : 'bg-yellow-600';
-    var txt = allGood ? '✅ نظام الشحن ممتاز' : anyBad ? '❌ نظام الشحن تالف — افحص الدينامو' : '⚠️ يحتاج فحص';
-    if (verdict){ verdict.className = 'p-3 rounded-xl text-white font-bold text-center ' + cls; verdict.textContent = txt; verdict.classList.remove('hidden'); }
-  } catch(e){
-(),
-    if (verdict){ verdict.className = '      faults:p-3 rounded-xl faults bg-red-600 text-white font-bold text.map-center'; verdict.textContent = '⚠️ ' + e.message; verdict.classList.remove('(functionhidden'); }
-  } finally { btn.innerHTML = orig; btn.disabled = false; }
-}
-
-function setBatStage(stage, v, min, max){
-  var box = document.getElementById('bat' + stage);
-  var val = document.getElementById('batVal' + stage);
-  if (!box || !val) return;
-  val.textContent = v.toFixed(2) + 'V';
-  var status = v >= min && v <= max ? 'good' : (v >= min - 0.5 && v <= max + 0.5 ? 'warn' : 'bad');
-  var colors = {good:'#10b981', warn:'#f59e0b', bad:'#ef4444'};
-  box.style.borderColor = colors[status];
-  box.style.boxShadow = '0 0 12px ' + colors[status] + '40';
-  val.style.color = colors[status];
-}
-
-/* ============ HISTORY ============ */
-function saveToHistory(faults){
-  try{
-    var h = JSON.parse(localStorage.getItem('checkdiga_history') || '[]');
-    var entry = {
-      date: new Date().toISOString(f){ return {code: f.code, type: f.type, system: f.system}; }),
-      vin: document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-'
-    };
-    h.unshift(entry);
-    h = h.slice(0, 20);
-    localStorage.setItem('checkdiga_history', JSON.stringify(h));
-  } catch(e){}
-}
-
-function renderHistory(){
-  var c = document.getElementById('historyContent'); if (!c) return;
-  var h = JSON.parse(localStorage.getItem('checkdiga_history') || '[]');
-  if (h.length === 0){ c.innerHTML = '<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد. سيتم الحفظ تلقائياً عند كل فحص.</p>'; return; }
-  var html = '<div class="space-y-2">';
-  h.forEach(function(entry){
-    var d = new Date(entry.date);
-    var dateStr = d.toLocaleDateString('ar') + ' — ' + d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
-    html += '<div class="bg-gray-900 rounded-xl p-3 border-r-4 border-blue-500">';
-    html += '<div class="flex justify-between items-center mb-2"><span class="text-xs text-gray-400">🕒 ' + dateStr + '</span><span class="text-xs text-blue-400 font-bold">' + entry.faults.length + ' عطل</span></div>';
-    html += '<div class="flex flex-wrap gap-1">';
-    entry.faults.slice(0, 10).forEach(function(f){ html += '<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">' + f.code + '</span>'; });
-    if (entry.faults.length > 10) html += '<span class="text-xs text-gray-500">+' + (entry.faults.length - 10) + '</span>';
-    html += '</div></div>';
-  });
-  html += '</div>';
-  c.innerHTML = html;
-}
-
-function clearHistory(){
-  if (!confirm('حذف السجل بالكامل؟')) return;
-  localStorage.removeItem('checkdiga_history');
-  renderHistory();
-}
-
-/* ============ PDF REPORT ============ */
-function exportPDF(){
-  var faults = window.lastFaults || [];
-  if (faults.length === 0){ alert('لا توجد أعطال'); return; }
-  var date = new Date().toLocaleString('ar');
-  var vin = document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-';
-  var diag = window.runDiagnosis ? window.runDiagnosis(faults.map(function(f){ return f.code; })) : [];
-  var score = window.calcHealth ? window.calcHealth(faults, diag) : '-';
-  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>تقرير CheckDiga Pro</title>';
-  html += '<style>body{font-family:Cairo,sans-serif;padding:30px;color:#1e293b;max-width:800px;margin:auto} h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px} .score{background:' + (score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444') + ';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0} .fault{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444} .code{font-family:monospace;font-weight:bold;color:#b91c1c;font-size:16px} .meta{background:#f8fafc;padding:15px;border-radius:10px;margin:15px 0} .footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px;padding-top:15px;border-top:1px dashed #cbd5e1}</style></head><body>';
-  html += '<h1>🔧 تقرير فحص CheckDiga Pro</h1>';
-  html += '<div class="meta"><strong>📅 التاريخ:</strong> ' + date + '<br><strong>🚗 VIN:</strong> ' + vin + '</div>';
-  html += '<div class="score">صحة السيارة: ' + score + '/100</div>';
-  html += '<h2>🔴 الأعطال (' + faults.length + ')</h2>';
-  faults.forEach(function(f, i){
-    var info = window.getFaultInfo(f.code);
-    html += '<div class="fault"><span class="code">#' + (i+1) + ' — ' + f.code + '</span><br>' + info.title + '</div>';
-  });
-  if (diag.length > 0){
-    html += '<h2>🧠 التشخيص الذكي</h2>';
-    diag.forEach(function(d){
-      html += '<div style="background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0"><strong>' + d.title + ' (' + d.confidence + '%)</strong><br><span style="color:#475569;font-size:12px">' + d.description + '</span></div>';
-    });
-  }
-  html += '<div class="footer">CheckDiga Pro 2026 — صُنع في الجزائر<br>' + window.location.origin + '</div>';
-  html += '</body></html>';
-  var w = window.open('', '_blank');
-  if (!w){ alert('اسمح بالنوافذ المنبثقة للطباعة'); return; }
-  w.document.write(html);
-  w.document.close();
-  setTimeout(function(){ w.print(); }, 600);
-}
-
-/* ============ WHATSAPP ============ */
-function shareWhatsApp(){
-  var faults = window.lastFaults || [];
-  if (faults.length === 0){ alert('لا توجد أعطال للمشاركة'); return; }
-  var vin = document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-';
-  var diag = window.runDiagnosis ? window.runDiagnosis(faults.map(function(f){ return f.code; })) : [];
-  var score = window.calcHealth ? window.calcHealth(faults, diag) : '-';
-  var msg = '*🔧 تقرير فحص - CheckDiga Pro*\n----------------\n\n';
-  msg += '🚗 VIN: ' + vin + '\n';
-  msg += '📊 صحة السيارة: ' + score + '/100\n\n';
-  msg += '*الأعطال (' + faults.length + '):*\n';
-  faults.forEach(function(f, i){
-    var info = window.getFaultInfo(f.code);
-    msg += (i+1) + '. *' + f.code + '* — ' + info.title + '\n';
-  });
-  if (diag.length > 0){
-    msg += '\n*🧠 التشخيص:*\n';
-    diag.forEach(function(d){ msg += '• ' + d.title + ' (' + d.confidence + '%)\n'; });
-  }
-  msg += '\n----------------\n' + window.location.origin;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-}
-
-/* ============ CACHE (INSTANT LOAD) ============ */
-var CACHE_KEY = 'checkdiga_db_cache_v2';
-var CACHE_TIME_KEY = 'checkdiga_db_time_v2';
-var CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
-
-function saveDatabaseToCache(){
-  try{
-    if (typeof window.DTC_DATABASE === 'undefined') return;
-    var toSave = {};
-    var count = 0;
-    for (var k in window.DTC_DATABASE){
-      if (window.DTC_DATABASE.hasOwnProperty(k)){ toSave[k] = window.DTC_DATABASE[k]; count++; }
-    }
-    localStorage.setItem(CACHE_KEY, JSON.stringify(toSave));
-    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-    console.log('💾 Cache saved: ' + count + ' codes');
-  } catch(e){ console.warn('Cache save failed (size limit?):', e.message); }
-}
-
-function loadDatabaseFromCache(){
-  try{
-    var cached = localStorage.getItem(CACHE_KEY);
-    var time = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0');
-    if (!cached || (Date.now() - time) > CACHE_MAX_AGE) return 0;
-    var parsed = JSON.parse(cached);
-    var count = 0;
-    for (var k in parsed){
-      if (parsed.hasOwnProperty(k) && !window.DTC_DATABASE[k]){ window.DTC_DATABASE[k] = parsed[k]; count++; }
-    }
-    return count;
-  } catch(e){ return 0; }
-}
-
-// Try cache on load
-window.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){
-    if (typeof window.DTC_DATABASE === 'undefined') return;
-    var loaded = loadDatabaseFromCache();
-    if (loaded > 0){
-      if (window.buildDTCIndex) window.buildDTCIndex();
-      var total = Object.keys(window.DTC_DATABASE).length;
-      var e1 = document.getElementById('heroCount'); if (e1) e1.textContent = total.toLocaleString('en-US');
-      var e2 = document.getElementById('statCodes'); if (e2) e2.textContent = total.toLocaleString('en-US');
-      if (window.logSuccess) window.logSuccess('⚡ تحميل فوري من الكاش: ' + total + ' كود');
-    }
-  }, 1000);
-});
-
-// Save cache after full load
-var cacheCheckInterval = setInterval(function(){
-  if (window.OBDEX_LOADED){
-    clearInterval(cacheCheckInterval);
-    saveDatabaseToCache();
-  }
-}, 3000);
-setTimeout(function(){ clearInterval(cacheCheckInterval); }, 180000);
 </script>
 </body>
 </html>
