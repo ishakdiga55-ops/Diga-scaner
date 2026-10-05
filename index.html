@@ -1338,6 +1338,372 @@ function init(){
 
 if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
 else { init(); }
+</script><script>
+/* ============================================================
+   CheckDiga Pro — Professional Tools Extension
+   إضافة الأدوات الاحترافية (جاهزية، بطارية، سجل، PDF، واتساب، Cache)
+============================================================ */
+
+// Wait for main app to load
+window.addEventListener('load', function(){ setTimeout(setupProTools, 800); });
+
+function setupProTools(){
+  if (typeof window.DTC_DATABASE === 'undefined') { setTimeout(setupProTools, 500); return; }
+  if (document.getElementById('panel-readiness')) return; // already added
+
+  // === 1) ADD NEW TABS ===
+  var tabBar = document.querySelector('.flex.gap-2.overflow-x-auto');
+  if (tabBar && !document.querySelector('[data-tab="readiness"]')){
+    tabBar.insertAdjacentHTML('beforeend', 
+      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>' +
+      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>' +
+      '<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>'
+    );
+  }
+
+  // === 2) ADD PANELS ===
+  var container = document.getElementById('app-start');
+  if (container && !document.getElementById('panel-readiness')){
+    container.insertAdjacentHTML('beforeend',
+      '<div id="panel-readiness" class="panel hidden space-y-4">' +
+        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
+          '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات (Mode 01 PID 01)</h3>' +
+          '<p class="text-[11px] text-gray-400">فحص Readiness Monitors — جاهزية السيارة لاختبار الانبعاثات</p>' +
+          '<button id="btnReadReadiness" class="w-full bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>' +
+          '<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط "فحص الجاهزية"</p></div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="panel-battery" class="panel hidden space-y-4">' +
+        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
+          '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>' +
+          '<p class="text-[11px] text-gray-400">قياس جهد النظام في 3 حالات مختلفة</p>' +
+          '<button id="btnBatteryTest" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>' +
+          '<div id="batteryContent">' +
+            '<div class="grid grid-cols-3 gap-2 mb-3">' +
+              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat1"><div class="text-2xl mb-1">🔋</div><div class="text-[10px] text-gray-500">محرك مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>' +
+              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat2"><div class="text-2xl mb-1">⚡</div><div class="text-[10px] text-gray-500">محرك يعمل</div><div class="text-lg font-bold" id="batVal2">--</div></div>' +
+              '<div class="bg-gray-900 rounded-xl p-3 text-center" id="bat3"><div class="text-2xl mb-1">💡</div><div class="text-[10px] text-gray-500">تحت الحمل</div><div class="text-lg font-bold" id="batVal3">--</div></div>' +
+            '</div>' +
+            '<div id="batteryVerdict" class="hidden"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="panel-history" class="panel hidden space-y-4">' +
+        '<div class="bg-gray-800 rounded-2xl p-4 space-y-3">' +
+          '<div class="flex justify-between items-center">' +
+            '<h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>' +
+            '<button id="btnClearHistory" class="text-xs text-red-400 hover:text-red-300 font-bold"><i class="fa-solid fa-trash"></i> مسح الكل</button>' +
+          '</div>' +
+          '<div id="historyContent"></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // === 3) ADD EXPORT BAR INSIDE FAULTS PANEL ===
+  var fp = document.getElementById('panel-faults');
+  if (fp && !document.getElementById('proExportBar')){
+    fp.insertAdjacentHTML('beforeend',
+      '<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden fade-in">' +
+        '<div class="flex items-center justify-between gap-3 flex-wrap">' +
+          '<div class="font-bold text-emerald-300 text-sm"><i class="fa-solid fa-share-nodes"></i> شارك النتائج</div>' +
+          '<div class="flex gap-2">' +
+            '<button id="btnExportPDF" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> PDF</button>' +
+            '<button id="btnShareWA" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> واتساب</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // === 4) BIND TAB CLICKS FOR NEW PANELS ===
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.onclick = function(){
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('bg-blue-600','text-white'); t.classList.add('bg-gray-800','text-gray-400'); });
+      tab.classList.remove('bg-gray-800','text-gray-400'); tab.classList.add('bg-blue-600','text-white');
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.add('hidden'); });
+      var target = document.getElementById('panel-' + tab.dataset.tab);
+      if (target) target.classList.remove('hidden');
+      if (tab.dataset.tab === 'history') renderHistory();
+    };
+  });
+
+  // === 5) BIND BUTTONS ===
+  var b1 = document.getElementById('btnReadReadiness'); if (b1) b1.onclick = runReadiness;
+  var b2 = document.getElementById('btnBatteryTest'); if (b2) b2.onclick = runBatteryTest;
+  var b3 = document.getElementById('btnClearHistory'); if (b3) b3.onclick = clearHistory;
+  var b4 = document.getElementById('btnExportPDF'); if (b4) b4.onclick = exportPDF;
+  var b5 = document.getElementById('btnShareWA'); if (b5) b5.onclick = shareWhatsApp;
+
+  // === 6) HOOK INTO renderFaults TO SHOW EXPORT BAR + SAVE HISTORY ===
+  var origRender = window.renderFaults;
+  window.renderFaults = function(faults){
+    origRender(faults);
+    if (faults && faults.length > 0){
+      saveToHistory(faults);
+      var eb = document.getElementById('proExportBar');
+      if (eb) eb.classList.remove('hidden');
+    }
+  };
+
+  console.log('✅ Pro Tools loaded');
+}
+
+/* ============ READINESS MONITORS ============ */
+function parseMonitor(byte, bit){
+  var available = (byte & (1 << bit)) !== 0;
+  if (!available) return 'n/a';
+  var incomplete = (byte & (1 << (bit + 4))) !== 0;
+  return incomplete ? 'not-ready' : 'ready';
+}
+
+async function runReadiness(){
+  var c = document.getElementById('readinessContent'); if (!c) return;
+
+  if (window.isDemo){
+    renderReadiness({mil:true, dtcCount:3,
+      continuous:{misfire:'not-ready', fuel:'ready', components:'ready'},
+      nonContinuous:{catalyst:'ready', heatedCat:'n/a', evap:'not-ready', o2:'ready', o2Heater:'ready', egr:'n/a'}
+    });
+    return;
+  }
+  if (!window.isConnected){ c.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل بالسيارة</p>'; return; }
+
+  c.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
+  try{
+    var res = await window.sendCmd('01 01', 3500);
+    var bytes = window.parseHexBytes(res);
+    var idx = -1;
+    for (var i = 0; i < bytes.length - 5; i++){ if (bytes[i] === 0x41 && bytes[i+1] === 0x01){ idx = i; break; } }
+    if (idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
+    var A = bytes[idx+2], B = bytes[idx+3], C = bytes[idx+4];
+    renderReadiness({
+      mil: (A & 0x80) !== 0, dtcCount: A & 0x7F,
+      continuous: {misfire: parseMonitor(B,0), fuel: parseMonitor(B,1), components: parseMonitor(B,2)},
+      nonContinuous: {catalyst: parseMonitor(C,0), heatedCat: parseMonitor(C,1), evap: parseMonitor(C,2), o2: parseMonitor(C,5), o2Heater: parseMonitor(C,6), egr: parseMonitor(C,7)}
+    });
+  } catch(e){ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>'; }
+}
+
+function renderReadiness(data){
+  var c = document.getElementById('readinessContent'); if (!c) return;
+  var milClass = data.mil ? 'bg-red-600' : 'bg-green-600';
+  var milText = data.mil ? '🚨 لمبة الأعطال مضاءة' : '✅ لمبة الأعطال مطفأة';
+  function ri(name, status){
+    var cls = status === 'ready' ? 'bg-green-600' : status === 'not-ready' ? 'bg-red-600' : 'bg-gray-600';
+    var label = status === 'ready' ? 'جاهز ✅' : status === 'not-ready' ? 'غير جاهز ⚠️' : 'غير مدعوم';
+    return '<div class="flex justify-between items-center p-2 bg-gray-900 rounded-lg mb-1"><span class="text-xs">' + name + '</span><span class="text-[10px] px-2 py-1 rounded ' + cls + ' text-white font-bold">' + label + '</span></div>';
+  }
+  var html = '<div class="' + milClass + ' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">' + milText + '</span><span class="text-sm">أعطال: ' + data.dtcCount + '</span></div>';
+  html += '<div class="mb-3"><div class="text-xs font-bold text-blue-300 mb-2">🔵 المراقبة المستمرة</div>';
+  html += ri('الاشتعال المتقطع', data.continuous.misfire) + ri('نظام الوقود', data.continuous.fuel) + ri('المكونات', data.continuous.components) + '</div>';
+  html += '<div><div class="text-xs font-bold text-purple-300 mb-2">🟣 المراقبة غير المستمرة</div>';
+  html += ri('الكتلايزر', data.nonContinuous.catalyst) + ri('الكتلايزر المسخن', data.nonContinuous.heatedCat) + ri('نظام EVAP', data.nonContinuous.evap) + ri('حساس O2', data.nonContinuous.o2) + ri('سخان O2', data.nonContinuous.o2Heater) + ri('صمام EGR', data.nonContinuous.egr) + '</div>';
+  c.innerHTML = html;
+}
+
+/* ============ BATTERY TEST ============ */
+async function runBatteryTest(){
+  var verdict = document.getElementById('batteryVerdict');
+  var btn = document.getElementById('btnBatteryTest'); if (!btn) return;
+  var orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> جاري القياس...'; btn.disabled = true;
+  if (verdict) verdict.classList.add('hidden');
+
+  try{
+    var v1, v2, v3;
+    if (window.isDemo){
+      v1 = 12.5 + Math.random() * 0.3; setBatStage(1, v1, 12.4, 12.8);
+      await new Promise(r => setTimeout(r, 1200));
+      v2 = 14.0 + Math.random() * 0.5; setBatStage(2, v2, 13.8, 14.8);
+      await new Promise(r => setTimeout(r, 1200));
+      v3 = 13.6 + Math.random() * 0.4; setBatStage(3, v3, 13.5, 14.8);
+    } else if (window.isConnected){
+      var res = await window.sendCmd('01 42', 2000);
+      var bytes = window.parseHexBytes(res);
+      var v = null;
+      for (var i = 0; i < bytes.length - 3; i++){
+        if (bytes[i] === 0x41 && bytes[i+1] === 0x42){ v = ((bytes[i+2]*256) + bytes[i+3]) / 1000; break; }
+      }
+      if (!v) throw new Error('لا يمكن قراءة الجهد من السيارة');
+      v1 = v2 = v3 = v;
+      setBatStage(1, v, 12.4, 12.8); setBatStage(2, v, 13.8, 14.8); setBatStage(3, v, 13.5, 14.8);
+    } else { throw new Error('غير متصل بالسيارة'); }
+
+    var allGood = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v2 <= 14.8 && v3 >= 13.5;
+    var anyBad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
+    var cls = allGood ? 'bg-green-600' : anyBad ? 'bg-red-600' : 'bg-yellow-600';
+    var txt = allGood ? '✅ نظام الشحن ممتاز' : anyBad ? '❌ نظام الشحن تالف — افحص الدينامو' : '⚠️ يحتاج فحص';
+    if (verdict){ verdict.className = 'p-3 rounded-xl text-white font-bold text-center ' + cls; verdict.textContent = txt; verdict.classList.remove('hidden'); }
+  } catch(e){
+(),
+    if (verdict){ verdict.className = '      faults:p-3 rounded-xl faults bg-red-600 text-white font-bold text.map-center'; verdict.textContent = '⚠️ ' + e.message; verdict.classList.remove('(functionhidden'); }
+  } finally { btn.innerHTML = orig; btn.disabled = false; }
+}
+
+function setBatStage(stage, v, min, max){
+  var box = document.getElementById('bat' + stage);
+  var val = document.getElementById('batVal' + stage);
+  if (!box || !val) return;
+  val.textContent = v.toFixed(2) + 'V';
+  var status = v >= min && v <= max ? 'good' : (v >= min - 0.5 && v <= max + 0.5 ? 'warn' : 'bad');
+  var colors = {good:'#10b981', warn:'#f59e0b', bad:'#ef4444'};
+  box.style.borderColor = colors[status];
+  box.style.boxShadow = '0 0 12px ' + colors[status] + '40';
+  val.style.color = colors[status];
+}
+
+/* ============ HISTORY ============ */
+function saveToHistory(faults){
+  try{
+    var h = JSON.parse(localStorage.getItem('checkdiga_history') || '[]');
+    var entry = {
+      date: new Date().toISOString(f){ return {code: f.code, type: f.type, system: f.system}; }),
+      vin: document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-'
+    };
+    h.unshift(entry);
+    h = h.slice(0, 20);
+    localStorage.setItem('checkdiga_history', JSON.stringify(h));
+  } catch(e){}
+}
+
+function renderHistory(){
+  var c = document.getElementById('historyContent'); if (!c) return;
+  var h = JSON.parse(localStorage.getItem('checkdiga_history') || '[]');
+  if (h.length === 0){ c.innerHTML = '<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد. سيتم الحفظ تلقائياً عند كل فحص.</p>'; return; }
+  var html = '<div class="space-y-2">';
+  h.forEach(function(entry){
+    var d = new Date(entry.date);
+    var dateStr = d.toLocaleDateString('ar') + ' — ' + d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+    html += '<div class="bg-gray-900 rounded-xl p-3 border-r-4 border-blue-500">';
+    html += '<div class="flex justify-between items-center mb-2"><span class="text-xs text-gray-400">🕒 ' + dateStr + '</span><span class="text-xs text-blue-400 font-bold">' + entry.faults.length + ' عطل</span></div>';
+    html += '<div class="flex flex-wrap gap-1">';
+    entry.faults.slice(0, 10).forEach(function(f){ html += '<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">' + f.code + '</span>'; });
+    if (entry.faults.length > 10) html += '<span class="text-xs text-gray-500">+' + (entry.faults.length - 10) + '</span>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function clearHistory(){
+  if (!confirm('حذف السجل بالكامل؟')) return;
+  localStorage.removeItem('checkdiga_history');
+  renderHistory();
+}
+
+/* ============ PDF REPORT ============ */
+function exportPDF(){
+  var faults = window.lastFaults || [];
+  if (faults.length === 0){ alert('لا توجد أعطال'); return; }
+  var date = new Date().toLocaleString('ar');
+  var vin = document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-';
+  var diag = window.runDiagnosis ? window.runDiagnosis(faults.map(function(f){ return f.code; })) : [];
+  var score = window.calcHealth ? window.calcHealth(faults, diag) : '-';
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>تقرير CheckDiga Pro</title>';
+  html += '<style>body{font-family:Cairo,sans-serif;padding:30px;color:#1e293b;max-width:800px;margin:auto} h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px} .score{background:' + (score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444') + ';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0} .fault{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444} .code{font-family:monospace;font-weight:bold;color:#b91c1c;font-size:16px} .meta{background:#f8fafc;padding:15px;border-radius:10px;margin:15px 0} .footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px;padding-top:15px;border-top:1px dashed #cbd5e1}</style></head><body>';
+  html += '<h1>🔧 تقرير فحص CheckDiga Pro</h1>';
+  html += '<div class="meta"><strong>📅 التاريخ:</strong> ' + date + '<br><strong>🚗 VIN:</strong> ' + vin + '</div>';
+  html += '<div class="score">صحة السيارة: ' + score + '/100</div>';
+  html += '<h2>🔴 الأعطال (' + faults.length + ')</h2>';
+  faults.forEach(function(f, i){
+    var info = window.getFaultInfo(f.code);
+    html += '<div class="fault"><span class="code">#' + (i+1) + ' — ' + f.code + '</span><br>' + info.title + '</div>';
+  });
+  if (diag.length > 0){
+    html += '<h2>🧠 التشخيص الذكي</h2>';
+    diag.forEach(function(d){
+      html += '<div style="background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0"><strong>' + d.title + ' (' + d.confidence + '%)</strong><br><span style="color:#475569;font-size:12px">' + d.description + '</span></div>';
+    });
+  }
+  html += '<div class="footer">CheckDiga Pro 2026 — صُنع في الجزائر<br>' + window.location.origin + '</div>';
+  html += '</body></html>';
+  var w = window.open('', '_blank');
+  if (!w){ alert('اسمح بالنوافذ المنبثقة للطباعة'); return; }
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 600);
+}
+
+/* ============ WHATSAPP ============ */
+function shareWhatsApp(){
+  var faults = window.lastFaults || [];
+  if (faults.length === 0){ alert('لا توجد أعطال للمشاركة'); return; }
+  var vin = document.getElementById('vinResult') ? document.getElementById('vinResult').textContent : '-';
+  var diag = window.runDiagnosis ? window.runDiagnosis(faults.map(function(f){ return f.code; })) : [];
+  var score = window.calcHealth ? window.calcHealth(faults, diag) : '-';
+  var msg = '*🔧 تقرير فحص - CheckDiga Pro*\n----------------\n\n';
+  msg += '🚗 VIN: ' + vin + '\n';
+  msg += '📊 صحة السيارة: ' + score + '/100\n\n';
+  msg += '*الأعطال (' + faults.length + '):*\n';
+  faults.forEach(function(f, i){
+    var info = window.getFaultInfo(f.code);
+    msg += (i+1) + '. *' + f.code + '* — ' + info.title + '\n';
+  });
+  if (diag.length > 0){
+    msg += '\n*🧠 التشخيص:*\n';
+    diag.forEach(function(d){ msg += '• ' + d.title + ' (' + d.confidence + '%)\n'; });
+  }
+  msg += '\n----------------\n' + window.location.origin;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ============ CACHE (INSTANT LOAD) ============ */
+var CACHE_KEY = 'checkdiga_db_cache_v2';
+var CACHE_TIME_KEY = 'checkdiga_db_time_v2';
+var CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+function saveDatabaseToCache(){
+  try{
+    if (typeof window.DTC_DATABASE === 'undefined') return;
+    var toSave = {};
+    var count = 0;
+    for (var k in window.DTC_DATABASE){
+      if (window.DTC_DATABASE.hasOwnProperty(k)){ toSave[k] = window.DTC_DATABASE[k]; count++; }
+    }
+    localStorage.setItem(CACHE_KEY, JSON.stringify(toSave));
+    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+    console.log('💾 Cache saved: ' + count + ' codes');
+  } catch(e){ console.warn('Cache save failed (size limit?):', e.message); }
+}
+
+function loadDatabaseFromCache(){
+  try{
+    var cached = localStorage.getItem(CACHE_KEY);
+    var time = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0');
+    if (!cached || (Date.now() - time) > CACHE_MAX_AGE) return 0;
+    var parsed = JSON.parse(cached);
+    var count = 0;
+    for (var k in parsed){
+      if (parsed.hasOwnProperty(k) && !window.DTC_DATABASE[k]){ window.DTC_DATABASE[k] = parsed[k]; count++; }
+    }
+    return count;
+  } catch(e){ return 0; }
+}
+
+// Try cache on load
+window.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    if (typeof window.DTC_DATABASE === 'undefined') return;
+    var loaded = loadDatabaseFromCache();
+    if (loaded > 0){
+      if (window.buildDTCIndex) window.buildDTCIndex();
+      var total = Object.keys(window.DTC_DATABASE).length;
+      var e1 = document.getElementById('heroCount'); if (e1) e1.textContent = total.toLocaleString('en-US');
+      var e2 = document.getElementById('statCodes'); if (e2) e2.textContent = total.toLocaleString('en-US');
+      if (window.logSuccess) window.logSuccess('⚡ تحميل فوري من الكاش: ' + total + ' كود');
+    }
+  }, 1000);
+});
+
+// Save cache after full load
+var cacheCheckInterval = setInterval(function(){
+  if (window.OBDEX_LOADED){
+    clearInterval(cacheCheckInterval);
+    saveDatabaseToCache();
+  }
+}, 3000);
+setTimeout(function(){ clearInterval(cacheCheckInterval); }, 180000);
 </script>
 </body>
 </html>
