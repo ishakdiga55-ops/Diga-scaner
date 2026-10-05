@@ -10,7 +10,6 @@
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=*, bluetooth=*">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات احترافية - 9500+ كود">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -64,6 +63,7 @@ body{font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent;-web
 .code-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .stat-box{background:linear-gradient(145deg,rgba(30,41,59,.8),rgba(15,23,42,.9));border:1px solid #334155;border-radius:16px;padding:14px;text-align:center;transition:all .3s}
 .stat-box:hover{border-color:#3b82f6;transform:translateY(-2px)}
+.cache-badge{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:800}
 body.light-mode{background:#f1f5f9!important;color:#0f172a!important}
 body.light-mode .bg-gray-900{background:#fff!important}
 body.light-mode .bg-gray-800{background:#f8fafc!important;border-color:#e2e8f0!important}
@@ -90,6 +90,7 @@ body.light-mode .recent-item{background:#e2e8f0!important;color:#475569}
       <span class="pro-badge">PRO</span>
       <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
       <span id="heroCount">110</span>+ كود عطل محدّث
+      <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
     </div>
     <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mt-1">الآن</span></h1>
     <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">أداة فحص احترافية مع بحث بالأعراض — بدون تحميل، بدون تسجيل</p>
@@ -345,6 +346,63 @@ function checkRateLimit(action, max){
 </script>
 
 <script>
+/* ============ CACHE SYSTEM ============ */
+(function(){
+  var CK = 'checkdiga_db_cache_v1';
+  var CT = 'checkdiga_db_time_v1';
+  var CV = 'checkdiga_db_ver_v1';
+  var VER = 1;
+  var MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+  window.tryLoadCache = function(){
+    try{
+      if (parseInt(localStorage.getItem(CV) || '0', 10) !== VER) return false;
+      var cached = localStorage.getItem(CK);
+      var t = parseInt(localStorage.getItem(CT) || '0', 10);
+      if (!cached || (Date.now() - t) > MAX_AGE) return false;
+      var parsed = JSON.parse(cached);
+      var added = 0;
+      for (var k in parsed){
+        if (parsed.hasOwnProperty(k) && !DTC_DATABASE[k]){ DTC_DATABASE[k] = parsed[k]; added++; }
+      }
+      if (added === 0) return false;
+      OBDEX_LOADED = true;
+      buildDTCIndex();
+      var total = Object.keys(DTC_DATABASE).length;
+      updateDTCCount(total);
+      var banner = document.getElementById('dbStatus'); if (banner) banner.style.display = 'none';
+      var badge = document.getElementById('cacheBadge'); if (badge) badge.classList.remove('hidden');
+      logSuccess('⚡ تحميل فوري من الكاش: ' + total + ' كود');
+      return true;
+    }catch(e){ console.warn('Cache load failed:', e.message); return false; }
+  };
+
+  window.saveCache = function(){
+    try{
+      if (!OBDEX_LOADED) return;
+      var json = JSON.stringify(DTC_DATABASE);
+      if (json.length > 8 * 1024 * 1024){ console.warn('Cache too large'); return; }
+      localStorage.setItem(CK, json);
+      localStorage.setItem(CT, String(Date.now()));
+      localStorage.setItem(CV, String(VER));
+      var mb = (json.length / 1024 / 1024).toFixed(2);
+      logSuccess('💾 تم حفظ الكاش (' + mb + ' MB) — تحميل فوري في المرة القادمة');
+    }catch(e){
+      if (e.name === 'QuotaExceededError' || /quota/i.test(e.message)){
+        logInfo('⚠️ مساحة التخزين ممتلئة — لن يُحفظ الكاش');
+        try{ localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV); }catch(_){}
+      } else { console.warn('Cache save failed:', e.message); }
+    }
+  };
+
+  window.clearCheckdigaCache = function(){
+    localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV);
+    alert('✅ تم حذف الكاش. حدّث الصفحة.');
+  };
+})();
+</script>
+
+<script>
 var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 var ua = navigator.userAgent;
@@ -528,6 +586,7 @@ async function fetchOneYaml(filename){
 }
 async function loadFullDatabase(){
   if(OBDEX_LOADED) return;
+  if(tryLoadCache()) return;
   if(!window.jsyaml) return;
   var banner = document.getElementById('dbStatus');
   var bannerText = document.getElementById('dbStatusText');
@@ -554,6 +613,7 @@ async function loadFullDatabase(){
   updateDTCCount(total);
   if(banner) banner.style.display = 'none';
   logSuccess('تم تحميل ' + totalAdded + ' كود — الإجمالي: ' + total);
+  saveCache();
 }
 function updateDTCCount(n){
   var f = n.toLocaleString('en-US');
@@ -859,34 +919,12 @@ function showDTCDetails(codeOrKey){
   content.innerHTML = html;
   modal.classList.remove('hidden');
 }
-window.copyDetailCode = function(){
-  if(!currentDetailCode) return;
-  if(navigator.clipboard) navigator.clipboard.writeText(currentDetailCode);
-  alert('تم نسخ الكود: ' + currentDetailCode);
-};
-window.shareDetailCode = function(){
-  if(!currentDetailCode) return;
-  var info = getFaultInfo(currentDetailCode);
-  var text = '*كود عطل: ' + currentDetailCode + '*\n' + (info.title || '') + '\n\n';
-  if(info.desc) text += info.desc + '\n\n';
-  text += 'تفاصيل أكثر: ' + window.location.origin + window.location.pathname;
-  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-};
-window.showRelatedCode = function(code){
-  var modal = document.getElementById('dtcDetailModal');
-  if(modal) modal.classList.add('hidden');
-  var clean = sanitizeCode(code);
-  setTimeout(function(){ showDTCDetails(clean); }, 100);
-};
+window.copyDetailCode = function(){ if(!currentDetailCode) return; if(navigator.clipboard) navigator.clipboard.writeText(currentDetailCode); alert('تم نسخ الكود: ' + currentDetailCode); };
+window.shareDetailCode = function(){ if(!currentDetailCode) return; var info = getFaultInfo(currentDetailCode); var text = '*كود عطل: ' + currentDetailCode + '*\n' + (info.title || '') + '\n\n'; if(info.desc) text += info.desc + '\n\n'; text += 'تفاصيل أكثر: ' + window.location.origin + window.location.pathname; window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank'); };
+window.showRelatedCode = function(code){ var modal = document.getElementById('dtcDetailModal'); if(modal) modal.classList.add('hidden'); var clean = sanitizeCode(code); setTimeout(function(){ showDTCDetails(clean); }, 100); };
 
 /* OBD2 CORE */
-function handleNotification(e){
-  recvBuf += new TextDecoder().decode(e.target.value);
-  if(recvBuf.indexOf('>') >= 0 && curResolve){
-    clearTimeout(curTimeout); curTimeout = null;
-    var r = recvBuf; recvBuf = ''; var res = curResolve; curResolve = null; res(r);
-  }
-}
+function handleNotification(e){ recvBuf += new TextDecoder().decode(e.target.value); if(recvBuf.indexOf('>') >= 0 && curResolve){ clearTimeout(curTimeout); curTimeout = null; var r = recvBuf; recvBuf = ''; var res = curResolve; curResolve = null; res(r); } }
 function isBadResponse(r){ if(!r) return true; var t = String(r).trim(); if(t === '' || t === '>') return true; if(/NO DATA|UNABLE TO CONNECT|ERROR|BUS INIT/i.test(r)) return true; return false; }
 function sendCmd(cmd, timeout, retries){
   timeout = timeout || 3000; retries = retries || 1;
@@ -1247,10 +1285,7 @@ function toggleTheme(){ var c = localStorage.getItem('checkdiga_theme') || 'dark
 function toggleAI(){
   var m = document.getElementById('aiModal'); if(!m) return;
   var key = localStorage.getItem('checkdiga_gemini_key') || "";
-  if(!key){
-    var newKey = prompt('الصق مفتاح Gemini API:', '');
-    if(newKey && newKey.length > 20){ localStorage.setItem('checkdiga_gemini_key', newKey); GEMINI_API_KEY = newKey; GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey; } else return;
-  }
+  if(!key){ var newKey = prompt('الصق مفتاح Gemini API:', ''); if(newKey && newKey.length > 20){ localStorage.setItem('checkdiga_gemini_key', newKey); GEMINI_API_KEY = newKey; GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + newKey; } else return; }
   m.classList.toggle('hidden');
 }
 function addAIMessage(role, text){
