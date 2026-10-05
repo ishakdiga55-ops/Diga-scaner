@@ -209,7 +209,20 @@ body.light-mode .text-white{color:#0f172a!important}
 </div>
 </div>
 
-<script type="module">
+<script>
+window.addEventListener('error', function(e){
+  var banner = document.getElementById('dbStatus');
+  if(banner){
+    banner.style.display = 'block';
+    banner.style.background = 'red';
+    var txt = document.getElementById('dbStatusText');
+    if(txt) txt.textContent = 'خطأ: ' + (e.message || 'مجهول') + ' (سطر ' + (e.lineno || '?') + ')';
+  }
+  console.error('JS Error:', e.message, 'line', e.lineno);
+});
+</script>
+
+<script>
 var GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || "";
 var GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY;
 
@@ -278,12 +291,10 @@ var DTC_DATABASE = {
 "P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM Error",severity:"high"},
 "P0606":{zone:"electronics",title:"PCM معالج",title_en:"PCM Processor Fault",severity:"critical"},
 "P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission MIL Request",severity:"high"},
-"P0715":{zone:"transmission",title:"حساس سرعة الدخل",title_en:"Input Speed Sensor",sever '';
-ity:"high"},
-"P     0720":{zone:"trans returnmission",title:"حساس سرعة الخ '';
-رج",title_en:"Output Speed Sensor   ",severity:"high"},
+"P0715":{zone:"transmission",title:"حساس سرعة الدخل",title_en:"Input Speed Sensor",severity:"high"},
+"P0720":{zone:"transmission",title:"حساس سرعة الخرج",title_en:"Output Speed Sensor",severity:"high"},
 "P0730":{zone:"transmission",title:"نسبة تروس",title_en:"Incorrect Gear Ratio",severity:"critical"},
-"P0740":{zone:"transmission",title }).:"Torque Converter",title_en:"Torque Converter Circuit",severity:"high"},
+"P0740":{zone:"transmission",title:"Torque Converter",title_en:"Torque Converter Circuit",severity:"high"},
 "P0750":{zone:"transmission",title:"Shift Solenoid A",title_en:"Shift Solenoid A",severity:"high"},
 "P0755":{zone:"transmission",title:"Shift Solenoid B",title_en:"Shift Solenoid B",severity:"high"},
 "P0A80":{zone:"electronics",title:"استبدل HV",title_en:"Replace HV Battery",severity:"critical"},
@@ -321,34 +332,25 @@ function convertOBDexItem(item){
   if(!item || !item.code) return null;
   var code = String(item.code).toUpperCase().trim();
   if(!code || code === 'P0000') return null;
-
   var titleAr = (item.title && item.title.ar) ? item.title.ar : '';
   var titleEn = (item.title && item.title.en) ? item.title.en : code;
-
   var descAr = '', descEn = '';
   if(item.description){
-    if(typeof item.description === 'object'){
-      descAr = item.description.ar || '';
-      descEn = item.description.en || '';
-    } else { descEn = String(item.description); }
+    if(typeof item.description === 'object'){ descAr = item.description.ar || ''; descEn = item.description.en || ''; }
+    else { descEn = String(item.description); }
   }
-
   var symptoms = [];
   if(Array.isArray(item.symptoms)){
-    symptoms = item.symptoms.map(function(s){
-      if(s && typeof s === 'object') return s.ar || s.en || '';
-      return String(s);
-    }).filter(Boolean);
+    symptoms = item.symptoms.map(function(s){ if(s && typeof s === 'object') return s.ar || s.en || ''; return String(s); }).filter(Boolean);
   }
-
   var causes = [];
   if(Array.isArray(item.common_causes)){
     causes = item.common_causes.map(function(c){
       if(typeof c === 'string') return c;
-      if(c && c.label) return c.label.ar || c.label.en ||filter(Boolean);
+      if(c && c.label) return c.label.ar || c.label.en || '';
+      return '';
+    }).filter(Boolean);
   }
-
-  // معلومات الإصلاح — بدون تكلفة
   var repair = {};
   if(item.repair){
     if(item.repair.difficulty) repair.difficulty = String(item.repair.difficulty).toLowerCase();
@@ -358,15 +360,12 @@ function convertOBDexItem(item){
       repair.hoursMax = item.repair.estimated_hours[1];
     }
   }
-
   var flags = item.flags || {};
   var related = Array.isArray(item.related_codes) ? item.related_codes : [];
   var sources = Array.isArray(item.sources) ? item.sources : [];
-
   var sev = 'medium';
   if(repair.difficulty === 'hard') sev = 'high';
   else if(repair.difficulty === 'easy') sev = 'low';
-
   return {
     zone: mapCategory(item.category),
     title: titleAr || titleEn,
@@ -410,7 +409,7 @@ async function loadFullDatabase(){
   if(!window.jsyaml) return;
   var banner = document.getElementById('dbStatus');
   var bannerText = document.getElementById('dbStatusText');
-  if(banner) banner.style.display = 'block';
+  if(banner){ banner.style.display = 'block'; banner.style.background = 'linear-gradient(90deg,#1e40af,#7c3aed)'; }
   var totalAdded = 0;
   for(var f=0; f<OBDEX_FILES.length; f++){
     if(bannerText) bannerText.textContent = 'جاري تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + OBDEX_FILES.length + ')...';
@@ -592,10 +591,8 @@ function showDTCDetails(codeOrKey){
   var modal = document.getElementById('dtcDetailModal');
   var content = document.getElementById('dtcDetailContent');
   if(!modal||!content) return;
-
   var sevMap = {critical:{bg:'#dc2626',label:'حرج'},high:{bg:'#ef4444',label:'خطير'},medium:{bg:'#f59e0b',label:'متوسط'},low:{bg:'#10b981',label:'منخفض'}};
   var sev = sevMap[info.severity] || {bg:'#64748b',label:'غير محدد'};
-
   var html = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">' + displayCode + '</div>';
   html += '<div class="text-base font-bold text-white">' + (info.title || 'عطل غير معروف') + '</div>';
   if(info.title_en && info.title_en !== info.title) html += '<div class="text-xs text-gray-500 mt-1" dir="ltr">' + info.title_en + '</div>';
@@ -603,10 +600,7 @@ function showDTCDetails(codeOrKey){
   if(info.zone) html += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + info.zone + '</span>';
   if(info.brand) html += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">' + info.brand + '</span>';
   html += '</div></div>';
-
   if(info.desc) html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + info.desc + '</div></div>';
-
-  // معلومات الإصلاح — بدون تكلفة
   var r = info.repair || {};
   if(r.difficulty || r.hoursMin !== undefined || r.diyPossible !== undefined){
     html += '<div class="bg-gradient-to-br from-emerald-900/40 to-gray-900/60 rounded-xl p-4 mb-3 border border-emerald-700/50">';
@@ -625,7 +619,6 @@ function showDTCDetails(codeOrKey){
     }
     html += '</div></div>';
   }
-
   var f = info.flags || {};
   if(f.mil || f.emissions_relevant || f.limp_mode_possible){
     html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-gray-700"><div class="font-bold text-sm mb-3 text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> إشارات مهمة</div><div class="space-y-2 text-xs">';
@@ -634,7 +627,6 @@ function showDTCDetails(codeOrKey){
     if(f.limp_mode_possible) html += '<div class="flex items-center gap-2">🐢 <span class="text-gray-300">قد يدخل وضع الطوارئ</span></div>';
     html += '</div></div>';
   }
-
   function block(items, title, color){
     if(!items||!items.length) return '';
     return '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + color + ';"><div class="font-bold text-sm mb-2" style="color:' + color + ';">' + title + '</div><ul class="space-y-1.5">' + items.map(function(i){return '<li class="text-xs text-gray-300">• ' + i + '</li>';}).join('') + '</ul></div>';
@@ -642,7 +634,6 @@ function showDTCDetails(codeOrKey){
   html += block(info.symptoms, '🔴 الأعراض', '#ef4444');
   html += block(info.causes, '⚙️ الأسباب المحتملة', '#f59e0b');
   html += block(info.steps, '📋 خطوات الفحص', '#10b981');
-
   if(info.related && info.related.length){
     html += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-purple-700/50"><div class="font-bold text-sm mb-3 text-purple-300"><i class="fa-solid fa-link"></i> أكواد مرتبطة</div><div class="flex flex-wrap gap-2">';
     info.related.forEach(function(rc){
@@ -651,7 +642,6 @@ function showDTCDetails(codeOrKey){
     });
     html += '</div></div>';
   }
-
   if(info.sources && info.sources.length){
     html += '<div class="bg-gray-900/60 rounded-xl p-3 mb-3 border border-gray-700"><div class="text-[10px] text-gray-500 mb-2">📚 المصادر</div><div class="flex flex-wrap gap-2">';
     info.sources.slice(0,5).forEach(function(src){
@@ -660,7 +650,6 @@ function showDTCDetails(codeOrKey){
     });
     html += '</div></div>';
   }
-
   content.innerHTML = html;
   modal.classList.remove('hidden');
 }
