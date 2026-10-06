@@ -60,10 +60,7 @@
   .modal-backdrop{animation:fadeIn .2s ease}
   .modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-  /* ✅ تأثير وميض عند ظهور نتائج البحث */
-  #searchResults:not(:empty){
-    animation:highlightResults .5s ease;
-  }
+  #searchResults:not(:empty){animation:highlightResults .5s ease;}
   @keyframes highlightResults {
     0% { background: rgba(59,130,246,.15); border-radius: 12px; }
     100% { background: transparent; }
@@ -148,7 +145,7 @@
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 </header>
 
-<!-- TABS (✅ بدون VIN) -->
+<!-- TABS -->
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
 <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
@@ -206,7 +203,7 @@
 </div>
 </div>
 
-<!-- PANEL: SEARCH (✅ النتائج مباشرة تحت حقل البحث) -->
+<!-- PANEL: SEARCH -->
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
@@ -214,7 +211,6 @@
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
 
-<!-- ✅ قسم النتائج مباشرة هنا -->
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
 <div id="searchResults"></div>
@@ -243,6 +239,7 @@
 <div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
 </div>
 </div>
+
 <!-- PANEL: FAVORITES -->
 <div id="panel-favorites" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -455,6 +452,7 @@ const SYMPTOMS_DB = [
 ];
 
 const POPULAR = ['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
+
 /* ============================================================
    3) BASIC DTC DATABASE
    ============================================================ */
@@ -484,10 +482,10 @@ const DTC_DATABASE = {
   "P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
   "P0230":{zone:"fuel",title:"مضخة الوقود",title_en:"Fuel Pump",severity:"high"},
   "P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
-  "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضع:"يفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
-  "P0301":{zone:"engine",title:"Misfire - أسطوانhighة 1",title_en:"Cylinder 1"},
- Misfire",severity:"high",causes:["بوجيه","كو يل"],symptoms:["اهتز "از"],steps:["بدل الكويل"]},
-P  "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
+  "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
+  "P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
+  "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
+  "P0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
   "P0304":{zone:"engine",title:"Misfire - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
   "P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crank Sensor",severity:"critical"},
   "P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor",severity:"high"},
@@ -773,6 +771,7 @@ function getInfo(c){
   if(v && v.length) return Object.assign({}, DTC_DATABASE[v[0]], {code:c});
   return { zone:'engine', title:'عطل غير معروف', title_en:'Unknown', desc:'', severity:'medium' };
 }
+
 /* ============================================================
    8) FAVORITES
    ============================================================ */
@@ -979,9 +978,9 @@ function dispHealth(f, d){
   if(!f || !f.length){ b.classList.add('hidden'); return; }
   const sc = calcHealth(f, d);
   let g, s, ds;
-  if(sc >= 90){ g='from-green- text500 to-emerald-600'; s='ممتاز-whiteة'; ds='لا توجد مشاكل تُذكر">'; }
-  else if(sc >= 75){'+ g='from-emerald-500escape to-green-600'; s='جيدة'; ds='أعطال بسيطة'; }
-  else if(sc >= 50){ g='from-amber-500 to-orange-600'; s='Htmlتحتاج صيانة'; ds='أعطال مهمة'; }
+  if(sc >= 90){ g='from-green-500 to-emerald-600'; s='ممتازة'; ds='لا توجد مشاكل تُذكر'; }
+  else if(sc >= 75){ g='from-emerald-500 to-green-600'; s='جيدة'; ds='أعطال بسيطة'; }
+  else if(sc >= 50){ g='from-amber-500 to-orange-600'; s='تحتاج صيانة'; ds='أعطال مهمة'; }
   else{ g='from-red-500 to-rose-600'; s='خطيرة'; ds='إصلاح فوري مطلوب'; }
   b.classList.remove('hidden');
   b.innerHTML = '<div class="bg-gradient-to-l '+g+' rounded-2xl p-4 text-white"><div class="flex justify-between items-center"><div><div class="text-sm font-bold">'+s+'</div><div class="text-xs opacity-90">'+ds+'</div></div><div class="text-4xl font-bold">'+sc+'<span class="text-base opacity-80">/100</span></div></div></div>';
@@ -1005,7 +1004,7 @@ function showDetail(cod){
   const sv = sm[info.severity] || {bg:'#64748b',l:'غير محدد'};
 
   let h = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">'+escapeHtml(cleanCode)+'</div>';
-  h += '<div class="text-base font-bold(info.title || 'عطل غير معروف')+'</div>';
+  h += '<div class="text-base font-bold text-white">'+escapeHtml(info.title || 'عطل غير معروف')+'</div>';
   if(info.title_en && info.title_en !== info.title) h += '<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
   h += '<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
   if(info.zone) h += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
@@ -1343,7 +1342,7 @@ function updConnUI(c){
 }
 
 /* ============================================================
-   15) PARSERS  (fixes: pDTCs & pDTCsUDS)
+   15) PARSERS
    ============================================================ */
 function pHex(txt){
   if(!txt) return [];
@@ -1621,7 +1620,7 @@ function stopDemo(){
 }
 
 /* ============================================================
-   18) SEARCH  (BY_PREFIX للبحث السريع)
+   18) SEARCH  (BY_PREFIX)
    ============================================================ */
 let sTimer = null;
 let recentTimer = null;
@@ -1936,7 +1935,7 @@ function renderStats(){
 }
 
 /* ============================================================
-   25) CHART (Live Data)
+   25) CHART
    ============================================================ */
 function initChart(){
   if(chartInstance) return;
