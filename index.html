@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات احترافية مع مساعد ذكي وبحث بالأعراض">
+<meta name="description" content="أداة فحص سيارات احترافية مع بحث بالأعراض">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -60,6 +60,14 @@
   .modal-backdrop{animation:fadeIn .2s ease}
   .modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+  /* ✅ تأثير وميض عند ظهور نتائج البحث */
+  #searchResults:not(:empty){
+    animation:highlightResults .5s ease;
+  }
+  @keyframes highlightResults {
+    0% { background: rgba(59,130,246,.15); border-radius: 12px; }
+    100% { background: transparent; }
+  }
   body.light-mode .bg-gray-900{background:#fff!important}
   body.light-mode .bg-gray-800{background:#f8fafc!important}
   body.light-mode .bg-gray-900\/60{background:rgba(248,250,252,.9)!important}
@@ -106,7 +114,7 @@
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">110</div><div class="text-[10px] text-gray-500">كود</div></div>
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">AI</div><div class="text-[10px] text-gray-500">ذكي</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">9K+</div><div class="text-[10px] text-gray-500">قاعدة كاملة</div></div>
   </div>
 </section>
 
@@ -140,7 +148,7 @@
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 </header>
 
-<!-- TABS -->
+<!-- TABS (✅ بدون VIN) -->
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
 <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
@@ -149,7 +157,6 @@
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="vin"><i class="fa-solid fa-barcode"></i> VIN</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
 </div>
 
@@ -199,13 +206,20 @@
 </div>
 </div>
 
-<!-- PANEL: SEARCH -->
+<!-- PANEL: SEARCH (✅ النتائج مباشرة تحت حقل البحث) -->
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
 <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل...">
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
+
+<!-- ✅ قسم النتائج مباشرة هنا -->
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
+<div id="searchResults"></div>
+</div>
+
 <div class="bg-gradient-to-br from-purple-900/40 to-gray-900/60 border border-purple-700/50 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold text-purple-300"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
 <div class="flex flex-wrap gap-2" id="symptomChips"></div>
@@ -228,12 +242,7 @@
 <h3 class="font-bold"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
 <div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
 </div>
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
-<div id="searchResults"></div>
 </div>
-</div>
-
 <!-- PANEL: FAVORITES -->
 <div id="panel-favorites" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -282,17 +291,6 @@
 </div>
 </div>
 
-<!-- PANEL: VIN -->
-<div id="panel-vin" class="panel hidden space-y-4">
-<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-barcode text-blue-400"></i> فك شيفرة VIN</h3>
-<input type="text" id="vinInput" maxlength="17" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-3 py-2.5 text-sm outline-none font-mono uppercase" placeholder="17 حرفاً">
-<button id="btnDecodeVIN" class="w-full bg-blue-600 text-white px-4 py-3 rounded-xl text-sm font-bold">فك الشيفرة</button>
-<div id="vinResult" class="text-center font-mono text-sm p-3 bg-gray-900 rounded-xl text-gray-400">لم يتم القراءة.</div>
-<div id="vinInfo"></div>
-</div>
-</div>
-
 <!-- PANEL: STATS -->
 <div id="panel-stats" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -302,43 +300,6 @@
 </div>
 </div>
 
-</div>
-
-<!-- AI BUTTON -->
-<button id="aiBtn" class="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 shadow-2xl flex items-center justify-center" title="المساعد الذكي"><i class="fa-solid fa-robot text-white text-xl"></i></button>
-
-<!-- AI MODAL -->
-<div id="aiModal" class="hidden fixed inset-0 z-50 bg-black/80 p-3 modal-backdrop">
-<div class="max-w-2xl mx-auto mt-4 bg-gray-900 rounded-3xl border-2 border-purple-500/50 flex flex-col modal-content" style="height:calc(100vh - 32px);max-height:700px">
-<div class="flex items-center justify-between p-4 border-b border-gray-700">
-<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"><i class="fa-solid fa-robot text-white"></i></div><div><div class="font-bold">المساعد الذكي</div><div class="text-[10px] text-green-400"><i class="fa-solid fa-circle text-[6px]"></i> متصل</div></div></div>
-<div class="flex gap-2">
-<button id="aiSettingsBtn" class="w-9 h-9 rounded-full bg-gray-700 text-white" title="الإعدادات"><i class="fa-solid fa-gear"></i></button>
-<button id="aiCloseBtn" class="w-9 h-9 rounded-full bg-red-600 text-white" title="إغلاق"><i class="fa-solid fa-times"></i></button>
-</div>
-</div>
-<div id="aiChat" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin" style="background:#0a0f1e">
-<div class="flex gap-2"><div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 text-gray-100 rounded-2xl p-3 text-sm max-w-[85%]">مرحباً! أنا مساعد CheckDiga. اسألني عن أي كود عطل أو عرض في سيارتك.</div></div>
-</div>
-<div class="p-3 border-t border-gray-700 flex gap-2">
-<input id="aiInput" type="text" placeholder="اكتب سؤالك..." class="flex-1 bg-gray-800 border-2 border-gray-700 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-purple-500">
-<button id="aiSendBtn" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white"><i class="fa-solid fa-paper-plane"></i></button>
-</div>
-</div>
-</div>
-
-<!-- API KEY MODAL -->
-<div id="keyModal" class="hidden fixed inset-0 z-[70] bg-black/80 p-4 modal-backdrop">
-<div class="max-w-md mx-auto mt-20 bg-gray-800 rounded-2xl p-5 modal-content">
-<h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-key text-amber-400"></i> مفتاح Gemini API</h3>
-<p class="text-xs text-gray-400 mb-3">أدخل مفتاحك الخاص من Google AI Studio. يُحفظ على جهازك فقط ولا يُرسل لأي خادم غير Google.</p>
-<input type="password" id="keyInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-amber-500 rounded-xl px-3 py-2.5 text-sm outline-none mb-3" placeholder="AIza...">
-<div class="flex gap-2">
-<button id="keySaveBtn" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl font-bold text-sm">حفظ</button>
-<button id="keyCancelBtn" class="flex-1 bg-gray-700 text-white py-2.5 rounded-xl font-bold text-sm">إلغاء</button>
-</div>
-<p class="text-[10px] text-gray-500 mt-3 text-center">احصل على مفتاح من: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">aistudio.google.com</a></p>
-</div>
 </div>
 
 <!-- DETAIL MODAL -->
@@ -352,7 +313,7 @@
 
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
-<p class="text-xs text-gray-500">أداة فحص سيارات مع مساعد ذكي</p>
+<p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
@@ -380,9 +341,9 @@ function fmtTime(d){ return new Date(d).toLocaleTimeString('ar',{hour:'2-digit',
 /* ============================================================
    1) CACHE SYSTEM
    ============================================================ */
-const CK='cd_db_v4', CT='cd_t_v4', CV='cd_v_v4', CVER=4, MAXAGE=7*24*60*60*1000;
+const CK='cd_db_v5', CT='cd_t_v5', CV='cd_v_v5', CVER=5, MAXAGE=7*24*60*60*1000;
 const HASCOMP = (typeof CompressionStream !== 'undefined');
-const OLD_KEYS = ['cd_db_v1','cd_db_v2','cd_db_v3','cd_t_v1','cd_t_v2','cd_t_v3','cd_v_v1','cd_v_v2','cd_v_v3'];
+const OLD_KEYS = ['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4'];
 
 function b2a(bytes){ let s=''; const c=8192; for(let i=0;i<bytes.length;i+=c) s+=String.fromCharCode.apply(null, bytes.subarray(i,i+c)); return btoa(s); }
 function a2b(b64){ const s=atob(b64); const b=new Uint8Array(s.length); for(let i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
@@ -442,11 +403,6 @@ window.clearCheckdigaCache = function(){
 /* ============================================================
    2) STATE
    ============================================================ */
-let GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || '';
-// ✅ FIX: موديل مستقر + المفتاح يُرسل في الهيدر لا URL
-const GEMINI_MODEL = 'gemini-2.0-flash';
-const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent';
-
 const ua = navigator.userAgent;
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 const isBluefy = /Bluefy/i.test(ua);
@@ -499,7 +455,6 @@ const SYMPTOMS_DB = [
 ];
 
 const POPULAR = ['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
-
 /* ============================================================
    3) BASIC DTC DATABASE
    ============================================================ */
@@ -529,10 +484,10 @@ const DTC_DATABASE = {
   "P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
   "P0230":{zone:"fuel",title:"مضخة الوقود",title_en:"Fuel Pump",severity:"high"},
   "P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
-  "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
-  "P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
-  "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
-  "P0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
+  "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضع:"يفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
+  "P0301":{zone:"engine",title:"Misfire - أسطوانhighة 1",title_en:"Cylinder 1"},
+ Misfire",severity:"high",causes:["بوجيه","كو يل"],symptoms:["اهتز "از"],steps:["بدل الكويل"]},
+P  "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
   "P0304":{zone:"engine",title:"Misfire - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
   "P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crank Sensor",severity:"critical"},
   "P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor",severity:"high"},
@@ -578,10 +533,19 @@ const DTC_DATABASE = {
 };
 
 /* ============================================================
-   4) OBDex LOADER
+   4) OBDex LOADER  (chunked — لا تجميد)
    ============================================================ */
 const OBDEX_BASE = "https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@main/data/generic/";
-const OBDEX_FILES = ["P0xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
+const OBDEX_FILES = [
+  "P0xxx_enriched.yaml",
+  "P1xxx_enriched.yaml",
+  "P2xxx_enriched.yaml",
+  "P3xxx_enriched.yaml",
+  "B0xxx_enriched.yaml",
+  "C0xxx_enriched.yaml",
+  "U0xxx_enriched.yaml",
+  "U3xxx_enriched.yaml"
+];
 let OBDEX_LOADED = false;
 let OBDEX_TIMEOUT = null;
 
@@ -641,6 +605,23 @@ async function fetchYaml(fn){
     return d;
   }catch(e){ return []; }
 }
+function processInChunks(items, fn, chunkSize){
+  chunkSize = chunkSize || 300;
+  return new Promise(resolve => {
+    let i = 0;
+    function next(){
+      const end = Math.min(i + chunkSize, items.length);
+      for(; i < end; i++) fn(items[i]);
+      if(i < items.length){
+        if(window.requestIdleCallback) requestIdleCallback(next, {timeout: 50});
+        else setTimeout(next, 0);
+      } else {
+        resolve();
+      }
+    }
+    next();
+  });
+}
 async function loadFullDatabase(){
   if(OBDEX_LOADED) return;
   if(await tryLoadCache()) return;
@@ -648,28 +629,25 @@ async function loadFullDatabase(){
   const b = $('dbStatus'), bt = $('dbStatusText');
   if(b) b.style.display = 'block';
   let added = 0;
+  const totalFiles = OBDEX_FILES.length;
   OBDEX_TIMEOUT = setTimeout(()=>{
     if(!OBDEX_LOADED){
       log('WARN: انتهت مهلة التحميل — نكمل بالقاعدة الأساسية');
       if(b) b.style.display='none';
     }
-  }, 20000);
-  for(let f=0; f<OBDEX_FILES.length; f++){
+  }, 45000);
+  for(let f=0; f<totalFiles; f++){
     if(OBDEX_LOADED) break;
-    if(bt) bt.textContent = 'جاري تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + OBDEX_FILES.length + ')...';
+    if(bt) bt.textContent = 'جاري تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + totalFiles + ')...';
     const items = await fetchYaml(OBDEX_FILES[f]);
     if(!items.length) continue;
-    for(let i=0; i<items.length; i+=500){
-      const bch = items.slice(i, i+500);
-      for(const item of bch){
-        const c = convItem(item);
-        if(!c) continue;
-        const cd = String(item.code).toUpperCase().trim();
-        if(DTC_DATABASE[cd]) continue;
-        DTC_DATABASE[cd] = c; added++;
-      }
-      await new Promise(r=>setTimeout(r,0));
-    }
+    await processInChunks(items, (item)=>{
+      const c = convItem(item);
+      if(!c) return;
+      const cd = String(item.code).toUpperCase().trim();
+      if(DTC_DATABASE[cd]) return;
+      DTC_DATABASE[cd] = c; added++;
+    });
   }
   clearTimeout(OBDEX_TIMEOUT);
   OBDEX_LOADED = true;
@@ -687,11 +665,11 @@ function updateDTCCount(n){
 }
 
 /* ============================================================
-   5) INDEXES  (✅ FIX: prefix map for fast search)
+   5) INDEXES  (BY_PREFIX للبحث السريع)
    ============================================================ */
 const BRAND_INDEX = new Map();
 let SEARCH_INDEX = [];
-const BY_PREFIX = new Map();   // ✅ الفهرسة بالبادئة
+const BY_PREFIX = new Map();
 
 function buildDTCIndex(){
   BRAND_INDEX.clear();
@@ -712,11 +690,10 @@ function buildSearchIndex(){
       code,
       cleanCode: code.replace(/_[A-Z]+$/,''),
       info,
-      titleLc: (info.title || '').toLowerCase(),
-      titleEnLc: (info.title_en || '').toLowerCase()
+      _titleLc: null,
+      _titleEnLc: null
     };
     SEARCH_INDEX.push(item);
-    // فهرسة البادئات 2..5 حرف
     const up = code.toUpperCase();
     for(let i=2; i<=5 && i<=up.length; i++){
       const k = up.slice(0,i);
@@ -724,6 +701,13 @@ function buildSearchIndex(){
       if(!bucket){ bucket = []; BY_PREFIX.set(k, bucket); }
       bucket.push(item);
     }
+  }
+  log('OK: فهرس — ' + SEARCH_INDEX.length + ' كود، ' + BY_PREFIX.size + ' بادئة');
+}
+function ensureTitleLc(item){
+  if(item._titleLc === null){
+    item._titleLc = (item.info.title || '').toLowerCase();
+    item._titleEnLc = (item.info.title_en || '').toLowerCase();
   }
 }
 buildDTCIndex();
@@ -749,7 +733,7 @@ function setStatus(s){
   else{ e.textContent='غير متصل'; e.className='text-sm font-bold text-red-400'; d.className='w-3 h-3 rounded-full bg-red-500'; }
 }
 function updGauge(arcId, needleId, valId, val, max){
-  const arc=$ (arcId), ndl=$ (needleId), ve=$ (valId);
+  const arc=$(arcId), ndl=$(needleId), ve=$(valId);
   if(!arc || !ndl || !ve) return;
   const cv = Math.max(0, Math.min(max, val));
   const p = cv / max;
@@ -763,7 +747,6 @@ function updAllG(v){
   updGauge('colArc','colNeedle','gauge-coolant', v.coolant||0, 130);
   updGauge('fuelArc','fuelNeedle','gauge-fuel', v.fuelLevel !== undefined ? v.fuelLevel : 75, 100);
 }
-// ✅ FIX: نميّز "غير معروف" عن "سليم"
 function resetSysGrid(){ $$('.sys-item').forEach(e=>e.classList.remove('good','bad','unknown')); }
 function updSysGrid(flt, scanned){
   resetSysGrid();
@@ -790,7 +773,6 @@ function getInfo(c){
   if(v && v.length) return Object.assign({}, DTC_DATABASE[v[0]], {code:c});
   return { zone:'engine', title:'عطل غير معروف', title_en:'Unknown', desc:'', severity:'medium' };
 }
-
 /* ============================================================
    8) FAVORITES
    ============================================================ */
@@ -830,7 +812,7 @@ function renderFav(){
 }
 
 /* ============================================================
-   9) RECENT
+   9) RECENT SEARCHES
    ============================================================ */
 function addRecent(q){
   q = String(q).trim().slice(0,30); if(!q) return;
@@ -997,9 +979,9 @@ function dispHealth(f, d){
   if(!f || !f.length){ b.classList.add('hidden'); return; }
   const sc = calcHealth(f, d);
   let g, s, ds;
-  if(sc >= 90){ g='from-green-500 to-emerald-600'; s='ممتازة'; ds='لا توجد مشاكل تُذكر'; }
-  else if(sc >= 75){ g='from-emerald-500 to-green-600'; s='جيدة'; ds='أعطال بسيطة'; }
-  else if(sc >= 50){ g='from-amber-500 to-orange-600'; s='تحتاج صيانة'; ds='أعطال مهمة'; }
+  if(sc >= 90){ g='from-green- text500 to-emerald-600'; s='ممتاز-whiteة'; ds='لا توجد مشاكل تُذكر">'; }
+  else if(sc >= 75){'+ g='from-emerald-500escape to-green-600'; s='جيدة'; ds='أعطال بسيطة'; }
+  else if(sc >= 50){ g='from-amber-500 to-orange-600'; s='Htmlتحتاج صيانة'; ds='أعطال مهمة'; }
   else{ g='from-red-500 to-rose-600'; s='خطيرة'; ds='إصلاح فوري مطلوب'; }
   b.classList.remove('hidden');
   b.innerHTML = '<div class="bg-gradient-to-l '+g+' rounded-2xl p-4 text-white"><div class="flex justify-between items-center"><div><div class="text-sm font-bold">'+s+'</div><div class="text-xs opacity-90">'+ds+'</div></div><div class="text-4xl font-bold">'+sc+'<span class="text-base opacity-80">/100</span></div></div></div>';
@@ -1023,7 +1005,7 @@ function showDetail(cod){
   const sv = sm[info.severity] || {bg:'#64748b',l:'غير محدد'};
 
   let h = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">'+escapeHtml(cleanCode)+'</div>';
-  h += '<div class="text-base font-bold text-white">'+escapeHtml(info.title || 'عطل غير معروف')+'</div>';
+  h += '<div class="text-base font-bold(info.title || 'عطل غير معروف')+'</div>';
   if(info.title_en && info.title_en !== info.title) h += '<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
   h += '<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
   if(info.zone) h += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
@@ -1355,13 +1337,13 @@ function updConnUI(c){
     cb.classList.add('hidden'); ub.classList.add('hidden'); db.classList.add('hidden'); x.classList.remove('hidden');
   }else{
     cb.classList.remove('hidden');
-    if(!hasSerial) ub.classList.add('hidden'); else ub.classList.remove('hidden');
+    if(!hasSerial || isIOS) ub.classList.add('hidden'); else ub.classList.remove('hidden');
     db.classList.remove('hidden'); x.classList.add('hidden');
   }
 }
 
 /* ============================================================
-   15) OBD2 PARSERS  (✅ FIX: pDTCs & pDTCsUDS)
+   15) PARSERS  (fixes: pDTCs & pDTCsUDS)
    ============================================================ */
 function pHex(txt){
   if(!txt) return [];
@@ -1400,7 +1382,6 @@ function pFuel(r){
     if(b[i] === 0x41 && b[i+1] === 0x2F) return Math.round(b[i+2] * 100 / 255);
   return 75;
 }
-/* ✅ FIX: إزالة شرط b1 !== 0 الذي كان يحذف أكواد حقيقية مثل P0001, P0010 */
 function pDTCs(bytes){
   const codes = [];
   for(let i=0;i<bytes.length-2;i++){
@@ -1422,12 +1403,11 @@ function pDTCs(bytes){
   }
   return codes;
 }
-/* ✅ FIX: تخطّي StatusAvailabilityMask + قراءة 4 بايت لكل DTC (DTC 3 + Status 1) */
 function pDTCsUDS(bytes){
   const codes = [];
   for(let i=0;i<bytes.length-3;i++){
     if(bytes[i] === 0x59 && bytes[i+1] === 0x02){
-      let p = i + 3;   // تخطّي 0x59 0x02 + Mask
+      let p = i + 3;
       while(p + 3 < bytes.length){
         const b1 = bytes[p], b2 = bytes[p+1];
         if(b1 === 0 && b2 === 0) break;
@@ -1511,7 +1491,6 @@ async function readDTCs(){
     if(!all.length){
       lastFaults = [];
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ السيارة سليمة</div>';
-      // ✅ FIX: نعلّم المحرك فقط كـ سليم لأننا فحصنا 7E0
       updSysGrid([], ['engine']);
       const eb = $('proExportBar'); if(eb) eb.classList.add('hidden');
       return;
@@ -1642,33 +1621,28 @@ function stopDemo(){
 }
 
 /* ============================================================
-   18) VIN DECODE
-   ============================================================ */
-const VIN_C = {'1':'USA','2':'كندا','3':'المكسيك','J':'اليابان','K':'كوريا','L':'الصين','S':'المملكة المتحدة','V':'فرنسا','W':'ألمانيا','Y':'السويد','Z':'إيطاليا'};
-const VIN_Y = {'A':'2010','B':'2011','C':'2012','D':'2013','E':'2014','F':'2015','G':'2016','H':'2017','J':'2018','K':'2019','L':'2020','M':'2021','N':'2022','P':'2023','R':'2024','S':'2025','T':'2026','V':'2027','W':'2028','X':'2029','Y':'2030','1':'2001','2':'2002','3':'2003','4':'2004','5':'2005','6':'2006','7':'2007','8':'2008','9':'2009'};
-const VIN_W = {'JHM':'Honda','JT2':'Toyota','JTD':'Toyota','JTH':'Lexus','JN1':'Nissan','WBA':'BMW','WDB':'Mercedes','WDD':'Mercedes','WVW':'Volkswagen','WAU':'Audi','1FA':'Ford','1FT':'Ford','1G1':'Chevrolet','1HG':'Honda','4T1':'Toyota','5N1':'Nissan','KMH':'Hyundai','KNA':'Kia','VF1':'Renault','VF3':'Peugeot','VF7':'Citroen','ZFA':'Fiat','SAV':'Land Rover','YV1':'Volvo'};
-
-function decVIN(v){
-  if(!v || v.length !== 17) return null;
-  v = v.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');
-  if(v.length !== 17) return null;
-  return { v, c: VIN_C[v[0]]||'?', m: VIN_W[v.substring(0,3)]||'?', y: VIN_Y[v[9]]||'?' };
-}
-function dispVIN(v){
-  const c = $('vinInfo'); if(!c) return;
-  const d = decVIN(v);
-  if(!d){ c.innerHTML = '<p class="text-red-400 text-center text-sm mt-3">VIN غير صحيح</p>'; return; }
-  c.innerHTML = '<div class="grid grid-cols-2 gap-2 text-sm mt-3"><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400">البلد</div><div class="font-bold">'+escapeHtml(d.c)+'</div></div><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400">الصانع</div><div class="font-bold text-xs">'+escapeHtml(d.m)+'</div></div><div class="bg-gray-900 rounded-xl p-3 text-center col-span-2"><div class="text-xs text-gray-400">السنة</div><div class="font-bold">'+escapeHtml(d.y)+'</div></div></div>';
-}
-
-/* ============================================================
-   19) SEARCH (✅ FIX: استخدام BY_PREFIX للبحث السريع)
+   18) SEARCH  (BY_PREFIX للبحث السريع)
    ============================================================ */
 let sTimer = null;
+let recentTimer = null;
 function initSearch(){
   const i = $('dtcSearchInput'); if(!i) return;
-  i.addEventListener('input', e=>{ clearTimeout(sTimer); sTimer = setTimeout(()=>searchDTC(e.target.value), 180); });
-  i.addEventListener('change', e=>{ if(e.target.value.trim().length >= 2) addRecent(e.target.value.trim()); });
+  i.addEventListener('input', e=>{
+    clearTimeout(sTimer);
+    sTimer = setTimeout(()=>searchDTC(e.target.value), 180);
+    clearTimeout(recentTimer);
+    recentTimer = setTimeout(()=>{
+      const v = e.target.value.trim();
+      if(v.length >= 3) addRecent(v);
+    }, 1500);
+  });
+  i.addEventListener('keydown', e=>{
+    if(e.key === 'Enter'){
+      clearTimeout(recentTimer);
+      const v = e.target.value.trim();
+      if(v.length >= 2){ addRecent(v); searchDTC(v); }
+    }
+  });
 }
 function searchDTC(q){
   const d = $('searchResults'); if(!d) return;
@@ -1677,39 +1651,38 @@ function searchDTC(q){
   const qq = raw.trim().toUpperCase();
   const ql = raw.trim().toLowerCase();
   if(qq.length < 2){ d.innerHTML=''; if(cEl) cEl.textContent=''; return; }
-
   if(!SEARCH_INDEX.length) buildSearchIndex();
 
-  // ✅ إذا كان الإدخال يشبه كود → استخدم الفهرسة بالبادئة (O(1))
   const looksLikeCode = /^[PCBU][0-9A-F]*$/i.test(qq);
   let candidates = null;
   if(looksLikeCode && qq.length <= 5){
     candidates = BY_PREFIX.get(qq);
     if(!candidates) candidates = [];
   }
-
   const m = [];
   const source = candidates || SEARCH_INDEX;
   for(let idx=0; idx<source.length && m.length<50; idx++){
     const item = source[idx];
     if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
-    const match = candidates ? true :
-      item.code.indexOf(qq) >= 0 ||
-      item.cleanCode.indexOf(qq) >= 0 ||
-      item.titleLc.indexOf(ql) >= 0 ||
-      item.titleEnLc.indexOf(ql) >= 0;
+    let match = false;
+    if(candidates) match = true;
+    else {
+      ensureTitleLc(item);
+      match = item.code.indexOf(qq) >= 0 ||
+              item.cleanCode.indexOf(qq) >= 0 ||
+              item._titleLc.indexOf(ql) >= 0 ||
+              item._titleEnLc.indexOf(ql) >= 0;
+    }
     if(match) m.push(item);
   }
-
-  // fallback لو البحث بالبادئة لم يرجع شيء
   if(!m.length && candidates){
     for(let idx=0; idx<SEARCH_INDEX.length && m.length<50; idx++){
       const item = SEARCH_INDEX[idx];
       if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
-      if(item.titleLc.indexOf(ql) >= 0 || item.titleEnLc.indexOf(ql) >= 0) m.push(item);
+      ensureTitleLc(item);
+      if(item._titleLc.indexOf(ql) >= 0 || item._titleEnLc.indexOf(ql) >= 0) m.push(item);
     }
   }
-
   if(!m.length){
     d.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';
     if(cEl) cEl.textContent = '';
@@ -1723,7 +1696,10 @@ function searchDTC(q){
   });
   h += '</div>';
   d.innerHTML = h;
-  if(cEl) cEl.textContent = '(' + m.length + ')';
+  if(cEl){
+    if(m.length === 50) cEl.innerHTML = '<span class="text-amber-400 font-bold">' + m.length + '+ نتيجة</span>';
+    else cEl.textContent = '(' + m.length + ' نتيجة)';
+  }
   d.querySelectorAll('[data-fav]').forEach(b=>{
     b.onclick = function(e){ e.stopPropagation(); toggleFav(b.dataset.fav); b.classList.toggle('active', isFav(b.dataset.fav)); };
   });
@@ -1733,7 +1709,7 @@ function searchDTC(q){
 }
 
 /* ============================================================
-   20) THEME
+   19) THEME
    ============================================================ */
 function applyTheme(){
   const t = localStorage.getItem('checkdiga_theme') || 'dark';
@@ -1753,91 +1729,7 @@ function toggleTheme(){
 }
 
 /* ============================================================
-   21) AI ASSISTANT  (✅ FIX: مفتاح في الهيدر + موديل مستقر)
-   ============================================================ */
-function openAI(){
-  const m = $('aiModal'); if(!m) return;
-  if(!GEMINI_API_KEY){ openKeyModal(); return; }
-  m.classList.remove('hidden');
-  setTimeout(()=>{ const i = $('aiInput'); if(i) i.focus(); }, 300);
-}
-function closeAI(){ const m = $('aiModal'); if(m) m.classList.add('hidden'); }
-function openKeyModal(){ const m = $('keyModal'); if(m) m.classList.remove('hidden'); }
-function closeKeyModal(){ const m = $('keyModal'); if(m) m.classList.add('hidden'); }
-function saveKey(){
-  const i = $('keyInput'); if(!i) return;
-  const v = i.value.trim();
-  if(!v || v.length < 20){ alert('المفتاح غير صالح'); return; }
-  GEMINI_API_KEY = v;
-  localStorage.setItem('checkdiga_gemini_key', v);
-  closeKeyModal();
-  openAI();
-  addAIMsg('ai', '✅ تم حفظ المفتاح. يمكنك الآن طرح أسئلتك.');
-}
-function addAIMsg(role, t){
-  const c = $('aiChat'); if(!c) return;
-  const d = document.createElement('div');
-  d.className = 'flex gap-2 ' + (role === 'user' ? 'justify-end' : '');
-  const s = escapeHtml(t);
-  if(role === 'user'){
-    d.innerHTML = '<div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-3 text-sm text-white max-w-[85%]">'+s+'</div>';
-  }else{
-    d.innerHTML = '<div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-gray-800 text-gray-100 rounded-2xl p-3 text-sm max-w-[85%] whitespace-pre-wrap">'+s+'</div>';
-  }
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-function addAITyping(){
-  const c = $('aiChat'); if(!c) return;
-  if($('aiTyping')) return;
-  const d = document.createElement('div');
-  d.id = 'aiTyping';
-  d.innerHTML = '<div class="bg-gray-800 text-gray-100 rounded-2xl p-3 text-sm"><span class="spinner"></span> يفكر...</div>';
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-function rmAITyping(){ const e = $('aiTyping'); if(e) e.remove(); }
-async function sendAI(){
-  const i = $('aiInput'); if(!i) return;
-  const q = i.value.trim().slice(0,500);
-  if(!q) return;
-  if(!GEMINI_API_KEY){ openKeyModal(); return; }
-  if(!checkRateLimit('ai', 5)){ addAIMsg('ai', '⚠️ تجاوزت الحد الأقصى (5 طلبات/دقيقة). حاول بعد قليل.'); return; }
-  i.value = '';
-  addAIMsg('user', q);
-  addAITyping();
-  try{
-    let ctx = 'أنت مساعد متخصص في أعطال السيارات (OBD2). أجب بالعربية بوضوح واختصار مع خطوات عملية.\n\n';
-    if(lastFaults.length) ctx += 'أعطال السيارة الحالية: ' + lastFaults.map(f=>f.code).join(', ') + '\n\n';
-    const body = {
-      contents: [{ role:'user', parts:[{ text: ctx + 'سؤال: ' + q }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
-    };
-    // ✅ FIX: المفتاح في الهيدر بدل URL
-    const r = await fetch(GEMINI_ENDPOINT, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-goog-api-key': GEMINI_API_KEY
-      },
-      body: JSON.stringify(body)
-    });
-    if(!r.ok){
-      const errTxt = await r.text().catch(()=> '');
-      throw new Error('HTTP ' + r.status + (errTxt ? ' — ' + errTxt.slice(0,120) : ''));
-    }
-    const d = await r.json();
-    const t = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'عذراً، لم أفهم.';
-    rmAITyping();
-    addAIMsg('ai', t);
-  }catch(e){
-    rmAITyping();
-    addAIMsg('ai', '⚠️ خطأ: ' + e.message);
-  }
-}
-
-/* ============================================================
-   22) READINESS
+   20) READINESS
    ============================================================ */
 function pMon(b, bit){
   if(!(b & (1<<bit))) return 'na';
@@ -1879,7 +1771,7 @@ function renderReadiness(d){
 }
 
 /* ============================================================
-   23) BATTERY TEST
+   21) BATTERY TEST
    ============================================================ */
 function runBatteryTest(){
   const btn = $('btnBatteryTest'); if(!btn) return;
@@ -1887,7 +1779,6 @@ function runBatteryTest(){
   btn.innerHTML = 'جاري القياس...';
   btn.disabled = true;
   const v = $('batteryVerdict'); if(v) v.classList.add('hidden');
-
   const setS = (n, val, mn, mx)=>{
     const b = $('bat'+n), el = $('batVal'+n);
     if(!b || !el) return;
@@ -1909,7 +1800,6 @@ function runBatteryTest(){
       v.classList.remove('hidden');
     }
   };
-
   if(isDemo){
     const x1 = 12.5 + Math.random()*0.3;
     setS(1, x1, 12.4, 12.8);
@@ -1939,7 +1829,7 @@ function runBatteryTest(){
 }
 
 /* ============================================================
-   24) HISTORY
+   22) HISTORY
    ============================================================ */
 function saveHist(faults){
   try{
@@ -1966,7 +1856,7 @@ function clearHist(){
 }
 
 /* ============================================================
-   25) EXPORT PDF
+   23) EXPORT PDF / WHATSAPP
    ============================================================ */
 function exportPDF(){
   const faults = lastFaults || [];
@@ -1987,7 +1877,6 @@ function exportPDF(){
     });
   }
   h += '<footer>CheckDiga Pro 2026 — صُنع في الجزائر 🇩🇿</footer></body></html>';
-
   const blob = new Blob([h], { type:'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const w = window.open(url, '_blank');
@@ -2016,7 +1905,7 @@ function shareWA(){
 }
 
 /* ============================================================
-   26) STATS
+   24) STATS
    ============================================================ */
 function renderStats(){
   const c = $('statsContent'); if(!c) return;
@@ -2027,7 +1916,6 @@ function renderStats(){
     if(sev[s] !== undefined) sev[s]++;
   }
   c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">كود في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ القاعدة الكاملة محمّلة':'⏳ تحميل...')+'</div></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">'+sev.critical+'</div><div class="text-[10px] text-gray-500">حرج</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">'+sev.high+'</div><div class="text-[10px] text-gray-500">خطير</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">'+sev.medium+'</div><div class="text-[10px] text-gray-500">متوسط</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">'+sev.low+'</div><div class="text-[10px] text-gray-500">منخفض</div></div></div>';
-
   const cv = $('statsChart');
   if(!cv || !window.Chart) return;
   if(statsChartInstance) statsChartInstance.destroy();
@@ -2048,7 +1936,7 @@ function renderStats(){
 }
 
 /* ============================================================
-   27) CHART
+   25) CHART (Live Data)
    ============================================================ */
 function initChart(){
   if(chartInstance) return;
@@ -2092,7 +1980,7 @@ function updChart(r, s){
 }
 
 /* ============================================================
-   28) TAB SWITCHING
+   26) TAB SWITCHING
    ============================================================ */
 function initTabs(){
   $$('.tab').forEach(tab=>{
@@ -2116,7 +2004,7 @@ function initTabs(){
 }
 
 /* ============================================================
-   29) INIT
+   27) INIT
    ============================================================ */
 function init(){
   cleanOldCache();
@@ -2126,7 +2014,6 @@ function init(){
   bind('usb-btn', connectUSB);
   bind('demo-btn', startDemo);
   bind('disconnect-btn', async ()=>{ stopDemo(); await handleDisc(); });
-  // ✅ FIX: تحقق من الاتصال قبل المسح
   bind('clear-btn', ()=>{
     if(!isConnected && !isDemo){ alert('اتصل بالسيارة أولاً'); return; }
     clearDTCs();
@@ -2142,12 +2029,6 @@ function init(){
       updFavCount();
     }
   });
-  bind('btnDecodeVIN', ()=>{
-    const v = $('vinInput').value.trim().toUpperCase().slice(0,17);
-    if(v.length !== 17){ alert('VIN يجب أن يكون 17 حرفاً'); return; }
-    $('vinResult').textContent = v;
-    dispVIN(v);
-  });
   bind('btnCloseDetail', ()=>$('dtcDetailModal').classList.add('hidden'));
   bind('btnReadReadiness', runReadiness);
   bind('btnBatteryTest', runBatteryTest);
@@ -2155,22 +2036,10 @@ function init(){
   bind('btnExportPDF', exportPDF);
   bind('btnShareWA', shareWA);
 
-  bind('aiBtn', openAI);
-  bind('aiCloseBtn', closeAI);
-  bind('aiSettingsBtn', ()=>{ const i = $('keyInput'); if(i) i.value = ''; openKeyModal(); });
-  bind('aiSendBtn', sendAI);
-  const aiIn = $('aiInput'); if(aiIn) aiIn.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendAI(); });
-  bind('keySaveBtn', saveKey);
-  bind('keyCancelBtn', closeKeyModal);
-
   initTabs();
 
   const dd = $('dtcDetailModal');
   if(dd) dd.onclick = e=>{ if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
-  const km = $('keyModal');
-  if(km) km.onclick = e=>{ if(e.target.id === 'keyModal') closeKeyModal(); };
-  const am = $('aiModal');
-  if(am) am.onclick = e=>{ if(e.target.id === 'aiModal') closeAI(); };
 
   initSearch(); initSymp(); initPop(); initFamily(); initSevFilters();
   renderRecent(); updFavCount();
@@ -2178,7 +2047,7 @@ function init(){
   if(isIOS && !isBluefy){
     const b = $('bluefyBanner'); if(b) b.classList.remove('hidden');
   }
-  if(!hasSerial){
+  if(!hasSerial && !isIOS){
     const b = $('serialBanner'); if(b) b.classList.remove('hidden');
   }
 
