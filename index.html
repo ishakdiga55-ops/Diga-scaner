@@ -5,93 +5,58 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="أداة فحص سيارات احترافية مع بحث بالأعراض">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  :root{
-    --bg:#0f172a; --bg-2:#1e293b; --bg-3:#0a0f1e;
-    --txt:#f1f5f9; --txt-2:#94a3b8; --txt-3:#64748b;
-    --brd:#334155; --brd-2:#475569;
-    --pri:#3b82f6; --pri-2:#2563eb;
-    --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
-    --card:#1e293b; --card-2:#0f172a;
-  }
-  *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:60px;transition:background .3s,color .3s}
-  body.light-mode{
-    --bg:#f1f5f9; --bg-2:#ffffff; --bg-3:#f8fafc;
-    --txt:#0f172a; --txt-2:#475569; --txt-3:#64748b;
-    --brd:#cbd5e1; --brd-2:#94a3b8;
-    --card:#ffffff; --card-2:#f8fafc;
-    background:#f1f5f9;color:#0f172a;
-  }
-  .scrollbar-thin::-webkit-scrollbar{width:6px;height:6px}
-  .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--brd-2);border-radius:3px}
-  .spinner{border:3px solid var(--brd);border-top-color:var(--pri);border-radius:50%;width:20px;height:20px;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .gauge-box{background:linear-gradient(145deg,var(--bg-2),var(--bg));border-radius:20px;padding:14px;border:1px solid var(--brd)}
-  .gauge-needle{transform-origin:100px 100px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-  .gauge-arc{transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
-  .pro-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:900}
-  .cache-badge{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:800}
-  .sys-item{background:linear-gradient(145deg,var(--bg-2),var(--bg));border:1.5px solid var(--brd);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .25s}
-  .sys-item i{color:var(--txt-2)}
-  .sys-item.good{border-color:var(--ok)} .sys-item.good i{color:var(--ok)}
-  .sys-item.bad{border-color:var(--err)} .sys-item.bad i{color:var(--err)}
-  .sys-item.unknown{border-color:var(--brd-2);opacity:.55}
-  .symptom-chip{background:var(--bg-2);border:1px solid var(--brd);color:var(--txt-2);padding:8px 14px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
-  .symptom-chip:hover,.symptom-chip:active{border-color:var(--pri);color:var(--pri)}
-  .filter-chip{background:rgba(51,65,85,.6);color:var(--txt-2);border:1px solid var(--brd-2);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
-  .filter-chip.active{background:linear-gradient(135deg,var(--pri),#8b5cf6);color:#fff;border-color:transparent}
-  .code-card{cursor:pointer;transition:all .25s}
-  .code-card:hover{transform:translateY(-2px)}
-  .fav-btn.active{color:#fbbf24}
-  .recent-item{background:rgba(30,41,59,.6);border:1px solid var(--brd);color:var(--txt-2);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s}
-  .recent-item:hover{border-color:var(--pri);color:var(--pri)}
-  #dbStatus{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(90deg,#1e40af,#7c3aed);color:#fff;font-size:11px;padding:6px 12px;text-align:center;font-weight:700;display:none}
-  .tab{transition:all .2s}
-  .panel{animation:fadeIn .25s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-  .modal-backdrop{animation:fadeIn .2s ease}
-  .modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
-  @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-  #searchResults:not(:empty){animation:highlightResults .5s ease;}
-  @keyframes highlightResults {
-    0% { background: rgba(59,130,246,.15); border-radius: 12px; }
-    100% { background: transparent; }
-  }
-  body.light-mode .bg-gray-900{background:#fff!important}
-  body.light-mode .bg-gray-800{background:#f8fafc!important}
-  body.light-mode .bg-gray-900\/60{background:rgba(248,250,252,.9)!important}
-  body.light-mode .bg-gray-800\/50{background:rgba(241,245,249,.9)!important}
-  body.light-mode .bg-gray-800\/60{background:rgba(241,245,249,.9)!important}
-  body.light-mode .bg-black{background:#0a0f1e!important}
-  body.light-mode .text-gray-400{color:#475569!important}
-  body.light-mode .text-gray-500{color:#64748b!important}
-  body.light-mode .text-gray-300{color:#334155!important}
-  body.light-mode .bg-gray-900 .text-white,
-  body.light-mode .bg-gray-800 .text-white:not([class*="bg-"]){color:#0f172a!important}
-  body.light-mode .text-white{color:#0f172a!important}
-  body.light-mode .gauge-box,body.light-mode .sys-item{background:#fff!important}
-  body.light-mode .border-gray-800,body.light-mode .border-gray-700{border-color:#cbd5e1!important}
-  body.light-mode .border-gray-800\/50{border-color:rgba(203,213,225,.5)!important}
-  body.light-mode .border-gray-700\/50{border-color:rgba(203,213,225,.5)!important}
-  body.light-mode .bg-gray-900\/30,body.light-mode .bg-gray-800\/30{background:rgba(248,250,252,.8)!important}
-  body.light-mode button[class*="bg-blue"],body.light-mode button[class*="bg-emerald"],
-  body.light-mode button[class*="bg-red"],body.light-mode button[class*="bg-amber"],
-  body.light-mode button[class*="bg-purple"],body.light-mode button[class*="bg-green"],
-  body.light-mode button[class*="bg-gradient"]{color:#fff!important}
-  body.light-mode button[class*="bg-blue"] *,body.light-mode button[class*="bg-emerald"] *,
-  body.light-mode button[class*="bg-red"] *,body.light-mode button[class*="bg-amber"] *,
-  body.light-mode button[class*="bg-purple"] *,body.light-mode button[class*="bg-green"] *,
-  body.light-mode button[class*="bg-gradient"] *{color:#fff!important}
-  input,select,textarea{font-family:inherit}
-  body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
+:root{--bg:#0f172a;--bg-2:#1e293b;--txt:#f1f5f9;--txt-2:#94a3b8;--brd:#334155;--brd-2:#475569;--pri:#3b82f6;--ok:#10b981;--warn:#f59e0b;--err:#ef4444}
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:60px;transition:background .3s,color .3s}
+body.light-mode{--bg:#f1f5f9;--bg-2:#fff;--txt:#0f172a;--txt-2:#475569;--brd:#cbd5e1;background:#f1f5f9;color:#0f172a}
+.scrollbar-thin::-webkit-scrollbar{width:6px;height:6px}
+.scrollbar-thin::-webkit-scrollbar-thumb{background:var(--brd-2);border-radius:3px}
+.spinner{border:3px solid var(--brd);border-top-color:var(--pri);border-radius:50%;width:20px;height:20px;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gauge-box{background:linear-gradient(145deg,var(--bg-2),var(--bg));border-radius:20px;padding:14px;border:1px solid var(--brd)}
+.gauge-needle{transform-origin:100px 100px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.gauge-arc{transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
+.pro-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:900}
+.cache-badge{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:800}
+.sys-item{background:linear-gradient(145deg,var(--bg-2),var(--bg));border:1.5px solid var(--brd);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .25s}
+.sys-item i{color:var(--txt-2)}
+.sys-item.good{border-color:var(--ok)}.sys-item.good i{color:var(--ok)}
+.sys-item.bad{border-color:var(--err)}.sys-item.bad i{color:var(--err)}
+.sys-item.unknown{border-color:var(--brd-2);opacity:.55}
+.symptom-chip{background:var(--bg-2);border:1px solid var(--brd);color:var(--txt-2);padding:8px 14px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.symptom-chip:hover{border-color:var(--pri);color:var(--pri)}
+.filter-chip{background:rgba(51,65,85,.6);color:var(--txt-2);border:1px solid var(--brd-2);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.filter-chip.active{background:linear-gradient(135deg,var(--pri),#8b5cf6);color:#fff;border-color:transparent}
+.code-card{cursor:pointer;transition:all .25s}
+.code-card:hover{transform:translateY(-2px)}
+.fav-btn.active{color:#fbbf24}
+.recent-item{background:rgba(30,41,59,.6);border:1px solid var(--brd);color:var(--txt-2);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s}
+.recent-item:hover{border-color:var(--pri);color:var(--pri)}
+#dbStatus{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(90deg,#1e40af,#7c3aed);color:#fff;font-size:11px;padding:6px 12px;text-align:center;font-weight:700;display:none}
+.tab{transition:all .2s}
+.panel{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.modal-backdrop{animation:fadeIn .2s ease}
+.modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+body.light-mode .bg-gray-900{background:#fff!important}
+body.light-mode .bg-gray-800{background:#f8fafc!important}
+body.light-mode .bg-black{background:#0a0f1e!important}
+body.light-mode .text-gray-400{color:#475569!important}
+body.light-mode .text-gray-500{color:#64748b!important}
+body.light-mode .text-gray-300{color:#334155!important}
+body.light-mode .text-white{color:#0f172a!important}
+body.light-mode .gauge-box,body.light-mode .sys-item{background:#fff!important}
+body.light-mode .border-gray-800,body.light-mode .border-gray-700{border-color:#cbd5e1!important}
+input,select,textarea{font-family:inherit}
+body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -105,7 +70,7 @@
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
   <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
-  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">قاعدة بيانات +9,500 عطل + بحث فوري بالأعراض</p>
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">قاعدة بيانات +9,500 عطل + بحث فوري</p>
   <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ</button>
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">9,535</div><div class="text-[10px] text-gray-500">عطل</div></div>
@@ -115,12 +80,11 @@
 </section>
 
 <div id="app" class="max-w-4xl mx-auto p-3 space-y-4 pt-6">
-
 <div class="flex justify-between items-center flex-wrap gap-2">
   <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h1>
   <div class="flex gap-2">
-    <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative" title="المفضلة"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
-    <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold" title="تبديل الوضع"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
+    <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
+    <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
   </div>
 </div>
 
@@ -298,1089 +262,774 @@
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
+
 <script>
 'use strict';
+const $ = id=>document.getElementById(id);
+const $$ = s=>document.querySelectorAll(s);
+function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-/* ============================================================
-   0) HELPERS
-   ============================================================ */
-const $  = (id)=>document.getElementById(id);
-const $$ = (sel)=>document.querySelectorAll(sel);
-function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
-function sanitizeCode(s){ if(s==null) return ''; return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20); }
-function checkRateLimit(action,max){
-  max = max || 5;
-  try{
-    const now = Date.now(), key = 'cdrate_'+action;
-    let arr = JSON.parse(localStorage.getItem(key)||'[]').filter(t=>now-t<60000);
-    if(arr.length>=max) return false;
-    arr.push(now); localStorage.setItem(key, JSON.stringify(arr)); return true;
-  }catch(e){ return true; }
-}
-
-/* ============================================================
-   1) CACHE SYSTEM  (v5)
-   ============================================================ */
-const CK='cd_db_v5', CT='cd_t_v5', CV='cd_v_v5', CVER=5, MAXAGE=7*24*60*60*1000;
-const HASCOMP = (typeof CompressionStream !== 'undefined');
-const OLD_KEYS = ['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4',
-                  'cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4',
-                  'cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4',
-                  'cd_db_v6','cd_t_v6','cd_v_v6','cd_db_v7','cd_t_v7','cd_v_v7'];
-
-function b2a(bytes){ let s=''; const c=8192; for(let i=0;i<bytes.length;i+=c) s+=String.fromCharCode.apply(null, bytes.subarray(i,i+c)); return btoa(s); }
-function a2b(b64){ const s=atob(b64); const b=new Uint8Array(s.length); for(let i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
-async function gzip(str){ if(!HASCOMP) return null; try{ const bl=new Blob([str]); const st=bl.stream().pipeThrough(new CompressionStream('gzip')); const buf=await new Response(st).arrayBuffer(); return b2a(new Uint8Array(buf)); }catch(e){ return null; } }
-async function gunzip(b64){ if(!HASCOMP) return null; try{ const bytes=a2b(b64); const bl=new Blob([bytes]); const st=bl.stream().pipeThrough(new DecompressionStream('gzip')); return await new Response(st).text(); }catch(e){ return null; } }
-
-function cleanOldCache(){ OLD_KEYS.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); }
+const CK='cd_db_v5',CT='cd_t_v5',CV='cd_v_v5',CVER=5,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v6','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v6','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v6','cd_v_v7'];
+const HASCOMP=(typeof CompressionStream!=='undefined');
+function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
+function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
+async function gzip(s){if(!HASCOMP)return null;try{const bl=new Blob([s]);const st=bl.stream().pipeThrough(new CompressionStream('gzip'));const b=await new Response(st).arrayBuffer();return b2a(new Uint8Array(b))}catch(e){return null}}
+async function gunzip(x){if(!HASCOMP)return null;try{const by=a2b(x);const bl=new Blob([by]);const st=bl.stream().pipeThrough(new DecompressionStream('gzip'));return await new Response(st).text()}catch(e){return null}}
+function cleanOldCache(){OLD_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}})}
 
 async function tryLoadCache(){
   try{
-    if(parseInt(localStorage.getItem(CV)||'0',10) !== CVER) return false;
-    const c = localStorage.getItem(CK);
-    const t = parseInt(localStorage.getItem(CT)||'0',10);
-    if(!c || (Date.now()-t) > MAXAGE) return false;
-    let j = null;
-    if(HASCOMP) j = await gunzip(c);
-    if(!j){ try{ JSON.parse(c); j = c; }catch(e){ return false; } }
-    if(!j) return false;
-    const d = JSON.parse(j);
-    let added = 0;
-    for(const k in d){
-      if(d.hasOwnProperty(k) && !DTC_DATABASE[k]){ DTC_DATABASE[k]=d[k]; added++; }
-    }
-    if(added === 0) return false;
-    OBDEX_LOADED = true; buildDTCIndex(); buildSearchIndex();
-    const tot = Object.keys(DTC_DATABASE).length;
+    if(parseInt(localStorage.getItem(CV)||'0',10)!==CVER)return false;
+    const c=localStorage.getItem(CK);
+    const t=parseInt(localStorage.getItem(CT)||'0',10);
+    if(!c||(Date.now()-t)>MAXAGE)return false;
+    let j=null;
+    if(HASCOMP)j=await gunzip(c);
+    if(!j){try{JSON.parse(c);j=c}catch(e){return false}}
+    if(!j)return false;
+    const d=JSON.parse(j);
+    let added=0;
+    for(const k in d){if(d.hasOwnProperty(k)&&!DTC_DATABASE[k]){DTC_DATABASE[k]=d[k];added++}}
+    if(added===0)return false;
+    OBDEX_LOADED=true;buildDTCIndex();buildSearchIndex();
+    const tot=Object.keys(DTC_DATABASE).length;
     updateDTCCount(tot);
-    const b=$('dbStatus'); if(b) b.style.display='none';
-    const bg=$('cacheBadge'); if(bg) bg.classList.remove('hidden');
-    log('OK: ⚡ تحميل فوري من الكاش: '+tot+' عطل');
+    const b=$('dbStatus');if(b)b.style.display='none';
+    const bg=$('cacheBadge');if(bg)bg.classList.remove('hidden');
+    log('OK: ⚡ كاش: '+tot+' عطل');
     return true;
-  }catch(e){ return false; }
+  }catch(e){return false}
 }
 async function saveCache(){
   try{
-    if(!OBDEX_LOADED) return;
-    const j = JSON.stringify(DTC_DATABASE);
-    let p = null, m = 'raw';
-    if(HASCOMP){ p = await gzip(j); if(p) m='gzip'; }
-    if(!p){ if(j.length > 4.5*1024*1024){ log('INFO: ⚠️ حجم القاعدة كبير جداً للحفظ'); return; } p = j; }
+    if(!OBDEX_LOADED)return;
+    const j=JSON.stringify(DTC_DATABASE);
+    let p=null,m='raw';
+    if(HASCOMP){p=await gzip(j);if(p)m='gzip'}
+    if(!p){if(j.length>4.5*1024*1024){log('INFO: ⚠️ كبير جداً');return}p=j}
     try{
-      localStorage.setItem(CK, p); localStorage.setItem(CT, Date.now().toString()); localStorage.setItem(CV, CVER.toString());
-      log('OK: 💾 كاش ['+m+'] ('+(j.length/1024|0)+'→'+(p.length/1024|0)+'KB)');
+      localStorage.setItem(CK,p);localStorage.setItem(CT,Date.now().toString());localStorage.setItem(CV,CVER.toString());
+      log('OK: 💾 ['+m+'] ('+(j.length/1024|0)+'→'+(p.length/1024|0)+'KB)');
     }catch(e){
-      try{
-        localStorage.removeItem(CK);
-        localStorage.setItem(CK, p); localStorage.setItem(CT, Date.now().toString()); localStorage.setItem(CV, CVER.toString());
-        log('OK: 💾 كاش بعد تنظيف مساحة');
-      }catch(e2){ log('INFO: ⚠️ مساحة localStorage ممتلئة'); }
+      try{localStorage.removeItem(CK);localStorage.setItem(CK,p);localStorage.setItem(CT,Date.now().toString());localStorage.setItem(CV,CVER.toString());log('OK: 💾 بعد تنظيف')}catch(e2){log('INFO: ⚠️ ممتلئ')}
     }
   }catch(e){}
 }
-window.clearCheckdigaCache = function(){
-  try{ localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV); alert('✅ تم حذف الكاش'); }catch(e){}
-};
+window.clearCheckdigaCache=function(){try{localStorage.removeItem(CK);localStorage.removeItem(CT);localStorage.removeItem(CV);alert('✅ تم')}catch(e){}};
 
-/* ============================================================
-   2) STATE
-   ============================================================ */
-const ua = navigator.userAgent;
-const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
-const isBluefy = /Bluefy/i.test(ua);
-const hasSerial = 'serial' in navigator;
-const hasBLE = 'bluetooth' in navigator;
+const ua=navigator.userAgent;
+const isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isBluefy=/Bluefy/i.test(ua);
+const hasSerial='serial' in navigator;
+const hasBLE='bluetooth' in navigator;
 
-let btDevice=null, btServer=null, uartChar=null;
-let usbPort=null, usbWriter=null, usbReader=null, usbLoop=false;
-let transport=null, isConnected=false, isDemo=false;
-let recvBuf='', cmdQ=[], isProcessing=false, curResolve=null, curTimeout=null;
-let liveReading=false, liveTimer=null, liveTick=0;
-let chartInstance=null, statsChartInstance=null;
-const chartData = { labels:[], rpm:[], speed:[] };
-let lastCoolant=0, lastFuel=75, lastFaults=[], lastDiag=[], demoTimer=null;
-let currentSevFilter='all', currentDetailCode='';
-let favorites = JSON.parse(localStorage.getItem('checkdiga_favs')||'[]');
-let recentSearches = JSON.parse(localStorage.getItem('checkdiga_recent')||'[]');
+let btDevice=null,btServer=null,uartChar=null,usbPort=null,usbWriter=null,usbReader=null,usbLoop=false;
+let transport=null,isConnected=false,isDemo=false;
+let recvBuf='',cmdQ=[],isProcessing=false,curResolve=null,curTimeout=null;
+let liveTimer=null,liveTick=0,chartInstance=null,statsChartInstance=null;
+const chartData={labels:[],rpm:[],speed:[]};
+let lastCoolant=0,lastFuel=75,lastFaults=[],lastDiag=[],demoTimer=null;
+let currentSevFilter='all',currentDetailCode='';
+let favorites=JSON.parse(localStorage.getItem('checkdiga_favs')||'[]');
+let recentSearches=JSON.parse(localStorage.getItem('checkdiga_recent')||'[]');
+const RECV_BUF_LIMIT=4096;
 
-const RECV_BUF_LIMIT = 4096;
+const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb','0000ffe5-0000-1000-8000-00805f9b34fb','e7810a71-73ae-499d-8c15-faa9aef0c3f2','000018f0-0000-1000-8000-00805f9b34fb'];
+const KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb','0000fff2-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb','0000ffe9-0000-1000-8000-00805f9b34fb'];
 
-const KNOWN_SVC = [
-  '0000ffe0-0000-1000-8000-00805f9b34fb',
-  '0000fff0-0000-1000-8000-00805f9b34fb',
-  '0000ff00-0000-1000-8000-00805f9b34fb',
-  '0000ffe5-0000-1000-8000-00805f9b34fb',
-  'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
-  '000018f0-0000-1000-8000-00805f9b34fb'
-];
-const KNOWN_CHR = [
-  '0000ffe1-0000-1000-8000-00805f9b34fb',
-  '0000fff1-0000-1000-8000-00805f9b34fb',
-  '0000fff2-0000-1000-8000-00805f9b34fb',
-  '0000ff01-0000-1000-8000-00805f9b34fb',
-  '0000ffe9-0000-1000-8000-00805f9b34fb'
-];
+const SYMPTOMS_DB=[
+{label:'اهتزاز المحرك',icon:'📳',codes:['P0300','P0301','P0302','P0303','P0304','P0171']},
+{label:'دخان أسود',icon:'🖤',codes:['P0299','P0172','P0175','P0101']},
+{label:'دخان أبيض',icon:'⬜',codes:['P0217','P0118','P0115']},
+{label:'لا تشتغل',icon:'🔑',codes:['P0335','P0340','U0100','P0230']},
+{label:'استهلاك مرتفع',icon:'⛽',codes:['P0171','P0172','P0420','P0101']},
+{label:'ضعف التسارع',icon:'🐢',codes:['P0101','P0299','P0171','P0420']},
+{label:'Check Engine',icon:'🚨',codes:['P0420','P0171','P0300','P0442']},
+{label:'حرارة مرتفعة',icon:'🌡️',codes:['P0217','P0115','P0118','P0128']},
+{label:'ضغط الزيت',icon:'🛢️',codes:['P0524','P0520']},
+{label:'مشكلة الجير',icon:'⚙️',codes:['P0700','P0715','P0720','P0730','P0741']},
+{label:'خمول غير مستقر',icon:'📉',codes:['P0505','P0171','P0300']},
+{label:'الفرامل',icon:'🛑',codes:['C0035','C0040','C0045','C0050','U0121']}];
 
-const SYMPTOMS_DB = [
-  {label:'اهتزاز المحرك',icon:'📳',codes:['P0300','P0301','P0302','P0303','P0304','P0171']},
-  {label:'دخان أسود',icon:'🖤',codes:['P0299','P0172','P0175','P0101']},
-  {label:'دخان أبيض',icon:'⬜',codes:['P0217','P0118','P0115']},
-  {label:'لا تشتغل',icon:'🔑',codes:['P0335','P0340','U0100','P0230']},
-  {label:'استهلاك مرتفع',icon:'⛽',codes:['P0171','P0172','P0420','P0101']},
-  {label:'ضعف التسارع',icon:'🐢',codes:['P0101','P0299','P0171','P0420']},
-  {label:'Check Engine',icon:'🚨',codes:['P0420','P0171','P0300','P0442']},
-  {label:'حرارة مرتفعة',icon:'🌡️',codes:['P0217','P0115','P0118','P0128']},
-  {label:'ضغط الزيت',icon:'🛢️',codes:['P0524','P0520']},
-  {label:'مشكلة الجير',icon:'⚙️',codes:['P0700','P0715','P0720','P0730','P0741']},
-  {label:'خمول غير مستقر',icon:'📉',codes:['P0505','P0171','P0300']},
-  {label:'الفرامل',icon:'🛑',codes:['C0035','C0040','C0045','C0050','U0121']}
-];
+const POPULAR=['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
 
-const POPULAR = ['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
+const DTC_DATABASE={
+"P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
+"P0101":{zone:"engine",title:"حساس MAF - أداء",title_en:"MAF Sensor Performance",severity:"medium"},
+"P0102":{zone:"engine",title:"حساس MAF - منخفض",title_en:"MAF Low",severity:"medium"},
+"P0103":{zone:"engine",title:"حساس MAF - مرتفع",title_en:"MAF High",severity:"medium"},
+"P0105":{zone:"engine",title:"حساس MAP",title_en:"MAP Circuit",severity:"medium"},
+"P0106":{zone:"engine",title:"حساس MAP - أداء",title_en:"MAP Performance",severity:"medium"},
+"P0107":{zone:"engine",title:"MAP - منخفض",title_en:"MAP Low",severity:"medium"},
+"P0108":{zone:"engine",title:"MAP - مرتفع",title_en:"MAP High",severity:"medium"},
+"P0110":{zone:"engine",title:"حساس IAT",title_en:"IAT Sensor",severity:"low"},
+"P0113":{zone:"engine",title:"IAT - مرتفع",title_en:"IAT High",severity:"low"},
+"P0115":{zone:"cooling",title:"حساس حرارة المحرك",title_en:"Coolant Temp",severity:"medium"},
+"P0117":{zone:"cooling",title:"حرارة منخفضة",title_en:"Coolant Low",severity:"medium"},
+"P0118":{zone:"cooling",title:"حرارة مرتفعة",title_en:"Coolant High",severity:"medium"},
+"P0120":{zone:"engine",title:"حساس TPS",title_en:"TPS Circuit",severity:"high"},
+"P0121":{zone:"engine",title:"TPS أداء",title_en:"TPS Performance",severity:"high"},
+"P0122":{zone:"engine",title:"TPS منخفض",title_en:"TPS Low",severity:"high"},
+"P0123":{zone:"engine",title:"TPS مرتفع",title_en:"TPS High",severity:"high"},
+"P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat",severity:"medium",causes:["ترموستات مفتوح دائماً","حساس حرارة تالف"],symptoms:["الحرارة لا تصل للمنتصف"],steps:["افحص الترموستات","استبدله إذا لزم"]},
+"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ","فلتر وقود مسدود"],symptoms:["اهتزاز","ضعف تسارع"],steps:["افحص الفاكيوم","نظف MAF"]},
+"P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"Too Rich Bank 1",severity:"high"},
+"P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"Too Lean Bank 2",severity:"high"},
+"P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"Too Rich Bank 2",severity:"high"},
+"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
+"P0230":{zone:"fuel",title:"مضخة الوقود",title_en:"Fuel Pump",severity:"high"},
+"P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
+"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
+"P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
+"P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
+"P0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
+"P0304":{zone:"engine",title:"Misfire - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
+"P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crank Sensor",severity:"critical"},
+"P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor",severity:"high"},
+"P0401":{zone:"exhaust",title:"تدفق EGR غير كافٍ",title_en:"EGR Insufficient",severity:"medium"},
+"P0420":{zone:"exhaust",title:"كتلايزر ضعيف B1",title_en:"Catalyst B1",severity:"medium"},
+"P0430":{zone:"exhaust",title:"كتلايزر ضعيف B2",title_en:"Catalyst B2",severity:"medium"},
+"P0442":{zone:"exhaust",title:"تسرب EVAP صغير",title_en:"EVAP Small Leak",severity:"low"},
+"P0455":{zone:"exhaust",title:"تسرب EVAP كبير",title_en:"EVAP Large Leak",severity:"medium"},
+"P0456":{zone:"exhaust",title:"تسرب EVAP صغير جداً",title_en:"EVAP Very Small",severity:"low"},
+"P0457":{zone:"exhaust",title:"غطاء البنزين مفكوك",title_en:"Fuel Cap",severity:"low"},
+"P0500":{zone:"transmission",title:"حساس السرعة",title_en:"VSS",severity:"medium"},
+"P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
+"P0520":{zone:"engine",title:"حساس ضغط الزيت",title_en:"Oil Pressure Sensor",severity:"high"},
+"P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Low",severity:"critical"},
+"P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage",severity:"high"},
+"P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM",severity:"high"},
+"P0606":{zone:"electronics",title:"PCM معالج",title_en:"PCM Processor",severity:"critical"},
+"P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission",severity:"high"},
+"P0715":{zone:"transmission",title:"حساس دخل الجير",title_en:"Input Speed",severity:"high"},
+"P0720":{zone:"transmission",title:"حساس خرج الجير",title_en:"Output Speed",severity:"high"},
+"P0730":{zone:"transmission",title:"نسبة التروس",title_en:"Gear Ratio",severity:"critical"},
+"P0740":{zone:"transmission",title:"Torque Converter",title_en:"Torque Conv",severity:"high"},
+"P0741":{zone:"transmission",title:"TCC أداء",title_en:"TCC",severity:"high"},
+"P0750":{zone:"transmission",title:"Solenoid A",title_en:"Shift Sol A",severity:"high"},
+"P0755":{zone:"transmission",title:"Solenoid B",title_en:"Shift Sol B",severity:"high"},
+"P0A80":{zone:"electronics",title:"استبدل بطارية HV",title_en:"Replace HV",severity:"critical"},
+"P2002":{brand:"Diesel",zone:"exhaust",title:"DPF مسدود",title_en:"DPF Low",severity:"high"},
+"P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم DPF",title_en:"DPF Soot",severity:"high"},
+"C0035":{zone:"brakes",title:"حساس عجلة أمامية يسرى",title_en:"FL Wheel Sensor",severity:"high"},
+"C0040":{zone:"brakes",title:"حساس عجلة أمامية يمنى",title_en:"FR Wheel Sensor",severity:"high"},
+"C0045":{zone:"brakes",title:"حساس خلفية يسرى",title_en:"RL Wheel Sensor",severity:"high"},
+"C0050":{zone:"brakes",title:"حساس خلفية يمنى",title_en:"RR Wheel Sensor",severity:"high"},
+"B0001":{zone:"airbag",title:"عطل الوسائد الهوائية",title_en:"Airbag Fault",severity:"critical"},
+"B1000":{zone:"airbag",title:"وحدة الوسائد",title_en:"Airbag Module",severity:"critical"},
+"U0001":{zone:"electronics",title:"ناقل CAN عام",title_en:"CAN General",severity:"high"},
+"U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost ECU",severity:"critical"},
+"U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost TCM",severity:"critical"},
+"U0121":{zone:"abs",title:"فقدان ABS",title_en:"Lost ABS",severity:"critical"},
+"U0140":{zone:"electronics",title:"فقدان BCM",title_en:"Lost BCM",severity:"high"},
+"U0155":{zone:"electronics",title:"فقدان لوحة العدادات",title_en:"Lost Instrument",severity:"high"},
+"U0167":{zone:"electronics",title:"فقدان مفتاح المنع",title_en:"Lost Immob",severity:"critical"},
+"U1001":{zone:"electronics",title:"فقدان شبكة CAN",title_en:"CAN Lost",severity:"critical"}};
 
-/* ============================================================
-   3) BASIC DTC DATABASE
-   ============================================================ */
-const DTC_DATABASE = {
-  "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
-  "P0101":{zone:"engine",title:"حساس MAF - أداء",title_en:"MAF Sensor Performance",severity:"medium"},
-  "P0102":{zone:"engine",title:"حساس MAF - منخفض",title_en:"MAF Low",severity:"medium"},
-  "P0103":{zone:"engine",title:"حساس MAF - مرتفع",title_en:"MAF High",severity:"medium"},
-  "P0105":{zone:"engine",title:"حساس MAP",title_en:"MAP Circuit",severity:"medium"},
-  "P0106":{zone:"engine",title:"حساس MAP - أداء",title_en:"MAP Performance",severity:"medium"},
-  "P0107":{zone:"engine",title:"MAP - منخفض",title_en:"MAP Low",severity:"medium"},
-  "P0108":{zone:"engine",title:"MAP - مرتفع",title_en:"MAP High",severity:"medium"},
-  "P0110":{zone:"engine",title:"حساس IAT",title_en:"IAT Sensor",severity:"low"},
-  "P0113":{zone:"engine",title:"IAT - مرتفع",title_en:"IAT High",severity:"low"},
-  "P0115":{zone:"cooling",title:"حساس حرارة المحرك",title_en:"Coolant Temp",severity:"medium"},
-  "P0117":{zone:"cooling",title:"حرارة منخفضة",title_en:"Coolant Low",severity:"medium"},
-  "P0118":{zone:"cooling",title:"حرارة مرتفعة",title_en:"Coolant High",severity:"medium"},
-  "P0120":{zone:"engine",title:"حساس TPS",title_en:"TPS Circuit",severity:"high"},
-  "P0121":{zone:"engine",title:"TPS أداء",title_en:"TPS Performance",severity:"high"},
-  "P0122":{zone:"engine",title:"TPS منخفض",title_en:"TPS Low",severity:"high"},
-  "P0123":{zone:"engine",title:"TPS مرتفع",title_en:"TPS High",severity:"high"},
-  "P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat",severity:"medium",causes:["ترموستات مفتوح دائماً","حساس حرارة تالف"],symptoms:["الحرارة لا تصل للمنتصف"],steps:["افحص الترموستات","استبدله إذا لزم"]},
-  "P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ","فلتر وقود مسدود"],symptoms:["اهتزاز","ضعف تسارع"],steps:["افحص الفاكيوم","نظف MAF"]},
-  "P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"Too Rich Bank 1",severity:"high"},
-  "P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"Too Lean Bank 2",severity:"high"},
-  "P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"Too Rich Bank 2",severity:"high"},
-  "P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
-  "P0230":{zone:"fuel",title:"مضخة الوقود",title_en:"Fuel Pump",severity:"high"},
-  "P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
-  "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
-  "P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
-  "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
-  "P0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
-  "P0304":{zone:"engine",title:"Misfire - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
-  "P0335":{zone:"engine",title:"حساس الكرنك",title_en:"Crank Sensor",severity:"critical"},
-  "P0340":{zone:"engine",title:"حساس الكام",title_en:"Cam Sensor",severity:"high"},
-  "P0401":{zone:"exhaust",title:"تدفق EGR غير كافٍ",title_en:"EGR Insufficient",severity:"medium"},
-  "P0420":{zone:"exhaust",title:"كتلايزر ضعيف B1",title_en:"Catalyst B1",severity:"medium"},
-  "P0430":{zone:"exhaust",title:"كتلايزر ضعيف B2",title_en:"Catalyst B2",severity:"medium"},
-  "P0442":{zone:"exhaust",title:"تسرب EVAP صغير",title_en:"EVAP Small Leak",severity:"low"},
-  "P0455":{zone:"exhaust",title:"تسرب EVAP كبير",title_en:"EVAP Large Leak",severity:"medium"},
-  "P0456":{zone:"exhaust",title:"تسرب EVAP صغير جداً",title_en:"EVAP Very Small",severity:"low"},
-  "P0457":{zone:"exhaust",title:"غطاء البنزين مفكوك",title_en:"Fuel Cap",severity:"low"},
-  "P0500":{zone:"transmission",title:"حساس السرعة",title_en:"VSS",severity:"medium"},
-  "P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
-  "P0520":{zone:"engine",title:"حساس ضغط الزيت",title_en:"Oil Pressure Sensor",severity:"high"},
-  "P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Low",severity:"critical"},
-  "P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage",severity:"high"},
-  "P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM",severity:"high"},
-  "P0606":{zone:"electronics",title:"PCM معالج",title_en:"PCM Processor",severity:"critical"},
-  "P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission",severity:"high"},
-  "P0715":{zone:"transmission",title:"حساس دخل الجير",title_en:"Input Speed",severity:"high"},
-  "P0720":{zone:"transmission",title:"حساس خرج الجير",title_en:"Output Speed",severity:"high"},
-  "P0730":{zone:"transmission",title:"نسبة التروس",title_en:"Gear Ratio",severity:"critical"},
-  "P0740":{zone:"transmission",title:"Torque Converter",title_en:"Torque Conv",severity:"high"},
-  "P0741":{zone:"transmission",title:"TCC أداء",title_en:"TCC",severity:"high"},
-  "P0750":{zone:"transmission",title:"Solenoid A",title_en:"Shift Sol A",severity:"high"},
-  "P0755":{zone:"transmission",title:"Solenoid B",title_en:"Shift Sol B",severity:"high"},
-  "P0A80":{zone:"electronics",title:"استبدل بطارية HV",title_en:"Replace HV",severity:"critical"},
-  "P2002":{brand:"Diesel",zone:"exhaust",title:"DPF مسدود",title_en:"DPF Low",severity:"high"},
-  "P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم DPF",title_en:"DPF Soot",severity:"high"},
-  "C0035":{zone:"brakes",title:"حساس عجلة أمامية يسرى",title_en:"FL Wheel Sensor",severity:"high"},
-  "C0040":{zone:"brakes",title:"حساس عجلة أمامية يمنى",title_en:"FR Wheel Sensor",severity:"high"},
-  "C0045":{zone:"brakes",title:"حساس خلفية يسرى",title_en:"RL Wheel Sensor",severity:"high"},
-  "C0050":{zone:"brakes",title:"حساس خلفية يمنى",title_en:"RR Wheel Sensor",severity:"high"},
-  "B0001":{zone:"airbag",title:"عطل الوسائد الهوائية",title_en:"Airbag Fault",severity:"critical"},
-  "B1000":{zone:"airbag",title:"وحدة الوسائد",title_en:"Airbag Module",severity:"critical"},
-  "U0001":{zone:"electronics",title:"ناقل CAN عام",title_en:"CAN General",severity:"high"},
-  "U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost ECU",severity:"critical"},
-  "U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost TCM",severity:"critical"},
-  "U0121":{zone:"abs",title:"فقدان ABS",title_en:"Lost ABS",severity:"critical"},
-  "U0140":{zone:"electronics",title:"فقدان BCM",title_en:"Lost BCM",severity:"high"},
-  "U0155":{zone:"electronics",title:"فقدان لوحة العدادات",title_en:"Lost Instrument",severity:"high"},
-  "U0167":{zone:"electronics",title:"فقدان مفتاح المنع",title_en:"Lost Immob",severity:"critical"},
-  "U1001":{zone:"electronics",title:"فقدان شبكة CAN",title_en:"CAN Lost",severity:"critical"}
-};
+const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@main/data/generic/";
+const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
+let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
 
-/* ============================================================
-   4) OBDex LOADER  (8 ملفات → ~9,535 عطل)
-   ============================================================ */
-const OBDEX_BASE = "https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@main/data/generic/";
-const OBDEX_FILES = [
-  "P0xxx_enriched.yaml",
-  "P1xxx_enriched.yaml",
-  "P2xxx_enriched.yaml",
-  "P3xxx_enriched.yaml",
-  "B0xxx_enriched.yaml",
-  "C0xxx_enriched.yaml",
-  "U0xxx_enriched.yaml",
-  "U3xxx_enriched.yaml"
-];
-let OBDEX_LOADED = false;
-let OBDEX_TIMEOUT = null;
-
-function mapCat(c){
-  if(!c) return 'engine';
-  c = String(c).toLowerCase();
-  return { powertrain:'engine', body:'electronics', chassis:'brakes', network:'electronics' }[c] || 'engine';
-}
+function mapCat(c){if(!c)return 'engine';c=String(c).toLowerCase();return {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'}[c]||'engine'}
 function convItem(it){
-  if(!it || !it.code) return null;
-  const code = String(it.code).toUpperCase().trim();
-  if(!code || code === 'P0000') return null;
-  const tAr = (it.title && it.title.ar) ? it.title.ar : '';
-  const tEn = (it.title && it.title.en) ? it.title.en : code;
-  let dAr='', dEn='';
-  if(it.description){
-    if(typeof it.description === 'object'){ dAr = it.description.ar||''; dEn = it.description.en||''; }
-    else dEn = String(it.description);
-  }
-  const sym = Array.isArray(it.symptoms) ? it.symptoms.map(s => (s && typeof s==='object') ? (s.ar||s.en||'') : String(s)).filter(Boolean) : [];
-  const cau = Array.isArray(it.common_causes) ? it.common_causes.map(c => {
-    if(typeof c === 'string') return c;
-    if(c && c.label) return c.label.ar || c.label.en || '';
-    return '';
-  }).filter(Boolean) : [];
-  const rep = {};
+  if(!it||!it.code)return null;
+  const code=String(it.code).toUpperCase().trim();
+  if(!code||code==='P0000')return null;
+  const tAr=(it.title&&it.title.ar)?it.title.ar:'';
+  const tEn=(it.title&&it.title.en)?it.title.en:code;
+  let dAr='',dEn='';
+  if(it.description){if(typeof it.description==='object'){dAr=it.description.ar||'';dEn=it.description.en||''}else dEn=String(it.description)}
+  const sym=Array.isArray(it.symptoms)?it.symptoms.map(s=>(s&&typeof s==='object')?(s.ar||s.en||''):String(s)).filter(Boolean):[];
+  const cau=Array.isArray(it.common_causes)?it.common_causes.map(c=>{if(typeof c==='string')return c;if(c&&c.label)return c.label.ar||c.label.en||'';return ''}).filter(Boolean):[];
+  const rep={};
   if(it.repair){
-    if(it.repair.difficulty) rep.difficulty = String(it.repair.difficulty).toLowerCase();
-    if(it.repair.diy_possible !== undefined) rep.diy = it.repair.diy_possible;
-    if(Array.isArray(it.repair.estimated_hours) && it.repair.estimated_hours.length >= 2){
-      rep.hMin = it.repair.estimated_hours[0]; rep.hMax = it.repair.estimated_hours[1];
-    }
+    if(it.repair.difficulty)rep.difficulty=String(it.repair.difficulty).toLowerCase();
+    if(it.repair.diy_possible!==undefined)rep.diy=it.repair.diy_possible;
+    if(Array.isArray(it.repair.estimated_hours)&&it.repair.estimated_hours.length>=2){rep.hMin=it.repair.estimated_hours[0];rep.hMax=it.repair.estimated_hours[1]}
   }
-  let sev = 'medium';
-  if(rep.difficulty === 'hard') sev = 'high';
-  else if(rep.difficulty === 'easy') sev = 'low';
-  return {
-    zone: mapCat(it.category), title: tAr||tEn, title_en: tEn, desc: dAr||dEn,
-    severity: sev, symptoms: sym, causes: cau, steps: [], repair: rep,
-    flags: it.flags||{}, related: Array.isArray(it.related_codes)?it.related_codes:[],
-    sources: Array.isArray(it.sources)?it.sources:[]
-  };
+  let sev='medium';
+  if(rep.difficulty==='hard')sev='high';else if(rep.difficulty==='easy')sev='low';
+  return {zone:mapCat(it.category),title:tAr||tEn,title_en:tEn,desc:dAr||dEn,severity:sev,symptoms:sym,causes:cau,steps:[],repair:rep,flags:it.flags||{},related:Array.isArray(it.related_codes)?it.related_codes:[],sources:Array.isArray(it.sources)?it.sources:[]};
 }
 async function fetchYaml(fn){
   try{
-    const r = await fetch(OBDEX_BASE + fn + '?v=' + Date.now());
-    if(!r.ok) return [];
-    const t = await r.text();
-    if(!window.jsyaml) return [];
-    let d = window.jsyaml.load(t);
-    if(!d) return [];
-    if(!Array.isArray(d)){
-      const keys = Object.keys(d), arr = [];
-      for(const k of keys){ const v = d[k]; if(v && typeof v==='object'){ if(!v.code) v.code = k; arr.push(v); } }
-      d = arr;
-    }
+    const r=await fetch(OBDEX_BASE+fn+'?v='+Date.now());
+    if(!r.ok)return [];
+    const t=await r.text();
+    if(!window.jsyaml)return [];
+    let d=window.jsyaml.load(t);
+    if(!d)return [];
+    if(!Array.isArray(d)){const keys=Object.keys(d),arr=[];for(const k of keys){const v=d[k];if(v&&typeof v==='object'){if(!v.code)v.code=k;arr.push(v)}}d=arr}
     return d;
-  }catch(e){ return []; }
+  }catch(e){return []}
 }
-function processInChunks(items, fn, chunkSize){
-  chunkSize = chunkSize || 300;
-  return new Promise(resolve => {
-    let i = 0;
+function processInChunks(items,fn,cs){
+  cs=cs||300;
+  return new Promise(resolve=>{
+    let i=0;
     function next(){
-      const end = Math.min(i + chunkSize, items.length);
-      for(; i < end; i++) fn(items[i]);
-      if(i < items.length){
-        if(window.requestIdleCallback) requestIdleCallback(next, {timeout: 50});
-        else setTimeout(next, 0);
-      } else {
-        resolve();
-      }
+      const end=Math.min(i+cs,items.length);
+      for(;i<end;i++)fn(items[i]);
+      if(i<items.length){if(window.requestIdleCallback)requestIdleCallback(next,{timeout:50});else setTimeout(next,0)}else resolve();
     }
     next();
   });
 }
 async function loadFullDatabase(){
-  if(OBDEX_LOADED) return;
-  if(await tryLoadCache()) return;
-  if(!window.jsyaml){ log('WARN: js-yaml غير متاح'); return; }
-  const b = $('dbStatus'), bt = $('dbStatusText');
-  if(b) b.style.display = 'block';
-  let added = 0;
-  const totalFiles = OBDEX_FILES.length;
-  OBDEX_TIMEOUT = setTimeout(()=>{
-    if(!OBDEX_LOADED){
-      log('WARN: انتهت مهلة التحميل — نكمل بالقاعدة الأساسية');
-      if(b) b.style.display='none';
-    }
-  }, 45000);
-  for(let f=0; f<totalFiles; f++){
-    if(OBDEX_LOADED) break;
-    if(bt) bt.textContent = 'تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + totalFiles + ') — ' + added + ' عطل';
-    const items = await fetchYaml(OBDEX_FILES[f]);
-    if(!items.length) continue;
-    await processInChunks(items, (item)=>{
-      const c = convItem(item);
-      if(!c) return;
-      const cd = String(item.code).toUpperCase().trim();
-      if(DTC_DATABASE[cd]) return;
-      DTC_DATABASE[cd] = c; added++;
+  if(OBDEX_LOADED)return;
+  if(await tryLoadCache())return;
+  if(!window.jsyaml){log('WARN: js-yaml غير متاح');return}
+  const b=$('dbStatus'),bt=$('dbStatusText');
+  if(b)b.style.display='block';
+  let added=0;
+  const tf=OBDEX_FILES.length;
+  OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},45000);
+  for(let f=0;f<tf;f++){
+    if(OBDEX_LOADED)break;
+    if(bt)bt.textContent='تحميل '+OBDEX_FILES[f]+' ('+(f+1)+'/'+tf+') — '+added+' عطل';
+    const items=await fetchYaml(OBDEX_FILES[f]);
+    if(!items.length)continue;
+    await processInChunks(items,item=>{
+      const c=convItem(item);
+      if(!c)return;
+      const cd=String(item.code).toUpperCase().trim();
+      if(DTC_DATABASE[cd])return;
+      DTC_DATABASE[cd]=c;added++;
     });
   }
   clearTimeout(OBDEX_TIMEOUT);
-  OBDEX_LOADED = true;
-  buildDTCIndex(); buildSearchIndex();
-  const tot = Object.keys(DTC_DATABASE).length;
+  OBDEX_LOADED=true;
+  buildDTCIndex();buildSearchIndex();
+  const tot=Object.keys(DTC_DATABASE).length;
   updateDTCCount(tot);
-  if(b) b.style.display = 'none';
-  log('OK: تم تحميل ' + added + ' عطل — الإجمالي: ' + tot);
+  if(b)b.style.display='none';
+  log('OK: تم تحميل '+added+' عطل — الإجمالي: '+tot);
   await saveCache();
 }
 function updateDTCCount(n){
-  const f = n.toLocaleString('en-US');
-  const e1 = $('heroCount'); if(e1) e1.textContent = f;
-  const e2 = $('statCodes'); if(e2) e2.textContent = f;
+  const f=n.toLocaleString('en-US');
+  const e1=$('heroCount');if(e1)e1.textContent=f;
+  const e2=$('statCodes');if(e2)e2.textContent=f;
 }
 
-/* ============================================================
-   5) INDEXES  (BY_PREFIX)
-   ============================================================ */
-const BRAND_INDEX = new Map();
-let SEARCH_INDEX = [];
-const BY_PREFIX = new Map();
-
+const BRAND_INDEX=new Map();
+let SEARCH_INDEX=[];
+const BY_PREFIX=new Map();
 function buildDTCIndex(){
   BRAND_INDEX.clear();
   for(const k of Object.keys(DTC_DATABASE)){
-    const b = k.split('_')[0].toUpperCase();
-    if(!BRAND_INDEX.has(b)) BRAND_INDEX.set(b, []);
+    const b=k.split('_')[0].toUpperCase();
+    if(!BRAND_INDEX.has(b))BRAND_INDEX.set(b,[]);
     BRAND_INDEX.get(b).push(k);
   }
 }
 function buildSearchIndex(){
-  SEARCH_INDEX = [];
+  SEARCH_INDEX=[];
   BY_PREFIX.clear();
-  const codes = Object.keys(DTC_DATABASE);
-  for(let idx=0; idx<codes.length; idx++){
-    const code = codes[idx];
-    const info = DTC_DATABASE[code];
-    const item = {
-      code,
-      cleanCode: code.replace(/_[A-Z]+$/,''),
-      info,
-      _titleLc: null,
-      _titleEnLc: null
-    };
+  const codes=Object.keys(DTC_DATABASE);
+  for(let idx=0;idx<codes.length;idx++){
+    const code=codes[idx];
+    const info=DTC_DATABASE[code];
+    const item={code,cleanCode:code.replace(/_[A-Z]+$/,''),info,_titleLc:null,_titleEnLc:null};
     SEARCH_INDEX.push(item);
-    const up = code.toUpperCase();
-    for(let i=2; i<=5 && i<=up.length; i++){
-      const k = up.slice(0,i);
-      let bucket = BY_PREFIX.get(k);
-      if(!bucket){ bucket = []; BY_PREFIX.set(k, bucket); }
+    const up=code.toUpperCase();
+    for(let i=2;i<=5&&i<=up.length;i++){
+      const k=up.slice(0,i);
+      let bucket=BY_PREFIX.get(k);
+      if(!bucket){bucket=[];BY_PREFIX.set(k,bucket)}
       bucket.push(item);
     }
   }
-  log('OK: فهرس — ' + SEARCH_INDEX.length + ' عطل، ' + BY_PREFIX.size + ' بادئة');
+  log('OK: فهرس — '+SEARCH_INDEX.length+' عطل، '+BY_PREFIX.size+' بادئة');
 }
 function ensureTitleLc(item){
-  if(item._titleLc === null){
-    item._titleLc = (item.info.title || '').toLowerCase();
-    item._titleEnLc = (item.info.title_en || '').toLowerCase();
-  }
+  if(item._titleLc===null){item._titleLc=(item.info.title||'').toLowerCase();item._titleEnLc=(item.info.title_en||'').toLowerCase()}
 }
 buildDTCIndex();
 
-/* ============================================================
-   6) LOGGING
-   ============================================================ */
 function log(m){
-  const c = $('console'); if(!c) return;
-  const t = new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  c.textContent += '\n[' + t + '] ' + m;
-  c.scrollTop = c.scrollHeight;
+  const c=$('console');if(!c)return;
+  const t=new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  c.textContent+='\n['+t+'] '+m;
+  c.scrollTop=c.scrollHeight;
 }
 
-/* ============================================================
-   7) STATUS / UI
-   ============================================================ */
 function setStatus(s){
-  const e = $('connection-status'), d = $('statusDot');
-  if(!e || !d) return;
-  if(s==='connected'){ e.textContent='متصل'; e.className='text-sm font-bold text-green-400'; d.className='w-3 h-3 rounded-full bg-green-500'; }
-  else if(s==='demo'){ e.textContent='وضع تجريبي'; e.className='text-sm font-bold text-amber-400'; d.className='w-3 h-3 rounded-full bg-amber-500'; }
-  else{ e.textContent='غير متصل'; e.className='text-sm font-bold text-red-400'; d.className='w-3 h-3 rounded-full bg-red-500'; }
+  const e=$('connection-status'),d=$('statusDot');
+  if(!e||!d)return;
+  if(s==='connected'){e.textContent='متصل';e.className='text-sm font-bold text-green-400';d.className='w-3 h-3 rounded-full bg-green-500'}
+  else if(s==='demo'){e.textContent='وضع تجريبي';e.className='text-sm font-bold text-amber-400';d.className='w-3 h-3 rounded-full bg-amber-500'}
+  else{e.textContent='غير متصل';e.className='text-sm font-bold text-red-400';d.className='w-3 h-3 rounded-full bg-red-500'}
 }
-function updGauge(arcId, needleId, valId, val, max){
-  const arc=$(arcId), ndl=$(needleId), ve=$(valId);
-  if(!arc || !ndl || !ve) return;
-  const cv = Math.max(0, Math.min(max, val));
-  const p = cv / max;
-  arc.setAttribute('stroke-dashoffset', String(220 * (1-p)));
-  ndl.style.transform = 'rotate(' + (-90 + p*180) + 'deg)';
-  ve.textContent = Math.round(cv);
+function updGauge(arcId,needleId,valId,val,max){
+  const arc=$(arcId),ndl=$(needleId),ve=$(valId);
+  if(!arc||!ndl||!ve)return;
+  const cv=Math.max(0,Math.min(max,val));
+  const p=cv/max;
+  arc.setAttribute('stroke-dashoffset',String(220*(1-p)));
+  ndl.style.transform='rotate('+(-90+p*180)+'deg)';
+  ve.textContent=Math.round(cv);
 }
 function updAllG(v){
-  updGauge('rpmArc','rpmNeedle','gauge-rpm', v.rpm||0, 8000);
-  updGauge('spdArc','spdNeedle','gauge-speed', v.speed||0, 220);
-  updGauge('colArc','colNeedle','gauge-coolant', v.coolant||0, 130);
-  updGauge('fuelArc','fuelNeedle','gauge-fuel', v.fuelLevel !== undefined ? v.fuelLevel : 75, 100);
+  updGauge('rpmArc','rpmNeedle','gauge-rpm',v.rpm||0,8000);
+  updGauge('spdArc','spdNeedle','gauge-speed',v.speed||0,220);
+  updGauge('colArc','colNeedle','gauge-coolant',v.coolant||0,130);
+  updGauge('fuelArc','fuelNeedle','gauge-fuel',v.fuelLevel!==undefined?v.fuelLevel:75,100);
 }
-function resetSysGrid(){ $$('.sys-item').forEach(e=>e.classList.remove('good','bad','unknown')); }
-function updSysGrid(flt, scanned){
+function resetSysGrid(){$$('.sys-item').forEach(e=>e.classList.remove('good','bad','unknown'))}
+function updSysGrid(flt,scanned){
   resetSysGrid();
-  const scannedSet = scanned && scanned.length ? new Set(scanned) : null;
-  if(!flt || !flt.length){
-    $$('.sys-item').forEach(e=>{
-      if(scannedSet && !scannedSet.has(e.dataset.sys)) e.classList.add('unknown');
-      else e.classList.add('good');
-    });
+  const scannedSet=scanned&&scanned.length?new Set(scanned):null;
+  if(!flt||!flt.length){
+    $$('.sys-item').forEach(e=>{if(scannedSet&&!scannedSet.has(e.dataset.sys))e.classList.add('unknown');else e.classList.add('good')});
     return;
   }
-  const aff = new Set();
-  flt.forEach(f => aff.add(getInfo(f.code).zone));
+  const aff=new Set();
+  flt.forEach(f=>aff.add(getInfo(f.code).zone));
   $$('.sys-item').forEach(e=>{
-    if(aff.has(e.dataset.sys)) e.classList.add('bad');
-    else if(scannedSet && !scannedSet.has(e.dataset.sys)) e.classList.add('unknown');
+    if(aff.has(e.dataset.sys))e.classList.add('bad');
+    else if(scannedSet&&!scannedSet.has(e.dataset.sys))e.classList.add('unknown');
     else e.classList.add('good');
   });
 }
 function getInfo(c){
-  c = String(c).trim().toUpperCase();
-  if(DTC_DATABASE[c]) return DTC_DATABASE[c];
-  const v = BRAND_INDEX.get(c);
-  if(v && v.length) return Object.assign({}, DTC_DATABASE[v[0]], {code:c});
-  return { zone:'engine', title:'عطل غير معروف', title_en:'Unknown', desc:'', severity:'medium' };
+  c=String(c).trim().toUpperCase();
+  if(DTC_DATABASE[c])return DTC_DATABASE[c];
+  const v=BRAND_INDEX.get(c);
+  if(v&&v.length)return Object.assign({},DTC_DATABASE[v[0]],{code:c});
+  return {zone:'engine',title:'عطل غير معروف',title_en:'Unknown',desc:'',severity:'medium'};
 }
-/* ============================================================
-   8) FAVORITES
-   ============================================================ */
-function isFav(c){ return favorites.indexOf(sanitizeCode(c)) >= 0; }
+
+function isFav(c){return favorites.indexOf(sanitizeCode(c))>=0}
 function toggleFav(c){
-  const x = sanitizeCode(c);
-  const i = favorites.indexOf(x);
-  if(i >= 0) favorites.splice(i,1); else favorites.push(x);
-  localStorage.setItem('checkdiga_favs', JSON.stringify(favorites));
+  const x=sanitizeCode(c);
+  const i=favorites.indexOf(x);
+  if(i>=0)favorites.splice(i,1);else favorites.push(x);
+  localStorage.setItem('checkdiga_favs',JSON.stringify(favorites));
   updFavCount();
   return isFav(x);
 }
 function updFavCount(){
-  const e = $('favCount'); if(!e) return;
-  if(favorites.length){ e.textContent = favorites.length; e.classList.remove('hidden'); }
-  else e.classList.add('hidden');
+  const e=$('favCount');if(!e)return;
+  if(favorites.length){e.textContent=favorites.length;e.classList.remove('hidden')}else e.classList.add('hidden');
 }
 function renderFav(){
-  const l = $('favoritesList'); if(!l) return;
-  if(!favorites.length){
-    l.innerHTML = '<p class="text-gray-500 text-center py-6"><i class="fa-solid fa-star text-3xl mb-2 opacity-30"></i><br>لا توجد أكواد في المفضلة</p>';
-    return;
-  }
-  let h = '<div class="space-y-2">';
+  const l=$('favoritesList');if(!l)return;
+  if(!favorites.length){l.innerHTML='<p class="text-gray-500 text-center py-6"><i class="fa-solid fa-star text-3xl mb-2 opacity-30"></i><br>لا توجد أكواد في المفضلة</p>';return}
+  let h='<div class="space-y-2">';
   favorites.forEach(c=>{
-    const i = getInfo(c);
-    h += '<div class="code-card bg-gray-900 rounded-xl p-3" data-code="'+c+'"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">'+c+'</span><button class="text-red-400 text-xs" data-rm-fav="'+c+'"><i class="fa-solid fa-trash"></i></button></div><div class="text-xs text-gray-400">'+escapeHtml(i.title)+'</div></div>';
+    const i=getInfo(c);
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3" data-code="'+c+'"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">'+c+'</span><button class="text-red-400 text-xs" data-rm-fav="'+c+'"><i class="fa-solid fa-trash"></i></button></div><div class="text-xs text-gray-400">'+escapeHtml(i.title)+'</div></div>';
   });
-  h += '</div>';
-  l.innerHTML = h;
-  l.querySelectorAll('.code-card').forEach(e=>{
-    e.onclick = function(ev){ if(ev.target.closest('[data-rm-fav]')) return; showDetail(e.dataset.code); };
-  });
-  l.querySelectorAll('[data-rm-fav]').forEach(b=>{
-    b.onclick = function(e){ e.stopPropagation(); toggleFav(b.dataset.rmFav); renderFav(); };
-  });
+  h+='</div>';
+  l.innerHTML=h;
+  l.querySelectorAll('.code-card').forEach(e=>{e.onclick=function(ev){if(ev.target.closest('[data-rm-fav]'))return;showDetail(e.dataset.code)}});
+  l.querySelectorAll('[data-rm-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.rmFav);renderFav()}});
 }
 
-/* ============================================================
-   9) RECENT SEARCHES
-   ============================================================ */
 function addRecent(q){
-  q = String(q).trim().slice(0,30); if(!q) return;
-  recentSearches = recentSearches.filter(r=>r!==q);
+  q=String(q).trim().slice(0,30);if(!q)return;
+  recentSearches=recentSearches.filter(r=>r!==q);
   recentSearches.unshift(q);
-  recentSearches = recentSearches.slice(0,6);
-  localStorage.setItem('checkdiga_recent', JSON.stringify(recentSearches));
+  recentSearches=recentSearches.slice(0,6);
+  localStorage.setItem('checkdiga_recent',JSON.stringify(recentSearches));
   renderRecent();
 }
 function renderRecent(){
-  const e = $('recentSearches'); if(!e) return;
-  if(!recentSearches.length){ e.innerHTML=''; return; }
-  let h = '<span class="text-[10px] text-gray-500 font-bold self-center whitespace-nowrap">🕒 آخر البحث:</span>';
-  recentSearches.forEach(r=> h += '<button class="recent-item" data-r="'+escapeHtml(r)+'">'+escapeHtml(r)+'</button>');
-  e.innerHTML = h;
-  e.querySelectorAll('[data-r]').forEach(b=>{
-    b.onclick = function(){ const i = $('dtcSearchInput'); if(i){ i.value = b.dataset.r; searchDTC(b.dataset.r); } };
-  });
+  const e=$('recentSearches');if(!e)return;
+  if(!recentSearches.length){e.innerHTML='';return}
+  let h='<span class="text-[10px] text-gray-500 font-bold self-center whitespace-nowrap">🕒 آخر البحث:</span>';
+  recentSearches.forEach(r=>h+='<button class="recent-item" data-r="'+escapeHtml(r)+'">'+escapeHtml(r)+'</button>');
+  e.innerHTML=h;
+  e.querySelectorAll('[data-r]').forEach(b=>{b.onclick=function(){const i=$('dtcSearchInput');if(i){i.value=b.dataset.r;searchDTC(b.dataset.r)}}});
 }
 
-/* ============================================================
-   10) SYMPTOMS / POPULAR / FAMILY
-   ============================================================ */
 function initSymp(){
-  const e = $('symptomChips'); if(!e) return;
-  let h = '';
-  SYMPTOMS_DB.forEach((s,i)=>{ h += '<button class="symptom-chip" data-sym="'+i+'">'+s.icon+' '+escapeHtml(s.label)+'</button>'; });
-  e.innerHTML = h;
-  e.querySelectorAll('[data-sym]').forEach(b=>{ b.onclick = ()=>showSymp(parseInt(b.dataset.sym,10)); });
+  const e=$('symptomChips');if(!e)return;
+  let h='';
+  SYMPTOMS_DB.forEach((s,i)=>{h+='<button class="symptom-chip" data-sym="'+i+'">'+s.icon+' '+escapeHtml(s.label)+'</button>'});
+  e.innerHTML=h;
+  e.querySelectorAll('[data-sym]').forEach(b=>{b.onclick=()=>showSymp(parseInt(b.dataset.sym,10))});
 }
 function showSymp(i){
-  const s = SYMPTOMS_DB[i]; if(!s) return;
-  const d = $('searchResults'), c = $('searchCount');
-  if(!d) return;
-  let h = '<div class="bg-purple-900/30 rounded-xl p-3 mb-3 border-r- class4 border-purple-500"><div class="="font-bold text-sm text-purple-font200">'+s.icon-m+' '+escapeHtml(s.label)+ono'</div></div>< fontdiv class="space-y-2">';
+  const s=SYMPTOMS_DB[i];if(!s)return;
+  const d=$('searchResults'),c=$('searchCount');
+  if(!d)return;
+  let h='<div class="bg-purple-900/30 rounded-xl p-3 mb-3 border-r-4 border-purple-500"><div class="font-bold text-sm text-purple-200">'+s.icon+' '+escapeHtml(s.label)+'</div></div><div class="space-y-2">';
   s.codes.forEach(cd=>{
-    const inf = getInfo(cd);
-    const cl = {critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[inf.severity] || '#64748b';
-    h += '<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="'+cd+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1"><div-bold text-red-300 text-sm">'+cd+'</div><div class="text-xs text-gray-400">'+escapeHtml(inf.title)+'</div></div><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
+    const inf=getInfo(cd);
+    const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[inf.severity]||'#64748b';
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="'+cd+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">'+cd+'</div><div class="text-xs text-gray-400">'+escapeHtml(inf.title)+'</div></div><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
   });
-  h += '</div>';
-  d.innerHTML = h;
-  if(c) c.textContent = '(' + s.codes.length + ')';
-  d.querySelectorAll('.code-card').forEach(e=>{ e.onclick = ()=>showDetail(e.dataset.code); });
+  h+='</div>';
+  d.innerHTML=h;
+  if(c)c.textContent='('+s.codes.length+')';
+  d.querySelectorAll('.code-card').forEach(e=>{e.onclick=()=>showDetail(e.dataset.code)});
 }
 function initPop(){
-  const e = $('popularCodes'); if(!e) return;
-  e.innerHTML = POPULAR.map(c=>{
-    const i = getInfo(c);
-    return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="'+c+'"><div class="font-mono font-bold text-red-300 text-xs">'+c+'</div><div class="text-[10px] text-gray-500 truncate">'+escapeHtml(i.title)+'</div></button>';
-  }).join('');
-  e.querySelectorAll('[data-code]').forEach(b=>{ b.onclick = ()=>showDetail(b.dataset.code); });
+  const e=$('popularCodes');if(!e)return;
+  e.innerHTML=POPULAR.map(c=>{const i=getInfo(c);return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="'+c+'"><div class="font-mono font-bold text-red-300 text-xs">'+c+'</div><div class="text-[10px] text-gray-500 truncate">'+escapeHtml(i.title)+'</div></button>'}).join('');
+  e.querySelectorAll('[data-code]').forEach(b=>{b.onclick=()=>showDetail(b.dataset.code)});
 }
 function initFamily(){
-  const e = $('familyBrowser'); if(!e) return;
-  const fs = [
+  const e=$('familyBrowser');if(!e)return;
+  const fs=[
     {k:'P0',l:'P0xxx المحرك',i:'⚙️',c:'#3b82f6'},
     {k:'P2',l:'P2xxx محرك SAE',i:'🔧',c:'#8b5cf6'},
     {k:'P3',l:'P3xxx',i:'🛠️',c:'#ec4899'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
     {k:'C0',l:'C0xxx الشاسيه',i:'🛑',c:'#ef4444'},
     {k:'U0',l:'U0xxx الشبكة',i:'📡',c:'#10b981'},
-    {k:'U3',l:'U3xxx جهد عالي',i:'⚡',c:'#06b6d4'}
-  ];
-  e.innerHTML = fs.map(f=>'<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:'+f.c+'" data-fam="'+f.k+'"><div class="font-bold text-xs" style="color:'+f.c+'">'+f.i+' '+f.l+'</div></button>').join('');
-  e.querySelectorAll('[data-fam]').forEach(b=>{ b.onclick = ()=>browseFam(b.dataset.fam); });
+    {k:'U3',l:'U3xxx جهد عالي',i:'⚡',c:'#06b6d4'}];
+  e.innerHTML=fs.map(f=>'<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:'+f.c+'" data-fam="'+f.k+'"><div class="font-bold text-xs" style="color:'+f.c+'">'+f.i+' '+f.l+'</div></button>').join('');
+  e.querySelectorAll('[data-fam]').forEach(b=>{b.onclick=()=>browseFam(b.dataset.fam)});
 }
 function browseFam(p){
-  const d = $('searchResults'), c = $('searchCount'); if(!d) return;
-  const res = [];
-  for(const k of Object.keys(DTC_DATABASE)){
-    if(k.split('_')[0].toUpperCase().startsWith(p)) res.push(k);
-    if(res.length >= 80) break;
-  }
-  if(!res.length){ d.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>'; return; }
-  let h = '<div class="text-xs text-gray-400 mb-2">عائلة '+p+'xxx — '+res.length+' عطل</div><div class="space-y-1">';
-  res.forEach(cd=>{
-    const i = getInfo(cd);
-    h += '<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
-  });
-  h += '</div>';
-  d.innerHTML = h;
-  if(c) c.textContent = '(' + res.length + ')';
-  d.querySelectorAll('.code-card').forEach(e=>{ e.onclick = ()=>showDetail(e.dataset.code); });
+  const d=$('searchResults'),c=$('searchCount');if(!d)return;
+  const res=[];
+  for(const k of Object.keys(DTC_DATABASE)){if(k.split('_')[0].toUpperCase().startsWith(p))res.push(k);if(res.length>=80)break}
+  if(!res.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>';return}
+  let h='<div class="text-xs text-gray-400 mb-2">عائلة '+p+'xxx — '+res.length+' عطل</div><div class="space-y-1">';
+  res.forEach(cd=>{const i=getInfo(cd);h+='<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'});
+  h+='</div>';
+  d.innerHTML=h;
+  if(c)c.textContent='('+res.length+')';
+  d.querySelectorAll('.code-card').forEach(e=>{e.onclick=()=>showDetail(e.dataset.code)});
 }
 
-/* ============================================================
-   11) SEVERITY FILTERS
-   ============================================================ */
 function initSevFilters(){
-  const e = $('severityFilters'); if(!e) return;
+  const e=$('severityFilters');if(!e)return;
   e.querySelectorAll('[data-severity]').forEach(b=>{
-    b.onclick = function(){
+    b.onclick=function(){
       e.querySelectorAll('[data-severity]').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
-      currentSevFilter = b.dataset.severity;
-      const i = $('dtcSearchInput');
-      if(i && i.value.length >= 2) searchDTC(i.value);
+      currentSevFilter=b.dataset.severity;
+      const i=$('dtcSearchInput');
+      if(i&&i.value.length>=2)searchDTC(i.value);
     };
   });
 }
 
-/* ============================================================
-   12) DIAGNOSIS RULES
-   ============================================================ */
-const RULES = [
-  {req:['P0171','P0174'],title:'تسرب هواء في نظام السحب',conf:90,sev:'high',desc:'خليط فقير في البنكين — تسرب هواء محتمل',acts:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص غطاء زيت المحرك']},
-  {req:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',conf:75,sev:'medium',desc:'اشتعال متقطع — أصلح الأسباب الجذرية قبل الكتلايزر',acts:['بدل البواجي','افحص الكويلات','افحص ضغط الأسطوانات']},
-  {req:['P0420'],anyOf:['P0300','P0301'],title:'تلف الكتلايزر بسبب الاشتعال',conf:90,sev:'high',desc:'الاشتعال المتقطع أتلف الكتلايزر',acts:['أصلح الإشعال أولاً','افحص حساس O2','استبدل الكتلايزر إذا لزم']},
-  {req:['P0217'],title:'ارتفاع حرارة المحرك',conf:100,sev:'critical',desc:'أوقف السيارة فوراً!',acts:['أوقف فوراً','افحص سائل التبريد','افحص المروحة والترموستات']},
-  {req:['U0100'],title:'فقدان الاتصال بـ ECU',conf:90,sev:'critical',desc:'لا يوجد تواصل مع كمبيوتر المحرك',acts:['افحص فيوز ECU','افحص أسلاك الأرضي','افحص كابل OBD']},
-  {req:['P0524'],title:'ضغط زيت منخفض',conf:95,sev:'critical',desc:'خطر تلف المحرك',acts:['أوقف فوراً','افحص مستوى الزيت','افحص مضخة الزيت']}
-];
+const RULES=[
+{req:['P0171','P0174'],title:'تسرب هواء في نظام السحب',conf:90,sev:'high',desc:'خليط فقير في البنكين — تسرب هواء محتمل',acts:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص غطاء زيت المحرك']},
+{req:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',conf:75,sev:'medium',desc:'اشتعال متقطع — أصلح الأسباب الجذرية قبل الكتلايزر',acts:['بدل البواجي','افحص الكويلات','افحص ضغط الأسطوانات']},
+{req:['P0420'],anyOf:['P0300','P0301'],title:'تلف الكتلايزر بسبب الاشتعال',conf:90,sev:'high',desc:'الاشتعال المتقطع أتلف الكتلايزر',acts:['أصلح الإشعال أولاً','افحص حساس O2','استبدل الكتلايزر إذا لزم']},
+{req:['P0217'],title:'ارتفاع حرارة المحرك',conf:100,sev:'critical',desc:'أوقف السيارة فوراً!',acts:['أوقف فوراً','افحص سائل التبريد','افحص المروحة والترموستات']},
+{req:['U0100'],title:'فقدان الاتصال بـ ECU',conf:90,sev:'critical',desc:'لا يوجد تواصل مع كمبيوتر المحرك',acts:['افحص فيوز ECU','افحص أسلاك الأرضي','افحص كابل OBD']},
+{req:['P0524'],title:'ضغط زيت منخفض',conf:95,sev:'critical',desc:'خطر تلف المحرك',acts:['أوقف فوراً','افحص مستوى الزيت','افحص مضخة الزيت']}];
 function runDiag(codes){
-  if(!codes || !codes.length) return [];
-  const s = new Set(codes.map(c=>String(c).toUpperCase()));
-  const r = [];
+  if(!codes||!codes.length)return [];
+  const s=new Set(codes.map(c=>String(c).toUpperCase()));
+  const r=[];
   RULES.forEach(rule=>{
-    for(const rc of rule.req) if(!s.has(rc)) return;
-    if(rule.anyOf){
-      let any = false;
-      for(const ac of rule.anyOf) if(s.has(ac)){ any = true; break; }
-      if(!any) return;
-    }
+    for(const rc of rule.req)if(!s.has(rc))return;
+    if(rule.anyOf){let any=false;for(const ac of rule.anyOf)if(s.has(ac)){any=true;break}if(!any)return}
     r.push(rule);
   });
-  return r.sort((a,b)=>b.conf - a.conf).slice(0,5);
+  return r.sort((a,b)=>b.conf-a.conf).slice(0,5);
 }
-function calcHealth(f, d){
-  if(!f || !f.length) return 100;
-  let sc = 100;
-  f.forEach(x=>{
-    const c = (x.code || '').toUpperCase();
-    let dd = 2;
-    if(c.startsWith('U')) dd = 5;
-    else if(c.startsWith('B')) dd = 4;
-    else if(c.startsWith('C')) dd = 3;
-    sc -= dd;
-  });
-  (d||[]).forEach(x=>{
-    if(x.sev === 'critical') sc -= 4;
-    else if(x.sev === 'high') sc -= 3;
-    else if(x.sev === 'medium') sc -= 2;
-    else sc -= 1;
-  });
-  return Math.round(Math.max(25, Math.min(100, sc)));
+function calcHealth(f,d){
+  if(!f||!f.length)return 100;
+  let sc=100;
+  f.forEach(x=>{const c=(x.code||'').toUpperCase();let dd=2;if(c.startsWith('U'))dd=5;else if(c.startsWith('B'))dd=4;else if(c.startsWith('C'))dd=3;sc-=dd});
+  (d||[]).forEach(x=>{if(x.sev==='critical')sc-=4;else if(x.sev==='high')sc-=3;else if(x.sev==='medium')sc-=2;else sc-=1});
+  return Math.round(Math.max(25,Math.min(100,sc)));
 }
 function dispSmart(codes){
-  lastDiag = runDiag(codes);
-  const c = $('smartDiagnosis'); if(!c) return;
-  if(!lastDiag.length){ c.classList.add('hidden'); c.innerHTML=''; return; }
+  lastDiag=runDiag(codes);
+  const c=$('smartDiagnosis');if(!c)return;
+  if(!lastDiag.length){c.classList.add('hidden');c.innerHTML='';return}
   c.classList.remove('hidden');
-  let h = '<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4"><h3 class="font-bold text-purple-200 mb-3"><i class="fa-solid fa-brain"></i> التشخيص الذكي</h3>';
+  let h='<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4"><h3 class="font-bold text-purple-200 mb-3"><i class="fa-solid fa-brain"></i> التشخيص الذكي</h3>';
   lastDiag.forEach(d=>{
-    const cl = d.sev==='critical' ? '#dc2626' : d.sev==='high' ? '#ef4444' : '#f59e0b';
-    h += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid '+cl+'"><div class="flex justify-between mb-2 gap-2"><div class="font-bold text-sm">'+escapeHtml(d.title)+'</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold whitespace-nowrap" style="background:'+cl+'">'+d.conf+'%</span></div><p class="text-xs text-gray-300 mb-2">'+escapeHtml(d.desc)+'</p><ul class="text-xs space-y-1">';
-    (d.acts||[]).forEach(a=>{ h += '<li class="bg-gray-800/60 rounded p-1.5">• '+escapeHtml(a)+'</li>'; });
-    h += '</ul></div>';
+    const cl=d.sev==='critical'?'#dc2626':d.sev==='high'?'#ef4444':'#f59e0b';
+    h+='<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid '+cl+'"><div class="flex justify-between mb-2 gap-2"><div class="font-bold text-sm">'+escapeHtml(d.title)+'</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold whitespace-nowrap" style="background:'+cl+'">'+d.conf+'%</span></div><p class="text-xs text-gray-300 mb-2">'+escapeHtml(d.desc)+'</p><ul class="text-xs space-y-1">';
+    (d.acts||[]).forEach(a=>{h+='<li class="bg-gray-800/60 rounded p-1.5">• '+escapeHtml(a)+'</li>'});
+    h+='</ul></div>';
   });
-  c.innerHTML = h + '</div>';
+  c.innerHTML=h+'</div>';
 }
-function dispHealth(f, d){
-  const b = $('healthBadge'); if(!b) return;
-  if(!f || !f.length){ b.classList.add('hidden'); return; }
-  const sc = calcHealth(f, d);
-  let g, s, ds;
-  if(sc >= 90){ g='from-green-500 to-emerald-600'; s='ممتازة'; ds='لا توجد مشاكل تُذكر'; }
-  else if(sc >= 75){ g='from-emerald-500 to-green-600'; s='جيدة'; ds='أعطال بسيطة'; }
-  else if(sc >= 50){ g='from-amber-500 to-orange-600'; s='تحتاج صيانة'; ds='أعطال مهمة'; }
-  else{ g='from-red-500 to-rose-600'; s='خطيرة'; ds='إصلاح فوري مطلوب'; }
+function dispHealth(f,d){
+  const b=$('healthBadge');if(!b)return;
+  if(!f||!f.length){b.classList.add('hidden');return}
+  const sc=calcHealth(f,d);
+  let g,s,ds;
+  if(sc>=90){g='from-green-500 to-emerald-600';s='ممتازة';ds='لا توجد مشاكل تُذكر'}
+  else if(sc>=75){g='from-emerald-500 to-green-600';s='جيدة';ds='أعطال بسيطة'}
+  else if(sc>=50){g='from-amber-500 to-orange-600';s='تحتاج صيانة';ds='أعطال مهمة'}
+  else{g='from-red-500 to-rose-600';s='خطيرة';ds='إصلاح فوري مطلوب'}
   b.classList.remove('hidden');
-  b.innerHTML = '<div class="bg-gradient-to-l '+g+' rounded-2xl p-4 text-white"><div class="flex justify-between items-center"><div><div class="text-sm font-bold">'+s+'</div><div class="text-xs opacity-90">'+ds+'</div></div><div class="text-4xl font-bold">'+sc+'<span class="text-base opacity-80">/100</span></div></div></div>';
+  b.innerHTML='<div class="bg-gradient-to-l '+g+' rounded-2xl p-4 text-white"><div class="flex justify-between items-center"><div><div class="text-sm font-bold">'+s+'</div><div class="text-xs opacity-90">'+ds+'</div></div><div class="text-4xl font-bold">'+sc+'<span class="text-base opacity-80">/100</span></div></div></div>';
 }
 
-/* ============================================================
-   13) DETAILS MODAL
-   ============================================================ */
 function showDetail(cod){
-  cod = String(cod);
-  const isBranded = /_[A-Z]+$/.test(cod);
-  const cleanCode = sanitizeCode(cod.replace(/_[A-Z]+$/,''));
-  const info = isBranded ? (DTC_DATABASE[cod] || getInfo(cleanCode)) : getInfo(cod);
-  const m = $('dtcDetailModal'), c = $('dtcDetailContent');
-  if(!m || !c) return;
-  currentDetailCode = cleanCode;
-
-  const fb = $('btnFavDetail'); if(fb) fb.classList.toggle('active', isFav(cleanCode));
-
-  const sm = {critical:{bg:'#dc2626',l:'حرج'},high:{bg:'#ef4444',l:'خطير'},medium:{bg:'#f59e0b',l:'متوسط'},low:{bg:'#10b981',l:'منخفض'}};
-  const sv = sm[info.severity] || {bg:'#64748b',l:'غير محدد'};
-
-  let h = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">'+escapeHtml(cleanCode)+'</div>';
-  h += '<div class="text-base font-bold text-white">'+escapeHtml(info.title || 'عطل غير معروف')+'</div>';
-  if(info.title_en && info.title_en !== info.title) h += '<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
-  h += '<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
-  if(info.zone) h += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
-  if(info.brand) h += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">'+escapeHtml(info.brand)+'</span>';
-  h += '</div></div>';
-  h += '<div class="grid grid-cols-2 gap-2 mb-3"><button id="copyDetailBtn" class="bg-blue-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button><button id="shareDetailBtn" class="bg-green-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> واتساب</button></div>';
-
-  if(info.desc) h += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">'+escapeHtml(info.desc)+'</div></div>';
-
-  const r = info.repair || {};
-  if(r.difficulty || r.hMin !== undefined || r.diy !== undefined){
-    h += '<div class="bg-emerald-900/40 rounded-xl p-4 mb-3 border border-emerald-700/50"><div class="font-bold text-sm mb-3 text-emerald-300"><i class="fa-solid fa-screwdriver-wrench"></i> معلومات الإصلاح</div><div class="grid grid-cols-2 gap-2 text-xs">';
-    if(r.difficulty){
-      const dm = {easy:{l:'سهل',c:'#10b981',i:'🟢'},medium:{l:'متوسط',c:'#f59e0b',i:'🟡'},hard:{l:'صعب',c:'#ef4444',i:'🔴'}};
-      const dd = dm[r.difficulty] || {l:r.difficulty,c:'#64748b',i:'⚪'};
-      h += '<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">الصعوبة</div><div class="font-bold" style="color:'+dd.c+'">'+dd.i+' '+dd.l+'</div></div>';
-    }
-    if(r.diy !== undefined) h += '<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">DIY؟</div><div class="font-bold">'+(r.diy?'<span class="text-emerald-400">✅ نعم</span>':'<span class="text-red-400">❌ لا</span>')+'</div></div>';
-    if(r.hMin !== undefined) h += '<div class="bg-black/30 rounded-lg p-2 col-span-2"><div class="text-[10px] text-gray-400">⏱️ الوقت المتوقع</div><div class="font-bold text-blue-300">'+r.hMin+' — '+r.hMax+' ساعة</div></div>';
-    h += '</div></div>';
+  cod=String(cod);
+  const isBranded=/_[A-Z]+$/.test(cod);
+  const cleanCode=sanitizeCode(cod.replace(/_[A-Z]+$/,''));
+  const info=isBranded?(DTC_DATABASE[cod]||getInfo(cleanCode)):getInfo(cod);
+  const m=$('dtcDetailModal'),c=$('dtcDetailContent');
+  if(!m||!c)return;
+  currentDetailCode=cleanCode;
+  const fb=$('btnFavDetail');if(fb)fb.classList.toggle('active',isFav(cleanCode));
+  const sm={critical:{bg:'#dc2626',l:'حرج'},high:{bg:'#ef4444',l:'خطير'},medium:{bg:'#f59e0b',l:'متوسط'},low:{bg:'#10b981',l:'منخفض'}};
+  const sv=sm[info.severity]||{bg:'#64748b',l:'غير محدد'};
+  let h='<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">'+escapeHtml(cleanCode)+'</div>';
+  h+='<div class="text-base font-bold text-white">'+escapeHtml(info.title||'عطل غير معروف')+'</div>';
+  if(info.title_en&&info.title_en!==info.title)h+='<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
+  h+='<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
+  if(info.zone)h+='<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
+  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">'+escapeHtml(info.brand)+'</span>';
+  h+='</div></div>';
+  h+='<div class="grid grid-cols-2 gap-2 mb-3"><button id="copyDetailBtn" class="bg-blue-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button><button id="shareDetailBtn" class="bg-green-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> واتساب</button></div>';
+  if(info.desc)h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">'+escapeHtml(info.desc)+'</div></div>';
+  const r=info.repair||{};
+  if(r.difficulty||r.hMin!==undefined||r.diy!==undefined){
+    h+='<div class="bg-emerald-900/40 rounded-xl p-4 mb-3 border border-emerald-700/50"><div class="font-bold text-sm mb-3 text-emerald-300"><i class="fa-solid fa-screwdriver-wrench"></i> معلومات الإصلاح</div><div class="grid grid-cols-2 gap-2 text-xs">';
+    if(r.difficulty){const dm={easy:{l:'سهل',c:'#10b981',i:'🟢'},medium:{l:'متوسط',c:'#f59e0b',i:'🟡'},hard:{l:'صعب',c:'#ef4444',i:'🔴'}};const dd=dm[r.difficulty]||{l:r.difficulty,c:'#64748b',i:'⚪'};h+='<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">الصعوبة</div><div class="font-bold" style="color:'+dd.c+'">'+dd.i+' '+dd.l+'</div></div>'}
+    if(r.diy!==undefined)h+='<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">DIY؟</div><div class="font-bold">'+(r.diy?'<span class="text-emerald-400">✅ نعم</span>':'<span class="text-red-400">❌ لا</span>')+'</div></div>';
+    if(r.hMin!==undefined)h+='<div class="bg-black/30 rounded-lg p-2 col-span-2"><div class="text-[10px] text-gray-400">⏱️ الوقت</div><div class="font-bold text-blue-300">'+r.hMin+' — '+r.hMax+' ساعة</div></div>';
+    h+='</div></div>';
   }
-
-  const fl = info.flags || {};
-  if(fl.mil || fl.emissions_relevant || fl.limp_mode_possible){
-    h += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-gray-700"><div class="font-bold text-sm mb-3 text-amber-300">إشارات مهمة</div><div class="space-y-2 text-xs">';
-    if(fl.mil) h += '<div>🚨 يُضيء لمبة المحرك (MIL)</div>';
-    if(fl.emissions_relevant) h += '<div>🌫️ يؤثر على الانبعاثات</div>';
-    if(fl.limp_mode_possible) h += '<div>🐢 قد يدخل وضع الطوارئ</div>';
-    h += '</div></div>';
+  const fl=info.flags||{};
+  if(fl.mil||fl.emissions_relevant||fl.limp_mode_possible){
+    h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-gray-700"><div class="font-bold text-sm mb-3 text-amber-300">إشارات مهمة</div><div class="space-y-2 text-xs">';
+    if(fl.mil)h+='<div>🚨 يُضيء لمبة المحرك (MIL)</div>';
+    if(fl.emissions_relevant)h+='<div>🌫️ يؤثر على الانبعاثات</div>';
+    if(fl.limp_mode_possible)h+='<div>🐢 قد يدخل وضع الطوارئ</div>';
+    h+='</div></div>';
   }
-
-  const blk = (it, t, col)=>{
-    if(!it || !it.length) return '';
+  const blk=(it,t,col)=>{
+    if(!it||!it.length)return '';
     return '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:'+col+'"><div class="font-bold text-sm mb-2" style="color:'+col+'">'+t+'</div><ul class="space-y-1.5">'+it.map(i=>'<li class="text-xs text-gray-300">• '+escapeHtml(i)+'</li>').join('')+'</ul></div>';
   };
-  h += blk(info.symptoms, '🔴 الأعراض', '#ef4444');
-  h += blk(info.causes, '⚙️ الأسباب المحتملة', '#f59e0b');
-  h += blk(info.steps, '📋 خطوات الفحص', '#10b981');
-
-  if(info.related && info.related.length){
-    h += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-purple-700/50"><div class="font-bold text-sm mb-3 text-purple-300"><i class="fa-solid fa-link"></i> أكواد مرتبطة</div><div class="flex flex-wrap gap-2">';
-    info.related.slice(0,20).forEach(rc=>{
-      const cc = sanitizeCode(rc); if(!cc) return;
-      h += '<button class="bg-purple-600 text-white text-xs font-mono font-bold px-3 py-1.5 rounded-lg" data-related="'+cc+'">'+cc+'</button>';
-    });
-    h += '</div></div>';
+  h+=blk(info.symptoms,'🔴 الأعراض','#ef4444');
+  h+=blk(info.causes,'⚙️ الأسباب المحتملة','#f59e0b');
+  h+=blk(info.steps,'📋 خطوات الفحص','#10b981');
+  if(info.related&&info.related.length){
+    h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-purple-700/50"><div class="font-bold text-sm mb-3 text-purple-300"><i class="fa-solid fa-link"></i> أكواد مرتبطة</div><div class="flex flex-wrap gap-2">';
+    info.related.slice(0,20).forEach(rc=>{const cc=sanitizeCode(rc);if(!cc)return;h+='<button class="bg-purple-600 text-white text-xs font-mono font-bold px-3 py-1.5 rounded-lg" data-related="'+cc+'">'+cc+'</button>'});
+    h+='</div></div>';
   }
-
-  if(info.sources && info.sources.length){
-    h += '<div class="bg-gray-900/60 rounded-xl p-3 mb-3 border border-gray-700"><div class="text-[10px] text-gray-500 mb-2">📚 المصادر</div><div class="flex flex-wrap gap-2">';
-    info.sources.slice(0,5).forEach(src=>{
-      const s = String(src);
-      if(!/^https?:\/\//.test(s)) return;
-      const l = s.replace(/^https?:\/\//,'').split('/')[0];
-      h += '<a href="'+escapeHtml(s)+'" target="_blank" rel="noopener" class="text-[10px] text-blue-400 underline">'+escapeHtml(l)+'</a>';
-    });
-    h += '</div></div>';
-  }
-
-  c.innerHTML = h;
+  c.innerHTML=h;
   m.classList.remove('hidden');
-
-  const cb = $('copyDetailBtn'); if(cb) cb.onclick = copyDetail;
-  const sb = $('shareDetailBtn'); if(sb) sb.onclick = shareDetail;
-  c.querySelectorAll('[data-related]').forEach(b=>{
-    b.onclick = function(){
-      const cc = b.dataset.related;
-      m.classList.add('hidden');
-      setTimeout(()=>showDetail(cc), 100);
-    };
-  });
+  const cb=$('copyDetailBtn');if(cb)cb.onclick=copyDetail;
+  const sb=$('shareDetailBtn');if(sb)sb.onclick=shareDetail;
+  c.querySelectorAll('[data-related]').forEach(b=>{b.onclick=function(){const cc=b.dataset.related;m.classList.add('hidden');setTimeout(()=>showDetail(cc),100)}});
 }
 function copyDetail(){
-  if(!currentDetailCode) return;
-  if(navigator.clipboard) navigator.clipboard.writeText(currentDetailCode);
-  else { const t=document.createElement('textarea'); t.value=currentDetailCode; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-  alert('تم نسخ: ' + currentDetailCode);
+  if(!currentDetailCode)return;
+  if(navigator.clipboard)navigator.clipboard.writeText(currentDetailCode);
+  else{const t=document.createElement('textarea');t.value=currentDetailCode;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}
+  alert('تم نسخ: '+currentDetailCode);
 }
 function shareDetail(){
-  if(!currentDetailCode) return;
-  const i = getInfo(currentDetailCode);
-  let t = '*كود: ' + currentDetailCode + '*\n' + (i.title || '') + '\n\n';
-  if(i.desc) t += i.desc + '\n\n';
-  t += 'تفاصيل أكثر: ' + location.origin + location.pathname;
-  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+  if(!currentDetailCode)return;
+  const i=getInfo(currentDetailCode);
+  let t='*كود: '+currentDetailCode+'*\n'+(i.title||'')+'\n\n';
+  if(i.desc)t+=i.desc+'\n\n';
+  t+='تفاصيل: '+location.origin+location.pathname;
+  window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');
 }
 
-/* ============================================================
-   14) OBD2 CORE
-   ============================================================ */
 function handleNotif(e){
-  recvBuf += new TextDecoder().decode(e.target.value);
-  if(recvBuf.length > RECV_BUF_LIMIT) recvBuf = recvBuf.slice(-2048);
-  if(recvBuf.indexOf('>') >= 0 && curResolve){
-    clearTimeout(curTimeout); curTimeout = null;
-    const r = recvBuf; recvBuf = '';
-    const res = curResolve; curResolve = null;
-    res(r);
-  }
+  recvBuf+=new TextDecoder().decode(e.target.value);
+  if(recvBuf.length>RECV_BUF_LIMIT)recvBuf=recvBuf.slice(-2048);
+  if(recvBuf.indexOf('>')>=0&&curResolve){clearTimeout(curTimeout);curTimeout=null;const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;res(r)}
 }
 function isBad(r){
-  if(!r) return true;
-  const t = String(r).trim();
-  if(t === '' || t === '>') return true;
-  if(/NO DATA|UNABLE TO CONNECT|ERROR|BUS INIT/i.test(r)) return true;
+  if(!r)return true;
+  const t=String(r).trim();
+  if(t===''||t==='>')return true;
+  if(/NO DATA|UNABLE TO CONNECT|ERROR|BUS INIT/i.test(r))return true;
   return false;
 }
-function sendCmd(cmd, timeout, retries){
-  timeout = timeout || 3000; retries = retries || 1;
-  return new Promise((resolve, reject)=>{
-    let att = 0, done = false;
-    const sR = v=>{ if(done) return; done = true; resolve(v); };
-    const sJ = e=>{ if(done) return; done = true; reject(e); };
+function sendCmd(cmd,timeout,retries){
+  timeout=timeout||3000;retries=retries||1;
+  return new Promise((resolve,reject)=>{
+    let att=0,done=false;
+    const sR=v=>{if(done)return;done=true;resolve(v)};
+    const sJ=e=>{if(done)return;done=true;reject(e)};
     function tOnce(){
       att++;
-      cmdQ.push({
-        cmd, timeout,
-        resolve: r=>{
-          if(isBad(r) && att <= retries){ isProcessing = false; setTimeout(tOnce, 300); return; }
-          sR(r); isProcessing = false; procQ();
-        },
-        reject: e=>{
-          isProcessing = false;
-          if(att <= retries) setTimeout(tOnce, 300);
-          else { sJ(e); procQ(); }
-        }
-      });
+      cmdQ.push({cmd,timeout,resolve:r=>{if(isBad(r)&&att<=retries){isProcessing=false;setTimeout(tOnce,300);return}sR(r);isProcessing=false;procQ()},reject:e=>{isProcessing=false;if(att<=retries)setTimeout(tOnce,300);else{sJ(e);procQ()}}});
       procQ();
     }
     tOnce();
   });
 }
 async function procQ(){
-  if(isProcessing || !cmdQ.length) return;
-  const ch = (transport === 'usb' && usbWriter) || (transport === 'ble' && uartChar);
-  if(!ch){ isProcessing = false; return; }
-  isProcessing = true;
-  const it = cmdQ.shift();
-  curResolve = it.resolve;
-  recvBuf = '';
+  if(isProcessing||!cmdQ.length)return;
+  const ch=(transport==='usb'&&usbWriter)||(transport==='ble'&&uartChar);
+  if(!ch){isProcessing=false;return}
+  isProcessing=true;
+  const it=cmdQ.shift();
+  curResolve=it.resolve;
+  recvBuf='';
   try{
-    const d = new TextEncoder().encode(it.cmd + '\r');
-    if(transport === 'usb') await usbWriter.write(d);
-    else await uartChar.writeValue(d);
-    curTimeout = setTimeout(()=>{
-      if(curResolve){
-        const r = recvBuf; recvBuf = '';
-        const res = curResolve; curResolve = null; curTimeout = null;
-        isProcessing = false; res(r);
-        procQ();
-      }
-    }, it.timeout);
-  }catch(e){
-    isProcessing = false; curResolve = null;
-    if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
-    it.reject(e); procQ();
-  }
+    const d=new TextEncoder().encode(it.cmd+'\r');
+    if(transport==='usb')await usbWriter.write(d);else await uartChar.writeValue(d);
+    curTimeout=setTimeout(()=>{if(curResolve){const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;curTimeout=null;isProcessing=false;res(r);procQ()}},it.timeout);
+  }catch(e){isProcessing=false;curResolve=null;if(curTimeout){clearTimeout(curTimeout);curTimeout=null}it.reject(e);procQ()}
 }
 async function initELM(){
   log('INFO: تهيئة ELM327...');
-  await sendCmd('AT Z', 6000);
-  await new Promise(r=>setTimeout(r, 500));
-  await sendCmd('AT E0', 2000);
-  await sendCmd('AT L0', 2000);
-  await sendCmd('AT S0', 2000);
-  const protocols = ['AT SP 0','AT SP 6','AT SP 7','AT SP 5','AT SP 3'];
+  await sendCmd('AT Z',6000);
+  await new Promise(r=>setTimeout(r,500));
+  await sendCmd('AT E0',2000);
+  await sendCmd('AT L0',2000);
+  await sendCmd('AT S0',2000);
+  const protocols=['AT SP 0','AT SP 6','AT SP 7','AT SP 5','AT SP 3'];
   for(const p of protocols){
-    await sendCmd(p, 2000);
-    await new Promise(r=>setTimeout(r, 200));
-    const t = await sendCmd('0100', 3000);
-    if(t && t.indexOf('41 00') >= 0){ log('OK: بروتوكول ' + p); return true; }
+    await sendCmd(p,2000);
+    await new Promise(r=>setTimeout(r,200));
+    const t=await sendCmd('0100',3000);
+    if(t&&t.indexOf('41 00')>=0){log('OK: بروتوكول '+p);return true}
   }
   log('ERR: لم يتم التعرف على بروتوكول');
   return false;
 }
 async function connectOBD(){
-  if(!hasBLE){
-    alert('المتصفح لا يدعم Web Bluetooth.\n\n- أندرويد: استخدم Chrome\n- iPhone: استخدم Bluefy');
-    return;
-  }
-  const btn = $('connect-btn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
+  if(!hasBLE){alert('المتصفح لا يدعم Web Bluetooth.\n\n- أندرويد: Chrome\n- iPhone: Bluefy');return}
+  const btn=$('connect-btn');
+  const orig=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>';
   try{
     log('INFO: البحث عن أجهزة BLE...');
-    const opts = {
-      filters: [
-        {services: KNOWN_SVC},
-        {namePrefix: 'OBD'},{namePrefix: 'OBDII'},{namePrefix: 'ELM'},
-        {namePrefix: 'Vgate'},{namePrefix: 'Viecar'},{namePrefix: 'V-Link'},
-        {namePrefix: 'KONNWEI'},{namePrefix: 'iCar'}
-      ],
-      optionalServices: KNOWN_SVC
-    };
-    try{ btDevice = await navigator.bluetooth.requestDevice(opts); }
-    catch(e){ log('INFO: جرب البحث الشامل...'); btDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:KNOWN_SVC}); }
-    log('INFO: جهاز: ' + (btDevice.name || 'بدون اسم'));
-    btDevice.addEventListener('gattserverdisconnected', handleDisc);
-    btServer = await btDevice.gatt.connect();
-    log('INFO: متصل GATT — البحث عن خدمة...');
-    let chr = null;
-    for(const s of KNOWN_SVC){
-      try{
-        const tS = await btServer.getPrimaryService(s);
-        for(const c of KNOWN_CHR){
-          try{ chr = await tS.getCharacteristic(c); log('OK: خدمة معروفة'); break; }catch(e){}
-        }
-        if(chr) break;
-      }catch(e){}
-    }
+    const opts={filters:[{services:KNOWN_SVC},{namePrefix:'OBD'},{namePrefix:'OBDII'},{namePrefix:'ELM'},{namePrefix:'Vgate'},{namePrefix:'Viecar'},{namePrefix:'V-Link'},{namePrefix:'KONNWEI'},{namePrefix:'iCar'}],optionalServices:KNOWN_SVC};
+    try{btDevice=await navigator.bluetooth.requestDevice(opts)}catch(e){log('INFO: بحث شامل...');btDevice=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:KNOWN_SVC})}
+    log('INFO: جهاز: '+(btDevice.name||'بدون اسم'));
+    btDevice.addEventListener('gattserverdisconnected',handleDisc);
+    btServer=await btDevice.gatt.connect();
+    log('INFO: متصل GATT...');
+    let chr=null;
+    for(const s of KNOWN_SVC){try{const tS=await btServer.getPrimaryService(s);for(const c of KNOWN_CHR){try{chr=await tS.getCharacteristic(c);log('OK: خدمة معروفة');break}catch(e){}}if(chr)break}catch(e){}}
     if(!chr){
-      log('INFO: enumerate تلقائي...');
-      const svcs = await btServer.getPrimaryServices();
-      log('INFO: عدد الخدمات: ' + svcs.length);
-      for(const s of svcs){
-        try{
-          const chs = await s.getCharacteristics();
-          for(const ch of chs){
-            if((ch.properties.write || ch.properties.writeWithoutResponse) && (ch.properties.notify || ch.properties.indicate)){
-              try{ await ch.startNotifications(); chr = ch; log('OK: auto: ' + ch.uuid.substring(0,8)); break; }catch(e){}
-            }
-          }
-        }catch(e){}
-        if(chr) break;
-      }
+      log('INFO: enumerate...');
+      const svcs=await btServer.getPrimaryServices();
+      for(const s of svcs){try{const chs=await s.getCharacteristics();for(const ch of chs){if((ch.properties.write||ch.properties.writeWithoutResponse)&&(ch.properties.notify||ch.properties.indicate)){try{await ch.startNotifications();chr=ch;log('OK: auto: '+ch.uuid.substring(0,8));break}catch(e){}}}}catch(e){}if(chr)break}
     }
-    if(!chr) throw new Error('لم يتم العثور على قناة اتصال. تأكد أن الجهاز BLE 4.0');
-    uartChar = chr;
-    try{ await uartChar.startNotifications(); }catch(e){}
-    uartChar.removeEventListener('characteristicvaluechanged', handleNotif);
-    uartChar.addEventListener('characteristicvaluechanged', handleNotif);
-    transport = 'ble'; isConnected = true;
-    setStatus('connected'); updConnUI(true);
+    if(!chr)throw new Error('لم يتم العثور على قناة اتصال. تأكد أن الجهاز BLE 4.0');
+    uartChar=chr;
+    try{await uartChar.startNotifications()}catch(e){}
+    uartChar.removeEventListener('characteristicvaluechanged',handleNotif);
+    uartChar.addEventListener('characteristicvaluechanged',handleNotif);
+    transport='ble';isConnected=true;
+    setStatus('connected');updConnUI(true);
     log('OK: متصل Bluetooth');
-    if(!await initELM()) throw new Error('فشل تهيئة ELM327');
+    if(!await initELM())throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
   }catch(e){
-    log('ERR: ' + e.message);
-    if(uartChar){ try{ await uartChar.stopNotifications(); }catch(_){} uartChar = null; }
-    if(btDevice && btDevice.gatt.connected){ try{ btDevice.gatt.disconnect(); }catch(_){} }
-    transport = null; isConnected = false;
-    setStatus('disconnected'); updConnUI(false);
-  }finally{
-    btn.disabled = false; btn.innerHTML = orig;
-  }
+    log('ERR: '+e.message);
+    if(uartChar){try{await uartChar.stopNotifications()}catch(_){}uartChar=null}
+    if(btDevice&&btDevice.gatt.connected){try{btDevice.gatt.disconnect()}catch(_){}}
+    transport=null;isConnected=false;
+    setStatus('disconnected');updConnUI(false);
+  }finally{btn.disabled=false;btn.innerHTML=orig}
 }
 async function connectUSB(){
-  if(!navigator.serial){ alert('Web Serial غير مدعوم. استخدم Chrome أو Edge على الحاسوب.'); return; }
-  const btn = $('usb-btn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
+  if(!navigator.serial){alert('Web Serial غير مدعوم. استخدم Chrome أو Edge');return}
+  const btn=$('usb-btn');
+  const orig=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>';
   try{
-    usbPort = await navigator.serial.requestPort();
-    const bauds = [38400, 115200, 9600, 57600];
-    let ok = false;
-    for(const b of bauds){
-      try{ await usbPort.open({baudRate:b, dataBits:8, stopBits:1, parity:'none'}); ok = true; break; }
-      catch(e){ try{ await usbPort.close(); }catch(_){} }
-    }
-    if(!ok) throw new Error('فشل فتح المنفذ بكل السرعات');
-    usbWriter = usbPort.writable.getWriter();
-    transport = 'usb';
+    usbPort=await navigator.serial.requestPort();
+    const bauds=[38400,115200,9600,57600];
+    let ok=false;
+    for(const b of bauds){try{await usbPort.open({baudRate:b,dataBits:8,stopBits:1,parity:'none'});ok=true;break}catch(e){try{await usbPort.close()}catch(_){}}}
+    if(!ok)throw new Error('فشل فتح المنفذ');
+    usbWriter=usbPort.writable.getWriter();
+    transport='usb';
     startUSBLoop();
-    isConnected = true;
-    setStatus('connected'); updConnUI(true);
+    isConnected=true;
+    setStatus('connected');updConnUI(true);
     log('OK: متصل USB');
-    if(!await initELM()) throw new Error('فشل تهيئة ELM327');
+    if(!await initELM())throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
-  }catch(e){
-    log('ERR: ' + e.message);
-    await cleanupUSB();
-    transport = null; isConnected = false;
-    setStatus('disconnected'); updConnUI(false);
-  }finally{
-    btn.disabled = false; btn.innerHTML = orig;
-  }
+  }catch(e){log('ERR: '+e.message);await cleanupUSB();transport=null;isConnected=false;setStatus('disconnected');updConnUI(false)}
+  finally{btn.disabled=false;btn.innerHTML=orig}
 }
 async function startUSBLoop(){
-  if(!usbPort || !usbPort.readable) return;
-  usbLoop = true;
-  const dec = new TextDecoder();
-  while(usbPort && usbPort.readable && usbLoop){
-    usbReader = usbPort.readable.getReader();
+  if(!usbPort||!usbPort.readable)return;
+  usbLoop=true;
+  const dec=new TextDecoder();
+  while(usbPort&&usbPort.readable&&usbLoop){
+    usbReader=usbPort.readable.getReader();
     try{
       while(usbLoop){
-        const v = await usbReader.read();
-        if(v.done) break;
+        const v=await usbReader.read();
+        if(v.done)break;
         if(v.value){
-          recvBuf += dec.decode(v.value, {stream:true});
-          if(recvBuf.length > RECV_BUF_LIMIT) recvBuf = recvBuf.slice(-2048);
-          if(recvBuf.indexOf('>') >= 0 && curResolve){
-            clearTimeout(curTimeout); curTimeout = null;
-            const r = recvBuf; recvBuf = '';
-            const res = curResolve; curResolve = null; res(r);
-          }
+          recvBuf+=dec.decode(v.value,{stream:true});
+          if(recvBuf.length>RECV_BUF_LIMIT)recvBuf=recvBuf.slice(-2048);
+          if(recvBuf.indexOf('>')>=0&&curResolve){clearTimeout(curTimeout);curTimeout=null;const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;res(r)}
         }
       }
     }catch(e){}
-    finally{ try{ usbReader.releaseLock(); }catch(_){} }
+    finally{try{usbReader.releaseLock()}catch(_){}}
   }
 }
 async function cleanupUSB(){
-  usbLoop = false;
-  try{ if(usbReader){ await usbReader.cancel(); usbReader.releaseLock(); } }catch(_){}
-  try{ if(usbWriter) usbWriter.releaseLock(); }catch(_){}
-  try{ if(usbPort) await usbPort.close(); }catch(_){}
-  usbReader = null; usbWriter = null; usbPort = null;
-  cmdQ = []; isProcessing = false; curResolve = null;
-  if(curTimeout){ clearTimeout(curTimeout); curTimeout = null; }
+  usbLoop=false;
+  try{if(usbReader){await usbReader.cancel();usbReader.releaseLock()}}catch(_){}
+  try{if(usbWriter)usbWriter.releaseLock()}catch(_){}
+  try{if(usbPort)await usbPort.close()}catch(_){}
+  usbReader=null;usbWriter=null;usbPort=null;
+  cmdQ=[];isProcessing=false;curResolve=null;
+  if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
 }
 async function handleDisc(){
-  isConnected = false; isDemo = false;
-  if(liveTimer){ clearTimeout(liveTimer); liveTimer = null; }
-  if(transport === 'usb') await cleanupUSB();
-  if(uartChar){ try{ uartChar.removeEventListener('characteristicvaluechanged', handleNotif); }catch(_){} try{ await uartChar.stopNotifications(); }catch(_){} uartChar = null; }
-  if(btDevice && btDevice.gatt.connected){ try{ btDevice.gatt.disconnect(); }catch(_){} }
-  transport = null;
-  setStatus('disconnected'); updConnUI(false);
+  isConnected=false;isDemo=false;
+  if(liveTimer){clearTimeout(liveTimer);liveTimer=null}
+  if(transport==='usb')await cleanupUSB();
+  if(uartChar){try{uartChar.removeEventListener('characteristicvaluechanged',handleNotif)}catch(_){}try{await uartChar.stopNotifications()}catch(_){}uartChar=null}
+  if(btDevice&&btDevice.gatt.connected){try{btDevice.gatt.disconnect()}catch(_){}}
+  transport=null;
+  setStatus('disconnected');updConnUI(false);
   log('INFO: تم قطع الاتصال');
 }
 function updConnUI(c){
-  const cb=$('connect-btn'), ub=$('usb-btn'), db=$('demo-btn'), x=$('disconnect-btn');
-  if(!cb || !ub || !db || !x) return;
-  if(c){
-    cb.classList.add('hidden'); ub.classList.add('hidden'); db.classList.add('hidden'); x.classList.remove('hidden');
-  }else{
-    cb.classList.remove('hidden');
-    if(!hasSerial || isIOS) ub.classList.add('hidden'); else ub.classList.remove('hidden');
-    db.classList.remove('hidden'); x.classList.add('hidden');
-  }
+  const cb=$('connect-btn'),ub=$('usb-btn'),db=$('demo-btn'),x=$('disconnect-btn');
+  if(!cb||!ub||!db||!x)return;
+  if(c){cb.classList.add('hidden');ub.classList.add('hidden');db.classList.add('hidden');x.classList.remove('hidden')}
+  else{cb.classList.remove('hidden');if(!hasSerial||isIOS)ub.classList.add('hidden');else ub.classList.remove('hidden');db.classList.remove('hidden');x.classList.add('hidden')}
 }
 
-/* ============================================================
-   15) PARSERS
-   ============================================================ */
 function pHex(txt){
-  if(!txt) return [];
-  const cleaned = txt.replace(/[^0-9A-Fa-f]/g,' ');
-  const parts = cleaned.trim().split(/\s+/);
-  const bytes = [];
+  if(!txt)return [];
+  const cleaned=txt.replace(/[^0-9A-Fa-f]/g,' ');
+  const parts=cleaned.trim().split(/\s+/);
+  const bytes=[];
   for(const x of parts){
-    if(x.length === 2) bytes.push(parseInt(x,16));
-    else if(x.length > 2 && x.length % 2 === 0)
-      for(let j=0;j<x.length;j+=2) bytes.push(parseInt(x.substr(j,2),16));
+    if(x.length===2)bytes.push(parseInt(x,16));
+    else if(x.length>2&&x.length%2===0)for(let j=0;j<x.length;j+=2)bytes.push(parseInt(x.substr(j,2),16));
   }
   return bytes;
 }
-function pRPM(r){
-  const b = pHex(r);
-  for(let i=0;i<b.length-3;i++)
-    if(b[i] === 0x41 && b[i+1] === 0x0C)
-      return Math.round(((b[i+2]*256) + (b[i+3]||0)) / 4);
-  return 0;
-}
-function pSpeed(r){
-  const b = pHex(r);
-  for(let i=0;i<b.length-2;i++)
-    if(b[i] === 0x41 && b[i+1] === 0x0D) return b[i+2];
-  return 0;
-}
-function pCool(r){
-  const b = pHex(r);
-  for(let i=0;i<b.length-2;i++)
-    if(b[i] === 0x41 && b[i+1] === 0x05) return b[i+2] - 40;
-  return 0;
-}
-function pFuel(r){
-  const b = pHex(r);
-  for(let i=0;i<b.length-2;i++)
-    if(b[i] === 0x41 && b[i+1] === 0x2F) return Math.round(b[i+2] * 100 / 255);
-  return 75;
-}
+function pRPM(r){const b=pHex(r);for(let i=0;i<b.length-3;i++)if(b[i]===0x41&&b[i+1]===0x0C)return Math.round(((b[i+2]*256)+(b[i+3]||0))/4);return 0}
+function pSpeed(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x0D)return b[i+2];return 0}
+function pCool(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x05)return b[i+2]-40;return 0}
+function pFuel(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x2F)return Math.round(b[i+2]*100/255);return 75}
 function pDTCs(bytes){
-  const codes = [];
+  const codes=[];
   for(let i=0;i<bytes.length-2;i++){
-    if(bytes[i] === 0x43 || bytes[i] === 0x47 || bytes[i] === 0x4A){
-      const count = bytes[i+1];
-      const start = i + 2;
-      const max = Math.min(count, Math.floor((bytes.length - start) / 2));
+    if(bytes[i]===0x43||bytes[i]===0x47||bytes[i]===0x4A){
+      const count=bytes[i+1];
+      const start=i+2;
+      const max=Math.min(count,Math.floor((bytes.length-start)/2));
       for(let k=0;k<max;k++){
-        const b1 = bytes[start + k*2];
-        const b2 = bytes[start + k*2 + 1];
-        if(b1 === undefined || b2 === undefined) break;
-        if(b1 === 0 && b2 === 0) continue;
-        const lt = ['P','C','B','U'][(b1 & 0xC0) >> 6];
-        const cd = lt + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
-        if(cd !== 'P0000') codes.push(cd);
+        const b1=bytes[start+k*2];
+        const b2=bytes[start+k*2+1];
+        if(b1===undefined||b2===undefined)break;
+        if(b1===0&&b2===0)continue;
+        const lt=['P','C','B','U'][(b1&0xC0)>>6];
+        const cd=lt+((b1&0x30)>>4).toString(16)+(b1&0x0F).toString(16)+(b2>>4).toString(16)+(b2&0x0F).toString(16);
+        if(cd!=='P0000')codes.push(cd);
       }
       break;
     }
@@ -1388,17 +1037,17 @@ function pDTCs(bytes){
   return codes;
 }
 function pDTCsUDS(bytes){
-  const codes = [];
+  const codes=[];
   for(let i=0;i<bytes.length-3;i++){
-    if(bytes[i] === 0x59 && bytes[i+1] === 0x02){
-      let p = i + 3;
-      while(p + 3 < bytes.length){
-        const b1 = bytes[p], b2 = bytes[p+1];
-        if(b1 === 0 && b2 === 0) break;
-        const lt = ['P','C','B','U'][(b1 & 0xC0) >> 6];
-        const cd = lt + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
-        if(cd !== 'P0000') codes.push(cd);
-        p += 4;
+    if(bytes[i]===0x59&&bytes[i+1]===0x02){
+      let p=i+3;
+      while(p+3<bytes.length){
+        const b1=bytes[p],b2=bytes[p+1];
+        if(b1===0&&b2===0)break;
+        const lt=['P','C','B','U'][(b1&0xC0)>>6];
+        const cd=lt+((b1&0x30)>>4).toString(16)+(b1&0x0F).toString(16)+(b2>>4).toString(16)+(b2&0x0F).toString(16);
+        if(cd!=='P0000')codes.push(cd);
+        p+=4;
       }
       break;
     }
@@ -1406,646 +1055,455 @@ function pDTCsUDS(bytes){
   return codes;
 }
 
-/* ============================================================
-   16) LIVE DATA
-   ============================================================ */
-function pauseLive(){ if(liveTimer){ clearTimeout(liveTimer); liveTimer = null; } }
-function resumeLive(){ if(isConnected && !isDemo && !liveTimer) startLive(); }
-
+function pauseLive(){if(liveTimer){clearTimeout(liveTimer);liveTimer=null}}
+function resumeLive(){if(isConnected&&!isDemo&&!liveTimer)startLive()}
 function startLive(){
-  if(liveTimer) return;
-  liveTick = 0;
-  const loop = async ()=>{
-    liveTimer = null;
-    if(!isConnected || isDemo){ return; }
-    if(!isProcessing && cmdQ.length === 0){
-      liveReading = true;
+  if(liveTimer)return;
+  liveTick=0;
+  const loop=async()=>{
+    liveTimer=null;
+    if(!isConnected||isDemo)return;
+    if(!isProcessing&&cmdQ.length===0){
       try{
-        const rpm = pRPM(await sendCmd('01 0C', 800, 1));
-        const spd = pSpeed(await sendCmd('01 0D', 800, 1));
-        if(liveTick % 4 === 0){
-          const cl = pCool(await sendCmd('01 05', 800, 1));
-          const fl = pFuel(await sendCmd('01 2F', 800, 1));
-          lastCoolant = cl; lastFuel = fl;
-          updAllG({rpm, speed:spd, coolant:cl, fuelLevel:fl});
-        }else{
-          updAllG({rpm, speed:spd, coolant:lastCoolant, fuelLevel:lastFuel});
-        }
-        updChart(rpm, spd);
-        autoAnalyze(rpm, spd, lastCoolant);
+        const rpm=pRPM(await sendCmd('01 0C',800,1));
+        const spd=pSpeed(await sendCmd('01 0D',800,1));
+        if(liveTick%4===0){
+          const cl=pCool(await sendCmd('01 05',800,1));
+          const fl=pFuel(await sendCmd('01 2F',800,1));
+          lastCoolant=cl;lastFuel=fl;
+          updAllG({rpm,speed:spd,coolant:cl,fuelLevel:fl});
+        }else updAllG({rpm,speed:spd,coolant:lastCoolant,fuelLevel:lastFuel});
+        updChart(rpm,spd);
+        autoAnalyze(rpm,spd,lastCoolant);
         liveTick++;
       }catch(e){}
-      finally{ liveReading = false; }
     }
-    if(isConnected && !isDemo) liveTimer = setTimeout(loop, 1200);
+    if(isConnected&&!isDemo)liveTimer=setTimeout(loop,1200);
   };
   loop();
 }
-function autoAnalyze(rpm, spd, coolant){
-  const e = $('autoAnalysis'); if(!e) return;
-  let msg = '';
-  if(coolant >= 105) msg = '🔥 تحذير: حرارة المحرك مرتفعة جداً!';
-  else if(coolant >= 95) msg = '⚠️ الحرارة أعلى من الطبيعي';
-  else if(rpm > 6500) msg = '⚠️ RPM مرتفع جداً — خفف الضغط';
-  else if(rpm > 0 && rpm < 600 && spd === 0) msg = '⚠️ خمول غير مستقر';
-  else msg = '✅ القراءات طبيعية';
-  e.textContent = msg + ' (RPM: ' + rpm + ' | Speed: ' + spd + ' | Coolant: ' + coolant + '°C)';
+function autoAnalyze(rpm,spd,coolant){
+  const e=$('autoAnalysis');if(!e)return;
+  let msg='';
+  if(coolant>=105)msg='🔥 تحذير: حرارة المحرك مرتفعة جداً!';
+  else if(coolant>=95)msg='⚠️ الحرارة أعلى من الطبيعي';
+  else if(rpm>6500)msg='⚠️ RPM مرتفع جداً';
+  else if(rpm>0&&rpm<600&&spd===0)msg='⚠️ خمول غير مستقر';
+  else msg='✅ القراءات طبيعية';
+  e.textContent=msg+' (RPM: '+rpm+' | Speed: '+spd+' | Coolant: '+coolant+'°C)';
 }
 
-/* ============================================================
-   17) FAULT SCANNING
-   ============================================================ */
 async function readDTCs(){
-  const l = $('dtcList'); if(!l) return;
-  if(!isConnected && !isDemo){ l.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>'; return; }
-  if(isDemo){ await runDemoScan(); return; }
-  l.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> قراءة الأعطال...</p>';
+  const l=$('dtcList');if(!l)return;
+  if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  if(isDemo){await runDemoScan();return}
+  l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> قراءة الأعطال...</p>';
   pauseLive();
   try{
-    const all = [];
-    const r3 = await sendCmd('03', 8000);
-    if(!isBad(r3)) pDTCs(pHex(r3)).forEach(c=> all.push({code:c, system:'engine', type:'confirmed'}));
-    await sendCmd('AT SH 7E0', 500);
-    const r7 = await sendCmd('07', 8000);
-    if(!isBad(r7)){
-      pDTCs(pHex(r7)).forEach(c=>{
-        if(!all.some(f=>f.code === c)) all.push({code:c, system:'engine', type:'pending'});
-      });
-    }
+    const all=[];
+    const r3=await sendCmd('03',8000);
+    if(!isBad(r3))pDTCs(pHex(r3)).forEach(c=>all.push({code:c,system:'engine',type:'confirmed'}));
+    await sendCmd('AT SH 7E0',500);
+    const r7=await sendCmd('07',8000);
+    if(!isBad(r7))pDTCs(pHex(r7)).forEach(c=>{if(!all.some(f=>f.code===c))all.push({code:c,system:'engine',type:'pending'})});
     if(!all.length){
-      lastFaults = [];
-      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ السيارة سليمة</div>';
-      updSysGrid([], ['engine']);
-      const eb = $('proExportBar'); if(eb) eb.classList.add('hidden');
+      lastFaults=[];
+      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ السيارة سليمة</div>';
+      updSysGrid([],['engine']);
+      const eb=$('proExportBar');if(eb)eb.classList.add('hidden');
       return;
     }
     renderFaults(all);
     dispSmart(all.map(f=>f.code));
-    dispHealth(all, runDiag(all.map(f=>f.code)));
-    updSysGrid(all, ['engine']);
-  }catch(e){ log('ERR: ' + e.message); }
-  finally{ resumeLive(); }
+    dispHealth(all,runDiag(all.map(f=>f.code)));
+    updSysGrid(all,['engine']);
+  }catch(e){log('ERR: '+e.message)}
+  finally{resumeLive()}
 }
 async function scanAll(){
-  const l = $('dtcList'); if(!l) return;
-  if(!isConnected && !isDemo){ l.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>'; return; }
-  if(isDemo){ await runDemoScan(); return; }
-  l.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص الشامل...</p>';
+  const l=$('dtcList');if(!l)return;
+  if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  if(isDemo){await runDemoScan();return}
+  l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص الشامل...</p>';
   pauseLive();
   try{
-    const ecus = [
-      {a:'7E0', n:'engine'},
-      {a:'7E1', n:'transmission'},
-      {a:'7E3', n:'abs'},
-      {a:'7E6', n:'airbag'}
-    ];
-    const all = [];
-    const scanned = [];
+    const ecus=[{a:'7E0',n:'engine'},{a:'7E1',n:'transmission'},{a:'7E3',n:'abs'},{a:'7E6',n:'airbag'}];
+    const all=[],scanned=[];
     for(const e of ecus){
-      await sendCmd('AT SH ' + e.a, 500);
-      const res = await sendCmd('19 02 FF', 2500);
+      await sendCmd('AT SH '+e.a,500);
+      const res=await sendCmd('19 02 FF',2500);
       if(!isBad(res)){
         scanned.push(e.n);
-        pDTCsUDS(pHex(res)).forEach(c=>{
-          if(!all.some(f=>f.code === c)) all.push({code:c, system:e.n, type:'confirmed'});
-        });
+        pDTCsUDS(pHex(res)).forEach(c=>{if(!all.some(f=>f.code===c))all.push({code:c,system:e.n,type:'confirmed'})});
       }
     }
-    await sendCmd('AT SH 7E0', 500);
+    await sendCmd('AT SH 7E0',500);
     if(!all.length){
-      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ لا توجد أعطال</div>';
-      updSysGrid([], scanned);
+      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ لا توجد أعطال</div>';
+      updSysGrid([],scanned);
       return;
     }
     renderFaults(all);
     dispSmart(all.map(f=>f.code));
-    dispHealth(all, runDiag(all.map(f=>f.code)));
-    updSysGrid(all, scanned);
-  }catch(e){ log('ERR: ' + e.message); }
-  finally{ resumeLive(); }
+    dispHealth(all,runDiag(all.map(f=>f.code)));
+    updSysGrid(all,scanned);
+  }catch(e){log('ERR: '+e.message)}
+  finally{resumeLive()}
 }
 async function clearDTCs(){
-  if(!isConnected && !isDemo){ alert('غير متصل'); return; }
-  if(!confirm('هل أنت متأكد من مسح الأعطال؟')) return;
+  if(!isConnected&&!isDemo){alert('غير متصل');return}
+  if(!confirm('هل أنت متأكد من مسح الأعطال؟'))return;
   if(isDemo){
-    lastFaults = [];
-    const l = $('dtcList'); if(l) l.innerHTML = '<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
+    lastFaults=[];
+    const l=$('dtcList');if(l)l.innerHTML='<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
     resetSysGrid();
     return;
   }
   pauseLive();
   try{
-    await sendCmd('04', 3000);
-    lastFaults = [];
-    const l = $('dtcList'); if(l) l.innerHTML = '<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
+    await sendCmd('04',3000);
+    lastFaults=[];
+    const l=$('dtcList');if(l)l.innerHTML='<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
     resetSysGrid();
-    const eb = $('proExportBar'); if(eb) eb.classList.add('hidden');
-  }finally{ resumeLive(); }
+    const eb=$('proExportBar');if(eb)eb.classList.add('hidden');
+  }finally{resumeLive()}
 }
 function renderFaults(faults){
-  lastFaults = faults || [];
-  const l = $('dtcList'); if(!l) return;
-  if(!faults.length){ l.innerHTML = '<p class="text-gray-500 text-center py-4">لا أعطال</p>'; return; }
-  const sysMap = {engine:'المحرك', exhaust:'العوادم', electronics:'الكهرباء', fuel:'الوقود', cooling:'التبريد', brakes:'الفرامل', airbag:'الوسائد', transmission:'الجير', abs:'ABS'};
-  let h = '';
+  lastFaults=faults||[];
+  const l=$('dtcList');if(!l)return;
+  if(!faults.length){l.innerHTML='<p class="text-gray-500 text-center py-4">لا أعطال</p>';return}
+  const sysMap={engine:'المحرك',exhaust:'العوادم',electronics:'الكهرباء',fuel:'الوقود',cooling:'التبريد',brakes:'الفرامل',airbag:'الوسائد',transmission:'الجير',abs:'ABS'};
+  let h='';
   faults.forEach(f=>{
-    const sc = sanitizeCode(f.code);
-    const info = getInfo(sc);
-    const ty = f.type || 'confirmed';
-    const tl = ty === 'pending' ? 'مؤقت' : ty === 'permanent' ? 'دائم' : 'مؤكد';
-    const tc = ty === 'pending' ? 'bg-amber-600' : ty === 'permanent' ? 'bg-purple-600' : 'bg-red-600';
-    const fav = isFav(sc);
-    h += '<div class="code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3" data-code="'+sc+'"><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system] || f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span><span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
+    const sc=sanitizeCode(f.code);
+    const info=getInfo(sc);
+    const ty=f.type||'confirmed';
+    const tl=ty==='pending'?'مؤقت':ty==='permanent'?'دائم':'مؤكد';
+    const tc=ty==='pending'?'bg-amber-600':ty==='permanent'?'bg-purple-600':'bg-red-600';
+    const fav=isFav(sc);
+    h+='<div class="code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3" data-code="'+sc+'"><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system]||f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span><span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
   });
-  l.innerHTML = h;
-  l.querySelectorAll('[data-fav]').forEach(b=>{
-    b.onclick = function(e){ e.stopPropagation(); toggleFav(b.dataset.fav); b.classList.toggle('active', isFav(b.dataset.fav)); };
-  });
-  l.querySelectorAll('[data-det]').forEach(b=>{
-    b.onclick = function(e){ e.stopPropagation(); showDetail(b.dataset.det); };
-  });
+  l.innerHTML=h;
+  l.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
+  l.querySelectorAll('[data-det]').forEach(b=>{b.onclick=function(e){e.stopPropagation();showDetail(b.dataset.det)}});
   saveHist(faults);
-  const eb = $('proExportBar'); if(eb && faults.length) eb.classList.remove('hidden');
+  const eb=$('proExportBar');if(eb&&faults.length)eb.classList.remove('hidden');
 }
 async function runDemoScan(){
-  const df = [
-    {code:'P0301', system:'engine', type:'confirmed'},
-    {code:'P0171', system:'engine', type:'confirmed'},
-    {code:'P0420', system:'exhaust', type:'pending'},
-    {code:'U0100', system:'electronics', type:'confirmed'}
-  ];
+  const df=[
+    {code:'P0301',system:'engine',type:'confirmed'},
+    {code:'P0171',system:'engine',type:'confirmed'},
+    {code:'P0420',system:'exhaust',type:'pending'},
+    {code:'U0100',system:'electronics',type:'confirmed'}];
   renderFaults(df);
   dispSmart(df.map(f=>f.code));
-  dispHealth(df, runDiag(df.map(f=>f.code)));
-  updSysGrid(df, ['engine','transmission','abs','airbag','exhaust','electronics']);
+  dispHealth(df,runDiag(df.map(f=>f.code)));
+  updSysGrid(df,['engine','transmission','abs','airbag','exhaust','electronics']);
 }
 function startDemo(){
-  isDemo = true; isConnected = true; transport = null;
-  setStatus('demo'); updConnUI(true);
-  const vd = $('vin-display'); if(vd) vd.textContent = 'VIN: 1HGCG5655WA123456';
+  isDemo=true;isConnected=true;transport=null;
+  setStatus('demo');updConnUI(true);
+  const vd=$('vin-display');if(vd)vd.textContent='VIN: 1HGCG5655WA123456';
   runDemoScan();
-  setTimeout(()=>{ if(!chartInstance) initChart(); }, 300);
-  if(demoTimer) clearInterval(demoTimer);
-  demoTimer = setInterval(()=>{
-    const r = Math.floor(900 + Math.random()*2500);
-    const s = Math.floor(Math.random()*110);
-    const c = 82 + Math.floor(Math.random()*18);
-    const f = 40 + Math.floor(Math.random()*50);
-    lastCoolant = c; lastFuel = f;
-    updAllG({rpm:r, speed:s, coolant:c, fuelLevel:f});
-    updChart(r, s);
-    autoAnalyze(r, s, c);
-  }, 1500);
+  setTimeout(()=>{if(!chartInstance)initChart()},300);
+  if(demoTimer)clearInterval(demoTimer);
+  demoTimer=setInterval(()=>{
+    const r=Math.floor(900+Math.random()*2500);
+    const s=Math.floor(Math.random()*110);
+    const c=82+Math.floor(Math.random()*18);
+    const f=40+Math.floor(Math.random()*50);
+    lastCoolant=c;lastFuel=f;
+    updAllG({rpm:r,speed:s,coolant:c,fuelLevel:f});
+    updChart(r,s);
+    autoAnalyze(r,s,c);
+  },1500);
   log('OK: وضع تجريبي جاهز');
 }
-function stopDemo(){
-  if(demoTimer) clearInterval(demoTimer);
-  demoTimer = null;
-  isDemo = false;
-}
+function stopDemo(){if(demoTimer)clearInterval(demoTimer);demoTimer=null;isDemo=false}
 
-/* ============================================================
-   18) SEARCH
-   ============================================================ */
-let sTimer = null;
-let recentTimer = null;
+let sTimer=null,recentTimer=null;
 function initSearch(){
-  const i = $('dtcSearchInput'); if(!i) return;
-  i.addEventListener('input', e=>{
+  const i=$('dtcSearchInput');if(!i)return;
+  i.addEventListener('input',e=>{
     clearTimeout(sTimer);
-    sTimer = setTimeout(()=>searchDTC(e.target.value), 180);
+    sTimer=setTimeout(()=>searchDTC(e.target.value),180);
     clearTimeout(recentTimer);
-    recentTimer = setTimeout(()=>{
-      const v = e.target.value.trim();
-      if(v.length >= 3) addRecent(v);
-    }, 1500);
+    recentTimer=setTimeout(()=>{const v=e.target.value.trim();if(v.length>=3)addRecent(v)},1500);
   });
-  i.addEventListener('keydown', e=>{
-    if(e.key === 'Enter'){
-      clearTimeout(recentTimer);
-      const v = e.target.value.trim();
-      if(v.length >= 2){ addRecent(v); searchDTC(v); }
-    }
-  });
+  i.addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(recentTimer);const v=e.target.value.trim();if(v.length>=2){addRecent(v);searchDTC(v)}}});
 }
 function searchDTC(q){
-  const d = $('searchResults'); if(!d) return;
-  const cEl = $('searchCount');
-  const raw = String(q).slice(0,50);
-  const qq = raw.trim().toUpperCase();
-  const ql = raw.trim().toLowerCase();
-  if(qq.length < 2){ d.innerHTML=''; if(cEl) cEl.textContent=''; return; }
-  if(!SEARCH_INDEX.length) buildSearchIndex();
-
-  const looksLikeCode = /^[PCBU][0-9A-F]*$/i.test(qq);
-  let candidates = null;
-  if(looksLikeCode && qq.length <= 5){
-    candidates = BY_PREFIX.get(qq);
-    if(!candidates) candidates = [];
-  }
-  const m = [];
-  const source = candidates || SEARCH_INDEX;
-  for(let idx=0; idx<source.length && m.length<50; idx++){
-    const item = source[idx];
-    if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
-    let match = false;
-    if(candidates) match = true;
-    else {
+  const d=$('searchResults');if(!d)return;
+  const cEl=$('searchCount');
+  const raw=String(q).slice(0,50);
+  const qq=raw.trim().toUpperCase();
+  const ql=raw.trim().toLowerCase();
+  if(qq.length<2){d.innerHTML='';if(cEl)cEl.textContent='';return}
+  if(!SEARCH_INDEX.length)buildSearchIndex();
+  const looksLikeCode=/^[PCBU][0-9A-F]*$/i.test(qq);
+  let candidates=null;
+  if(looksLikeCode&&qq.length<=5){candidates=BY_PREFIX.get(qq);if(!candidates)candidates=[]}
+  const m=[];
+  const source=candidates||SEARCH_INDEX;
+  for(let idx=0;idx<source.length&&m.length<50;idx++){
+    const item=source[idx];
+    if(currentSevFilter!=='all'&&item.info.severity!==currentSevFilter)continue;
+    let match=false;
+    if(candidates)match=true;
+    else{
       ensureTitleLc(item);
-      match = item.code.indexOf(qq) >= 0 ||
-              item.cleanCode.indexOf(qq) >= 0 ||
-              item._titleLc.indexOf(ql) >= 0 ||
-              item._titleEnLc.indexOf(ql) >= 0;
+      match=item.code.indexOf(qq)>=0||item.cleanCode.indexOf(qq)>=0||item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0;
     }
-    if(match) m.push(item);
+    if(match)m.push(item);
   }
-  if(!m.length && candidates){
-    for(let idx=0; idx<SEARCH_INDEX.length && m.length<50; idx++){
-      const item = SEARCH_INDEX[idx];
-      if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
+  if(!m.length&&candidates){
+    for(let idx=0;idx<SEARCH_INDEX.length&&m.length<50;idx++){
+      const item=SEARCH_INDEX[idx];
+      if(currentSevFilter!=='all'&&item.info.severity!==currentSevFilter)continue;
       ensureTitleLc(item);
-      if(item._titleLc.indexOf(ql) >= 0 || item._titleEnLc.indexOf(ql) >= 0) m.push(item);
+      if(item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0)m.push(item);
     }
   }
-  if(!m.length){
-    d.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';
-    if(cEl) cEl.textContent = '';
-    return;
-  }
-  let h = '<div class="space-y-2">';
+  if(!m.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';if(cEl)cEl.textContent='';return}
+  let h='<div class="space-y-2">';
   m.forEach(x=>{
-    const cl = {critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[x.info.severity] || '#64748b';
-    const fav = isFav(x.cleanCode);
-    h += '<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+(x.info.brand?'<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">'+escapeHtml(x.info.brand)+'</span>':'')+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
+    const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[x.info.severity]||'#64748b';
+    const fav=isFav(x.cleanCode);
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+(x.info.brand?'<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">'+escapeHtml(x.info.brand)+'</span>':'')+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
   });
-  h += '</div>';
-  d.innerHTML = h;
-  if(cEl){
-    if(m.length === 50) cEl.innerHTML = '<span class="text-amber-400 font-bold">' + m.length + '+ نتيجة</span>';
-    else cEl.textContent = '(' + m.length + ' نتيجة)';
-  }
-  d.querySelectorAll('[data-fav]').forEach(b=>{
-    b.onclick = function(e){ e.stopPropagation(); toggleFav(b.dataset.fav); b.classList.toggle('active', isFav(b.dataset.fav)); };
-  });
-  d.querySelectorAll('[data-key]').forEach(e=>{
-    e.onclick = function(ev){ if(ev.target.closest('[data-fav]')) return; showDetail(e.dataset.key); };
-  });
+  h+='</div>';
+  d.innerHTML=h;
+  if(cEl){if(m.length===50)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';else cEl.textContent='('+m.length+' نتيجة)'}
+  d.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
+  d.querySelectorAll('[data-key]').forEach(e=>{e.onclick=function(ev){if(ev.target.closest('[data-fav]'))return;showDetail(e.dataset.key)}});
 }
 
-/* ============================================================
-   19) THEME
-   ============================================================ */
 function applyTheme(){
-  const t = localStorage.getItem('checkdiga_theme') || 'dark';
-  const ic = $('themeIcon');
-  if(t === 'light'){
-    document.body.classList.add('light-mode');
-    if(ic) ic.className = 'fa-solid fa-moon text-lg';
-  }else{
-    document.body.classList.remove('light-mode');
-    if(ic) ic.className = 'fa-solid fa-sun text-lg';
-  }
+  const t=localStorage.getItem('checkdiga_theme')||'dark';
+  const ic=$('themeIcon');
+  if(t==='light'){document.body.classList.add('light-mode');if(ic)ic.className='fa-solid fa-moon text-lg'}
+  else{document.body.classList.remove('light-mode');if(ic)ic.className='fa-solid fa-sun text-lg'}
 }
 function toggleTheme(){
-  const cur = localStorage.getItem('checkdiga_theme') || 'dark';
-  localStorage.setItem('checkdiga_theme', cur === 'dark' ? 'light' : 'dark');
+  const cur=localStorage.getItem('checkdiga_theme')||'dark';
+  localStorage.setItem('checkdiga_theme',cur==='dark'?'light':'dark');
   applyTheme();
 }
 
-/* ============================================================
-   20) READINESS
-   ============================================================ */
-function pMon(b, bit){
-  if(!(b & (1<<bit))) return 'na';
-  return (b & (1<<(bit+4))) ? 'no' : 'yes';
-}
+function pMon(b,bit){if(!(b&(1<<bit)))return 'na';return (b&(1<<(bit+4)))?'no':'yes'}
 function runReadiness(){
-  const c = $('readinessContent'); if(!c) return;
-  if(isDemo){
-    renderReadiness({mil:true,dtc:3,c1:'no',c2:'yes',c3:'yes',n1:'yes',n3:'no',n4:'yes',n6:'na'});
-    return;
-  }
-  if(!isConnected){ c.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>'; return; }
-  c.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
-  sendCmd('01 01', 3500).then(res=>{
-    const b = pHex(res);
-    let idx = -1;
-    for(let i=0;i<b.length-5;i++) if(b[i]===0x41 && b[i+1]===0x01){ idx=i; break; }
-    if(idx === -1){ c.innerHTML = '<p class="text-red-400 text-center py-4">لا يوجد رد</p>'; return; }
-    const A = b[idx+2], B = b[idx+3], C = b[idx+4];
-    renderReadiness({
-      mil: (A & 0x80) !== 0,
-      dtc: A & 0x7F,
-      c1: pMon(B,0), c2: pMon(B,1), c3: pMon(B,2),
-      n1: pMon(C,0), n3: pMon(C,2), n4: pMon(C,5), n6: pMon(C,7)
-    });
-  }).catch(()=>{ c.innerHTML = '<p class="text-red-400 text-center py-4">خطأ في القراءة</p>'; });
+  const c=$('readinessContent');if(!c)return;
+  if(isDemo){renderReadiness({mil:true,dtc:3,c1:'no',c2:'yes',c3:'yes',n1:'yes',n3:'no',n4:'yes',n6:'na'});return}
+  if(!isConnected){c.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  c.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
+  sendCmd('01 01',3500).then(res=>{
+    const b=pHex(res);
+    let idx=-1;
+    for(let i=0;i<b.length-5;i++)if(b[i]===0x41&&b[i+1]===0x01){idx=i;break}
+    if(idx===-1){c.innerHTML='<p class="text-red-400 text-center py-4">لا يوجد رد</p>';return}
+    const A=b[idx+2],B=b[idx+3],C=b[idx+4];
+    renderReadiness({mil:(A&0x80)!==0,dtc:A&0x7F,c1:pMon(B,0),c2:pMon(B,1),c3:pMon(B,2),n1:pMon(C,0),n3:pMon(C,2),n4:pMon(C,5),n6:pMon(C,7)});
+  }).catch(()=>{c.innerHTML='<p class="text-red-400 text-center py-4">خطأ</p>'});
 }
 function renderReadiness(d){
-  const c = $('readinessContent'); if(!c) return;
-  const ri = (n, s)=>{
-    const cl = s==='yes' ? 'bg-green-600' : s==='no' ? 'bg-red-600' : 'bg-gray-600';
-    const l = s==='yes' ? 'جاهز' : s==='no' ? 'غير جاهز' : 'غير مدعوم';
+  const c=$('readinessContent');if(!c)return;
+  const ri=(n,s)=>{
+    const cl=s==='yes'?'bg-green-600':s==='no'?'bg-red-600':'bg-gray-600';
+    const l=s==='yes'?'جاهز':s==='no'?'غير جاهز':'غير مدعوم';
     return '<div class="flex justify-between items-center p-2 bg-gray-900 rounded-lg mb-1"><span class="text-xs">'+n+'</span><span class="text-[10px] px-2 py-1 rounded '+cl+' text-white font-bold">'+l+'</span></div>';
   };
-  let h = '<div class="'+(d.mil?'bg-red-600':'bg-green-600')+' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">'+(d.mil?'🚨 لمبة المحرك مضاءة':'✅ لمبة المحرك مطفأة')+'</span><span>أعطال: '+d.dtc+'</span></div>';
-  h += '<div class="text-xs font-bold text-blue-300 mb-2">مراقبات مستمرة:</div>' + ri('الاشتعال', d.c1) + ri('الوقود', d.c2) + ri('المكونات الشاملة', d.c3);
-  h += '<div class="text-xs font-bold text-purple-300 mb-2 mt-3">مراقبات غير مستمرة:</div>' + ri('الكتلايزر', d.n1) + ri('EVAP', d.n3) + ri('حساس O2', d.n4) + ri('EGR / VVT', d.n6);
-  c.innerHTML = h;
+  let h='<div class="'+(d.mil?'bg-red-600':'bg-green-600')+' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">'+(d.mil?'🚨 لمبة المحرك مضاءة':'✅ لمبة المحرك مطفأة')+'</span><span>أعطال: '+d.dtc+'</span></div>';
+  h+='<div class="text-xs font-bold text-blue-300 mb-2">مراقبات مستمرة:</div>'+ri('الاشتعال',d.c1)+ri('الوقود',d.c2)+ri('المكونات الشاملة',d.c3);
+  h+='<div class="text-xs font-bold text-purple-300 mb-2 mt-3">مراقبات غير مستمرة:</div>'+ri('الكتلايزر',d.n1)+ri('EVAP',d.n3)+ri('حساس O2',d.n4)+ri('EGR / VVT',d.n6);
+  c.innerHTML=h;
 }
 
-/* ============================================================
-   21) BATTERY TEST
-   ============================================================ */
 function runBatteryTest(){
-  const btn = $('btnBatteryTest'); if(!btn) return;
-  const orig = btn.innerHTML;
-  btn.innerHTML = 'جاري القياس...';
-  btn.disabled = true;
-  const v = $('batteryVerdict'); if(v) v.classList.add('hidden');
-  const setS = (n, val, mn, mx)=>{
-    const b = $('bat'+n), el = $('batVal'+n);
-    if(!b || !el) return;
-    el.textContent = val.toFixed(2) + 'V';
-    const ok = val >= mn && val <= mx;
-    const w = val >= mn - 0.5 && val <= mx + 0.5;
-    const c = ok ? '#10b981' : w ? '#f59e0b' : '#ef4444';
-    b.style.borderColor = c;
-    el.style.color = c;
+  const btn=$('btnBatteryTest');if(!btn)return;
+  const orig=btn.innerHTML;
+  btn.innerHTML='جاري القياس...';
+  btn.disabled=true;
+  const v=$('batteryVerdict');if(v)v.classList.add('hidden');
+  const setS=(n,val,mn,mx)=>{
+    const b=$('bat'+n),el=$('batVal'+n);
+    if(!b||!el)return;
+    el.textContent=val.toFixed(2)+'V';
+    const ok=val>=mn&&val<=mx;
+    const w=val>=mn-0.5&&val<=mx+0.5;
+    const c=ok?'#10b981':w?'#f59e0b':'#ef4444';
+    b.style.borderColor=c;
+    el.style.color=c;
   };
-  const fin = (v1, v2, v3)=>{
-    const good = v1 >= 12.4 && v1 <= 12.8 && v2 >= 13.8 && v3 >= 13.5;
-    const bad = v1 < 12.0 || v2 < 13.0 || v3 < 12.5;
-    const cl = good ? 'bg-green-600' : bad ? 'bg-red-600' : 'bg-yellow-600';
-    const t = good ? '✅ نظام الشحن ممتاز' : bad ? '❌ نظام الشحن تالف' : '⚠️ يحتاج فحص';
-    if(v){
-      v.className = 'p-3 rounded-xl text-white font-bold text-center ' + cl;
-      v.textContent = t;
-      v.classList.remove('hidden');
-    }
+  const fin=(v1,v2,v3)=>{
+    const good=v1>=12.4&&v1<=12.8&&v2>=13.8&&v3>=13.5;
+    const bad=v1<12.0||v2<13.0||v3<12.5;
+    const cl=good?'bg-green-600':bad?'bg-red-600':'bg-yellow-600';
+    const t=good?'✅ نظام الشحن ممتاز':bad?'❌ نظام الشحن تالف':'⚠️ يحتاج فحص';
+    if(v){v.className='p-3 rounded-xl text-white font-bold text-center '+cl;v.textContent=t;v.classList.remove('hidden')}
   };
   if(isDemo){
-    const x1 = 12.5 + Math.random()*0.3;
-    setS(1, x1, 12.4, 12.8);
-    setTimeout(()=>{ const x2 = 14 + Math.random()*0.5; setS(2, x2, 13.8, 14.8); }, 1000);
-    setTimeout(()=>{
-      const x3 = 13.6 + Math.random()*0.4;
-      setS(3, x3, 13.5, 14.8);
-      fin(x1, 14.3, 13.8);
-      btn.innerHTML = orig; btn.disabled = false;
-    }, 2000);
+    const x1=12.5+Math.random()*0.3;
+    setS(1,x1,12.4,12.8);
+    setTimeout(()=>{const x2=14+Math.random()*0.5;setS(2,x2,13.8,14.8)},1000);
+    setTimeout(()=>{const x3=13.6+Math.random()*0.4;setS(3,x3,13.5,14.8);fin(x1,14.3,13.8);btn.innerHTML=orig;btn.disabled=false},2000);
   }else if(isConnected){
-    sendCmd('01 42', 2000).then(res=>{
-      const b = pHex(res);
-      let vv = null;
-      for(let i=0;i<b.length-3;i++) if(b[i]===0x41 && b[i+1]===0x42){ vv = ((b[i+2]*256) + b[i+3]) / 1000; break; }
-      if(!vv){ fin(0,0,0); }else{ setS(1,vv,12.4,12.8); setS(2,vv,13.8,14.8); setS(3,vv,13.5,14.8); fin(vv,vv,vv); }
-      btn.innerHTML = orig; btn.disabled = false;
-    }).catch(()=>{ btn.innerHTML = orig; btn.disabled = false; });
+    sendCmd('01 42',2000).then(res=>{
+      const b=pHex(res);
+      let vv=null;
+      for(let i=0;i<b.length-3;i++)if(b[i]===0x41&&b[i+1]===0x42){vv=((b[i+2]*256)+b[i+3])/1000;break}
+      if(!vv)fin(0,0,0);else{setS(1,vv,12.4,12.8);setS(2,vv,13.8,14.8);setS(3,vv,13.5,14.8);fin(vv,vv,vv)}
+      btn.innerHTML=orig;btn.disabled=false;
+    }).catch(()=>{btn.innerHTML=orig;btn.disabled=false});
   }else{
-    if(v){
-      v.className = 'p-3 rounded-xl bg-red-600 text-white font-bold text-center';
-      v.textContent = '⚠️ غير متصل — استخدم الوضع التجريبي';
-      v.classList.remove('hidden');
-    }
-    btn.innerHTML = orig; btn.disabled = false;
+    if(v){v.className='p-3 rounded-xl bg-red-600 text-white font-bold text-center';v.textContent='⚠️ غير متصل';v.classList.remove('hidden')}
+    btn.innerHTML=orig;btn.disabled=false;
   }
 }
 
-/* ============================================================
-   22) HISTORY
-   ============================================================ */
 function saveHist(faults){
   try{
-    const h = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
-    h.unshift({ date: new Date().toISOString(), faults: faults.map(f=>({code:f.code, type:f.type})) });
-    localStorage.setItem('checkdiga_hist', JSON.stringify(h.slice(0,20)));
+    const h=JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
+    h.unshift({date:new Date().toISOString(),faults:faults.map(f=>({code:f.code,type:f.type}))});
+    localStorage.setItem('checkdiga_hist',JSON.stringify(h.slice(0,20)));
   }catch(e){}
 }
 function renderHist(){
-  const c = $('historyContent'); if(!c) return;
-  const h = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
-  if(!h.length){ c.innerHTML = '<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>'; return; }
-  let html = '';
+  const c=$('historyContent');if(!c)return;
+  const h=JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
+  if(!h.length){c.innerHTML='<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>';return}
+  let html='';
   h.forEach(e=>{
-    const d = new Date(e.date);
-    html += '<div class="bg-gray-900 rounded-xl p-3 mb-2 border-r-4 border-blue-500"><div class="flex justify-between mb-2"><span class="text-xs text-gray-400">'+d.toLocaleDateString('ar')+' '+d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})+'</span><span class="text-xs text-blue-400 font-bold">'+e.faults.length+' عطل</span></div><div class="flex flex-wrap gap-1">';
-    e.faults.slice(0,10).forEach(f=>{ html += '<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">'+escapeHtml(f.code)+'</span>'; });
-    html += '</div></div>';
+    const d=new Date(e.date);
+    html+='<div class="bg-gray-900 rounded-xl p-3 mb-2 border-r-4 border-blue-500"><div class="flex justify-between mb-2"><span class="text-xs text-gray-400">'+d.toLocaleDateString('ar')+' '+d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})+'</span><span class="text-xs text-blue-400 font-bold">'+e.faults.length+' عطل</span></div><div class="flex flex-wrap gap-1">';
+    e.faults.slice(0,10).forEach(f=>{html+='<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">'+escapeHtml(f.code)+'</span>'});
+    html+='</div></div>';
   });
-  c.innerHTML = html;
+  c.innerHTML=html;
 }
-function clearHist(){
-  if(confirm('حذف السجل بالكامل؟')){ localStorage.removeItem('checkdiga_hist'); renderHist(); }
-}
+function clearHist(){if(confirm('حذف السجل بالكامل؟')){localStorage.removeItem('checkdiga_hist');renderHist()}}
 
-/* ============================================================
-   23) EXPORT PDF / WHATSAPP
-   ============================================================ */
 function exportPDF(){
-  const faults = lastFaults || [];
-  if(!faults.length){ alert('لا توجد أعطال لتصديرها'); return; }
-  const date = new Date().toLocaleString('ar');
-  const diag = runDiag(faults.map(f=>f.code));
-  const score = calcHealth(faults, diag);
-  let h = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:'+(score>=75?'#10b981':score>=50?'#f59e0b':'#ef4444')+';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
-  h += '<h1>🔧 تقرير فحص CheckDiga Pro</h1><p><b>التاريخ:</b> '+escapeHtml(date)+'</p><div class="sc">صحة السيارة: '+score+'/100</div><h2>الأعطال ('+faults.length+')</h2>';
-  faults.forEach((f,i)=>{
-    const info = getInfo(f.code);
-    h += '<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+'</b><br>'+escapeHtml(info.title)+'</div>';
-  });
-  if(diag.length){
-    h += '<h2>التشخيص الذكي</h2>';
-    diag.forEach(d=>{
-      h += '<div class="d"><b>'+escapeHtml(d.title)+' ('+d.conf+'%)</b><br>'+escapeHtml(d.desc)+'</div>';
-    });
-  }
-  h += '<footer>CheckDiga Pro 2026 — صُنع في الجزائر 🇩🇿</footer></body></html>';
-  const blob = new Blob([h], { type:'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const w = window.open(url, '_blank');
-  if(!w){ alert('من فضلك اسمح بالنوافذ المنبثقة'); URL.revokeObjectURL(url); return; }
-  setTimeout(()=>{
-    try{ w.focus(); w.print(); }catch(e){}
-    setTimeout(()=>URL.revokeObjectURL(url), 60000);
-  }, 600);
+  const faults=lastFaults||[];
+  if(!faults.length){alert('لا توجد أعطال لتصديرها');return}
+  const date=new Date().toLocaleString('ar');
+  const diag=runDiag(faults.map(f=>f.code));
+  const score=calcHealth(faults,diag);
+  let h='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:'+(score>=75?'#10b981':score>=50?'#f59e0b':'#ef4444')+';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
+  h+='<h1>🔧 تقرير فحص CheckDiga Pro</h1><p><b>التاريخ:</b> '+escapeHtml(date)+'</p><div class="sc">صحة السيارة: '+score+'/100</div><h2>الأعطال ('+faults.length+')</h2>';
+  faults.forEach((f,i)=>{const info=getInfo(f.code);h+='<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+'</b><br>'+escapeHtml(info.title)+'</div>'});
+  if(diag.length){h+='<h2>التشخيص الذكي</h2>';diag.forEach(d=>{h+='<div class="d"><b>'+escapeHtml(d.title)+' ('+d.conf+'%)</b><br>'+escapeHtml(d.desc)+'</div>'})}
+  h+='<footer>CheckDiga Pro 2026 — صُنع في الجزائر 🇩🇿</footer></body></html>';
+  const blob=new Blob([h],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(!w){alert('من فضلك اسمح بالنوافذ المنبثقة');URL.revokeObjectURL(url);return}
+  setTimeout(()=>{try{w.focus();w.print()}catch(e){}setTimeout(()=>URL.revokeObjectURL(url),60000)},600);
 }
 function shareWA(){
-  const faults = lastFaults || [];
-  if(!faults.length){ alert('لا توجد أعطال لمشاركتها'); return; }
-  const diag = runDiag(faults.map(f=>f.code));
-  const score = calcHealth(faults, diag);
-  let m = '*تقرير CheckDiga Pro*\n----------------\n\nصحة السيارة: ' + score + '/100\n\n*الأعطال (' + faults.length + '):*\n';
-  faults.forEach((f,i)=>{
-    const info = getInfo(f.code);
-    m += (i+1) + '. *' + f.code + '* — ' + info.title + '\n';
-  });
-  if(diag.length){
-    m += '\n*التشخيص:*\n';
-    diag.forEach(d=>{ m += '• ' + d.title + ' (' + d.conf + '%)\n'; });
-  }
-  m += '\n----------------\n' + location.origin;
-  window.open('https://wa.me/?text=' + encodeURIComponent(m), '_blank');
+  const faults=lastFaults||[];
+  if(!faults.length){alert('لا توجد أعطال');return}
+  const diag=runDiag(faults.map(f=>f.code));
+  const score=calcHealth(faults,diag);
+  let m='*تقرير CheckDiga Pro*\n----------------\n\nصحة السيارة: '+score+'/100\n\n*الأعطال ('+faults.length+'):*\n';
+  faults.forEach((f,i)=>{const info=getInfo(f.code);m+=(i+1)+'. *'+f.code+'* — '+info.title+'\n'});
+  if(diag.length){m+='\n*التشخيص:*\n';diag.forEach(d=>{m+='• '+d.title+' ('+d.conf+'%)\n'})}
+  m+='\n----------------\n'+location.origin;
+  window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank');
 }
 
-/* ============================================================
-   24) STATS
-   ============================================================ */
 function renderStats(){
-  const c = $('statsContent'); if(!c) return;
-  const tot = Object.keys(DTC_DATABASE).length;
-  const sev = {critical:0, high:0, medium:0, low:0};
-  for(const k of Object.keys(DTC_DATABASE)){
-    const s = DTC_DATABASE[k].severity || 'medium';
-    if(sev[s] !== undefined) sev[s]++;
-  }
-  c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ القاعدة الكاملة محمّلة':'⏳ تحميل...')+'</div></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">'+sev.critical+'</div><div class="text-[10px] text-gray-500">حرج</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">'+sev.high+'</div><div class="text-[10px] text-gray-500">خطير</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">'+sev.medium+'</div><div class="text-[10px] text-gray-500">متوسط</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">'+sev.low+'</div><div class="text-[10px] text-gray-500">منخفض</div></div></div>';
-  const cv = $('statsChart');
-  if(!cv || !window.Chart) return;
-  if(statsChartInstance) statsChartInstance.destroy();
+  const c=$('statsContent');if(!c)return;
+  const tot=Object.keys(DTC_DATABASE).length;
+  const sev={critical:0,high:0,medium:0,low:0};
+  for(const k of Object.keys(DTC_DATABASE)){const s=DTC_DATABASE[k].severity||'medium';if(sev[s]!==undefined)sev[s]++}
+  c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ القاعدة الكاملة محمّلة':'⏳ تحميل...')+'</div></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">'+sev.critical+'</div><div class="text-[10px] text-gray-500">حرج</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">'+sev.high+'</div><div class="text-[10px] text-gray-500">خطير</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">'+sev.medium+'</div><div class="text-[10px] text-gray-500">متوسط</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">'+sev.low+'</div><div class="text-[10px] text-gray-500">منخفض</div></div></div>';
+  const cv=$('statsChart');
+  if(!cv||!window.Chart)return;
+  if(statsChartInstance)statsChartInstance.destroy();
   try{
-    statsChartInstance = new Chart(cv.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['حرج','خطير','متوسط','منخفض'],
-        datasets: [{ data: [sev.critical, sev.high, sev.medium, sev.low], backgroundColor: ['#dc2626','#ef4444','#f59e0b','#10b981'], borderWidth: 0 }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: getComputedStyle(document.body).color, font: { family: 'Cairo' } } } }
-      }
+    statsChartInstance=new Chart(cv.getContext('2d'),{
+      type:'doughnut',
+      data:{labels:['حرج','خطير','متوسط','منخفض'],datasets:[{data:[sev.critical,sev.high,sev.medium,sev.low],backgroundColor:['#dc2626','#ef4444','#f59e0b','#10b981'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:getComputedStyle(document.body).color,font:{family:'Cairo'}}}}}
     });
   }catch(e){}
 }
 
-/* ============================================================
-   25) CHART
-   ============================================================ */
 function initChart(){
-  if(chartInstance) return;
-  const cv = $('liveChart'); if(!cv || !window.Chart) return;
+  if(chartInstance)return;
+  const cv=$('liveChart');if(!cv||!window.Chart)return;
   try{
-    chartInstance = new Chart(cv.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          { label: 'RPM', data: [], borderColor: '#3b82f6', tension: 0.3, yAxisID: 'y' },
-          { label: 'Speed', data: [], borderColor: '#22c55e', tension: 0.3, yAxisID: 'y1' }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 300 },
-        plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Cairo' } } } },
-        scales: {
-          y: { type:'linear', position:'left', grid:{color:'#374151'}, ticks:{color:'#94a3b8'} },
-          y1: { type:'linear', position:'right', grid:{display:false}, ticks:{color:'#94a3b8'} },
-          x: { grid:{color:'#374151'}, ticks:{color:'#94a3b8', font:{size:9}} }
-        }
-      }
+    chartInstance=new Chart(cv.getContext('2d'),{
+      type:'line',
+      data:{labels:[],datasets:[{label:'RPM',data:[],borderColor:'#3b82f6',tension:0.3,yAxisID:'y'},{label:'Speed',data:[],borderColor:'#22c55e',tension:0.3,yAxisID:'y1'}]},
+      options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{labels:{color:'#94a3b8',font:{family:'Cairo'}}}},scales:{y:{type:'linear',position:'left',grid:{color:'#374151'},ticks:{color:'#94a3b8'}},y1:{type:'linear',position:'right',grid:{display:false},ticks:{color:'#94a3b8'}},x:{grid:{color:'#374151'},ticks:{color:'#94a3b8',font:{size:9}}}}}
     });
   }catch(e){}
 }
-function updChart(r, s){
-  if(!chartInstance) initChart();
-  if(!chartInstance) return;
-  const t = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  if(chartData.labels.length > 20){ chartData.labels.shift(); chartData.rpm.shift(); chartData.speed.shift(); }
-  chartData.labels.push(t);
-  chartData.rpm.push(r);
-  chartData.speed.push(s);
-  chartInstance.data.labels = chartData.labels.slice();
-  chartInstance.data.datasets[0].data = chartData.rpm.slice();
-  chartInstance.data.datasets[1].data = chartData.speed.slice();
+function updChart(r,s){
+  if(!chartInstance)initChart();
+  if(!chartInstance)return;
+  const t=new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  if(chartData.labels.length>20){chartData.labels.shift();chartData.rpm.shift();chartData.speed.shift()}
+  chartData.labels.push(t);chartData.rpm.push(r);chartData.speed.push(s);
+  chartInstance.data.labels=chartData.labels.slice();
+  chartInstance.data.datasets[0].data=chartData.rpm.slice();
+  chartInstance.data.datasets[1].data=chartData.speed.slice();
   chartInstance.update('none');
 }
 
-/* ============================================================
-   26) TAB SWITCHING
-   ============================================================ */
 function initTabs(){
   $$('.tab').forEach(tab=>{
-    tab.onclick = function(){
-      $$('.tab').forEach(t=>{
-        t.classList.remove('bg-blue-600','text-white');
-        t.classList.add('bg-gray-800','text-gray-400');
-      });
+    tab.onclick=function(){
+      $$('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400')});
       tab.classList.remove('bg-gray-800','text-gray-400');
       tab.classList.add('bg-blue-600','text-white');
       $$('.panel').forEach(p=>p.classList.add('hidden'));
-      const t = $('panel-' + tab.dataset.tab);
-      if(t) t.classList.remove('hidden');
-      const which = tab.dataset.tab;
-      if(which === 'live') setTimeout(()=>{ if(!chartInstance) initChart(); else try{ chartInstance.resize(); }catch(e){} }, 200);
-      if(which === 'favorites') renderFav();
-      if(which === 'history') renderHist();
-      if(which === 'stats') renderStats();
+      const t=$('panel-'+tab.dataset.tab);
+      if(t)t.classList.remove('hidden');
+      const which=tab.dataset.tab;
+      if(which==='live')setTimeout(()=>{if(!chartInstance)initChart();else try{chartInstance.resize()}catch(e){}},200);
+      if(which==='favorites')renderFav();
+      if(which==='history')renderHist();
+      if(which==='stats')renderStats();
     };
   });
 }
 
-/* ============================================================
-   27) INIT
-   ============================================================ */
 function init(){
   cleanOldCache();
-
-  const bind = (id, fn)=>{ const el = $(id); if(el) el.onclick = fn; };
-  bind('connect-btn', connectOBD);
-  bind('usb-btn', connectUSB);
-  bind('demo-btn', startDemo);
-  bind('disconnect-btn', async ()=>{ stopDemo(); await handleDisc(); });
-  bind('clear-btn', ()=>{
-    if(!isConnected && !isDemo){ alert('اتصل بالسيارة أولاً'); return; }
-    clearDTCs();
-  });
-  bind('btnReadDTC', readDTCs);
-  bind('btnScanAll', scanAll);
-  bind('btnTheme', toggleTheme);
-  bind('btnFavorites', ()=>{ const t = document.querySelector('[data-tab="favorites"]'); if(t) t.click(); });
-  bind('btnFavDetail', function(){
-    if(currentDetailCode){
-      toggleFav(currentDetailCode);
-      this.classList.toggle('active', isFav(currentDetailCode));
-      updFavCount();
-    }
-  });
-  bind('btnCloseDetail', ()=>$('dtcDetailModal').classList.add('hidden'));
-  bind('btnReadReadiness', runReadiness);
-  bind('btnBatteryTest', runBatteryTest);
-  bind('btnClearHistory', clearHist);
-  bind('btnExportPDF', exportPDF);
-  bind('btnShareWA', shareWA);
-
+  const bind=(id,fn)=>{const el=$(id);if(el)el.onclick=fn};
+  bind('connect-btn',connectOBD);
+  bind('usb-btn',connectUSB);
+  bind('demo-btn',startDemo);
+  bind('disconnect-btn',async()=>{stopDemo();await handleDisc()});
+  bind('clear-btn',()=>{if(!isConnected&&!isDemo){alert('اتصل بالسيارة أولاً');return}clearDTCs()});
+  bind('btnReadDTC',readDTCs);
+  bind('btnScanAll',scanAll);
+  bind('btnTheme',toggleTheme);
+  bind('btnFavorites',()=>{const t=document.querySelector('[data-tab="favorites"]');if(t)t.click()});
+  bind('btnFavDetail',function(){if(currentDetailCode){toggleFav(currentDetailCode);this.classList.toggle('active',isFav(currentDetailCode));updFavCount()}});
+  bind('btnCloseDetail',()=>$('dtcDetailModal').classList.add('hidden'));
+  bind('btnReadReadiness',runReadiness);
+  bind('btnBatteryTest',runBatteryTest);
+  bind('btnClearHistory',clearHist);
+  bind('btnExportPDF',exportPDF);
+  bind('btnShareWA',shareWA);
   initTabs();
-
-  const dd = $('dtcDetailModal');
-  if(dd) dd.onclick = e=>{ if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
-
-  initSearch(); initSymp(); initPop(); initFamily(); initSevFilters();
-  renderRecent(); updFavCount();
-
-  if(isIOS && !isBluefy){
-    const b = $('bluefyBanner'); if(b) b.classList.remove('hidden');
-  }
-  if(!hasSerial && !isIOS){
-    const b = $('serialBanner'); if(b) b.classList.remove('hidden');
-  }
-
+  const dd=$('dtcDetailModal');
+  if(dd)dd.onclick=e=>{if(e.target.id==='dtcDetailModal')dd.classList.add('hidden')};
+  initSearch();initSymp();initPop();initFamily();initSevFilters();
+  renderRecent();updFavCount();
+  if(isIOS&&!isBluefy){const b=$('bluefyBanner');if(b)b.classList.remove('hidden')}
+  if(!hasSerial&&!isIOS){const b=$('serialBanner');if(b)b.classList.remove('hidden')}
   applyTheme();
-
-  setTimeout(()=>updAllG({rpm:0, speed:0, coolant:0, fuelLevel:0}), 300);
-
-  log('OK: ' + Object.keys(DTC_DATABASE).length + ' عطل أساسي');
+  setTimeout(()=>updAllG({rpm:0,speed:0,coolant:0,fuelLevel:0}),300);
+  log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
   log('INFO: جاري تحميل القاعدة الكاملة في الخلفية...');
-
-  loadFullDatabase().catch(e=>log('WARN: ' + e.message));
+  loadFullDatabase().catch(e=>log('WARN: '+e.message));
 }
 
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
 </body>
