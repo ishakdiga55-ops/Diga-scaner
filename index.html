@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
 <meta name="theme-color" content="#0f172a">
 <meta name="description" content="أداة فحص سيارات احترافية مع مساعد ذكي وبحث بالأعراض">
@@ -43,6 +43,7 @@
   .sys-item i{color:var(--txt-2)}
   .sys-item.good{border-color:var(--ok)} .sys-item.good i{color:var(--ok)}
   .sys-item.bad{border-color:var(--err)} .sys-item.bad i{color:var(--err)}
+  .sys-item.unknown{border-color:var(--brd-2);opacity:.55}
   .symptom-chip{background:var(--bg-2);border:1px solid var(--brd);color:var(--txt-2);padding:8px 14px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
   .symptom-chip:hover,.symptom-chip:active{border-color:var(--pri);color:var(--pri)}
   .filter-chip{background:rgba(51,65,85,.6);color:var(--txt-2);border:1px solid var(--brd-2);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
@@ -59,7 +60,6 @@
   .modal-backdrop{animation:fadeIn .2s ease}
   .modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-  /* Light mode overrides — only affect neutral surfaces */
   body.light-mode .bg-gray-900{background:#fff!important}
   body.light-mode .bg-gray-800{background:#f8fafc!important}
   body.light-mode .bg-gray-900\/60{background:rgba(248,250,252,.9)!important}
@@ -69,7 +69,6 @@
   body.light-mode .text-gray-400{color:#475569!important}
   body.light-mode .text-gray-500{color:#64748b!important}
   body.light-mode .text-gray-300{color:#334155!important}
-  /* Don't override text-white on colored buttons */
   body.light-mode .bg-gray-900 .text-white,
   body.light-mode .bg-gray-800 .text-white:not([class*="bg-"]){color:#0f172a!important}
   body.light-mode .text-white{color:#0f172a!important}
@@ -78,7 +77,6 @@
   body.light-mode .border-gray-800\/50{border-color:rgba(203,213,225,.5)!important}
   body.light-mode .border-gray-700\/50{border-color:rgba(203,213,225,.5)!important}
   body.light-mode .bg-gray-900\/30,body.light-mode .bg-gray-800\/30{background:rgba(248,250,252,.8)!important}
-  /* Keep dark buttons dark */
   body.light-mode button[class*="bg-blue"],body.light-mode button[class*="bg-emerald"],
   body.light-mode button[class*="bg-red"],body.light-mode button[class*="bg-amber"],
   body.light-mode button[class*="bg-purple"],body.light-mode button[class*="bg-green"],
@@ -346,8 +344,8 @@
 <!-- DETAIL MODAL -->
 <div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto modal-backdrop">
 <div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative modal-content">
-<button id="btnCloseDetail" class="absolute top-3 left-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold">×</button>
-<button id="btnFavDetail" class="absolute top-3 left-14 bg-amber-600 text-white w-8 h-8 rounded-full text-sm font-bold fav-btn"><i class="fa-solid fa-star"></i></button>
+<button id="btnCloseDetail" class="absolute top-3 right-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold">×</button>
+<button id="btnFavDetail" class="absolute top-3 right-14 bg-amber-600 text-white w-8 h-8 rounded-full text-sm font-bold fav-btn"><i class="fa-solid fa-star"></i></button>
 <div id="dtcDetailContent" class="pt-2"></div>
 </div>
 </div>
@@ -380,7 +378,7 @@ function checkRateLimit(action,max){
 function fmtTime(d){ return new Date(d).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 
 /* ============================================================
-   1) CACHE SYSTEM (compressed localStorage)
+   1) CACHE SYSTEM
    ============================================================ */
 const CK='cd_db_v4', CT='cd_t_v4', CV='cd_v_v4', CVER=4, MAXAGE=7*24*60*60*1000;
 const HASCOMP = (typeof CompressionStream !== 'undefined');
@@ -445,7 +443,9 @@ window.clearCheckdigaCache = function(){
    2) STATE
    ============================================================ */
 let GEMINI_API_KEY = localStorage.getItem('checkdiga_gemini_key') || '';
-function geminiUrl(){ return "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_API_KEY; }
+// ✅ FIX: موديل مستقر + المفتاح يُرسل في الهيدر لا URL
+const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent';
 
 const ua = navigator.userAgent;
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
@@ -501,7 +501,7 @@ const SYMPTOMS_DB = [
 const POPULAR = ['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
 
 /* ============================================================
-   3) BASIC DTC DATABASE (extended by OBDex)
+   3) BASIC DTC DATABASE
    ============================================================ */
 const DTC_DATABASE = {
   "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
@@ -687,10 +687,11 @@ function updateDTCCount(n){
 }
 
 /* ============================================================
-   5) INDEXES
+   5) INDEXES  (✅ FIX: prefix map for fast search)
    ============================================================ */
 const BRAND_INDEX = new Map();
-let SEARCH_INDEX = []; // [{code, cleanCode, info, titleLc, titleEnLc}]
+let SEARCH_INDEX = [];
+const BY_PREFIX = new Map();   // ✅ الفهرسة بالبادئة
 
 function buildDTCIndex(){
   BRAND_INDEX.clear();
@@ -702,15 +703,27 @@ function buildDTCIndex(){
 }
 function buildSearchIndex(){
   SEARCH_INDEX = [];
-  for(const code of Object.keys(DTC_DATABASE)){
+  BY_PREFIX.clear();
+  const codes = Object.keys(DTC_DATABASE);
+  for(let idx=0; idx<codes.length; idx++){
+    const code = codes[idx];
     const info = DTC_DATABASE[code];
-    SEARCH_INDEX.push({
+    const item = {
       code,
       cleanCode: code.replace(/_[A-Z]+$/,''),
       info,
       titleLc: (info.title || '').toLowerCase(),
       titleEnLc: (info.title_en || '').toLowerCase()
-    });
+    };
+    SEARCH_INDEX.push(item);
+    // فهرسة البادئات 2..5 حرف
+    const up = code.toUpperCase();
+    for(let i=2; i<=5 && i<=up.length; i++){
+      const k = up.slice(0,i);
+      let bucket = BY_PREFIX.get(k);
+      if(!bucket){ bucket = []; BY_PREFIX.set(k, bucket); }
+      bucket.push(item);
+    }
   }
 }
 buildDTCIndex();
@@ -726,7 +739,7 @@ function log(m){
 }
 
 /* ============================================================
-   7) STATUS / UI UPDATES
+   7) STATUS / UI
    ============================================================ */
 function setStatus(s){
   const e = $('connection-status'), d = $('statusDot');
@@ -750,13 +763,25 @@ function updAllG(v){
   updGauge('colArc','colNeedle','gauge-coolant', v.coolant||0, 130);
   updGauge('fuelArc','fuelNeedle','gauge-fuel', v.fuelLevel !== undefined ? v.fuelLevel : 75, 100);
 }
-function resetSysGrid(){ $$('.sys-item').forEach(e=>e.classList.remove('good','bad')); }
-function updSysGrid(flt){
+// ✅ FIX: نميّز "غير معروف" عن "سليم"
+function resetSysGrid(){ $$('.sys-item').forEach(e=>e.classList.remove('good','bad','unknown')); }
+function updSysGrid(flt, scanned){
   resetSysGrid();
-  if(!flt || !flt.length){ $$('.sys-item').forEach(e=>e.classList.add('good')); return; }
+  const scannedSet = scanned && scanned.length ? new Set(scanned) : null;
+  if(!flt || !flt.length){
+    $$('.sys-item').forEach(e=>{
+      if(scannedSet && !scannedSet.has(e.dataset.sys)) e.classList.add('unknown');
+      else e.classList.add('good');
+    });
+    return;
+  }
   const aff = new Set();
   flt.forEach(f => aff.add(getInfo(f.code).zone));
-  $$('.sys-item').forEach(e => e.classList.add(aff.has(e.dataset.sys) ? 'bad' : 'good'));
+  $$('.sys-item').forEach(e=>{
+    if(aff.has(e.dataset.sys)) e.classList.add('bad');
+    else if(scannedSet && !scannedSet.has(e.dataset.sys)) e.classList.add('unknown');
+    else e.classList.add('good');
+  });
 }
 function getInfo(c){
   c = String(c).trim().toUpperCase();
@@ -1336,7 +1361,7 @@ function updConnUI(c){
 }
 
 /* ============================================================
-   15) OBD2 PARSERS (fixed)
+   15) OBD2 PARSERS  (✅ FIX: pDTCs & pDTCsUDS)
    ============================================================ */
 function pHex(txt){
   if(!txt) return [];
@@ -1375,7 +1400,7 @@ function pFuel(r){
     if(b[i] === 0x41 && b[i+1] === 0x2F) return Math.round(b[i+2] * 100 / 255);
   return 75;
 }
-/* FIX: proper DTC parsing — byte after service code = count */
+/* ✅ FIX: إزالة شرط b1 !== 0 الذي كان يحذف أكواد حقيقية مثل P0001, P0010 */
 function pDTCs(bytes){
   const codes = [];
   for(let i=0;i<bytes.length-2;i++){
@@ -1390,26 +1415,26 @@ function pDTCs(bytes){
         if(b1 === 0 && b2 === 0) continue;
         const lt = ['P','C','B','U'][(b1 & 0xC0) >> 6];
         const cd = lt + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
-        if(cd !== 'P0000' && b1 !== 0) codes.push(cd);
+        if(cd !== 'P0000') codes.push(cd);
       }
       break;
     }
   }
   return codes;
 }
-/* FIX: UDS 19 02 → 59 02 [DTC_hi DTC_lo status] * N */
+/* ✅ FIX: تخطّي StatusAvailabilityMask + قراءة 4 بايت لكل DTC (DTC 3 + Status 1) */
 function pDTCsUDS(bytes){
   const codes = [];
   for(let i=0;i<bytes.length-3;i++){
     if(bytes[i] === 0x59 && bytes[i+1] === 0x02){
-      let p = i + 2;
-      while(p + 2 < bytes.length){
+      let p = i + 3;   // تخطّي 0x59 0x02 + Mask
+      while(p + 3 < bytes.length){
         const b1 = bytes[p], b2 = bytes[p+1];
         if(b1 === 0 && b2 === 0) break;
         const lt = ['P','C','B','U'][(b1 & 0xC0) >> 6];
         const cd = lt + ((b1 & 0x30) >> 4).toString(16) + (b1 & 0x0F).toString(16) + (b2 >> 4).toString(16) + (b2 & 0x0F).toString(16);
         if(cd !== 'P0000') codes.push(cd);
-        p += 3; // DTC (2) + status (1)
+        p += 4;
       }
       break;
     }
@@ -1418,7 +1443,7 @@ function pDTCsUDS(bytes){
 }
 
 /* ============================================================
-   16) LIVE DATA (fixed polling)
+   16) LIVE DATA
    ============================================================ */
 function pauseLive(){ if(liveTimer){ clearTimeout(liveTimer); liveTimer = null; } }
 function resumeLive(){ if(isConnected && !isDemo && !liveTimer) startLive(); }
@@ -1486,14 +1511,15 @@ async function readDTCs(){
     if(!all.length){
       lastFaults = [];
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ السيارة سليمة</div>';
-      resetSysGrid();
+      // ✅ FIX: نعلّم المحرك فقط كـ سليم لأننا فحصنا 7E0
+      updSysGrid([], ['engine']);
       const eb = $('proExportBar'); if(eb) eb.classList.add('hidden');
       return;
     }
     renderFaults(all);
     dispSmart(all.map(f=>f.code));
     dispHealth(all, runDiag(all.map(f=>f.code)));
-    updSysGrid(all);
+    updSysGrid(all, ['engine']);
   }catch(e){ log('ERR: ' + e.message); }
   finally{ resumeLive(); }
 }
@@ -1511,10 +1537,12 @@ async function scanAll(){
       {a:'7E6', n:'airbag'}
     ];
     const all = [];
+    const scanned = [];
     for(const e of ecus){
       await sendCmd('AT SH ' + e.a, 500);
       const res = await sendCmd('19 02 FF', 2500);
       if(!isBad(res)){
+        scanned.push(e.n);
         pDTCsUDS(pHex(res)).forEach(c=>{
           if(!all.some(f=>f.code === c)) all.push({code:c, system:e.n, type:'confirmed'});
         });
@@ -1523,13 +1551,13 @@ async function scanAll(){
     await sendCmd('AT SH 7E0', 500);
     if(!all.length){
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ لا توجد أعطال</div>';
-      resetSysGrid();
+      updSysGrid([], scanned);
       return;
     }
     renderFaults(all);
     dispSmart(all.map(f=>f.code));
     dispHealth(all, runDiag(all.map(f=>f.code)));
-    updSysGrid(all);
+    updSysGrid(all, scanned);
   }catch(e){ log('ERR: ' + e.message); }
   finally{ resumeLive(); }
 }
@@ -1586,7 +1614,7 @@ async function runDemoScan(){
   renderFaults(df);
   dispSmart(df.map(f=>f.code));
   dispHealth(df, runDiag(df.map(f=>f.code)));
-  updSysGrid(df);
+  updSysGrid(df, ['engine','transmission','abs','airbag','exhaust','electronics']);
 }
 function startDemo(){
   isDemo = true; isConnected = true; transport = null;
@@ -1634,7 +1662,7 @@ function dispVIN(v){
 }
 
 /* ============================================================
-   19) SEARCH (optimized)
+   19) SEARCH (✅ FIX: استخدام BY_PREFIX للبحث السريع)
    ============================================================ */
 let sTimer = null;
 function initSearch(){
@@ -1652,16 +1680,34 @@ function searchDTC(q){
 
   if(!SEARCH_INDEX.length) buildSearchIndex();
 
+  // ✅ إذا كان الإدخال يشبه كود → استخدم الفهرسة بالبادئة (O(1))
+  const looksLikeCode = /^[PCBU][0-9A-F]*$/i.test(qq);
+  let candidates = null;
+  if(looksLikeCode && qq.length <= 5){
+    candidates = BY_PREFIX.get(qq);
+    if(!candidates) candidates = [];
+  }
+
   const m = [];
-  for(const item of SEARCH_INDEX){
-    if(m.length >= 50) break;
+  const source = candidates || SEARCH_INDEX;
+  for(let idx=0; idx<source.length && m.length<50; idx++){
+    const item = source[idx];
     if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
-    const match =
+    const match = candidates ? true :
       item.code.indexOf(qq) >= 0 ||
       item.cleanCode.indexOf(qq) >= 0 ||
       item.titleLc.indexOf(ql) >= 0 ||
       item.titleEnLc.indexOf(ql) >= 0;
     if(match) m.push(item);
+  }
+
+  // fallback لو البحث بالبادئة لم يرجع شيء
+  if(!m.length && candidates){
+    for(let idx=0; idx<SEARCH_INDEX.length && m.length<50; idx++){
+      const item = SEARCH_INDEX[idx];
+      if(currentSevFilter !== 'all' && item.info.severity !== currentSevFilter) continue;
+      if(item.titleLc.indexOf(ql) >= 0 || item.titleEnLc.indexOf(ql) >= 0) m.push(item);
+    }
   }
 
   if(!m.length){
@@ -1707,7 +1753,7 @@ function toggleTheme(){
 }
 
 /* ============================================================
-   21) AI ASSISTANT
+   21) AI ASSISTANT  (✅ FIX: مفتاح في الهيدر + موديل مستقر)
    ============================================================ */
 function openAI(){
   const m = $('aiModal'); if(!m) return;
@@ -1767,12 +1813,19 @@ async function sendAI(){
       contents: [{ role:'user', parts:[{ text: ctx + 'سؤال: ' + q }] }],
       generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
     };
-    const r = await fetch(geminiUrl(), {
+    // ✅ FIX: المفتاح في الهيدر بدل URL
+    const r = await fetch(GEMINI_ENDPOINT, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-goog-api-key': GEMINI_API_KEY
+      },
       body: JSON.stringify(body)
     });
-    if(!r.ok) throw new Error('HTTP ' + r.status);
+    if(!r.ok){
+      const errTxt = await r.text().catch(()=> '');
+      throw new Error('HTTP ' + r.status + (errTxt ? ' — ' + errTxt.slice(0,120) : ''));
+    }
     const d = await r.json();
     const t = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'عذراً، لم أفهم.';
     rmAITyping();
@@ -1913,7 +1966,7 @@ function clearHist(){
 }
 
 /* ============================================================
-   25) EXPORT PDF (fixed — no document.write)
+   25) EXPORT PDF
    ============================================================ */
 function exportPDF(){
   const faults = lastFaults || [];
@@ -1968,7 +2021,6 @@ function shareWA(){
 function renderStats(){
   const c = $('statsContent'); if(!c) return;
   const tot = Object.keys(DTC_DATABASE).length;
-  // Count by severity
   const sev = {critical:0, high:0, medium:0, low:0};
   for(const k of Object.keys(DTC_DATABASE)){
     const s = DTC_DATABASE[k].severity || 'medium';
@@ -2067,16 +2119,18 @@ function initTabs(){
    29) INIT
    ============================================================ */
 function init(){
-  // Cleanup old cache keys
   cleanOldCache();
 
-  // Bind buttons
   const bind = (id, fn)=>{ const el = $(id); if(el) el.onclick = fn; };
   bind('connect-btn', connectOBD);
   bind('usb-btn', connectUSB);
   bind('demo-btn', startDemo);
   bind('disconnect-btn', async ()=>{ stopDemo(); await handleDisc(); });
-  bind('clear-btn', clearDTCs);
+  // ✅ FIX: تحقق من الاتصال قبل المسح
+  bind('clear-btn', ()=>{
+    if(!isConnected && !isDemo){ alert('اتصل بالسيارة أولاً'); return; }
+    clearDTCs();
+  });
   bind('btnReadDTC', readDTCs);
   bind('btnScanAll', scanAll);
   bind('btnTheme', toggleTheme);
@@ -2101,7 +2155,6 @@ function init(){
   bind('btnExportPDF', exportPDF);
   bind('btnShareWA', shareWA);
 
-  // AI bindings
   bind('aiBtn', openAI);
   bind('aiCloseBtn', closeAI);
   bind('aiSettingsBtn', ()=>{ const i = $('keyInput'); if(i) i.value = ''; openKeyModal(); });
@@ -2110,10 +2163,8 @@ function init(){
   bind('keySaveBtn', saveKey);
   bind('keyCancelBtn', closeKeyModal);
 
-  // Tab switching
   initTabs();
 
-  // Modal backdrop closing
   const dd = $('dtcDetailModal');
   if(dd) dd.onclick = e=>{ if(e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
   const km = $('keyModal');
@@ -2121,11 +2172,9 @@ function init(){
   const am = $('aiModal');
   if(am) am.onclick = e=>{ if(e.target.id === 'aiModal') closeAI(); };
 
-  // UI init
   initSearch(); initSymp(); initPop(); initFamily(); initSevFilters();
   renderRecent(); updFavCount();
 
-  // iOS / Serial banners
   if(isIOS && !isBluefy){
     const b = $('bluefyBanner'); if(b) b.classList.remove('hidden');
   }
@@ -2133,17 +2182,13 @@ function init(){
     const b = $('serialBanner'); if(b) b.classList.remove('hidden');
   }
 
-  // Theme
   applyTheme();
 
-  // Initial gauges
   setTimeout(()=>updAllG({rpm:0, speed:0, coolant:0, fuelLevel:0}), 300);
 
-  // Log
   log('OK: ' + Object.keys(DTC_DATABASE).length + ' كود أساسي');
   log('INFO: جاري تحميل القاعدة الكاملة في الخلفية...');
 
-  // Load full database (async, non-blocking)
   loadFullDatabase().catch(e=>log('WARN: ' + e.message));
 }
 
