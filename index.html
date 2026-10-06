@@ -111,7 +111,7 @@
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">110</div><div class="text-[10px] text-gray-500">كود</div></div>
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">9K+</div><div class="text-[10px] text-gray-500">قاعدة كاملة</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">20K+</div><div class="text-[10px] text-gray-500">قاعدة كاملة</div></div>
   </div>
 </section>
 
@@ -313,7 +313,6 @@
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
-
 <script>
 'use strict';
 
@@ -336,11 +335,15 @@ function checkRateLimit(action,max){
 function fmtTime(d){ return new Date(d).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 
 /* ============================================================
-   1) CACHE SYSTEM
+   1) CACHE SYSTEM  (v6 — يدعم قاعدة أكبر)
    ============================================================ */
-const CK='cd_db_v5', CT='cd_t_v5', CV='cd_v_v5', CVER=5, MAXAGE=7*24*60*60*1000;
+const CK='cd_db_v6', CT='cd_t_v6', CV='cd_v_v6', CVER=6, MAXAGE=7*24*60*60*1000;
 const HASCOMP = (typeof CompressionStream !== 'undefined');
-const OLD_KEYS = ['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4'];
+const OLD_KEYS = [
+  'cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5',
+  'cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5',
+  'cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5'
+];
 
 function b2a(bytes){ let s=''; const c=8192; for(let i=0;i<bytes.length;i+=c) s+=String.fromCharCode.apply(null, bytes.subarray(i,i+c)); return btoa(s); }
 function a2b(b64){ const s=atob(b64); const b=new Uint8Array(s.length); for(let i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
@@ -380,21 +383,32 @@ async function saveCache(){
     const j = JSON.stringify(DTC_DATABASE);
     let p = null, m = 'raw';
     if(HASCOMP){ p = await gzip(j); if(p) m='gzip'; }
-    if(!p){ if(j.length > 4.5*1024*1024){ log('INFO: ⚠️ حجم القاعدة كبير جداً للحفظ'); return; } p = j; }
+    if(!p){
+      if(j.length > 4.5*1024*1024){ log('INFO: ⚠️ حجم القاعدة كبير جداً للحفظ'); return; }
+      p = j;
+    }
     try{
-      localStorage.setItem(CK, p); localStorage.setItem(CT, Date.now().toString()); localStorage.setItem(CV, CVER.toString());
+      localStorage.setItem(CK, p);
+      localStorage.setItem(CT, Date.now().toString());
+      localStorage.setItem(CV, CVER.toString());
       log('OK: 💾 كاش ['+m+'] ('+(j.length/1024|0)+'→'+(p.length/1024|0)+'KB)');
     }catch(e){
       try{
         localStorage.removeItem(CK);
-        localStorage.setItem(CK, p); localStorage.setItem(CT, Date.now().toString()); localStorage.setItem(CV, CVER.toString());
+        localStorage.setItem(CK, p);
+        localStorage.setItem(CT, Date.now().toString());
+        localStorage.setItem(CV, CVER.toString());
         log('OK: 💾 كاش بعد تنظيف مساحة');
       }catch(e2){ log('INFO: ⚠️ مساحة localStorage ممتلئة'); }
     }
   }catch(e){}
 }
 window.clearCheckdigaCache = function(){
-  try{ localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV); alert('✅ تم حذف الكاش'); }catch(e){}
+  try{
+    OLD_KEYS.forEach(k=>localStorage.removeItem(k));
+    localStorage.removeItem(CK); localStorage.removeItem(CT); localStorage.removeItem(CV);
+    alert('✅ تم حذف الكاش — أعد تحميل الصفحة');
+  }catch(e){}
 };
 
 /* ============================================================
@@ -454,7 +468,7 @@ const SYMPTOMS_DB = [
 const POPULAR = ['P0300','P0171','P0420','P0128','P0442','P0455','P0301','P0174','U0100','P0299','P2002','C0035'];
 
 /* ============================================================
-   3) BASIC DTC DATABASE
+   3) BASIC DTC DATABASE  (القاعدة الأساسية)
    ============================================================ */
 const DTC_DATABASE = {
   "P0100":{zone:"engine",title:"حساس MAF - الدائرة",title_en:"MAF Sensor Circuit",severity:"medium"},
@@ -531,17 +545,29 @@ const DTC_DATABASE = {
 };
 
 /* ============================================================
-   4) OBDex LOADER  (chunked — لا تجميد)
+   4) OBDex LOADER  (✅ 20 ملف للوصول ~20K كود)
    ============================================================ */
 const OBDEX_BASE = "https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@main/data/generic/";
 const OBDEX_FILES = [
   "P0xxx_enriched.yaml",
   "P1xxx_enriched.yaml",
   "P2xxx_enriched.yaml",
+  "P2A00_enriched.yaml",
+  "P2B00_enriched.yaml",
   "P3xxx_enriched.yaml",
+  "P3400_enriched.yaml",
+  "P3401_enriched.yaml",
   "B0xxx_enriched.yaml",
+  "B1xxx_enriched.yaml",
+  "B2xxx_enriched.yaml",
+  "B3xxx_enriched.yaml",
   "C0xxx_enriched.yaml",
+  "C1xxx_enriched.yaml",
+  "C2xxx_enriched.yaml",
+  "C3xxx_enriched.yaml",
   "U0xxx_enriched.yaml",
+  "U1xxx_enriched.yaml",
+  "U2xxx_enriched.yaml",
   "U3xxx_enriched.yaml"
 ];
 let OBDEX_LOADED = false;
@@ -627,18 +653,20 @@ async function loadFullDatabase(){
   const b = $('dbStatus'), bt = $('dbStatusText');
   if(b) b.style.display = 'block';
   let added = 0;
+  let filesOk = 0, filesFail = 0;
   const totalFiles = OBDEX_FILES.length;
   OBDEX_TIMEOUT = setTimeout(()=>{
     if(!OBDEX_LOADED){
       log('WARN: انتهت مهلة التحميل — نكمل بالقاعدة الأساسية');
       if(b) b.style.display='none';
     }
-  }, 45000);
+  }, 60000);
   for(let f=0; f<totalFiles; f++){
     if(OBDEX_LOADED) break;
-    if(bt) bt.textContent = 'جاري تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + totalFiles + ')...';
+    if(bt) bt.textContent = 'تحميل ' + OBDEX_FILES[f] + ' (' + (f+1) + '/' + totalFiles + ') — ' + added + ' كود';
     const items = await fetchYaml(OBDEX_FILES[f]);
-    if(!items.length) continue;
+    if(!items.length){ filesFail++; continue; }
+    filesOk++;
     await processInChunks(items, (item)=>{
       const c = convItem(item);
       if(!c) return;
@@ -653,7 +681,8 @@ async function loadFullDatabase(){
   const tot = Object.keys(DTC_DATABASE).length;
   updateDTCCount(tot);
   if(b) b.style.display = 'none';
-  log('OK: تم تحميل ' + added + ' كود — الإجمالي: ' + tot);
+  log('OK: تم تحميل ' + added + ' كود من ' + filesOk + ' ملف (' + filesFail + ' فشل)');
+  log('OK: الإجمالي: ' + tot + ' كود');
   await saveCache();
 }
 function updateDTCCount(n){
@@ -719,7 +748,6 @@ function log(m){
   c.textContent += '\n[' + t + '] ' + m;
   c.scrollTop = c.scrollHeight;
 }
-
 /* ============================================================
    7) STATUS / UI
    ============================================================ */
