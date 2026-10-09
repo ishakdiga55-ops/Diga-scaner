@@ -46,6 +46,8 @@ body.light-mode{--bg:#f1f5f9;--bg-2:#fff;--txt:#0f172a;--txt-2:#475569;--brd:#cb
 .modal-backdrop{animation:fadeIn .2s ease}
 .modal-content{animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pulseGlow{0%,100%{opacity:1;filter:drop-shadow(0 0 8px rgba(139,92,246,.4))}50%{opacity:.9;filter:drop-shadow(0 0 20px rgba(139,92,246,.8))}}
+.hero-number{animation:pulseGlow 3s ease-in-out infinite}
 body.light-mode .bg-gray-900{background:#fff!important}
 body.light-mode .bg-gray-800{background:#f8fafc!important}
 body.light-mode .bg-black{background:#0a0f1e!important}
@@ -69,16 +71,25 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
   <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
     <span class="pro-badge">PRO</span>
-    <span id="heroCount">9,535</span> عطل
+    <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
+  
   <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
-  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-6">قاعدة بيانات +9,500 عطل + بحث فوري</p>
-  <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ</button>
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  
+  <!-- ⭐ الرقم البارز -->
+  <div class="my-6">
+    <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">9,535</div>
+    <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
+  </div>
+  
+  <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
+  
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">9,535</div><div class="text-[10px] text-gray-500">عطل</div></div>
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400">OBDex</div><div class="text-[10px] text-gray-500">المصدر</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">OBDex</div><div class="text-[10px] text-gray-500">المصدر</div></div>
   </div>
 </section>
 
@@ -278,8 +289,9 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v5',CT='cd_t_v5',CV='cd_v_v5',CVER=5,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v6','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v6','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v6','cd_v_v7'];
+// ⭐ CVER محدّث من 5 إلى 6 — يحل مشكلة الكاش
+const CK='cd_db_v6',CT='cd_t_v6',CV='cd_v_v6',CVER=6,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v7'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -585,6 +597,8 @@ function updateDTCCount(n){
   const f=n.toLocaleString('en-US');
   const e1=$('heroCount');if(e1)e1.textContent=f;
   const e2=$('statCodes');if(e2)e2.textContent=f;
+  const ss=$('statSource');
+  if(ss)ss.textContent=(stats.obdex>0&&stats.local>0)?'مدمج':(stats.obdex>0?'OBDex':(stats.local>0?'محلي':'—'));
 }
 
 const BRAND_INDEX=new Map();
