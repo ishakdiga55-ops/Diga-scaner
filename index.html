@@ -9,6 +9,7 @@
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root{--bg:#0f172a;--bg-2:#1e293b;--txt:#f1f5f9;--txt-2:#94a3b8;--brd:#334155;--brd-2:#475569;--pri:#3b82f6;--ok:#10b981;--warn:#f59e0b;--err:#ef4444}
@@ -74,22 +75,17 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
-  
   <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
   <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
-  
-  <!-- ⭐ الرقم البارز -->
   <div class="my-6">
-    <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">9,535</div>
+    <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
     <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
   </div>
-  
   <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
-  
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">9,535</div><div class="text-[10px] text-gray-500">عطل</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500">عطل</div></div>
     <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">OBDex</div><div class="text-[10px] text-gray-500">المصدر</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">OBDex+محلي+Wal33D</div><div class="text-[10px] text-gray-500">المصدر</div></div>
   </div>
 </section>
 
@@ -278,7 +274,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
-<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: مشروع OBDex (مفتوح المصدر)</p>
+<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
@@ -289,9 +285,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-// ⭐ CVER محدّث من 5 إلى 6 — يحل مشكلة الكاش
-const CK='cd_db_v6',CT='cd_t_v6',CV='cd_v_v6',CVER=6,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v7'];
+const CK='cd_db_v7',CT='cd_t_v7',CV='cd_v_v7',CVER=7,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -382,30 +377,15 @@ const DTC_DATABASE={
 "P0101":{zone:"engine",title:"مدى أداء حساس MAF",title_en:"MAF Sensor Range/Performance",severity:"medium"},
 "P0102":{zone:"engine",title:"إشارة حساس MAF منخفضة",title_en:"MAF Circuit Low Input",severity:"medium",causes:["تسرب هواء","سلك مفصول"],symptoms:["قراءة MAF منخفضة"]},
 "P0103":{zone:"engine",title:"إشارة حساس MAF مرتفعة",title_en:"MAF Circuit High Input",severity:"medium",causes:["حساس متسخ","دائرة قصر"]},
-"P0105":{zone:"engine",title:"دائرة حساس MAP",title_en:"MAP Circuit",severity:"medium"},
-"P0106":{zone:"engine",title:"مدى أداء حساس MAP",title_en:"MAP Performance",severity:"medium"},
-"P0107":{zone:"engine",title:"إشارة MAP منخفضة",title_en:"MAP Circuit Low Input",severity:"medium"},
-"P0108":{zone:"engine",title:"إشارة MAP مرتفعة",title_en:"MAP Circuit High Input",severity:"medium"},
-"P0110":{zone:"engine",title:"دائرة حساس IAT",title_en:"IAT Sensor Circuit",severity:"low"},
-"P0112":{zone:"engine",title:"إشارة IAT منخفضة",title_en:"IAT Circuit Low Input",severity:"low"},
-"P0113":{zone:"engine",title:"إشارة IAT مرتفعة",title_en:"IAT Circuit High Input",severity:"low"},
 "P0115":{zone:"cooling",title:"عطل في دائرة حساس حرارة المحرك",title_en:"ECT Circuit Malfunction",severity:"medium",causes:["حساس تالف","سلك مقطوع","قابس غير موصول"],symptoms:["قراءة حرارة غير منطقية"],steps:["افحص أسلاك الحساس","قِس مقاومة الحساس بارداً وساخناً"]},
-"P0116":{zone:"cooling",title:"مدى أداء حساس الحرارة",title_en:"ECT Performance Range",severity:"medium"},
 "P0117":{zone:"cooling",title:"إشارة حساس الحرارة منخفضة جداً",title_en:"ECT Circuit Low Input",severity:"medium",causes:["دائرة قصر للأرضي","حساس تالف"],symptoms:["قراءة حرارة غير واقعية"],steps:["افحص التوصيلات","استبدل الحساس إذا لزم"]},
 "P0118":{zone:"cooling",title:"إشارة حساس الحرارة مرتفعة جداً",title_en:"ECT Circuit High Input",severity:"medium",causes:["سلك مقطوع","قابس مفصول","حساس تالف"],symptoms:["قراءة حرارة غير واقعية"],steps:["افحص التوصيلات","افحص المقاومة"]},
-"P0119":{zone:"cooling",title:"تقطع في دائرة حساس الحرارة",title_en:"ECT Circuit Intermittent",severity:"medium"},
-"P0120":{zone:"engine",title:"دائرة حساس TPS",title_en:"TPS Circuit",severity:"high"},
-"P0121":{zone:"engine",title:"مدى أداء حساس TPS",title_en:"TPS Performance",severity:"high"},
-"P0122":{zone:"engine",title:"إشارة TPS منخفضة",title_en:"TPS Circuit Low Input",severity:"high"},
-"P0123":{zone:"engine",title:"إشارة TPS مرتفعة",title_en:"TPS Circuit High Input",severity:"high"},
-"P0125":{zone:"cooling",title:"المحرك لا يصل لحرارة التشغيل",title_en:"Insufficient Coolant Temp",severity:"medium",causes:["ترموستات عاطل","نقص سائل التبريد"],symptoms:["الحرارة لا تصل للمنتصف"]},
-"P0128":{zone:"cooling",title:"ترموستات عاطل (تحت حرارة التنظيم)",title_en:"Thermostat Below Regulating Temp",severity:"medium",causes:["ترموستات مفتوح دائماً","حساس حرارة تالف"],symptoms:["الحرارة لا تصل للمنتصف"],steps:["افحص الترموستات","استبدله إذا لزم"]},
-"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ","فلتر وقود مسدود"],symptoms:["اهتزاز","ضعف تسارع"],steps:["افحص الفاكيوم","نظف MAF"]},
+"P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat",severity:"medium",causes:["ترموستات مفتوح دائماً","حساس حرارة تالف"],symptoms:["الحرارة لا تصل للمنتصف"]},
+"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ"],symptoms:["اهتزاز","ضعف تسارع"],steps:["افحص الفاكيوم","نظف MAF"]},
 "P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"Too Rich Bank 1",severity:"high"},
 "P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"Too Lean Bank 2",severity:"high"},
 "P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"Too Rich Bank 2",severity:"high"},
 "P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
-"P0230":{zone:"fuel",title:"دائرة مضخة الوقود",title_en:"Fuel Pump Circuit",severity:"high"},
 "P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
 "P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
 "P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
@@ -419,24 +399,15 @@ const DTC_DATABASE={
 "P0430":{zone:"exhaust",title:"كتلايزر ضعيف B2",title_en:"Catalyst B2",severity:"medium"},
 "P0442":{zone:"exhaust",title:"تسرب EVAP صغير",title_en:"EVAP Small Leak",severity:"low"},
 "P0455":{zone:"exhaust",title:"تسرب EVAP كبير",title_en:"EVAP Large Leak",severity:"medium"},
-"P0456":{zone:"exhaust",title:"تسرب EVAP صغير جداً",title_en:"EVAP Very Small",severity:"low"},
-"P0457":{zone:"exhaust",title:"غطاء البنزين مفكوك",title_en:"Fuel Cap",severity:"low"},
-"P0500":{zone:"transmission",title:"دائرة حساس السرعة",title_en:"VSS Circuit",severity:"medium"},
 "P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
-"P0520":{zone:"engine",title:"دائرة حساس ضغط الزيت",title_en:"Oil Pressure Sensor Circuit",severity:"high"},
 "P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Low",severity:"critical"},
-"P0560":{zone:"electronics",title:"جهد النظام",title_en:"System Voltage",severity:"high"},
-"P0601":{zone:"electronics",title:"PCM ROM",title_en:"PCM ROM",severity:"high"},
-"P0606":{zone:"electronics",title:"PCM معالج",title_en:"PCM Processor",severity:"critical"},
 "P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission",severity:"high"},
 "P0715":{zone:"transmission",title:"دائرة حساس دخل الجير",title_en:"Input Speed Sensor Circuit",severity:"high"},
 "P0720":{zone:"transmission",title:"دائرة حساس خرج الجير",title_en:"Output Speed Sensor Circuit",severity:"high"},
 "P0730":{zone:"transmission",title:"نسبة التروس",title_en:"Gear Ratio",severity:"critical"},
-"P0740":{zone:"transmission",title:"Torque Converter",title_en:"Torque Conv",severity:"high"},
 "P0741":{zone:"transmission",title:"TCC أداء",title_en:"TCC",severity:"high"},
 "P0750":{zone:"transmission",title:"Solenoid A",title_en:"Shift Sol A",severity:"high"},
 "P0755":{zone:"transmission",title:"Solenoid B",title_en:"Shift Sol B",severity:"high"},
-"P0A80":{zone:"electronics",title:"استبدل بطارية HV",title_en:"Replace HV",severity:"critical"},
 "P2002":{brand:"Diesel",zone:"exhaust",title:"DPF مسدود",title_en:"DPF Low",severity:"high"},
 "P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم DPF",title_en:"DPF Soot",severity:"high"},
 "C0035":{zone:"brakes",title:"دائرة حساس عجلة أمامية يسرى",title_en:"FL Wheel Sensor Circuit",severity:"high"},
@@ -444,23 +415,25 @@ const DTC_DATABASE={
 "C0045":{zone:"brakes",title:"دائرة حساس خلفية يسرى",title_en:"RL Wheel Sensor Circuit",severity:"high"},
 "C0050":{zone:"brakes",title:"دائرة حساس خلفية يمنى",title_en:"RR Wheel Sensor Circuit",severity:"high"},
 "B0001":{zone:"airbag",title:"عطل الوسائد الهوائية",title_en:"Airbag Fault",severity:"critical"},
-"B1000":{zone:"airbag",title:"وحدة الوسائد",title_en:"Airbag Module",severity:"critical"},
-"U0001":{zone:"electronics",title:"ناقل CAN عام",title_en:"CAN General",severity:"high"},
 "U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost ECU",severity:"critical"},
 "U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost TCM",severity:"critical"},
 "U0121":{zone:"abs",title:"فقدان ABS",title_en:"Lost ABS",severity:"critical"},
 "U0140":{zone:"electronics",title:"فقدان BCM",title_en:"Lost BCM",severity:"high"},
 "U0155":{zone:"electronics",title:"فقدان لوحة العدادات",title_en:"Lost Instrument",severity:"high"},
-"U0167":{zone:"electronics",title:"فقدان مفتاح المنع",title_en:"Lost Immob",severity:"critical"},
-"U1001":{zone:"electronics",title:"فقدان شبكة CAN",title_en:"CAN Lost",severity:"critical"}};
+"U0167":{zone:"electronics",title:"فقدان مفتاح المنع",title_en:"Lost Immob",severity:"critical"}};
 
 const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
+const WAL33D_DB='./dtc_codes_v0.1.0.db';
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
-let stats={obdex:0,local:0,enriched:0};
+let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0};
 
 function mapCat(c){if(!c)return 'engine';c=String(c).toLowerCase();return {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'}[c]||'engine'}
+function mapCatFromCode(c){
+  const ch=String(c).charAt(0).toUpperCase();
+  return {P:'engine',B:'electronics',C:'brakes',U:'electronics'}[ch]||'engine';
+}
 function convItem(it){
   if(!it||!it.code)return null;
   const code=String(it.code).toUpperCase().trim();
@@ -520,7 +493,7 @@ async function fetchLocalJSON(fn){
       });
     }
     return [];
-  }catch(e){log('INFO: '+fn+' غير موجود — تجاوز');return []}
+  }catch(e){return []}
 }
 function processInChunks(items,fn,cs){
   cs=cs||300;
@@ -534,6 +507,90 @@ function processInChunks(items,fn,cs){
     next();
   });
 }
+
+// ============ Wal33D — تحميل SQLite (أكواد المصنّعين) ============
+async function loadWal33D(){
+  try{
+    if(typeof initSqlJs!=='function'){log('WARN: sql.js غير محمّلة — تجاوز Wal33D');return 0}
+    log('INFO: Wal33D — تحميل قاعدة المصنّعين...');
+    const SQL=await initSqlJs({locateFile:f=>'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/'+f});
+    const resp=await fetch(WAL33D_DB);
+    if(!resp.ok){log('INFO: ملف Wal33D غير موجود — تجاوز');return 0}
+    const buf=await resp.arrayBuffer();
+    const db=new SQL.Database(new Uint8Array(buf));
+    log('OK: Wal33D — DB محمّلة ('+(buf.byteLength/1024/1024).toFixed(1)+' MB)');
+    
+    // استكشاف الجداول
+    const tRes=db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+    const tables=(tRes[0]&&tRes[0].values)?tRes[0].values.flat():[];
+    log('INFO: جداول: '+tables.join(', '));
+    if(!tables.length){db.close();return 0}
+    
+    const mainTable=tables.find(x=>/dtc|codes|trouble|fault/i.test(x))||tables[0];
+    
+    // استكشاف الأعمدة
+    const cRes=db.exec(`PRAGMA table_info(${mainTable})`);
+    const colNames=(cRes[0]&&cRes[0].values)?cRes[0].values.map(r=>r[1]):[];
+    log('INFO: أعمدة '+mainTable+': '+colNames.join(', '));
+    
+    const codeCol=colNames.find(c=>/^(code|dtc|dtc_code|fault_code)$/i.test(c))||colNames.find(c=>/code/i.test(c))||colNames[0];
+    const descCol=colNames.find(c=>/^(description|desc|title|name|text)$/i.test(c))||colNames.find(c=>/desc|title|name|text/i.test(c))||colNames[1];
+    const makeCol=colNames.find(c=>/^(make|manufacturer|brand|oem|mfr)$/i.test(c))||colNames.find(c=>/make|manuf|brand|oem/i.test(c));
+    
+    log('INFO: أعمدة مختارة: code='+codeCol+', desc='+descCol+(makeCol?', make='+makeCol:''));
+    
+    const q=makeCol?`SELECT ${codeCol} AS code, ${descCol} AS title, ${makeCol} AS make FROM ${mainTable}`:`SELECT ${codeCol} AS code, ${descCol} AS title FROM ${mainTable}`;
+    const r=db.exec(q);
+    if(!r[0]){db.close();return 0}
+    
+    const cols=r[0].columns;
+    const rows=r[0].values.map(row=>{
+      const o={};cols.forEach((c,i)=>o[c]=row[i]);return o;
+    });
+    log('INFO: Wal33D — '+rows.length+' صف');
+    
+    let added=0,enriched=0;
+    const makes=new Set();
+    
+    await processInChunks(rows,row=>{
+      const cd=String(row.code||'').toUpperCase().trim();
+      if(!cd||cd.length<4||cd.length>10)return;
+      const title=String(row.title||'').trim();
+      if(!title)return;
+      const make=row.make?String(row.make).trim():'';
+      if(make)makes.add(make);
+      
+      if(DTC_DATABASE[cd]){
+        const before=DTC_DATABASE[cd];
+        let changed=false;
+        if(!before.desc&&title){before.desc=title;changed=true}
+        if(make&&!before.brand){before.brand=make;changed=true}
+        if(changed)enriched++;
+        return;
+      }
+      
+      DTC_DATABASE[cd]={
+        zone:mapCatFromCode(cd),
+        title:title.length>90?title.slice(0,90)+'…':title,
+        title_en:title,
+        desc:title,
+        severity:'medium',
+        brand:make||undefined
+      };
+      added++;
+    });
+    
+    db.close();
+    stats.wal33d=added;
+    stats.makes=makes.size;
+    log('OK: Wal33D — '+added+' كود جديد من '+makes.size+' مصنّع (+ '+enriched+' مُثرى)');
+    return added;
+  }catch(e){
+    log('ERR: Wal33D — '+e.message);
+    return 0;
+  }
+}
+
 const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json'];
 async function loadFullDatabase(){
   if(OBDEX_LOADED)return;
@@ -541,10 +598,11 @@ async function loadFullDatabase(){
   if(!window.jsyaml){log('WARN: js-yaml غير متاح');return}
   const b=$('dbStatus'),bt=$('dbStatusText');
   if(b)b.style.display='block';
-  stats={obdex:0,local:0,enriched:0};
-  OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},90000);
+  stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0};
+  OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},120000);
   
-  log('INFO: المرحلة 1 — OBDex CDN...');
+  // مرحلة 1: OBDex
+  log('INFO: مرحلة 1/3 — OBDex CDN...');
   if(bt)bt.textContent='OBDex: تحضير...';
   for(let f=0;f<OBDEX_FILES.length;f++){
     if(bt)bt.textContent='OBDex: '+OBDEX_FILES[f]+' ('+(f+1)+'/'+OBDEX_FILES.length+')';
@@ -558,9 +616,10 @@ async function loadFullDatabase(){
       DTC_DATABASE[cd]=c;stats.obdex++;
     });
   }
-  log('OK: OBDex — '+stats.obdex+' عطل');
+  log('OK: OBDex — '+stats.obdex);
   
-  log('INFO: المرحلة 2 — ملفات محلية...');
+  // مرحلة 2: ملفات محلية
+  log('INFO: مرحلة 2/3 — ملفات محلية...');
   for(let f=0;f<LOCAL_FILES.length;f++){
     if(bt)bt.textContent='محلي: '+LOCAL_FILES[f]+' ('+(f+1)+'/'+LOCAL_FILES.length+')';
     const items=await fetchLocalJSON(LOCAL_FILES[f]);
@@ -581,8 +640,13 @@ async function loadFullDatabase(){
   }
   log('OK: محلي — '+stats.local+' جديد، '+stats.enriched+' مُثرى');
   
+  // مرحلة 3: Wal33D
+  log('INFO: مرحلة 3/3 — Wal33D SQLite...');
+  if(bt)bt.textContent='Wal33D: تحميل قاعدة المصنّعين...';
+  await loadWal33D();
+  
   clearTimeout(OBDEX_TIMEOUT);
-  if(stats.obdex===0&&stats.local===0){
+  if(stats.obdex===0&&stats.local===0&&stats.wal33d===0){
     if(await tryLoadCache(true)){if(b)b.style.display='none';log('INFO: كاش قديم');return}
   }
   OBDEX_LOADED=true;
@@ -590,15 +654,21 @@ async function loadFullDatabase(){
   const tot=Object.keys(DTC_DATABASE).length;
   updateDTCCount(tot);
   if(b)b.style.display='none';
-  log('OK: ✅ الإجمالي: '+tot);
-  if(stats.obdex>0||stats.local>0)await saveCache();
+  log('OK: ✅ الإجمالي النهائي: '+tot);
+  if(stats.obdex>0||stats.local>0||stats.wal33d>0)await saveCache();
 }
 function updateDTCCount(n){
   const f=n.toLocaleString('en-US');
   const e1=$('heroCount');if(e1)e1.textContent=f;
   const e2=$('statCodes');if(e2)e2.textContent=f;
   const ss=$('statSource');
-  if(ss)ss.textContent=(stats.obdex>0&&stats.local>0)?'مدمج':(stats.obdex>0?'OBDex':(stats.local>0?'محلي':'—'));
+  if(ss){
+    const parts=[];
+    if(stats.obdex>0)parts.push('OBDex');
+    if(stats.local>0)parts.push('محلي');
+    if(stats.wal33d>0)parts.push('Wal33D');
+    ss.textContent=parts.length?parts.join('+').slice(0,20):'—';
+  }
 }
 
 const BRAND_INDEX=new Map();
@@ -629,7 +699,7 @@ function buildSearchIndex(){
       bucket.push(item);
     }
   }
-  log('OK: فهرس — '+SEARCH_INDEX.length+' عطل');
+  log('OK: فهرس — '+SEARCH_INDEX.length);
 }
 function ensureTitleLc(item){
   if(item._titleLc===null){item._titleLc=(item.info.title||'').toLowerCase();item._titleEnLc=(item.info.title_en||'').toLowerCase()}
@@ -801,12 +871,12 @@ function initSevFilters(){
 }
 
 const RULES=[
-{req:['P0171','P0174'],title:'تسرب هواء في نظام السحب',conf:90,sev:'high',desc:'خليط فقير في البنكين — تسرب هواء محتمل',acts:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب','افحص غطاء زيت المحرك']},
-{req:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',conf:75,sev:'medium',desc:'اشتعال متقطع — أصلح الأسباب الجذرية قبل الكتلايزر',acts:['بدل البواجي','افحص الكويلات','افحص ضغط الأسطوانات']},
-{req:['P0420'],anyOf:['P0300','P0301'],title:'تلف الكتلايزر بسبب الاشتعال',conf:90,sev:'high',desc:'الاشتعال المتقطع أتلف الكتلايزر',acts:['أصلح الإشعال أولاً','افحص حساس O2','استبدل الكتلايزر إذا لزم']},
-{req:['P0217'],title:'ارتفاع حرارة المحرك',conf:100,sev:'critical',desc:'أوقف السيارة فوراً!',acts:['أوقف فوراً','افحص سائل التبريد','افحص المروحة والترموستات']},
-{req:['U0100'],title:'فقدان الاتصال بـ ECU',conf:90,sev:'critical',desc:'لا يوجد تواصل مع كمبيوتر المحرك',acts:['افحص فيوز ECU','افحص أسلاك الأرضي','افحص كابل OBD']},
-{req:['P0524'],title:'ضغط زيت منخفض',conf:95,sev:'critical',desc:'خطر تلف المحرك',acts:['أوقف فوراً','افحص مستوى الزيت','افحص مضخة الزيت']}];
+{req:['P0171','P0174'],title:'تسرب هواء في نظام السحب',conf:90,sev:'high',desc:'خليط فقير في البنكين',acts:['افحص خراطيم الفاكيوم','افحص حشوة مشعب السحب']},
+{req:['P0300'],anyOf:['P0301','P0302','P0303','P0304'],title:'مشكلة في نظام الإشعال',conf:75,sev:'medium',desc:'اشتعال متقطع',acts:['بدل البواجي','افحص الكويلات']},
+{req:['P0420'],anyOf:['P0300','P0301'],title:'تلف الكتلايزر بسبب الاشتعال',conf:90,sev:'high',desc:'الاشتعال المتقطع أتلف الكتلايزر',acts:['أصلح الإشعال أولاً','افحص حساس O2']},
+{req:['P0217'],title:'ارتفاع حرارة المحرك',conf:100,sev:'critical',desc:'أوقف السيارة فوراً!',acts:['أوقف فوراً','افحص سائل التبريد']},
+{req:['U0100'],title:'فقدان الاتصال بـ ECU',conf:90,sev:'critical',desc:'لا يوجد تواصل مع كمبيوتر المحرك',acts:['افحص فيوز ECU','افحص كابل OBD']},
+{req:['P0524'],title:'ضغط زيت منخفض',conf:95,sev:'critical',desc:'خطر تلف المحرك',acts:['أوقف فوراً','افحص مستوى الزيت']}];
 function runDiag(codes){
   if(!codes||!codes.length)return [];
   const s=new Set(codes.map(c=>String(c).toUpperCase()));
@@ -876,16 +946,7 @@ function showDetail(cod){
   if(r.difficulty||r.hMin!==undefined||r.diy!==undefined){
     h+='<div class="bg-emerald-900/40 rounded-xl p-4 mb-3 border border-emerald-700/50"><div class="font-bold text-sm mb-3 text-emerald-300"><i class="fa-solid fa-screwdriver-wrench"></i> معلومات الإصلاح</div><div class="grid grid-cols-2 gap-2 text-xs">';
     if(r.difficulty){const dm={easy:{l:'سهل',c:'#10b981',i:'🟢'},medium:{l:'متوسط',c:'#f59e0b',i:'🟡'},hard:{l:'صعب',c:'#ef4444',i:'🔴'}};const dd=dm[r.difficulty]||{l:r.difficulty,c:'#64748b',i:'⚪'};h+='<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">الصعوبة</div><div class="font-bold" style="color:'+dd.c+'">'+dd.i+' '+dd.l+'</div></div>'}
-    if(r.diy!==undefined)h+='<div class="bg-black/30 rounded-lg p-2"><div class="text-[10px] text-gray-400">DIY؟</div><div class="font-bold">'+(r.diy?'<span class="text-emerald-400">✅ نعم</span>':'<span class="text-red-400">❌ لا</span>')+'</div></div>';
     if(r.hMin!==undefined)h+='<div class="bg-black/30 rounded-lg p-2 col-span-2"><div class="text-[10px] text-gray-400">⏱️ الوقت</div><div class="font-bold text-blue-300">'+r.hMin+' — '+r.hMax+' ساعة</div></div>';
-    h+='</div></div>';
-  }
-  const fl=info.flags||{};
-  if(fl.mil||fl.emissions_relevant||fl.limp_mode_possible){
-    h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border border-gray-700"><div class="font-bold text-sm mb-3 text-amber-300">إشارات مهمة</div><div class="space-y-2 text-xs">';
-    if(fl.mil)h+='<div>🚨 يُضيء لمبة المحرك (MIL)</div>';
-    if(fl.emissions_relevant)h+='<div>🌫️ يؤثر على الانبعاثات</div>';
-    if(fl.limp_mode_possible)h+='<div>🐢 قد يدخل وضع الطوارئ</div>';
     h+='</div></div>';
   }
   const blk=(it,t,col)=>{
@@ -985,18 +1046,15 @@ async function initELM(){
   return false;
 }
 async function connectOBD(showAll){
-  if(!hasBLE){alert(window.isSecureContext===false?'Web Bluetooth يحتاج صفحة آمنة (HTTPS).':'المتصفح لا يدعم Web Bluetooth.\n\n- أندرويد: Chrome\n- iPhone: Bluefy');return}
+  if(!hasBLE){alert(window.isSecureContext===false?'Web Bluetooth يحتاج HTTPS.':'المتصفح لا يدعم Web Bluetooth.');return}
   const btn=$('connect-btn');
   const orig=btn.innerHTML;
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span>';
-  userDisc=false;
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';userDisc=false;
   try{
     log('INFO: البحث عن أجهزة BLE...');
     const names=['OBD','OBDII','ELM','Vgate','Viecar','V-Link','KONNWEI','iCar'];
     const opts=showAll?{acceptAllDevices:true,optionalServices:KNOWN_SVC}:{filters:[...KNOWN_SVC.map(s=>({services:[s]})),...names.map(n=>({namePrefix:n}))],optionalServices:KNOWN_SVC};
-    try{btDevice=await navigator.bluetooth.requestDevice(opts)}
-    catch(e){if(e.name==='NotFoundError'){log('INFO: لم يتم اختيار جهاز');return}throw e}
+    try{btDevice=await navigator.bluetooth.requestDevice(opts)}catch(e){if(e.name==='NotFoundError'){log('INFO: لم يتم اختيار جهاز');return}throw e}
     log('INFO: جهاز: '+(btDevice.name||'بدون اسم'));
     btDevice.removeEventListener('gattserverdisconnected',onGattDisc);
     btDevice.addEventListener('gattserverdisconnected',onGattDisc);
@@ -1005,18 +1063,15 @@ async function connectOBD(showAll){
     setStatus('connected');updConnUI(true);
     log('OK: متصل Bluetooth');
     if(!await initELM())throw new Error('فشل تهيئة ELM327');
-    log('OK: جاهز');
-    startLive();
+    log('OK: جاهز');startLive();
   }catch(e){log('ERR: '+e.message);await handleDisc()}
   finally{btn.disabled=false;btn.innerHTML=orig}
 }
 async function connectUSB(){
-  if(!navigator.serial){alert(window.isSecureContext===false?'Web Serial يحتاج HTTPS':'Web Serial غير مدعوم');return}
+  if(!navigator.serial){alert('Web Serial غير مدعوم');return}
   const btn=$('usb-btn');
   const orig=btn.innerHTML;
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span>';
-  userDisc=false;
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';userDisc=false;
   try{
     const port=await navigator.serial.requestPort();
     let ok=false;
@@ -1024,20 +1079,16 @@ async function connectUSB(){
       usbPort=port;
       try{
         await port.open({baudRate:b,dataBits:8,stopBits:1,parity:'none'});
-        usbWriter=port.writable.getWriter();
-        transport='usb';
-        startUSBLoop();
+        usbWriter=port.writable.getWriter();transport='usb';startUSBLoop();
         const r=await sendCmd('AT Z',3000,0);
         if(/ELM|OBD|STN|v\d\.\d/i.test(String(r))){ok=true;log('OK: USB @'+b);break}
       }catch(e){log('INFO: '+b+' — '+e.message)}
       await cleanupUSB();
     }
     if(!ok)throw new Error('لم يردّ على أي سرعة');
-    isConnected=true;
-    setStatus('connected');updConnUI(true);
+    isConnected=true;setStatus('connected');updConnUI(true);
     if(!await initELM())throw new Error('فشل تهيئة ELM327');
-    log('OK: جاهز');
-    startLive();
+    log('OK: جاهز');startLive();
   }catch(e){log('ERR: '+e.message);await handleDisc()}
   finally{btn.disabled=false;btn.innerHTML=orig}
 }
@@ -1081,8 +1132,7 @@ async function handleDisc(){
   transport=null;isCAN=null;isCAN11=null;
   cmdQ=[];isProcessing=false;curResolve=null;
   if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
-  setStatus('disconnected');updConnUI(false);
-  log('INFO: تم قطع الاتصال');
+  setStatus('disconnected');updConnUI(false);log('INFO: تم قطع الاتصال');
 }
 function updConnUI(c){
   const cb=$('connect-btn'),ub=$('usb-btn'),db=$('demo-btn'),x=$('disconnect-btn');
@@ -1122,9 +1172,7 @@ function startLive(){
         const spd=pSpeed(await sendCmd('01 0D',800,1));
         if(liveTick%4===0){lastCoolant=pCool(await sendCmd('01 05',800,1));lastFuel=pFuel(await sendCmd('01 2F',800,1))}
         updAllG({rpm,speed:spd,coolant:lastCoolant,fuelLevel:lastFuel});
-        updChart(rpm||0,spd||0);
-        autoAnalyze(rpm,spd,lastCoolant);
-        liveTick++;
+        updChart(rpm||0,spd||0);autoAnalyze(rpm,spd,lastCoolant);liveTick++;
       }catch(e){}
       finally{liveBusy=false}
     }
@@ -1149,8 +1197,7 @@ async function readDTCs(){
   if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
   if(isDemo){await runDemoScan();return}
   l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> قراءة الأعطال...</p>';
-  setSummary([]);
-  await pauseLiveWait();
+  setSummary([]);await pauseLiveWait();
   try{
     const p3=parseDTC(await sendCmd('03',8000),0x43);
     const p7=parseDTC(await sendCmd('07',8000),0x47);
@@ -1158,7 +1205,7 @@ async function readDTCs(){
     const eb=$('proExportBar');
     if(!p3.ok){
       lastFaults=[];updSysGrid([],[]);if(eb)eb.classList.add('hidden');
-      l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ السيارة على قراءة الأعطال<br><span class="text-xs font-normal">لا يمكن اعتبارها سليمة. تأكد أن المفتاح على ON.</span></div>';
+      l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ السيارة<br><span class="text-xs font-normal">تأكد أن المفتاح على ON.</span></div>';
       return;
     }
     const all=[];
@@ -1168,14 +1215,10 @@ async function readDTCs(){
     setSummary(['✅ وحدة المحرك ردّت على الطلب']);
     if(!all.length){
       lastFaults=[];
-      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ لا أعطال مسجلة في وحدة المحرك</div><div class="text-xs text-green-200/70">لا يعني ذلك أن كل الأنظمة سليمة — استخدم «فحص الكل»</div></div>';
-      updSysGrid([],['engine']);if(eb)eb.classList.add('hidden');
-      return;
+      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ لا أعطال مسجلة</div><div class="text-xs text-green-200/70">لا يعني ذلك أن كل الأنظمة سليمة — استخدم «فحص الكل»</div></div>';
+      updSysGrid([],['engine']);if(eb)eb.classList.add('hidden');return;
     }
-    renderFaults(all);
-    dispSmart(all.map(f=>f.code));
-    dispHealth(all,runDiag(all.map(f=>f.code)));
-    updSysGrid(all,['engine']);
+    renderFaults(all);dispSmart(all.map(f=>f.code));dispHealth(all,runDiag(all.map(f=>f.code)));updSysGrid(all,['engine']);
   }catch(e){log('ERR: '+e.message);l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>'}
   finally{resumeLive()}
 }
@@ -1183,10 +1226,9 @@ async function scanAll(){
   const l=$('dtcList');if(!l)return;
   if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
   if(isDemo){await runDemoScan();return}
-  if(isCAN11===false){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ الفحص الشامل يحتاج CAN 11-bit. استخدم «فحص المحرك».</p>';return}
+  if(isCAN11===false){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ الفحص الشامل يحتاج CAN 11-bit.</p>';return}
   l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص الشامل...</p>';
-  setSummary([]);
-  await pauseLiveWait();
+  setSummary([]);await pauseLiveWait();
   try{
     const rows=[],all=[],scanned=[];let answered=0;
     for(let n=0;n<8;n++){
@@ -1195,7 +1237,7 @@ async function scanAll(){
       const p=parseUDS(await sendCmd('19 02 FF',2500,0));
       const sys=n===0?'engine':n===1?'transmission':null;
       const lb=n===0?'المحرك':n===1?'الجير':'وحدة '+a;
-      if(!p.ok){rows.push('⚪ '+lb+': لا رد (لم تُفحص)');continue}
+      if(!p.ok){rows.push('⚪ '+lb+': لا رد');continue}
       answered++;if(sys)scanned.push(sys);
       rows.push((p.codes.length?'🔴 ':'✅ ')+lb+': '+(p.codes.length?p.codes.length+' عطل':'لا أعطال'));
       p.codes.forEach(c=>{if(!all.some(f=>f.code===c))all.push({code:c,system:sys||('ECU '+a),type:'confirmed'})});
@@ -1203,20 +1245,9 @@ async function scanAll(){
     try{await sendCmd('AT SH 7DF',800,0)}catch(_){}
     setSummary(rows);
     const eb=$('proExportBar');
-    if(!answered){
-      lastFaults=[];updSysGrid([],[]);if(eb)eb.classList.add('hidden');
-      l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ أي وحدة على أمر UDS<br><span class="text-xs font-normal">جرّب «فحص المحرك».</span></div>';
-      return;
-    }
-    if(!all.length){
-      lastFaults=[];
-      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ الوحدات التي ردّت لا تحتوي أعطالاً</div><div class="text-xs text-green-200/70">الوحدات التي لم تردّ لم تُفحص</div></div>';
-      updSysGrid([],scanned);if(eb)eb.classList.add('hidden');
-      return;
-    }
-    renderFaults(all);
-    dispSmart(all.map(f=>f.code));
-    dispHealth(all,runDiag(all.map(f=>f.code)));
+    if(!answered){lastFaults=[];updSysGrid([],[]);if(eb)eb.classList.add('hidden');l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ أي وحدة على UDS</div>';return}
+    if(!all.length){lastFaults=[];l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ الوحدات التي ردّت لا تحتوي أعطالاً</div><div class="text-xs text-green-200/70">الوحدات التي لم تردّ لم تُفحص</div></div>';updSysGrid([],scanned);if(eb)eb.classList.add('hidden');return}
+    renderFaults(all);dispSmart(all.map(f=>f.code));dispHealth(all,runDiag(all.map(f=>f.code)));
     const known=['engine','transmission'];
     updSysGrid(all.filter(f=>known.includes(f.system)),scanned);
   }catch(e){log('ERR: '+e.message);l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>'}
@@ -1224,7 +1255,7 @@ async function scanAll(){
 }
 async function clearDTCs(){
   if(!isConnected&&!isDemo){alert('غير متصل');return}
-  if(!confirm('⚠️ مسح الأعطال سيحذف freeze frame ويعيد ضبط جاهزية الانبعاثات.\nالأعطال الحالية محفوظة في السجل.\n\nالمفتاح على ON والمحرك مطفأ. متابعة؟'))return;
+  if(!confirm('⚠️ مسح الأعطال سيحذف freeze frame.\nالمفتاح على ON والمحرك مطفأ. متابعة؟'))return;
   const l=$('dtcList');
   const done=()=>{lastFaults=[];if(l)l.innerHTML='<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';resetSysGrid();setSummary([]);const eb=$('proExportBar');if(eb)eb.classList.add('hidden')};
   if(isDemo){done();return}
@@ -1267,9 +1298,7 @@ async function runDemoScan(){
     {code:'P0171',system:'engine',type:'confirmed'},
     {code:'P0420',system:'exhaust',type:'pending'},
     {code:'U0100',system:'electronics',type:'confirmed'}];
-  renderFaults(df);
-  dispSmart(df.map(f=>f.code));
-  dispHealth(df,runDiag(df.map(f=>f.code)));
+  renderFaults(df);dispSmart(df.map(f=>f.code));dispHealth(df,runDiag(df.map(f=>f.code)));
   updSysGrid(df,['engine','transmission','abs','airbag','exhaust','electronics']);
 }
 function startDemo(){
@@ -1286,8 +1315,7 @@ function startDemo(){
     const f=40+Math.floor(Math.random()*50);
     lastCoolant=c;lastFuel=f;
     updAllG({rpm:r,speed:s,coolant:c,fuelLevel:f});
-    updChart(r,s);
-    autoAnalyze(r,s,c);
+    updChart(r,s);autoAnalyze(r,s,c);
   },1500);
   log('OK: وضع تجريبي جاهز');
 }
@@ -1340,8 +1368,7 @@ function searchDTC(q){
     const fav=isFav(x.cleanCode);
     h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+(x.info.brand?'<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">'+escapeHtml(x.info.brand)+'</span>':'')+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
   });
-  h+='</div>';
-  d.innerHTML=h;
+  h+='</div>';d.innerHTML=h;
   if(cEl){if(m.length===50)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';else cEl.textContent='('+m.length+' نتيجة)'}
   d.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
   d.querySelectorAll('[data-key]').forEach(e=>{e.onclick=function(ev){if(ev.target.closest('[data-fav]'))return;showDetail(e.dataset.key)}});
@@ -1355,8 +1382,7 @@ function applyTheme(){
 }
 function toggleTheme(){
   const cur=localStorage.getItem('checkdiga_theme')||'dark';
-  localStorage.setItem('checkdiga_theme',cur==='dark'?'light':'dark');
-  applyTheme();
+  localStorage.setItem('checkdiga_theme',cur==='dark'?'light':'dark');applyTheme();
 }
 
 function pMon(b,bit){if(!(b&(1<<bit)))return 'na';return (b&(1<<(bit+4)))?'no':'yes'}
@@ -1366,8 +1392,7 @@ function runReadiness(){
   if(!isConnected){c.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
   c.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
   sendCmd('01 01',3500).then(res=>{
-    const b=pHex(res);
-    let idx=-1;
+    const b=pHex(res);let idx=-1;
     for(let i=0;i<b.length-5;i++)if(b[i]===0x41&&b[i+1]===0x01){idx=i;break}
     if(idx===-1){c.innerHTML='<p class="text-red-400 text-center py-4">لا يوجد رد</p>';return}
     const A=b[idx+2],B=b[idx+3],C=b[idx+4];
@@ -1396,9 +1421,7 @@ async function runBatteryTest(){
     let val;
     if(isDemo)val=[12.6,14.2,13.9][batStep]+(Math.random()*0.3-0.1);
     else{await pauseLiveWait();val=await readVolt()}
-    batVals[batStep]=val;
-    batSet(batStep+1,val);
-    batStep++;
+    batVals[batStep]=val;batSet(batStep+1,val);batStep++;
     if(batStep>=3){batStep=0;batFinish()}
   }catch(e){log('ERR: '+e.message)}
   finally{btn.disabled=false;if(!isDemo)resumeLive();batUI()}
@@ -1460,7 +1483,18 @@ function renderStats(){
   const tot=Object.keys(DTC_DATABASE).length;
   const sev={critical:0,high:0,medium:0,low:0};
   for(const k of Object.keys(DTC_DATABASE)){const s=DTC_DATABASE[k].severity||'medium';if(sev[s]!==undefined)sev[s]++}
-  c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div><div class="mt-2 text-xs flex justify-center gap-2 flex-wrap"><span class="bg-purple-900/50 px-2 py-0.5 rounded-full text-purple-300">OBDex: '+stats.obdex+'</span><span class="bg-blue-900/50 px-2 py-0.5 rounded-full text-blue-300">محلي: '+stats.local+'</span><span class="bg-emerald-900/50 px-2 py-0.5 rounded-full text-emerald-300">دمج: '+stats.enriched+'</span></div></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">'+sev.critical+'</div><div class="text-[10px] text-gray-500">حرج</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">'+sev.high+'</div><div class="text-[10px] text-gray-500">خطير</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">'+sev.medium+'</div><div class="text-[10px] text-gray-500">متوسط</div></div><div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">'+sev.low+'</div><div class="text-[10px] text-gray-500">منخفض</div></div></div>';
+  c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
+   +'<div class="bg-gray-900 rounded-xl p-3 mb-3 space-y-1 text-xs">'
+   +'<div class="flex justify-between"><span class="text-gray-400">OBDex CDN:</span><span class="font-bold text-purple-300">'+stats.obdex.toLocaleString()+'</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">ملفات محلية:</span><span class="font-bold text-blue-300">'+stats.local.toLocaleString()+' (+'+stats.enriched+' مُثرى)</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">Wal33D مصنّعين:</span><span class="font-bold text-emerald-300">'+stats.wal33d.toLocaleString()+' ('+stats.makes+' مصنّع)</span></div>'
+   +'</div>'
+   +'<div class="grid grid-cols-2 gap-2 mb-3">'
+   +'<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">'+sev.critical+'</div><div class="text-[10px] text-gray-500">حرج</div></div>'
+   +'<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">'+sev.high+'</div><div class="text-[10px] text-gray-500">خطير</div></div>'
+   +'<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">'+sev.medium+'</div><div class="text-[10px] text-gray-500">متوسط</div></div>'
+   +'<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">'+sev.low+'</div><div class="text-[10px] text-gray-500">منخفض</div></div>'
+   +'</div>';
   const cv=$('statsChart');
   if(!cv||!window.Chart)return;
   if(statsChartInstance)statsChartInstance.destroy();
@@ -1515,8 +1549,12 @@ function initTabs(){
 }
 
 function batVerdictShow(cl,t){const v=$('batteryVerdict');if(!v)return;v.className='p-3 rounded-xl text-white font-bold text-center '+cl;v.textContent=t;v.classList.remove('hidden')}
-const BAT_HINTS=['① المفتاح على ON والمحرك مطفأ (الأدق بعد 30 دقيقة من الإطفاء) ثم اضغط «قراءة»','② شغّل المحرك على الخمول ثم اضغط «قراءة»','③ شغّل الأحمال (إضاءة + مكيّف + مؤخرة) وارفع الدوران ~2000 ثم اضغط «قراءة»'];
-function batUI(){const b=$('btnBatteryTest'),h=$('batHint');if(h)h.textContent=BAT_HINTS[batStep]+(isDemo?' (تجريبي)':'');if(b)b.innerHTML='<i class="fa-solid fa-bolt"></i> قراءة المرحلة '+(batStep+1)}
+const BAT_HINTS=['① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»','② شغّل المحرك على الخمول ثم اضغط «قراءة»','③ شغّل الأحمال وارفع الدوران ~2000 ثم اضغط «قراءة»'];
+function batUI(){
+  const b=$('btnBatteryTest'),h=$('batHint');
+  if(h)h.textContent=BAT_HINTS[batStep]+(isDemo?' (تجريبي)':'');
+  if(b){if(batStep===0)b.innerHTML='<i class="fa-solid fa-bolt"></i> بدء الاختبار';else b.innerHTML='<i class="fa-solid fa-bolt"></i> قراءة المرحلة '+(batStep+1)}
+}
 function batSet(n,val){
   const rg=[[12.4,12.8],[13.8,14.8],[13.5,14.8]][n-1],b=$('bat'+n),e=$('batVal'+n);if(!b||!e)return;
   if(val==null){e.textContent='غير مدعوم';e.style.color='#94a3b8';return}
@@ -1528,9 +1566,9 @@ function batFinish(){
   const [a,b,c]=batVals;let cl='bg-green-600';const t=[];
   const bad=()=>{cl='bg-red-600'},warn=()=>{if(cl!=='bg-red-600')cl='bg-yellow-600'};
   if(a==null&&b==null&&c==null){batVerdictShow('bg-gray-600','⚠️ لم نتمكن من قراءة الجهد');return}
-  if(a!=null){if(a<12.0){bad();t.push('البطارية فارغة/ضعيفة جداً')}else if(a<12.4){warn();t.push('البطارية تحتاج شحن أو فحص')}else t.push('البطارية جيدة')}
-  if(b!=null){if(b<13.0){bad();t.push('الدينامو لا يشحن')}else if(b<13.8){warn();t.push('الشحن ضعيف')}else if(b>15.0){bad();t.push('شحن زائد — افحص المنظّم')}else t.push('الشحن جيد')}
-  if(c!=null){if(c<13.0){bad();t.push('الدينامو لا يتحمل الأحمال')}else if(c<13.5){warn();t.push('الشحن تحت الحمل ضعيف')}}
+  if(a!=null){if(a<12.0){bad();t.push('البطارية فارغة')}else if(a<12.4){warn();t.push('تحتاج شحن')}else t.push('البطارية جيدة')}
+  if(b!=null){if(b<13.0){bad();t.push('الدينامو لا يشحن')}else if(b<13.8){warn();t.push('الشحن ضعيف')}else if(b>15.0){bad();t.push('شحن زائد')}else t.push('الشحن جيد')}
+  if(c!=null){if(c<13.0){bad();t.push('لا يتحمل الأحمال')}else if(c<13.5){warn();t.push('الشحن تحت الحمل ضعيف')}}
   batVerdictShow(cl,t.join(' • ')+' (نتيجة مبدئية)');
 }
 async function readVolt(){
@@ -1620,21 +1658,15 @@ function init(){
   cleanOldCache();
   const bind=(id,fn)=>{const el=$(id);if(el)el.onclick=fn};
   bind('connect-btn',()=>connectOBD(false));bind('btShowAll',()=>connectOBD(true));
-  bind('usb-btn',connectUSB);
-  bind('demo-btn',startDemo);
+  bind('usb-btn',connectUSB);bind('demo-btn',startDemo);
   bind('disconnect-btn',async()=>{stopDemo();await handleDisc()});
   bind('clear-btn',()=>{if(!isConnected&&!isDemo){alert('اتصل بالسيارة أولاً');return}clearDTCs()});
-  bind('btnReadDTC',readDTCs);
-  bind('btnScanAll',scanAll);
-  bind('btnTheme',toggleTheme);
+  bind('btnReadDTC',readDTCs);bind('btnScanAll',scanAll);bind('btnTheme',toggleTheme);
   bind('btnFavorites',()=>{const t=document.querySelector('[data-tab="favorites"]');if(t)t.click()});
   bind('btnFavDetail',function(){if(currentDetailCode){toggleFav(currentDetailCode);this.classList.toggle('active',isFav(currentDetailCode));updFavCount()}});
   bind('btnCloseDetail',()=>$('dtcDetailModal').classList.add('hidden'));
-  bind('btnReadReadiness',runReadiness);
-  bind('btnBatteryTest',runBatteryTest);
-  bind('btnClearHistory',clearHist);
-  bind('btnExportPDF',exportPDF);
-  bind('btnShareWA',shareWA);
+  bind('btnReadReadiness',runReadiness);bind('btnBatteryTest',runBatteryTest);
+  bind('btnClearHistory',clearHist);bind('btnExportPDF',exportPDF);bind('btnShareWA',shareWA);
   initTabs();
   const dd=$('dtcDetailModal');
   if(dd)dd.onclick=e=>{if(e.target.id==='dtcDetailModal')dd.classList.add('hidden')};
@@ -1645,7 +1677,7 @@ function init(){
   applyTheme();
   setTimeout(()=>updAllG({rpm:null,speed:null,coolant:null,fuelLevel:null}),300);
   log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
-  log('INFO: جاري تحميل القاعدة الكاملة...');
+  log('INFO: تحميل OBDex + محلي + Wal33D...');
   loadFullDatabase().catch(e=>log('WARN: '+e.message));
   initExtras();
 }
