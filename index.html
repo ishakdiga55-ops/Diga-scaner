@@ -63,6 +63,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 .src-badge{position:absolute;top:8px;left:8px;font-size:9px;padding:2px 6px;border-radius:6px;font-weight:800;z-index:1}
 .src-real{background:#10b981;color:#fff}
 .src-demo{background:#f59e0b;color:#000}
+.brand-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:12px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -178,7 +179,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
-<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل...">
+<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW...)">
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -285,8 +286,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v7',CT='cd_t_v7',CV='cd_v_v7',CVER=7,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6'];
+const CK='cd_db_v8',CT='cd_t_v8',CV='cd_v_v8',CVER=8,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -426,8 +427,10 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
+// ✅ معدّل: إضافة ملفات الأكواد الأوروبية والصينية
+const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_chinese.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
-let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0};
+let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
 
 function mapCat(c){if(!c)return 'engine';c=String(c).toLowerCase();return {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'}[c]||'engine'}
 function mapCatFromCode(c){
@@ -452,12 +455,13 @@ function convItem(it){
   }
   let sev=it.severity||'medium';
   if(!it.severity){if(rep.difficulty==='hard')sev='high';else if(rep.difficulty==='easy')sev='low'}
-  return {zone:it.zone||mapCat(it.category),title:tAr||tEn||code,title_en:tEn,desc:dAr||dEn,severity:sev,symptoms:sym,causes:cau,steps:Array.isArray(it.steps)?it.steps:[],repair:rep,flags:it.flags||{},related:Array.isArray(it.related_codes)?it.related_codes:(Array.isArray(it.related)?it.related:[]),sources:Array.isArray(it.sources)?it.sources:[]};
+  return {zone:it.zone||mapCat(it.category),title:tAr||tEn||code,title_en:tEn,desc:dAr||dEn,severity:sev,brand:it.brand||undefined,symptoms:sym,causes:cau,steps:Array.isArray(it.steps)?it.steps:[],repair:rep,flags:it.flags||{},related:Array.isArray(it.related_codes)?it.related_codes:(Array.isArray(it.related)?it.related:[]),sources:Array.isArray(it.sources)?it.sources:[]};
 }
 function smartMerge(existing,incoming){
   const m={...existing};
   const fill=['desc','title_en','zone','severity','title'];
   fill.forEach(k=>{if((!m[k]||m[k]==='عطل غير معروف')&&incoming[k])m[k]=incoming[k]});
+  if(incoming.brand&&!m.brand)m.brand=incoming.brand;
   ['symptoms','causes','steps'].forEach(k=>{
     if(incoming[k]&&incoming[k].length){const set=new Set([...(m[k]||[]),...incoming[k]]);m[k]=[...set]}
   });
@@ -508,7 +512,6 @@ function processInChunks(items,fn,cs){
   });
 }
 
-// ============ Wal33D — تحميل SQLite (أكواد المصنّعين) ============
 async function loadWal33D(){
   try{
     if(typeof initSqlJs!=='function'){log('WARN: sql.js غير محمّلة — تجاوز Wal33D');return 0}
@@ -520,7 +523,6 @@ async function loadWal33D(){
     const db=new SQL.Database(new Uint8Array(buf));
     log('OK: Wal33D — DB محمّلة ('+(buf.byteLength/1024/1024).toFixed(1)+' MB)');
     
-    // استكشاف الجداول
     const tRes=db.exec("SELECT name FROM sqlite_master WHERE type='table'");
     const tables=(tRes[0]&&tRes[0].values)?tRes[0].values.flat():[];
     log('INFO: جداول: '+tables.join(', '));
@@ -528,7 +530,6 @@ async function loadWal33D(){
     
     const mainTable=tables.find(x=>/dtc|codes|trouble|fault/i.test(x))||tables[0];
     
-    // استكشاف الأعمدة
     const cRes=db.exec(`PRAGMA table_info(${mainTable})`);
     const colNames=(cRes[0]&&cRes[0].values)?cRes[0].values.map(r=>r[1]):[];
     log('INFO: أعمدة '+mainTable+': '+colNames.join(', '));
@@ -564,7 +565,8 @@ async function loadWal33D(){
         const before=DTC_DATABASE[cd];
         let changed=false;
         if(!before.desc&&title){before.desc=title;changed=true}
-        if(make&&!before.brand){before.brand=make;changed=true}
+        // ✅ معدّل: Wal33D يستبدل مصنّع OBDex دائماً (أولوية للأوروبي/الصيني)
+        if(make){before.brand=make;changed=true}
         if(changed)enriched++;
         return;
       }
@@ -591,17 +593,15 @@ async function loadWal33D(){
   }
 }
 
-const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json'];
 async function loadFullDatabase(){
   if(OBDEX_LOADED)return;
   if(await tryLoadCache())return;
   if(!window.jsyaml){log('WARN: js-yaml غير متاح');return}
   const b=$('dbStatus'),bt=$('dbStatusText');
   if(b)b.style.display='block';
-  stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0};
+  stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
   OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},120000);
   
-  // مرحلة 1: OBDex
   log('INFO: مرحلة 1/3 — OBDex CDN...');
   if(bt)bt.textContent='OBDex: تحضير...';
   for(let f=0;f<OBDEX_FILES.length;f++){
@@ -612,18 +612,22 @@ async function loadFullDatabase(){
       const c=convItem(item);
       if(!c)return;
       const cd=String(item.code).toUpperCase().trim();
-      if(DTC_DATABASE[cd])return;
+      if(DTC_DATABASE[cd]){
+        DTC_DATABASE[cd]=smartMerge(DTC_DATABASE[cd],c);
+        return;
+      }
       DTC_DATABASE[cd]=c;stats.obdex++;
     });
   }
   log('OK: OBDex — '+stats.obdex);
   
-  // مرحلة 2: ملفات محلية
-  log('INFO: مرحلة 2/3 — ملفات محلية...');
+  log('INFO: مرحلة 2/3 — ملفات محلية (أوروبية + صينية)...');
   for(let f=0;f<LOCAL_FILES.length;f++){
     if(bt)bt.textContent='محلي: '+LOCAL_FILES[f]+' ('+(f+1)+'/'+LOCAL_FILES.length+')';
     const items=await fetchLocalJSON(LOCAL_FILES[f]);
     if(!items.length)continue;
+    const isEuro=LOCAL_FILES[f].includes('european');
+    const isChinese=LOCAL_FILES[f].includes('chinese');
     await processInChunks(items,item=>{
       const cd=String(item.code||'').toUpperCase().trim();
       if(!cd)return;
@@ -635,12 +639,16 @@ async function loadFullDatabase(){
         if(JSON.stringify(before)!==JSON.stringify(after)){DTC_DATABASE[cd]=after;stats.enriched++}
         return;
       }
-      DTC_DATABASE[cd]=lv;stats.local++;
+      DTC_DATABASE[cd]=lv;
+      stats.local++;
+      if(isEuro)stats.euro++;
+      if(isChinese)stats.chinese++;
     });
+    if(isEuro)log('OK: 🇪🇺 أوروبي — '+stats.euro);
+    if(isChinese)log('OK: 🇨🇳 صيني — '+stats.chinese);
   }
   log('OK: محلي — '+stats.local+' جديد، '+stats.enriched+' مُثرى');
   
-  // مرحلة 3: Wal33D
   log('INFO: مرحلة 3/3 — Wal33D SQLite...');
   if(bt)bt.textContent='Wal33D: تحميل قاعدة المصنّعين...';
   await loadWal33D();
@@ -689,7 +697,7 @@ function buildSearchIndex(){
   for(let idx=0;idx<codes.length;idx++){
     const code=codes[idx];
     const info=DTC_DATABASE[code];
-    const item={code,cleanCode:code.replace(/_[A-Z]+$/,''),info,_titleLc:null,_titleEnLc:null};
+    const item={code,cleanCode:code.replace(/_[A-Z]+$/,''),info,_titleLc:null,_titleEnLc:null,_brandLc:null};
     SEARCH_INDEX.push(item);
     const up=code.toUpperCase();
     for(let i=2;i<=5&&i<=up.length;i++){
@@ -702,7 +710,11 @@ function buildSearchIndex(){
   log('OK: فهرس — '+SEARCH_INDEX.length);
 }
 function ensureTitleLc(item){
-  if(item._titleLc===null){item._titleLc=(item.info.title||'').toLowerCase();item._titleEnLc=(item.info.title_en||'').toLowerCase()}
+  if(item._titleLc===null){
+    item._titleLc=(item.info.title||'').toLowerCase();
+    item._titleEnLc=(item.info.title_en||'').toLowerCase();
+    item._brandLc=(item.info.brand||'').toLowerCase();
+  }
 }
 buildDTCIndex();
 
@@ -779,7 +791,8 @@ function renderFav(){
   let h='<div class="space-y-2">';
   favorites.forEach(c=>{
     const i=getInfo(c);
-    h+='<div class="code-card bg-gray-900 rounded-xl p-3" data-code="'+c+'"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">'+c+'</span><button class="text-red-400 text-xs" data-rm-fav="'+c+'"><i class="fa-solid fa-trash"></i></button></div><div class="text-xs text-gray-400">'+escapeHtml(i.title)+'</div></div>';
+    const bb=i.brand?'<span class="brand-badge">'+escapeHtml(i.brand)+'</span>':'';
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3" data-code="'+c+'"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">'+c+'</span><button class="text-red-400 text-xs" data-rm-fav="'+c+'"><i class="fa-solid fa-trash"></i></button></div><div class="flex items-center gap-2 mb-1">'+bb+'</div><div class="text-xs text-gray-400">'+escapeHtml(i.title)+'</div></div>';
   });
   h+='</div>';
   l.innerHTML=h;
@@ -819,7 +832,8 @@ function showSymp(i){
   s.codes.forEach(cd=>{
     const inf=getInfo(cd);
     const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[inf.severity]||'#64748b';
-    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="'+cd+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">'+cd+'</div><div class="text-xs text-gray-400">'+escapeHtml(inf.title)+'</div></div><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
+    const bb=inf.brand?'<span class="brand-badge" style="font-size:9px;padding:2px 6px">'+escapeHtml(inf.brand)+'</span>':'';
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="'+cd+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">'+cd+' '+bb+'</div><div class="text-xs text-gray-400">'+escapeHtml(inf.title)+'</div></div><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
   });
   h+='</div>';
   d.innerHTML=h;
@@ -835,7 +849,8 @@ function initFamily(){
   const e=$('familyBrowser');if(!e)return;
   const fs=[
     {k:'P0',l:'P0xxx المحرك',i:'⚙️',c:'#3b82f6'},
-    {k:'P2',l:'P2xxx محرك SAE',i:'🔧',c:'#8b5cf6'},
+    {k:'P1',l:'P1xxx مصنّعين',i:'🏭',c:'#8b5cf6'},
+    {k:'P2',l:'P2xxx محرك SAE',i:'🔧',c:'#a855f7'},
     {k:'P3',l:'P3xxx',i:'🛠️',c:'#ec4899'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
     {k:'C0',l:'C0xxx الشاسيه',i:'🛑',c:'#ef4444'},
@@ -850,7 +865,7 @@ function browseFam(p){
   for(const k of Object.keys(DTC_DATABASE)){if(k.split('_')[0].toUpperCase().startsWith(p))res.push(k);if(res.length>=80)break}
   if(!res.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>';return}
   let h='<div class="text-xs text-gray-400 mb-2">عائلة '+p+'xxx — '+res.length+' عطل</div><div class="space-y-1">';
-  res.forEach(cd=>{const i=getInfo(cd);h+='<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'});
+  res.forEach(cd=>{const i=getInfo(cd);const bb=i.brand?'<span class="brand-badge" style="font-size:8px;padding:1px 5px">'+escapeHtml(i.brand)+'</span>':'';h+='<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> '+bb+' — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'});
   h+='</div>';
   d.innerHTML=h;
   if(c)c.textContent='('+res.length+')';
@@ -938,7 +953,7 @@ function showDetail(cod){
   if(info.title_en&&info.title_en!==info.title)h+='<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
   h+='<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
   if(info.zone)h+='<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
-  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">'+escapeHtml(info.brand)+'</span>';
+  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full font-bold" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff">🏭 '+escapeHtml(info.brand)+'</span>';
   h+='</div></div>';
   h+='<div class="grid grid-cols-2 gap-2 mb-3"><button id="copyDetailBtn" class="bg-blue-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button><button id="shareDetailBtn" class="bg-green-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> واتساب</button></div>';
   if(info.desc)h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">'+escapeHtml(info.desc)+'</div></div>';
@@ -976,7 +991,9 @@ function copyDetail(){
 function shareDetail(){
   if(!currentDetailCode)return;
   const i=getInfo(currentDetailCode);
-  let t='*كود: '+currentDetailCode+'*\n'+(i.title||'')+'\n\n';
+  let t='*كود: '+currentDetailCode+'*\n';
+  if(i.brand)t+='🏭 المصنّع: '+i.brand+'\n';
+  t+=(i.title||'')+'\n\n';
   if(i.desc)t+=i.desc+'\n\n';
   t+='تفاصيل: '+location.origin+location.pathname;
   window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');
@@ -1284,7 +1301,8 @@ function renderFaults(faults){
     const tl=ty==='pending'?'مؤقت':ty==='permanent'?'دائم':'مؤكد';
     const tc=ty==='pending'?'bg-amber-600':ty==='permanent'?'bg-purple-600':'bg-red-600';
     const fav=isFav(sc);
-    h+='<div class="relative code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 pt-6" data-code="'+sc+'"><span class="src-badge src-'+source+'">'+(source==='real'?'🚗 حقيقي':'🧪 تجريبي')+'</span><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system]||f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span><span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
+    const bb=info.brand?'<span class="brand-badge" style="font-size:9px;padding:2px 6px">🏭 '+escapeHtml(info.brand)+'</span>':'';
+    h+='<div class="relative code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 pt-6" data-code="'+sc+'"><span class="src-badge src-'+source+'">'+(source==='real'?'🚗 حقيقي':'🧪 تجريبي')+'</span><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system]||f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span>'+bb+'<span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
   });
   l.innerHTML=h;
   l.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
@@ -1345,20 +1363,23 @@ function searchDTC(q){
   if(looksLikeCode&&qq.length<=5){candidates=BY_PREFIX.get(qq);if(!candidates)candidates=[]}
   const m=[];
   const source=candidates||SEARCH_INDEX;
-  for(let idx=0;idx<source.length&&m.length<50;idx++){
+  for(let idx=0;idx<source.length&&m.length<80;idx++){
     const item=source[idx];
     if(currentSevFilter!=='all'&&item.info.severity!==currentSevFilter)continue;
     let match=false;
     if(candidates)match=true;
-    else{ensureTitleLc(item);match=item.code.indexOf(qq)>=0||item.cleanCode.indexOf(qq)>=0||item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0}
+    else{
+      ensureTitleLc(item);
+      match=item.code.indexOf(qq)>=0||item.cleanCode.indexOf(qq)>=0||item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||item._brandLc.indexOf(ql)>=0;
+    }
     if(match)m.push(item);
   }
-  if(!m.length&&candidates){
-    for(let idx=0;idx<SEARCH_INDEX.length&&m.length<50;idx++){
+  if(!m.length){
+    for(let idx=0;idx<SEARCH_INDEX.length&&m.length<80;idx++){
       const item=SEARCH_INDEX[idx];
       if(currentSevFilter!=='all'&&item.info.severity!==currentSevFilter)continue;
       ensureTitleLc(item);
-      if(item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0)m.push(item);
+      if(item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||item._brandLc.indexOf(ql)>=0)m.push(item);
     }
   }
   if(!m.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';if(cEl)cEl.textContent='';return}
@@ -1366,10 +1387,11 @@ function searchDTC(q){
   m.forEach(x=>{
     const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[x.info.severity]||'#64748b';
     const fav=isFav(x.cleanCode);
-    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+(x.info.brand?'<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">'+escapeHtml(x.info.brand)+'</span>':'')+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
+    const bb=x.info.brand?'<span class="brand-badge">🏭 '+escapeHtml(x.info.brand)+'</span>':'';
+    h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+bb+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
   });
   h+='</div>';d.innerHTML=h;
-  if(cEl){if(m.length===50)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';else cEl.textContent='('+m.length+' نتيجة)'}
+  if(cEl){if(m.length===80)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';else cEl.textContent='('+m.length+' نتيجة)'}
   d.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
   d.querySelectorAll('[data-key]').forEach(e=>{e.onclick=function(ev){if(ev.target.closest('[data-fav]'))return;showDetail(e.dataset.key)}});
 }
@@ -1457,7 +1479,7 @@ function exportPDF(){
   const score=calcHealth(faults,diag);
   let h='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:'+(score>=75?'#10b981':score>=50?'#f59e0b':'#ef4444')+';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
   h+='<h1>🔧 تقرير فحص CheckDiga Pro</h1><p><b>التاريخ:</b> '+escapeHtml(date)+'</p><div class="sc">صحة السيارة: '+score+'/100</div><h2>الأعطال ('+faults.length+')</h2>';
-  faults.forEach((f,i)=>{const info=getInfo(f.code);h+='<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+'</b><br>'+escapeHtml(info.title)+'</div>'});
+  faults.forEach((f,i)=>{const info=getInfo(f.code);const b=info.brand?' ['+escapeHtml(info.brand)+']':'';h+='<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+b+'</b><br>'+escapeHtml(info.title)+'</div>'});
   if(diag.length){h+='<h2>تحليل مبدئي</h2>';diag.forEach(d=>{h+='<div class="d"><b>'+escapeHtml(d.title)+' ('+confLabel(d.conf)+')</b><br>'+escapeHtml(d.desc)+'</div>'})}
   h+='<footer>CheckDiga Pro 2026 — صُنع في الجزائر 🇩🇿</footer></body></html>';
   const blob=new Blob([h],{type:'text/html;charset=utf-8'});
@@ -1472,7 +1494,7 @@ function shareWA(){
   const diag=runDiag(faults.map(f=>f.code));
   const score=calcHealth(faults,diag);
   let m='*تقرير CheckDiga Pro*\n----------------\n\nصحة السيارة: '+score+'/100\n\n*الأعطال ('+faults.length+'):*\n';
-  faults.forEach((f,i)=>{const info=getInfo(f.code);m+=(i+1)+'. *'+f.code+'* — '+info.title+'\n'});
+  faults.forEach((f,i)=>{const info=getInfo(f.code);const b=info.brand?' ['+info.brand+']':'';m+=(i+1)+'. *'+f.code+'*'+b+' — '+info.title+'\n'});
   if(diag.length){m+='\n*التشخيص:*\n';diag.forEach(d=>{m+='• '+d.title+' ('+d.conf+'%)\n'})}
   m+='\n----------------\n'+location.origin;
   window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank');
@@ -1482,11 +1504,18 @@ function renderStats(){
   const c=$('statsContent');if(!c)return;
   const tot=Object.keys(DTC_DATABASE).length;
   const sev={critical:0,high:0,medium:0,low:0};
-  for(const k of Object.keys(DTC_DATABASE)){const s=DTC_DATABASE[k].severity||'medium';if(sev[s]!==undefined)sev[s]++}
-  c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
+  let withBrand=0;
+  for(const k of Object.keys(DTC_DATABASE)){
+    const v=DTC_DATABASE[k];
+    const s=v.severity||'medium';if(sev[s]!==undefined)sev[s]++;
+    if(v.brand)withBrand++;
+  }
+  c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-emerald-400 font-bold">🏭 '+withBrand.toLocaleString('en-US')+' كود بمصنّع</div><div class="mt-1 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
    +'<div class="bg-gray-900 rounded-xl p-3 mb-3 space-y-1 text-xs">'
    +'<div class="flex justify-between"><span class="text-gray-400">OBDex CDN:</span><span class="font-bold text-purple-300">'+stats.obdex.toLocaleString()+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">ملفات محلية:</span><span class="font-bold text-blue-300">'+stats.local.toLocaleString()+' (+'+stats.enriched+' مُثرى)</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">🇪🇺 أوروبي:</span><span class="font-bold text-blue-400">'+stats.euro.toLocaleString()+'</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">🇨🇳 صيني:</span><span class="font-bold text-red-400">'+stats.chinese.toLocaleString()+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">Wal33D مصنّعين:</span><span class="font-bold text-emerald-300">'+stats.wal33d.toLocaleString()+' ('+stats.makes+' مصنّع)</span></div>'
    +'</div>'
    +'<div class="grid grid-cols-2 gap-2 mb-3">'
@@ -1677,7 +1706,7 @@ function init(){
   applyTheme();
   setTimeout(()=>updAllG({rpm:null,speed:null,coolant:null,fuelLevel:null}),300);
   log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
-  log('INFO: تحميل OBDex + محلي + Wal33D...');
+  log('INFO: تحميل OBDex + محلي + أوروبي + صيني + Wal33D...');
   loadFullDatabase().catch(e=>log('WARN: '+e.message));
   initExtras();
 }
