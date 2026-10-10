@@ -288,8 +288,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v10',CT='cd_t_v10',CV='cd_v_v10',CVER=10,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9'];
+const CK='cd_db_v11',CT='cd_t_v11',CV='cd_v_v11',CVER=11,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -429,7 +429,8 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
-const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_chinese.json','dtc_chinese2.json'];
+// ✅ معدّل: أضفنا dtc_chinese3.json
+const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
 let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
 
@@ -880,14 +881,20 @@ function initFamily(){
     {k:'P2',l:'P2xxx محرك SAE',i:'🔧',c:'#a855f7'},
     {k:'P3',l:'P3xxx صيني',i:'🇨🇳',c:'#ec4899'},
     {k:'P4',l:'P4xxx صيني',i:'🇨🇳',c:'#dc2626'},
+    {k:'P5',l:'P5xxx صيني',i:'🇨🇳',c:'#f43f5e'},
+    {k:'P6',l:'P6xxx صيني',i:'🇨🇳',c:'#ef4444'},
+    {k:'P7',l:'P7xxx كهربائي',i:'⚡',c:'#f97316'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
     {k:'B1',l:'B1xxx مصنّعين',i:'🚙',c:'#eab308'},
+    {k:'B2',l:'B2xxx صيني',i:'🇨🇳',c:'#eab308'},
     {k:'C0',l:'C0xxx الشاسيه',i:'🛑',c:'#ef4444'},
     {k:'C1',l:'C1xxx مصنّعين',i:'🚦',c:'#dc2626'},
+    {k:'C2',l:'C2xxx صيني',i:'🇨🇳',c:'#dc2626'},
     {k:'U0',l:'U0xxx الشبكة',i:'📡',c:'#10b981'},
     {k:'U1',l:'U1xxx صيني',i:'🇨🇳',c:'#14b8a6'},
     {k:'U2',l:'U2xxx صيني',i:'🇨🇳',c:'#06b6d4'},
-    {k:'U3',l:'U3xxx كهربائي',i:'⚡',c:'#06b6d4'}];
+    {k:'U3',l:'U3xxx كهربائي',i:'⚡',c:'#06b6d4'},
+    {k:'U4',l:'U4xxx صيني',i:'🇨🇳',c:'#0891b2'}];
   e.innerHTML=fs.map(f=>'<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:'+f.c+'" data-fam="'+f.k+'"><div class="font-bold text-xs" style="color:'+f.c+'">'+f.i+' '+f.l+'</div></button>').join('');
   e.querySelectorAll('[data-fam]').forEach(b=>{b.onclick=()=>browseFam(b.dataset.fam)});
 }
@@ -1738,7 +1745,7 @@ function init(){
   applyTheme();
   setTimeout(()=>updAllG({rpm:null,speed:null,coolant:null,fuelLevel:null}),300);
   log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
-  log('INFO: تحميل OBDex + محلي + أوروبي + صيني + Wal33D...');
+  log('INFO: تحميل OBDex + محلي + أوروبي + صيني ×3 + Wal33D...');
   loadFullDatabase().catch(e=>log('WARN: '+e.message));
   initExtras();
 }
