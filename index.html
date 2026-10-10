@@ -288,8 +288,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v12',CT='cd_t_v12',CV='cd_v_v12',CVER=12,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11'];
+const CK='cd_db_v13',CT='cd_t_v13',CV='cd_v_v13',CVER=13,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_db_v12','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_t_v12','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11','cd_v_v12'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -429,7 +429,6 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
-// ✅ معدّل: أضفنا dtc_european2.json
 const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_european2.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
 let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
@@ -490,6 +489,7 @@ function smartMerge(existing,incoming){
   if(incoming.flags&&Object.keys(incoming.flags).length){m.flags={...(m.flags||{}),...incoming.flags}}
   return m;
 }
+function isCustomBrand(b){return b && (b.includes('صيني') || b.includes('أوروبي'));}
 async function fetchYaml(fn){
   try{
     const r=await fetch(OBDEX_BASE+fn);
@@ -585,7 +585,15 @@ async function loadWal33D(){
         const before=DTC_DATABASE[cd];
         let changed=false;
         if(!before.desc&&title){before.desc=title;changed=true}
-        if(make){before.brand=make;changed=true}
+        // ✅ FIX v13: احترم شاراتنا المخصصة (🇨🇳 صيني / 🇪🇺 أوروبي)
+        if(make){
+          if(isCustomBrand(before.brand)){
+            // لا تستبدل — احتفظ بالشارة المخصصة
+          } else {
+            before.brand=make;
+            changed=true;
+          }
+        }
         if(changed)enriched++;
         return;
       }
