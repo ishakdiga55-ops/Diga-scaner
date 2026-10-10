@@ -64,6 +64,8 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 .src-real{background:#10b981;color:#fff}
 .src-demo{background:#f59e0b;color:#000}
 .brand-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:12px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
+.brand-cn{background:linear-gradient(135deg,#ef4444,#dc2626)!important}
+.brand-eu{background:linear-gradient(135deg,#3b82f6,#1d4ed8)!important}
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -179,7 +181,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
-<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW...)">
+<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW, BYD...)">
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -275,7 +277,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
-<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية</p>
+<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
@@ -286,8 +288,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v8',CT='cd_t_v8',CV='cd_v_v8',CVER=8,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7'];
+const CK='cd_db_v9',CT='cd_t_v9',CV='cd_v_v9',CVER=9,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -378,18 +380,18 @@ const DTC_DATABASE={
 "P0101":{zone:"engine",title:"مدى أداء حساس MAF",title_en:"MAF Sensor Range/Performance",severity:"medium"},
 "P0102":{zone:"engine",title:"إشارة حساس MAF منخفضة",title_en:"MAF Circuit Low Input",severity:"medium",causes:["تسرب هواء","سلك مفصول"],symptoms:["قراءة MAF منخفضة"]},
 "P0103":{zone:"engine",title:"إشارة حساس MAF مرتفعة",title_en:"MAF Circuit High Input",severity:"medium",causes:["حساس متسخ","دائرة قصر"]},
-"P0115":{zone:"cooling",title:"عطل في دائرة حساس حرارة المحرك",title_en:"ECT Circuit Malfunction",severity:"medium",causes:["حساس تالف","سلك مقطوع","قابس غير موصول"],symptoms:["قراءة حرارة غير منطقية"],steps:["افحص أسلاك الحساس","قِس مقاومة الحساس بارداً وساخناً"]},
-"P0117":{zone:"cooling",title:"إشارة حساس الحرارة منخفضة جداً",title_en:"ECT Circuit Low Input",severity:"medium",causes:["دائرة قصر للأرضي","حساس تالف"],symptoms:["قراءة حرارة غير واقعية"],steps:["افحص التوصيلات","استبدل الحساس إذا لزم"]},
-"P0118":{zone:"cooling",title:"إشارة حساس الحرارة مرتفعة جداً",title_en:"ECT Circuit High Input",severity:"medium",causes:["سلك مقطوع","قابس مفصول","حساس تالف"],symptoms:["قراءة حرارة غير واقعية"],steps:["افحص التوصيلات","افحص المقاومة"]},
-"P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat",severity:"medium",causes:["ترموستات مفتوح دائماً","حساس حرارة تالف"],symptoms:["الحرارة لا تصل للمنتصف"]},
-"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ"],symptoms:["اهتزاز","ضعف تسارع"],steps:["افحص الفاكيوم","نظف MAF"]},
+"P0115":{zone:"cooling",title:"عطل في دائرة حساس حرارة المحرك",title_en:"ECT Circuit Malfunction",severity:"medium",causes:["حساس تالف","سلك مقطوع"],symptoms:["قراءة حرارة غير منطقية"],steps:["افحص أسلاك الحساس","قِس مقاومة الحساس"]},
+"P0117":{zone:"cooling",title:"إشارة حساس الحرارة منخفضة جداً",title_en:"ECT Circuit Low Input",severity:"medium"},
+"P0118":{zone:"cooling",title:"إشارة حساس الحرارة مرتفعة جداً",title_en:"ECT Circuit High Input",severity:"medium"},
+"P0128":{zone:"cooling",title:"ترموستات عاطل",title_en:"Thermostat",severity:"medium"},
+"P0171":{zone:"fuel",title:"خليط فقير Bank 1",title_en:"Too Lean Bank 1",severity:"high",causes:["تسرب هواء","MAF متسخ"],symptoms:["اهتزاز","ضعف تسارع"]},
 "P0172":{zone:"fuel",title:"خليط غني Bank 1",title_en:"Too Rich Bank 1",severity:"high"},
 "P0174":{zone:"fuel",title:"خليط فقير Bank 2",title_en:"Too Lean Bank 2",severity:"high"},
 "P0175":{zone:"fuel",title:"خليط غني Bank 2",title_en:"Too Rich Bank 2",severity:"high"},
-"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical",causes:["نقص سائل تبريد","ترموستات تالف","مروحة معطلة"],symptoms:["ارتفاع مؤشر الحرارة"],steps:["أوقف السيارة فوراً","افحص سائل التبريد"]},
+"P0217":{zone:"cooling",title:"ارتفاع حرارة المحرك",title_en:"Overheating",severity:"critical"},
 "P0299":{zone:"engine",title:"ضغط التيربو منخفض",title_en:"Turbo Underboost",severity:"high"},
-"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high",causes:["بواجي مستهلكة","كويلات ضعيفة","تسرب هواء"],symptoms:["اهتزاز","فقدان قوة"],steps:["افحص البواجي","افحص الكويلات"]},
-"P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high",causes:["بوجيه","كويل"],symptoms:["اهتزاز"],steps:["بدل الكويل"]},
+"P0300":{zone:"engine",title:"اشتعال متقطع متعدد",title_en:"Random Misfire",severity:"high"},
+"P0301":{zone:"engine",title:"Misfire - أسطوانة 1",title_en:"Cylinder 1 Misfire",severity:"high"},
 "P0302":{zone:"engine",title:"Misfire - أسطوانة 2",title_en:"Cylinder 2 Misfire",severity:"high"},
 "P0303":{zone:"engine",title:"Misfire - أسطوانة 3",title_en:"Cylinder 3 Misfire",severity:"high"},
 "P0304":{zone:"engine",title:"Misfire - أسطوانة 4",title_en:"Cylinder 4 Misfire",severity:"high"},
@@ -403,18 +405,18 @@ const DTC_DATABASE={
 "P0505":{zone:"engine",title:"نظام الخمول",title_en:"Idle Control",severity:"medium"},
 "P0524":{zone:"engine",title:"ضغط الزيت منخفض",title_en:"Oil Pressure Low",severity:"critical"},
 "P0700":{zone:"transmission",title:"عطل ناقل الحركة",title_en:"Transmission",severity:"high"},
-"P0715":{zone:"transmission",title:"دائرة حساس دخل الجير",title_en:"Input Speed Sensor Circuit",severity:"high"},
-"P0720":{zone:"transmission",title:"دائرة حساس خرج الجير",title_en:"Output Speed Sensor Circuit",severity:"high"},
+"P0715":{zone:"transmission",title:"دائرة حساس دخل الجير",title_en:"Input Speed Sensor",severity:"high"},
+"P0720":{zone:"transmission",title:"دائرة حساس خرج الجير",title_en:"Output Speed Sensor",severity:"high"},
 "P0730":{zone:"transmission",title:"نسبة التروس",title_en:"Gear Ratio",severity:"critical"},
 "P0741":{zone:"transmission",title:"TCC أداء",title_en:"TCC",severity:"high"},
 "P0750":{zone:"transmission",title:"Solenoid A",title_en:"Shift Sol A",severity:"high"},
 "P0755":{zone:"transmission",title:"Solenoid B",title_en:"Shift Sol B",severity:"high"},
 "P2002":{brand:"Diesel",zone:"exhaust",title:"DPF مسدود",title_en:"DPF Low",severity:"high"},
 "P2463":{brand:"Diesel",zone:"exhaust",title:"تراكم DPF",title_en:"DPF Soot",severity:"high"},
-"C0035":{zone:"brakes",title:"دائرة حساس عجلة أمامية يسرى",title_en:"FL Wheel Sensor Circuit",severity:"high"},
-"C0040":{zone:"brakes",title:"دائرة حساس عجلة أمامية يمنى",title_en:"FR Wheel Sensor Circuit",severity:"high"},
-"C0045":{zone:"brakes",title:"دائرة حساس خلفية يسرى",title_en:"RL Wheel Sensor Circuit",severity:"high"},
-"C0050":{zone:"brakes",title:"دائرة حساس خلفية يمنى",title_en:"RR Wheel Sensor Circuit",severity:"high"},
+"C0035":{zone:"brakes",title:"دائرة حساس عجلة أمامية يسرى",title_en:"FL Wheel Sensor",severity:"high"},
+"C0040":{zone:"brakes",title:"دائرة حساس عجلة أمامية يمنى",title_en:"FR Wheel Sensor",severity:"high"},
+"C0045":{zone:"brakes",title:"دائرة حساس خلفية يسرى",title_en:"RL Wheel Sensor",severity:"high"},
+"C0050":{zone:"brakes",title:"دائرة حساس خلفية يمنى",title_en:"RR Wheel Sensor",severity:"high"},
 "B0001":{zone:"airbag",title:"عطل الوسائد الهوائية",title_en:"Airbag Fault",severity:"critical"},
 "U0100":{zone:"electronics",title:"فقدان الاتصال بـ ECU",title_en:"Lost ECU",severity:"critical"},
 "U0101":{zone:"transmission",title:"فقدان TCM",title_en:"Lost TCM",severity:"critical"},
@@ -427,7 +429,6 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
-// ✅ معدّل: إضافة ملفات الأكواد الأوروبية والصينية
 const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_chinese.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
 let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
@@ -444,7 +445,11 @@ function convItem(it){
   const tAr=(it.title&&it.title.ar)?it.title.ar:'';
   const tEn=(it.title&&it.title.en)?it.title.en:(typeof it.title==='string'?it.title:code);
   let dAr='',dEn='';
-  if(it.description){if(typeof it.description==='object'){dAr=it.description.ar||'';dEn=it.description.en||''}else dEn=String(it.description)}
+  if(it.description){
+    if(typeof it.description==='object'){dAr=it.description.ar||'';dEn=it.description.en||''}
+    else dEn=String(it.description);
+  }
+  if(!dAr&&it.desc)dAr=String(it.desc);
   const sym=Array.isArray(it.symptoms)?it.symptoms.map(s=>(s&&typeof s==='object')?(s.ar||s.en||''):String(s)).filter(Boolean):[];
   const cau=Array.isArray(it.common_causes)?it.common_causes.map(c=>{if(typeof c==='string')return c;if(c&&c.label)return c.label.ar||c.label.en||'';return ''}).filter(Boolean):[];
   const rep={};
@@ -455,7 +460,21 @@ function convItem(it){
   }
   let sev=it.severity||'medium';
   if(!it.severity){if(rep.difficulty==='hard')sev='high';else if(rep.difficulty==='easy')sev='low'}
-  return {zone:it.zone||mapCat(it.category),title:tAr||tEn||code,title_en:tEn,desc:dAr||dEn,severity:sev,brand:it.brand||undefined,symptoms:sym,causes:cau,steps:Array.isArray(it.steps)?it.steps:[],repair:rep,flags:it.flags||{},related:Array.isArray(it.related_codes)?it.related_codes:(Array.isArray(it.related)?it.related:[]),sources:Array.isArray(it.sources)?it.sources:[]};
+  return {
+    zone:it.zone||mapCat(it.category),
+    title:tAr||tEn||code,
+    title_en:tEn,
+    desc:dAr||dEn,
+    severity:sev,
+    brand:it.brand||undefined,
+    symptoms:sym,
+    causes:cau,
+    steps:Array.isArray(it.steps)?it.steps:[],
+    repair:rep,
+    flags:it.flags||{},
+    related:Array.isArray(it.related_codes)?it.related_codes:(Array.isArray(it.related)?it.related:[]),
+    sources:Array.isArray(it.sources)?it.sources:[]
+  };
 }
 function smartMerge(existing,incoming){
   const m={...existing};
@@ -514,45 +533,45 @@ function processInChunks(items,fn,cs){
 
 async function loadWal33D(){
   try{
-    if(typeof initSqlJs!=='function'){log('WARN: sql.js غير محمّلة — تجاوز Wal33D');return 0}
+    if(typeof initSqlJs!=='function'){log('WARN: sql.js غير محمّلة');return 0}
     log('INFO: Wal33D — تحميل قاعدة المصنّعين...');
     const SQL=await initSqlJs({locateFile:f=>'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/'+f});
     const resp=await fetch(WAL33D_DB);
-    if(!resp.ok){log('INFO: ملف Wal33D غير موجود — تجاوز');return 0}
+    if(!resp.ok){log('INFO: ملف Wal33D غير موجود');return 0}
     const buf=await resp.arrayBuffer();
     const db=new SQL.Database(new Uint8Array(buf));
     log('OK: Wal33D — DB محمّلة ('+(buf.byteLength/1024/1024).toFixed(1)+' MB)');
-    
+
     const tRes=db.exec("SELECT name FROM sqlite_master WHERE type='table'");
     const tables=(tRes[0]&&tRes[0].values)?tRes[0].values.flat():[];
     log('INFO: جداول: '+tables.join(', '));
     if(!tables.length){db.close();return 0}
-    
+
     const mainTable=tables.find(x=>/dtc|codes|trouble|fault/i.test(x))||tables[0];
-    
+
     const cRes=db.exec(`PRAGMA table_info(${mainTable})`);
     const colNames=(cRes[0]&&cRes[0].values)?cRes[0].values.map(r=>r[1]):[];
     log('INFO: أعمدة '+mainTable+': '+colNames.join(', '));
-    
+
     const codeCol=colNames.find(c=>/^(code|dtc|dtc_code|fault_code)$/i.test(c))||colNames.find(c=>/code/i.test(c))||colNames[0];
     const descCol=colNames.find(c=>/^(description|desc|title|name|text)$/i.test(c))||colNames.find(c=>/desc|title|name|text/i.test(c))||colNames[1];
     const makeCol=colNames.find(c=>/^(make|manufacturer|brand|oem|mfr)$/i.test(c))||colNames.find(c=>/make|manuf|brand|oem/i.test(c));
-    
+
     log('INFO: أعمدة مختارة: code='+codeCol+', desc='+descCol+(makeCol?', make='+makeCol:''));
-    
+
     const q=makeCol?`SELECT ${codeCol} AS code, ${descCol} AS title, ${makeCol} AS make FROM ${mainTable}`:`SELECT ${codeCol} AS code, ${descCol} AS title FROM ${mainTable}`;
     const r=db.exec(q);
     if(!r[0]){db.close();return 0}
-    
+
     const cols=r[0].columns;
     const rows=r[0].values.map(row=>{
       const o={};cols.forEach((c,i)=>o[c]=row[i]);return o;
     });
     log('INFO: Wal33D — '+rows.length+' صف');
-    
+
     let added=0,enriched=0;
     const makes=new Set();
-    
+
     await processInChunks(rows,row=>{
       const cd=String(row.code||'').toUpperCase().trim();
       if(!cd||cd.length<4||cd.length>10)return;
@@ -560,17 +579,16 @@ async function loadWal33D(){
       if(!title)return;
       const make=row.make?String(row.make).trim():'';
       if(make)makes.add(make);
-      
+
       if(DTC_DATABASE[cd]){
         const before=DTC_DATABASE[cd];
         let changed=false;
         if(!before.desc&&title){before.desc=title;changed=true}
-        // ✅ معدّل: Wal33D يستبدل مصنّع OBDex دائماً (أولوية للأوروبي/الصيني)
         if(make){before.brand=make;changed=true}
         if(changed)enriched++;
         return;
       }
-      
+
       DTC_DATABASE[cd]={
         zone:mapCatFromCode(cd),
         title:title.length>90?title.slice(0,90)+'…':title,
@@ -581,7 +599,7 @@ async function loadWal33D(){
       };
       added++;
     });
-    
+
     db.close();
     stats.wal33d=added;
     stats.makes=makes.size;
@@ -601,7 +619,7 @@ async function loadFullDatabase(){
   if(b)b.style.display='block';
   stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
   OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},120000);
-  
+
   log('INFO: مرحلة 1/3 — OBDex CDN...');
   if(bt)bt.textContent='OBDex: تحضير...';
   for(let f=0;f<OBDEX_FILES.length;f++){
@@ -612,15 +630,12 @@ async function loadFullDatabase(){
       const c=convItem(item);
       if(!c)return;
       const cd=String(item.code).toUpperCase().trim();
-      if(DTC_DATABASE[cd]){
-        DTC_DATABASE[cd]=smartMerge(DTC_DATABASE[cd],c);
-        return;
-      }
+      if(DTC_DATABASE[cd]){DTC_DATABASE[cd]=smartMerge(DTC_DATABASE[cd],c);return}
       DTC_DATABASE[cd]=c;stats.obdex++;
     });
   }
   log('OK: OBDex — '+stats.obdex);
-  
+
   log('INFO: مرحلة 2/3 — ملفات محلية (أوروبية + صينية)...');
   for(let f=0;f<LOCAL_FILES.length;f++){
     if(bt)bt.textContent='محلي: '+LOCAL_FILES[f]+' ('+(f+1)+'/'+LOCAL_FILES.length+')';
@@ -628,31 +643,39 @@ async function loadFullDatabase(){
     if(!items.length)continue;
     const isEuro=LOCAL_FILES[f].includes('european');
     const isChinese=LOCAL_FILES[f].includes('chinese');
+    let addedInFile=0;
     await processInChunks(items,item=>{
       const cd=String(item.code||'').toUpperCase().trim();
       if(!cd)return;
       const lv=convItem(item);
       if(!lv)return;
+      // ✅ وسم تلقائي
+      if(isChinese&&!lv.brand)lv.brand='🇨🇳 صيني';
+      if(isEuro&&!lv.brand)lv.brand='🇪🇺 أوروبي';
       if(DTC_DATABASE[cd]){
         const before=DTC_DATABASE[cd];
+        // إضافة الوسم أيضاً للأكواد المكررة
+        if(isChinese&&!before.brand)before.brand='🇨🇳 صيني';
+        if(isEuro&&!before.brand)before.brand='🇪🇺 أوروبي';
         const after=smartMerge(before,lv);
         if(JSON.stringify(before)!==JSON.stringify(after)){DTC_DATABASE[cd]=after;stats.enriched++}
         return;
       }
       DTC_DATABASE[cd]=lv;
       stats.local++;
+      addedInFile++;
       if(isEuro)stats.euro++;
       if(isChinese)stats.chinese++;
     });
-    if(isEuro)log('OK: 🇪🇺 أوروبي — '+stats.euro);
-    if(isChinese)log('OK: 🇨🇳 صيني — '+stats.chinese);
+    if(isEuro)log('OK: 🇪🇺 '+LOCAL_FILES[f]+' — '+addedInFile+' كود');
+    if(isChinese)log('OK: 🇨🇳 '+LOCAL_FILES[f]+' — '+addedInFile+' كود');
   }
   log('OK: محلي — '+stats.local+' جديد، '+stats.enriched+' مُثرى');
-  
+
   log('INFO: مرحلة 3/3 — Wal33D SQLite...');
   if(bt)bt.textContent='Wal33D: تحميل قاعدة المصنّعين...';
   await loadWal33D();
-  
+
   clearTimeout(OBDEX_TIMEOUT);
   if(stats.obdex===0&&stats.local===0&&stats.wal33d===0){
     if(await tryLoadCache(true)){if(b)b.style.display='none';log('INFO: كاش قديم');return}
@@ -771,6 +794,12 @@ function getInfo(c){
   if(v&&v.length)return Object.assign({},DTC_DATABASE[v[0]],{code:c});
   return {zone:'engine',title:'عطل غير معروف',title_en:'Unknown',desc:'',severity:'medium'};
 }
+function brandClass(b){
+  if(!b)return 'brand-badge';
+  if(b.includes('صيني'))return 'brand-badge brand-cn';
+  if(b.includes('أوروبي'))return 'brand-badge brand-eu';
+  return 'brand-badge';
+}
 
 function isFav(c){return favorites.indexOf(sanitizeCode(c))>=0}
 function toggleFav(c){
@@ -791,7 +820,7 @@ function renderFav(){
   let h='<div class="space-y-2">';
   favorites.forEach(c=>{
     const i=getInfo(c);
-    const bb=i.brand?'<span class="brand-badge">'+escapeHtml(i.brand)+'</span>':'';
+    const bb=i.brand?'<span class="'+brandClass(i.brand)+'">🏭 '+escapeHtml(i.brand)+'</span>':'';
     h+='<div class="code-card bg-gray-900 rounded-xl p-3" data-code="'+c+'"><div class="flex items-center justify-between gap-2 mb-1"><span class="font-mono font-bold text-amber-400">'+c+'</span><button class="text-red-400 text-xs" data-rm-fav="'+c+'"><i class="fa-solid fa-trash"></i></button></div><div class="flex items-center gap-2 mb-1">'+bb+'</div><div class="text-xs text-gray-400">'+escapeHtml(i.title)+'</div></div>';
   });
   h+='</div>';
@@ -832,7 +861,7 @@ function showSymp(i){
   s.codes.forEach(cd=>{
     const inf=getInfo(cd);
     const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[inf.severity]||'#64748b';
-    const bb=inf.brand?'<span class="brand-badge" style="font-size:9px;padding:2px 6px">'+escapeHtml(inf.brand)+'</span>':'';
+    const bb=inf.brand?'<span class="'+brandClass(inf.brand)+'" style="font-size:9px;padding:2px 6px">'+escapeHtml(inf.brand)+'</span>':'';
     h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="'+cd+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">'+cd+' '+bb+'</div><div class="text-xs text-gray-400">'+escapeHtml(inf.title)+'</div></div><i class="fa-solid fa-chevron-left text-blue-400"></i></div>';
   });
   h+='</div>';
@@ -853,7 +882,9 @@ function initFamily(){
     {k:'P2',l:'P2xxx محرك SAE',i:'🔧',c:'#a855f7'},
     {k:'P3',l:'P3xxx',i:'🛠️',c:'#ec4899'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
+    {k:'B1',l:'B1xxx مصنّعين',i:'🚙',c:'#eab308'},
     {k:'C0',l:'C0xxx الشاسيه',i:'🛑',c:'#ef4444'},
+    {k:'C1',l:'C1xxx مصنّعين',i:'🚦',c:'#dc2626'},
     {k:'U0',l:'U0xxx الشبكة',i:'📡',c:'#10b981'},
     {k:'U3',l:'U3xxx جهد عالي',i:'⚡',c:'#06b6d4'}];
   e.innerHTML=fs.map(f=>'<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:'+f.c+'" data-fam="'+f.k+'"><div class="font-bold text-xs" style="color:'+f.c+'">'+f.i+' '+f.l+'</div></button>').join('');
@@ -865,7 +896,7 @@ function browseFam(p){
   for(const k of Object.keys(DTC_DATABASE)){if(k.split('_')[0].toUpperCase().startsWith(p))res.push(k);if(res.length>=80)break}
   if(!res.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>';return}
   let h='<div class="text-xs text-gray-400 mb-2">عائلة '+p+'xxx — '+res.length+' عطل</div><div class="space-y-1">';
-  res.forEach(cd=>{const i=getInfo(cd);const bb=i.brand?'<span class="brand-badge" style="font-size:8px;padding:1px 5px">'+escapeHtml(i.brand)+'</span>':'';h+='<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> '+bb+' — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'});
+  res.forEach(cd=>{const i=getInfo(cd);const bb=i.brand?'<span class="'+brandClass(i.brand)+'" style="font-size:8px;padding:1px 5px">'+escapeHtml(i.brand)+'</span>':'';h+='<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="'+cd+'"><span><span class="font-mono text-red-300 font-bold">'+cd+'</span> '+bb+' — '+escapeHtml(i.title)+'</span><i class="fa-solid fa-chevron-left text-blue-400"></i></div>'});
   h+='</div>';
   d.innerHTML=h;
   if(c)c.textContent='('+res.length+')';
@@ -953,7 +984,7 @@ function showDetail(cod){
   if(info.title_en&&info.title_en!==info.title)h+='<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
   h+='<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
   if(info.zone)h+='<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
-  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full font-bold" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff">🏭 '+escapeHtml(info.brand)+'</span>';
+  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full font-bold" style="'+((info.brand.includes('صيني'))?'background:linear-gradient(135deg,#ef4444,#dc2626)':((info.brand.includes('أوروبي'))?'background:linear-gradient(135deg,#3b82f6,#1d4ed8)':'background:linear-gradient(135deg,#8b5cf6,#7c3aed)'))+';color:#fff">🏭 '+escapeHtml(info.brand)+'</span>';
   h+='</div></div>';
   h+='<div class="grid grid-cols-2 gap-2 mb-3"><button id="copyDetailBtn" class="bg-blue-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button><button id="shareDetailBtn" class="bg-green-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> واتساب</button></div>';
   if(info.desc)h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">'+escapeHtml(info.desc)+'</div></div>';
@@ -1301,7 +1332,7 @@ function renderFaults(faults){
     const tl=ty==='pending'?'مؤقت':ty==='permanent'?'دائم':'مؤكد';
     const tc=ty==='pending'?'bg-amber-600':ty==='permanent'?'bg-purple-600':'bg-red-600';
     const fav=isFav(sc);
-    const bb=info.brand?'<span class="brand-badge" style="font-size:9px;padding:2px 6px">🏭 '+escapeHtml(info.brand)+'</span>':'';
+    const bb=info.brand?'<span class="'+brandClass(info.brand)+'" style="font-size:9px;padding:2px 6px">🏭 '+escapeHtml(info.brand)+'</span>':'';
     h+='<div class="relative code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 pt-6" data-code="'+sc+'"><span class="src-badge src-'+source+'">'+(source==='real'?'🚗 حقيقي':'🧪 تجريبي')+'</span><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system]||f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span>'+bb+'<span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
   });
   l.innerHTML=h;
@@ -1387,7 +1418,7 @@ function searchDTC(q){
   m.forEach(x=>{
     const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[x.info.severity]||'#64748b';
     const fav=isFav(x.cleanCode);
-    const bb=x.info.brand?'<span class="brand-badge">🏭 '+escapeHtml(x.info.brand)+'</span>':'';
+    const bb=x.info.brand?'<span class="'+brandClass(x.info.brand)+'">🏭 '+escapeHtml(x.info.brand)+'</span>':'';
     h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+bb+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
   });
   h+='</div>';d.innerHTML=h;
@@ -1504,18 +1535,18 @@ function renderStats(){
   const c=$('statsContent');if(!c)return;
   const tot=Object.keys(DTC_DATABASE).length;
   const sev={critical:0,high:0,medium:0,low:0};
-  let withBrand=0;
+  let withBrand=0,cnBrand=0,euBrand=0;
   for(const k of Object.keys(DTC_DATABASE)){
     const v=DTC_DATABASE[k];
     const s=v.severity||'medium';if(sev[s]!==undefined)sev[s]++;
-    if(v.brand)withBrand++;
+    if(v.brand){withBrand++;if(v.brand.includes('صيني'))cnBrand++;if(v.brand.includes('أوروبي'))euBrand++}
   }
   c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-emerald-400 font-bold">🏭 '+withBrand.toLocaleString('en-US')+' كود بمصنّع</div><div class="mt-1 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
    +'<div class="bg-gray-900 rounded-xl p-3 mb-3 space-y-1 text-xs">'
    +'<div class="flex justify-between"><span class="text-gray-400">OBDex CDN:</span><span class="font-bold text-purple-300">'+stats.obdex.toLocaleString()+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">ملفات محلية:</span><span class="font-bold text-blue-300">'+stats.local.toLocaleString()+' (+'+stats.enriched+' مُثرى)</span></div>'
-   +'<div class="flex justify-between"><span class="text-gray-400">🇪🇺 أوروبي:</span><span class="font-bold text-blue-400">'+stats.euro.toLocaleString()+'</span></div>'
-   +'<div class="flex justify-between"><span class="text-gray-400">🇨🇳 صيني:</span><span class="font-bold text-red-400">'+stats.chinese.toLocaleString()+'</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">🇪🇺 أوروبي:</span><span class="font-bold text-blue-400">'+(stats.euro+euBrand)+'</span></div>'
+   +'<div class="flex justify-between"><span class="text-gray-400">🇨🇳 صيني:</span><span class="font-bold text-red-400">'+(stats.chinese+cnBrand)+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">Wal33D مصنّعين:</span><span class="font-bold text-emerald-300">'+stats.wal33d.toLocaleString()+' ('+stats.makes+' مصنّع)</span></div>'
    +'</div>'
    +'<div class="grid grid-cols-2 gap-2 mb-3">'
