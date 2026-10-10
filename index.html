@@ -66,7 +66,6 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 .brand-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:12px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
 .brand-cn{background:linear-gradient(135deg,#ef4444,#dc2626)!important}
 .brand-eu{background:linear-gradient(135deg,#3b82f6,#1d4ed8)!important}
-.brand-kr{background:linear-gradient(135deg,#10b981,#059669)!important}
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -278,7 +277,7 @@ body.light-mode #console{background:#0a0f1e!important;color:#4ade80!important}
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
-<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية + كورية)</p>
+<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
@@ -289,8 +288,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v16',CT='cd_t_v16',CV='cd_v_v16',CVER=16,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_db_v12','cd_db_v13','cd_db_v14','cd_db_v15','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_t_v12','cd_t_v13','cd_t_v14','cd_t_v15','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11','cd_v_v12','cd_v_v13','cd_v_v14','cd_v_v15'];
+const CK='cd_db_v15',CT='cd_t_v15',CV='cd_v_v15',CVER=15,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_db_v12','cd_db_v13','cd_db_v14','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_t_v12','cd_t_v13','cd_t_v14','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11','cd_v_v12','cd_v_v13','cd_v_v14'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -430,9 +429,9 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
-const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_european2.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json','dtc_chinese4.json','dtc_korean.json'];
+const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_european2.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json','dtc_chinese4.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
-let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0,korean:0};
+let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
 const LOCAL_CODES=new Set();
 
 function mapCat(c){if(!c)return 'engine';c=String(c).toLowerCase();return {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'}[c]||'engine'}
@@ -620,7 +619,7 @@ async function loadFullDatabase(){
   if(!window.jsyaml){log('WARN: js-yaml غير متاح');return}
   const b=$('dbStatus'),bt=$('dbStatusText');
   if(b)b.style.display='block';
-  stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0,korean:0};
+  stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
   OBDEX_TIMEOUT=setTimeout(()=>{if(!OBDEX_LOADED){log('WARN: انتهت المهلة');if(b)b.style.display='none'}},180000);
 
   log('INFO: مرحلة 1/3 — OBDex CDN...');
@@ -639,14 +638,13 @@ async function loadFullDatabase(){
   }
   log('OK: OBDex — '+stats.obdex);
 
-  log('INFO: مرحلة 2/3 — ملفات محلية (أوروبية + صينية + كورية)...');
+  log('INFO: مرحلة 2/3 — ملفات محلية (أوروبية + صينية)...');
   for(let f=0;f<LOCAL_FILES.length;f++){
     if(bt)bt.textContent='محلي: '+LOCAL_FILES[f]+' ('+(f+1)+'/'+LOCAL_FILES.length+')';
     const items=await fetchLocalJSON(LOCAL_FILES[f]);
     if(!items.length)continue;
     const isEuro=LOCAL_FILES[f].includes('european');
     const isChinese=LOCAL_FILES[f].includes('chinese');
-    const isKorean=LOCAL_FILES[f].includes('korean');
     let addedInFile=0;
     await processInChunks(items,item=>{
       const cd=String(item.code||'').toUpperCase().trim();
@@ -658,24 +656,20 @@ async function loadFullDatabase(){
         const before=DTC_DATABASE[cd];
         if(isChinese)before.brand='🇨🇳 صيني';
         if(isEuro)before.brand='🇪🇺 أوروبي';
-        if(isKorean)before.brand='🇰🇷 كوري';
         const after=smartMerge(before,lv);
         if(JSON.stringify(before)!==JSON.stringify(after)){DTC_DATABASE[cd]=after;stats.enriched++}
         return;
       }
       if(isChinese&&!lv.brand)lv.brand='🇨🇳 صيني';
       if(isEuro&&!lv.brand)lv.brand='🇪🇺 أوروبي';
-      if(isKorean&&!lv.brand)lv.brand='🇰🇷 كوري';
       DTC_DATABASE[cd]=lv;
       stats.local++;
       addedInFile++;
       if(isEuro)stats.euro++;
       if(isChinese)stats.chinese++;
-      if(isKorean)stats.korean++;
     });
     if(isEuro)log('OK: 🇪🇺 '+LOCAL_FILES[f]+' — '+addedInFile+' كود');
     if(isChinese)log('OK: 🇨🇳 '+LOCAL_FILES[f]+' — '+addedInFile+' كود');
-    if(isKorean)log('OK: 🇰🇷 '+LOCAL_FILES[f]+' — '+addedInFile+' كود');
   }
   log('OK: محلي — '+stats.local+' جديد، '+stats.enriched+' مُثرى');
 
@@ -805,7 +799,6 @@ function brandClass(b){
   if(!b)return 'brand-badge';
   if(b.includes('صيني'))return 'brand-badge brand-cn';
   if(b.includes('أوروبي'))return 'brand-badge brand-eu';
-  if(b.includes('كوري'))return 'brand-badge brand-kr';
   return 'brand-badge';
 }
 
@@ -892,9 +885,9 @@ function initFamily(){
     {k:'P4',l:'P4xxx صيني',i:'🇨🇳',c:'#dc2626'},
     {k:'P5',l:'P5xxx صيني',i:'🇨🇳',c:'#f43f5e'},
     {k:'P6',l:'P6xxx صيني',i:'🇨🇳',c:'#ef4444'},
-    {k:'P7',l:'P7xxx كوري/كهربائي',i:'🇰🇷',c:'#10b981'},
+    {k:'P7',l:'P7xxx كهربائي',i:'⚡',c:'#f97316'},
     {k:'P8',l:'P8xxx صيني جديد',i:'🇨🇳',c:'#e11d48'},
-    {k:'P9',l:'P9xxx صيني/كوري',i:'🇨🇳',c:'#be185d'},
+    {k:'P9',l:'P9xxx صيني جديد',i:'🇨🇳',c:'#be185d'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
     {k:'B1',l:'B1xxx مصنّعين',i:'🚙',c:'#eab308'},
     {k:'B2',l:'B2xxx صيني',i:'🇨🇳',c:'#eab308'},
@@ -1003,7 +996,7 @@ function showDetail(cod){
   if(info.title_en&&info.title_en!==info.title)h+='<div class="text-xs text-gray-500 mt-1" dir="ltr">'+escapeHtml(info.title_en)+'</div>';
   h+='<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:'+sv.bg+'">'+sv.l+'</span>';
   if(info.zone)h+='<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">'+escapeHtml(info.zone)+'</span>';
-  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full font-bold" style="'+((info.brand.includes('صيني'))?'background:linear-gradient(135deg,#ef4444,#dc2626)':((info.brand.includes('أوروبي'))?'background:linear-gradient(135deg,#3b82f6,#1d4ed8)':((info.brand.includes('كوري'))?'background:linear-gradient(135deg,#10b981,#059669)':'background:linear-gradient(135deg,#8b5cf6,#7c3aed'))))+';color:#fff">🏭 '+escapeHtml(info.brand)+'</span>';
+  if(info.brand)h+='<span class="text-xs px-3 py-1 rounded-full font-bold" style="'+((info.brand.includes('صيني'))?'background:linear-gradient(135deg,#ef4444,#dc2626)':((info.brand.includes('أوروبي'))?'background:linear-gradient(135deg,#3b82f6,#1d4ed8)':'background:linear-gradient(135deg,#8b5cf6,#7c3aed)'))+';color:#fff">🏭 '+escapeHtml(info.brand)+'</span>';
   h+='</div></div>';
   h+='<div class="grid grid-cols-2 gap-2 mb-3"><button id="copyDetailBtn" class="bg-blue-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-solid fa-copy"></i> نسخ</button><button id="shareDetailBtn" class="bg-green-600 text-white text-xs font-bold py-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i> واتساب</button></div>';
   if(info.desc)h+='<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">'+escapeHtml(info.desc)+'</div></div>';
@@ -1554,11 +1547,11 @@ function renderStats(){
   const c=$('statsContent');if(!c)return;
   const tot=Object.keys(DTC_DATABASE).length;
   const sev={critical:0,high:0,medium:0,low:0};
-  let withBrand=0,cnBrand=0,euBrand=0,krBrand=0;
+  let withBrand=0,cnBrand=0,euBrand=0;
   for(const k of Object.keys(DTC_DATABASE)){
     const v=DTC_DATABASE[k];
     const s=v.severity||'medium';if(sev[s]!==undefined)sev[s]++;
-    if(v.brand){withBrand++;if(v.brand.includes('صيني'))cnBrand++;if(v.brand.includes('أوروبي'))euBrand++;if(v.brand.includes('كوري'))krBrand++}
+    if(v.brand){withBrand++;if(v.brand.includes('صيني'))cnBrand++;if(v.brand.includes('أوروبي'))euBrand++}
   }
   c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-emerald-400 font-bold">🏭 '+withBrand.toLocaleString('en-US')+' كود بمصنّع</div><div class="mt-1 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
    +'<div class="bg-gray-900 rounded-xl p-3 mb-3 space-y-1 text-xs">'
@@ -1566,7 +1559,6 @@ function renderStats(){
    +'<div class="flex justify-between"><span class="text-gray-400">ملفات محلية:</span><span class="font-bold text-blue-300">'+stats.local.toLocaleString()+' (+'+stats.enriched+' مُثرى)</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">🇪🇺 أوروبي:</span><span class="font-bold text-blue-400">'+(stats.euro+euBrand)+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">🇨🇳 صيني:</span><span class="font-bold text-red-400">'+(stats.chinese+cnBrand)+'</span></div>'
-   +'<div class="flex justify-between"><span class="text-gray-400">🇰🇷 كوري:</span><span class="font-bold text-emerald-400">'+(stats.korean+krBrand)+'</span></div>'
    +'<div class="flex justify-between"><span class="text-gray-400">Wal33D مصنّعين:</span><span class="font-bold text-emerald-300">'+stats.wal33d.toLocaleString()+' ('+stats.makes+' مصنّع)</span></div>'
    +'</div>'
    +'<div class="grid grid-cols-2 gap-2 mb-3">'
@@ -1757,7 +1749,7 @@ function init(){
   applyTheme();
   setTimeout(()=>updAllG({rpm:null,speed:null,coolant:null,fuelLevel:null}),300);
   log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
-  log('INFO: تحميل OBDex + محلي + أوروبي ×2 + صيني ×4 + كوري + Wal33D...');
+  log('INFO: تحميل OBDex + محلي + أوروبي ×2 + صيني ×4 + Wal33D...');
   loadFullDatabase().catch(e=>log('WARN: '+e.message));
   initExtras();
 }
