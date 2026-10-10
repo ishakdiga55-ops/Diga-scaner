@@ -288,8 +288,8 @@ const $$ = s=>document.querySelectorAll(s);
 function escapeHtml(s){if(s==null)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sanitizeCode(s){if(s==null)return '';return String(s).toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,20)}
 
-const CK='cd_db_v14',CT='cd_t_v14',CV='cd_v_v14',CVER=14,MAXAGE=7*24*60*60*1000;
-const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_db_v12','cd_db_v13','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_t_v12','cd_t_v13','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11','cd_v_v12','cd_v_v13'];
+const CK='cd_db_v15',CT='cd_t_v15',CV='cd_v_v15',CVER=15,MAXAGE=7*24*60*60*1000;
+const OLD_KEYS=['cd_db_v1','cd_db_v2','cd_db_v3','cd_db_v4','cd_db_v5','cd_db_v6','cd_db_v7','cd_db_v8','cd_db_v9','cd_db_v10','cd_db_v11','cd_db_v12','cd_db_v13','cd_db_v14','cd_t_v1','cd_t_v2','cd_t_v3','cd_t_v4','cd_t_v5','cd_t_v6','cd_t_v7','cd_t_v8','cd_t_v9','cd_t_v10','cd_t_v11','cd_t_v12','cd_t_v13','cd_t_v14','cd_v_v1','cd_v_v2','cd_v_v3','cd_v_v4','cd_v_v5','cd_v_v6','cd_v_v7','cd_v_v8','cd_v_v9','cd_v_v10','cd_v_v11','cd_v_v12','cd_v_v13','cd_v_v14'];
 const HASCOMP=(typeof CompressionStream!=='undefined');
 function b2a(b){let s='';const c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return btoa(s)}
 function a2b(x){const s=atob(x);const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
@@ -429,10 +429,9 @@ const OBDEX_REF="main";
 const OBDEX_BASE="https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@"+OBDEX_REF+"/data/generic/";
 const OBDEX_FILES=["P0xxx_enriched.yaml","P1xxx_enriched.yaml","P2xxx_enriched.yaml","P3xxx_enriched.yaml","B0xxx_enriched.yaml","C0xxx_enriched.yaml","U0xxx_enriched.yaml","U3xxx_enriched.yaml"];
 const WAL33D_DB='./dtc_codes_v0.1.0.db';
-const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_european2.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json'];
+const LOCAL_FILES=['dtc_p.json','dtc_b.json','dtc_c.json','dtc_u.json','dtc_modern.json','dtc_full.json','dtc_european.json','dtc_european2.json','dtc_chinese.json','dtc_chinese2.json','dtc_chinese3.json','dtc_chinese4.json'];
 let OBDEX_LOADED=false,OBDEX_TIMEOUT=null;
 let stats={obdex:0,local:0,enriched:0,wal33d:0,makes:0,euro:0,chinese:0};
-// ✅ v14: تتبّع الأكواد المحلية لحمايتها من Wal33D
 const LOCAL_CODES=new Set();
 
 function mapCat(c){if(!c)return 'engine';c=String(c).toLowerCase();return {powertrain:'engine',body:'electronics',chassis:'brakes',network:'electronics'}[c]||'engine'}
@@ -577,10 +576,9 @@ async function loadWal33D(){
     await processInChunks(rows,row=>{
       const cd=String(row.code||'').toUpperCase().trim();
       if(!cd||cd.length<4||cd.length>10)return;
+      if(LOCAL_CODES.has(cd))return;
       const title=String(row.title||'').trim();
       if(!title)return;
-      // ✅ v14: لا تلمس الأكواد التي جاءت من ملفاتنا المحلية
-      if(LOCAL_CODES.has(cd))return;
       const make=row.make?String(row.make).trim():'';
       if(make)makes.add(make);
 
@@ -653,7 +651,6 @@ async function loadFullDatabase(){
       if(!cd)return;
       const lv=convItem(item);
       if(!lv)return;
-      // ✅ v14: سجّل الكود كمحلي + افرض الشارة دائماً
       LOCAL_CODES.add(cd);
       if(DTC_DATABASE[cd]){
         const before=DTC_DATABASE[cd];
@@ -889,6 +886,8 @@ function initFamily(){
     {k:'P5',l:'P5xxx صيني',i:'🇨🇳',c:'#f43f5e'},
     {k:'P6',l:'P6xxx صيني',i:'🇨🇳',c:'#ef4444'},
     {k:'P7',l:'P7xxx كهربائي',i:'⚡',c:'#f97316'},
+    {k:'P8',l:'P8xxx صيني جديد',i:'🇨🇳',c:'#e11d48'},
+    {k:'P9',l:'P9xxx صيني جديد',i:'🇨🇳',c:'#be185d'},
     {k:'B0',l:'B0xxx الهيكل',i:'🚗',c:'#f59e0b'},
     {k:'B1',l:'B1xxx مصنّعين',i:'🚙',c:'#eab308'},
     {k:'B2',l:'B2xxx صيني',i:'🇨🇳',c:'#eab308'},
@@ -1750,7 +1749,7 @@ function init(){
   applyTheme();
   setTimeout(()=>updAllG({rpm:null,speed:null,coolant:null,fuelLevel:null}),300);
   log('OK: '+Object.keys(DTC_DATABASE).length+' عطل أساسي');
-  log('INFO: تحميل OBDex + محلي + أوروبي ×2 + صيني ×3 + Wal33D...');
+  log('INFO: تحميل OBDex + محلي + أوروبي ×2 + صيني ×4 + Wal33D...');
   loadFullDatabase().catch(e=>log('WARN: '+e.message));
   initExtras();
 }
