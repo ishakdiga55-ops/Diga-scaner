@@ -410,7 +410,7 @@
   "C1230": { "zone": "brakes", "title": "عطل فرامل اليد - BMW" },
   "C1231": { "zone": "brakes", "title": "عطل فرامل اليد - VW" },
   "C1232": { "zone": "brakes", "title": "عطل فرامل اليد - Audi" },
-  "C1233": { "zone": "brakes", "title": "عطل فرامل اليد - Mercedes" }'
+  "C1233": { "zone": "brakes", "title": "عطل فرامل اليد - Mercedes" },
   "P1A00": { "zone": "engine", "title": "عطل إدارة المحرك - Peugeot 301" },
   "P1A01": { "zone": "engine", "title": "عطل حساس O2 - Peugeot 301" },
   "P1A02": { "zone": "engine", "title": "عطل حساس MAF - Peugeot 301" },
