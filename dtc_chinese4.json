@@ -36,7 +36,6 @@
   "P8A23": { "zone": "engine", "title": "عطل حساس ضغط - Jetour" },
   "P8A24": { "zone": "engine", "title": "عطل حساس تدفق - Jetour" },
   "P8A25": { "zone": "engine", "title": "عطل نظام حقن - Jetour" },
-
   "P8B01": { "zone": "engine", "title": "عطل O2 - Exeed" },
   "P8B02": { "zone": "engine", "title": "عطل MAF - Exeed" },
   "P8B03": { "zone": "engine", "title": "عطل MAP - Exeed" },
@@ -74,7 +73,6 @@
   "P8B23": { "zone": "engine", "title": "عطل حساس ضغط - Exeed" },
   "P8B24": { "zone": "engine", "title": "عطل حساس تدفق - Exeed" },
   "P8B25": { "zone": "engine", "title": "عطل نظام حقن - Exeed" },
-
   "P8C01": { "zone": "engine", "title": "عطل O2 - Omoda" },
   "P8C02": { "zone": "engine", "title": "عطل MAF - Omoda" },
   "P8C03": { "zone": "engine", "title": "عطل MAP - Omoda" },
@@ -112,7 +110,6 @@
   "P8C23": { "zone": "engine", "title": "عطل حساس ضغط - Omoda" },
   "P8C24": { "zone": "engine", "title": "عطل حساس تدفق - Omoda" },
   "P8C25": { "zone": "engine", "title": "عطل نظام حقن - Omoda" },
-
   "P8D01": { "zone": "engine", "title": "عطل O2 - Jaecoo" },
   "P8D02": { "zone": "engine", "title": "عطل MAF - Jaecoo" },
   "P8D03": { "zone": "engine", "title": "عطل MAP - Jaecoo" },
@@ -150,7 +147,6 @@
   "P8D23": { "zone": "engine", "title": "عطل حساس ضغط - Jaecoo" },
   "P8D24": { "zone": "engine", "title": "عطل حساس تدفق - Jaecoo" },
   "P8D25": { "zone": "engine", "title": "عطل نظام حقن - Jaecoo" },
-
   "P8E01": { "zone": "engine", "title": "عطل O2 - Baojun" },
   "P8E02": { "zone": "engine", "title": "عطل MAF - Baojun" },
   "P8E03": { "zone": "engine", "title": "عطل MAP - Baojun" },
@@ -182,7 +178,6 @@
   "P8E1D": { "zone": "engine", "title": "عطل حساس حرارة - Baojun" },
   "P8E1E": { "zone": "engine", "title": "عطل حساس ضغط - Baojun" },
   "P8E1F": { "zone": "engine", "title": "عطل نظام حقن - Baojun" },
-
   "P8F01": { "zone": "engine", "title": "عطل O2 - Venucia" },
   "P8F02": { "zone": "engine", "title": "عطل MAF - Venucia" },
   "P8F03": { "zone": "engine", "title": "عطل MAP - Venucia" },
@@ -214,7 +209,6 @@
   "P8F1D": { "zone": "engine", "title": "عطل حساس حرارة - Venucia" },
   "P8F1E": { "zone": "engine", "title": "عطل حساس ضغط - Venucia" },
   "P8F1F": { "zone": "engine", "title": "عطل نظام حقن - Venucia" },
-
   "P9A01": { "zone": "engine", "title": "عطل O2 - Lynk & Co" },
   "P9A02": { "zone": "engine", "title": "عطل MAF - Lynk & Co" },
   "P9A03": { "zone": "engine", "title": "عطل MAP - Lynk & Co" },
@@ -246,7 +240,6 @@
   "P9A1D": { "zone": "engine", "title": "عطل حساس حرارة - Lynk & Co" },
   "P9A1E": { "zone": "engine", "title": "عطل حساس ضغط - Lynk & Co" },
   "P9A1F": { "zone": "engine", "title": "عطل نظام حقن - Lynk & Co" },
-
   "P9B01": { "zone": "engine", "title": "عطل O2 - Zeekr" },
   "P9B02": { "zone": "engine", "title": "عطل MAF - Zeekr" },
   "P9B03": { "zone": "engine", "title": "عطل MAP - Zeekr" },
@@ -278,7 +271,6 @@
   "P9B1D": { "zone": "brakes", "title": "عطل ESP - Zeekr" },
   "P9B1E": { "zone": "transmission", "title": "عطل AT - Zeekr" },
   "P9B1F": { "zone": "airbag", "title": "عطل وسائد - Zeekr" },
-
   "P9C01": { "zone": "engine", "title": "عطل حساس O2 - Hyundai" },
   "P9C02": { "zone": "engine", "title": "عطل MAF - Hyundai" },
   "P9C03": { "zone": "engine", "title": "عطل MAP - Hyundai" },
@@ -316,7 +308,6 @@
   "P9C23": { "zone": "engine", "title": "عطل حساس ضغط - Hyundai" },
   "P9C24": { "zone": "engine", "title": "عطل حساس تدفق - Hyundai" },
   "P9C25": { "zone": "engine", "title": "عطل نظام حقن - Hyundai" },
-
   "P9D01": { "zone": "engine", "title": "عطل حساس O2 - Kia" },
   "P9D02": { "zone": "engine", "title": "عطل MAF - Kia" },
   "P9D03": { "zone": "engine", "title": "عطل MAP - Kia" },
@@ -354,7 +345,6 @@
   "P9D23": { "zone": "engine", "title": "عطل حساس ضغط - Kia" },
   "P9D24": { "zone": "engine", "title": "عطل حساس تدفق - Kia" },
   "P9D25": { "zone": "engine", "title": "عطل نظام حقن - Kia" },
-
   "P9E01": { "zone": "engine", "title": "عطل حساس O2 - Genesis" },
   "P9E02": { "zone": "engine", "title": "عطل MAF - Genesis" },
   "P9E03": { "zone": "engine", "title": "عطل MAP - Genesis" },
@@ -392,7 +382,6 @@
   "P9E23": { "zone": "engine", "title": "عطل حساس ضغط - Genesis" },
   "P9E24": { "zone": "engine", "title": "عطل حساس تدفق - Genesis" },
   "P9E25": { "zone": "engine", "title": "عطل نظام حقن - Genesis" },
-
   "P9F01": { "zone": "engine", "title": "عطل حساس O2 - SsangYong" },
   "P9F02": { "zone": "engine", "title": "عطل MAF - SsangYong" },
   "P9F03": { "zone": "engine", "title": "عطل MAP - SsangYong" },
@@ -409,10 +398,9 @@
   "P9F0E": { "zone": "cooling", "title": "عطل مروحة - SsangYong" },
   "P9F0F": { "zone": "exhaust", "title": "عطل كتلايزر - SsangYong" },
   "P9F10": { "zone": "exhaust", "title": "عطل DPF - SsangYong" },
-  "P9F11": { "zone": "transmission", "title": "zoneعطل AT - SsangYong" },
- , "P9F12": { "zone": "trans titlemission", "title": "عطل CVT -}` SsangYong" },
-  "P9F13": {.
- "zone": "brakes", "title-": "عطل ABS - SsangYong" },
+  "P9F11": { "zone": "transmission", "title": "عطل AT - SsangYong" },
+  "P9F12": { "zone": "transmission", "title": "عطل CVT - SsangYong" },
+  "P9F13": { "zone": "brakes", "title": "عطل ABS - SsangYong" },
   "P9F14": { "zone": "electronics", "title": "عطل ECU - SsangYong" },
   "P9F15": { "zone": "electronics", "title": "عطل BCM - SsangYong" },
   "P9F16": { "zone": "electronics", "title": "عطل TPMS - SsangYong" },
