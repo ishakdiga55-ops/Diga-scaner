@@ -1,0 +1,44 @@
+# ============================================
+# Prettier Ignore File
+# ملفات لا ينبغي لـ Prettier تنسيقها
+# ============================================
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build output
+dist/
+build/
+*.min.js
+*.min.css
+
+# Data files (ضخمة، صيغة مُحسّنة)
+dtc_*.json
+dtc_codes_v0.1.0.db
+
+# PWA assets
+sw.js
+manifest.json
+
+# Documentation (منسقة يدويًا)
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+PRIVACY.md
+SECURITY.md
+
+# Git
+.git/
+.gitignore
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
