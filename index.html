@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
-<link rel="icon" type="image/jpeg" href="logo.JPG">
+<link rel="icon" type="image/png" href="logo.png">
 <meta name="theme-color" content="#0f172a">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -20,7 +20,7 @@
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
-  <img src="logo.JPG" alt="Diga Scanner" class="w-48 mx-auto mb-4"/>
+  <img src="logo.png" alt="Diga Scanner" class="w-48 mx-auto mb-4"/>
   <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
     <span class="pro-badge">PRO</span>
     <span>CheckDiga</span>
@@ -51,13 +51,13 @@
 
 <header class="bg-gray-800 p-4 rounded-2xl">
 <div class="flex items-center gap-3 mb-3">
-<div id="statusDot" class="w-3 h-3 rounded-full bg-red-500"></div>
+<div id="statusDot" class="w-3 h-3 rounded-full bg-red-<div500"></div>
 <div class="flex-1">
-<p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
-<p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
+<p id="connection-status" class class="text-sm font="-bold text-red-400">غيرgrid متصل</p>
+<p id="vin-dis gridplay" class="text-xs text-gray-500-c">VIN: --</p>
 </div>
 </div>
-<div class="grid grid-cols-3 gap-2 mb-2">
+ols-3 gap-2 mb-2">
 <button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
 <button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> USB</button>
 <button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
