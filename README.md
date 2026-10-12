@@ -161,3 +161,71 @@ npx serve
 
 # 3. افتح المتصفح
 # http://localhost:8000
+
+---
+
+## 🔌 الأجهزة المدعومة
+
+| النوع | الحالة |
+|------|:------:|
+| ELM327 Bluetooth LE (4.0) | ✅ يعمل |
+| ELM327 USB | ✅ يعمل |
+| ELM327 Bluetooth Classic | ❌ غير مدعوم |
+| ELM327 Wi-Fi | ❌ غير مدعوم |
+
+> **ملاحظة:** معظم أجهزة ELM327 الرخيصة (~5$) هي Bluetooth Classic — لن تظهر في المتصفح. ابحث عن **"BLE 4.0"** في اسم المنتج.
+
+---
+
+## 🛠️ التقنيات المستخدمة
+
+| الفئة | التقنية |
+|-------|---------|
+| **الواجهة** | HTML5 + Tailwind CSS 3.4 |
+| **المنطق** | Vanilla JavaScript (ES2020+) |
+| **الرسوم** | Chart.js 4.4 |
+| **SQLite** | sql.js 1.10 |
+| **YAML** | js-yaml 4.1 |
+| **الأيقونات** | Font Awesome 6.4 |
+| **الخط** | Cairo (Google Fonts) |
+| **التخزين** | localStorage + gzip |
+| **الاتصال** | Web Bluetooth API + Web Serial API |
+| **PWA** | Service Worker + Manifest |
+
+---
+
+## 📁 هيكل المشروع
+
+```bash
+Diga-scaner/
+├── index.html                    # هيكل الصفحة (HTML)
+├── sw.js                         # Service Worker (offline)
+├── manifest.json                 # PWA manifest
+├── logo.JPG                      # لوجو المشروع
+├── icon.svg                      # أيقونة SVG
+├── LICENSE                       # رخصة MIT
+├── README.md                     # هذا الملف
+├── PRIVACY.md                    # سياسة الخصوصية
+│
+├── css/                          # الأنماط
+│   ├── main.css                  # الأنماط الأساسية
+│   └── themes/
+│       └── light.css             # الوضع النهاري
+│
+├── js/                           # JavaScript
+│   └── app.js                    # التطبيق الكامل (SPA logic)
+│
+└── data sources:
+    ├── dtc_codes_v0.1.0.db      # Wal33D SQLite (3.3 MB)
+    ├── dtc_p.json                # أكواد Powertrain (P)
+    ├── dtc_b.json                # أكواد Body (B)
+    ├── dtc_c.json                # أكواد Chassis (C)
+    ├── dtc_u.json                # أكواد Network (U)
+    ├── dtc_modern.json           # أكواد حديثة
+    ├── dtc_full.json             # القاعدة الشاملة
+    ├── dtc_european.json         # أكواد أوروبية
+    ├── dtc_european2.json        # أكواد أوروبية إضافية
+    ├── dtc_chinese.json          # أكواد صينية
+    ├── dtc_chinese2.json         # أكواد صينية إضافية
+    ├── dtc_chinese3.json         # أكواد صينية إضافية
+    └── dtc_chinese4.json         # أكواد صينية إضافية
