@@ -26,8 +26,15 @@
   "scripts": {
     "start": "npx serve .",
     "dev": "npx serve .",
-    "test": "echo \"Tests coming soon\"",
-    "lint": "echo \"Lint coming soon\""
+    "lint": "eslint js/",
+    "lint:fix": "eslint js/ --fix",
+    "format": "prettier --write \"**/*.{js,json,md,css,html}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,css,html}\"",
+    "test": "echo \"No tests yet\""
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
   },
   "engines": {
     "node": ">=18"
