@@ -346,4 +346,26 @@ body.light-mode #dtcSearchInput:focus {
 
 body.light-mode #searchResults .code-card:hover {
   box-shadow: 0 8px 20px rgba(59, 130, 246, .2);
+  
+/* ============================================
+   Stat Source: نص مختصر
+   يُخفي النص الطويل ويعرض "3 مصادر"
+   ============================================ */
+
+#statSource {
+  font-size: 0 !important;
+  position: relative;
+}
+
+#statSource::before {
+  content: "3 مصادر";
+  font-size: 11px;
+  font-weight: 800;
+  color: #c084fc;
+  display: inline-block;
+}
+
+body.light-mode #statSource::before {
+  color: #7c3aed;
+}
 }
