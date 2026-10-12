@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CheckDiga Pro — فحص السيارات</title>
+<meta name="theme-color" content="#0f172a">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/themes/light.css">
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+<div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
+
+<section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
+  <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
+    <span class="pro-badge">PRO</span>
+    <span>CheckDiga</span>
+    <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
+  </div>
+  <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  <div class="my-6">
+    <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
+    <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
+  </div>
+  <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
+  <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500">عطل</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">OBDex+محلي+Wal33D</div><div class="text-[10px] text-gray-500">المصدر</div></div>
+  </div>
+</section>
+
+<div id="app" class="max-w-4xl mx-auto p-3 space-y-4 pt-6">
+<div class="flex justify-between items-center flex-wrap gap-2">
+  <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h1>
+  <div class="flex gap-2">
+    <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
+    <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
+  </div>
+</div>
+
+<header class="bg-gray-800 p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-3">
+<div id="statusDot" class="w-3 h-3 rounded-full bg-red-500"></div>
+<div class="flex-1">
+<p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
+<p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-2">
+<button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
+<button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> USB</button>
+<button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
+</div>
+<button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
+<button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
+<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
+<div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
+<button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
+<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>❌ Wi-Fi: غير مدعوم من المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
+</header>
+
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
+<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites"><i class="fa-solid fa-star"></i> المفضلة</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live"><i class="fa-solid fa-chart-line"></i> حية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
+</div>
+
+<div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left">&gt; جاهز!</div>
+
+<div id="panel-faults" class="panel space-y-4">
+<div id="healthBadge" class="hidden"></div>
+<div id="smartDiagnosis" class="hidden"></div>
+<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
+<div class="grid grid-cols-2 gap-3">
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">RPM</div><svg viewBox="0 0 200 200" class="w-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/></g></svg><div class="text-center font-bold text-xl text-white" id="gauge-rpm">0</div></div>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">SPEED</div><svg viewBox="0 0 200 200" class="w-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/></g></svg><div class="text-center font-bold text-xl text-white" id="gauge-speed">0</div></div>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">TEMP</div><svg viewBox="0 0 200 200" class="w-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/></g></svg><div class="text-center font-bold text-xl text-white" id="gauge-coolant">0</div></div>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">FUEL</div><svg viewBox="0 0 200 200" class="w-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/></g></svg><div class="text-center font-bold text-xl text-white" id="gauge-fuel">0</div></div>
+</div>
+<div class="grid grid-cols-5 gap-2">
+<div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear text-lg"></i><span class="text-[9px] font-bold">المحرك</span></div>
+<div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs text-lg"></i><span class="text-[9px] font-bold">الجير</span></div>
+<div class="sys-item" data-sys="abs"><i class="fa-solid fa-circle-exclamation text-lg"></i><span class="text-[9px] font-bold">ABS</span></div>
+<div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand text-lg"></i><span class="text-[9px] font-bold">فرامل</span></div>
+<div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved text-lg"></i><span class="text-[9px] font-bold">وسائد</span></div>
+<div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump text-lg"></i><span class="text-[9px] font-bold">وقود</span></div>
+<div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog text-lg"></i><span class="text-[9px] font-bold">عوادم</span></div>
+<div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half text-lg"></i><span class="text-[9px] font-bold">تبريد</span></div>
+<div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery text-lg"></i><span class="text-[9px] font-bold">بطارية</span></div>
+<div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt text-lg"></i><span class="text-[9px] font-bold">كهرباء</span></div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="text-base font-bold"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
+<div class="grid grid-cols-2 gap-2">
+<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
+<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-radar"></i> فحص الكل</button>
+</div>
+<div id="scanSummary" class="text-xs space-y-1"></div>
+<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
+</div>
+<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden">
+<div class="flex items-center justify-between gap-3 flex-wrap">
+<div class="font-bold text-emerald-300 text-sm">شارك النتائج</div>
+<div class="flex gap-2">
+<button id="btnExportPDF" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+<button id="btnShareWA" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="panel-search" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
+<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW, BYD...)">
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
+<div id="searchResults"></div>
+</div>
+<div class="bg-gradient-to-br from-purple-900/40 to-gray-900/60 border border-purple-700/50 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold text-purple-300"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
+<div class="flex flex-wrap gap-2" id="symptomChips"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-2">
+<h3 class="font-bold"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="severityFilters">
+<button class="filter-chip active" data-severity="all">الكل</button>
+<button class="filter-chip" data-severity="critical">🔴 حرج</button>
+<button class="filter-chip" data-severity="high">🟠 خطير</button>
+<button class="filter-chip" data-severity="medium">🟡 متوسط</button>
+<button class="filter-chip" data-severity="low">🟢 منخفض</button>
+</div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
+<div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
+<div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
+</div>
+</div>
+
+<div id="panel-favorites" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-star text-amber-400"></i> الأكواد المفضلة</h3>
+<div id="favoritesList"></div>
+</div>
+</div>
+
+<div id="panel-live" class="panel hidden space-y-4">
+<div class="bg-gray-800 p-4 rounded-2xl"><h3 class="font-bold mb-3"><i class="fa-solid fa-chart-line text-blue-400"></i> الرسوم البيانية المباشرة</h3><div class="h-56"><canvas id="liveChart"></canvas></div></div>
+<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div></div>
+</div>
+
+<div id="panel-readiness" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات (Mode 01 PID 01)</h3>
+<button id="btnReadReadiness" class="w-full bg-green-700 text-white px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
+<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط الزر</p></div>
+</div>
+</div>
+
+<div id="panel-battery" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>
+<button id="btnBatteryTest" class="w-full bg-yellow-600 text-white px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>
+<p id="batHint" class="text-xs text-amber-300 text-center mt-2"></p>
+<div class="grid grid-cols-3 gap-2 mb-3 mt-3">
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat1"><div class="text-2xl">🔋</div><div class="text-[10px] text-gray-500">مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat2"><div class="text-2xl">⚡</div><div class="text-[10px] text-gray-500">يعمل</div><div class="text-lg font-bold" id="batVal2">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat3"><div class="text-2xl">💡</div><div class="text-[10px] text-gray-500">تحت الحمل</div><div class="text-lg font-bold" id="batVal3">--</div></div>
+</div>
+<div id="batteryVerdict" class="hidden"></div>
+</div>
+</div>
+
+<div id="panel-history" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<div class="flex justify-between">
+<h3 class="font-bold"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>
+<button id="btnClearHistory" class="text-xs text-red-400 font-bold"><i class="fa-solid fa-trash"></i> مسح</button>
+</div>
+<div id="historyContent"></div>
+</div>
+</div>
+
+<div id="panel-stats" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
+<div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
+<div class="h-56 mt-3"><canvas id="statsChart"></canvas></div>
+</div>
+</div>
+
+</div>
+
+<div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto modal-backdrop">
+<div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative modal-content">
+<button id="btnCloseDetail" class="absolute top-3 right-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold">×</button>
+<button id="btnFavDetail" class="absolute top-3 right-14 bg-amber-600 text-white w-8 h-8 rounded-full text-sm font-bold fav-btn"><i class="fa-solid fa-star"></i></button>
+<div id="dtcDetailContent" class="pt-2"></div>
+</div>
+</div>
+
+<footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
+<div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
+<p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
+<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
+<p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>
