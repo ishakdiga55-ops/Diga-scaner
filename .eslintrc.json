@@ -1,0 +1,35 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "worker": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "script"
+  },
+  "globals": {
+    "Chart": "readonly",
+    "initSqlJs": "readonly",
+    "jsyaml": "readonly",
+    "$": "readonly",
+    "$$": "readonly"
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-undef": "error",
+    "no-redeclare": "error",
+    "no-console": "off",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-constant-condition": ["error", { "checkLoops": false }],
+    "no-useless-escape": "warn",
+    "no-prototype-builtins": "off",
+    "no-fallthrough": "warn",
+    "no-cond-assign": ["error", "except-parens"],
+    "no-control-regex": "off",
+    "no-misleading-character-class": "off",
+    "no-async-promise-executor": "off"
+  }
+}
