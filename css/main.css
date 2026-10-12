@@ -220,3 +220,130 @@ input, select, textarea { font-family: inherit; }
 }
 .brand-cn { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
 .brand-eu { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; }
+
+/* ============================================
+   Search Page Enhancements
+   تحسينات صفحة البحث
+   ============================================ */
+
+/* --- Search Input --- */
+#dtcSearchInput {
+  transition: all .25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+}
+
+#dtcSearchInput:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, .15),
+              0 4px 16px rgba(59, 130, 246, .2);
+  transform: translateY(-1px);
+}
+
+/* --- Search Results Cards --- */
+#searchResults .code-card {
+  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+
+#searchResults .code-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, .15);
+  border-color: rgba(59, 130, 246, .4);
+}
+
+#searchResults .code-card:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+}
+
+/* --- Symptom Chips --- */
+.symptom-chip {
+  transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+}
+
+.symptom-chip:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, .25);
+  border-color: #8b5cf6;
+  color: #a78bfa;
+}
+
+.symptom-chip:active {
+  transform: translateY(0) scale(.98);
+}
+
+/* --- Popular Codes Cards --- */
+#popularCodes .code-card {
+  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+}
+
+#popularCodes .code-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(239, 68, 68, .4);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, .15);
+}
+
+#popularCodes .code-card:active {
+  transform: translateY(0);
+}
+
+/* --- Family Browser Buttons --- */
+#familyBrowser .code-card {
+  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+}
+
+#familyBrowser .code-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+}
+
+#familyBrowser .code-card:active {
+  transform: translateY(0) scale(.99);
+}
+
+/* --- Recent Searches --- */
+.recent-item {
+  transition: all .2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+}
+
+.recent-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(59, 130, 246, .2);
+}
+
+.recent-item:active {
+  transform: translateY(0);
+}
+
+/* --- Severity Filter Chips --- */
+.filter-chip {
+  transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+}
+
+.filter-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .2);
+}
+
+.filter-chip.active {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, .3);
+}
+
+.filter-chip:active {
+  transform: translateY(0) scale(.97);
+}
+
+/* --- Light Mode Adjustments --- */
+body.light-mode #dtcSearchInput:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, .2),
+              0 4px 16px rgba(59, 130, 246, .25);
+}
+
+body.light-mode #searchResults .code-card:hover {
+  box-shadow: 0 8px 20px rgba(59, 130, 246, .2);
+}
