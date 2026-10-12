@@ -3,17 +3,18 @@
 <img src="icon.svg" alt="CheckDiga" width="120"/>
 
 # CheckDiga Pro
+
 ### صُنع بحب في 🇩🇿
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
 [![Web Bluetooth](https://img.shields.io/badge/Web%20Bluetooth-Supported-0082FC?logo=bluetooth)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)
-[![DTC Codes](https://img.shields.io/badge/DTC%20Codes-12%2C458-blueviolet)]()
+[![DTC Codes](https://img.shields.io/badge/DTC%20Codes-15%2C590-blueviolet)](https://ishakdiga55-ops.github.io/Diga-scaner/)
 [![Made in Algeria](https://img.shields.io/badge/Made%20in-Algeria%20%F0%9F%87%A9%F0%9F%87%BF-green)]()
 
 تطبيق ويب تقدمي (PWA) لتشخيص أعطال السيارات عبر OBD2.
 
-يعمل مباشرة من المتصفح دون تثبيت، دون خادم، ودون اشتراك.
+يعمل مباشرة من المتصفح — دون تثبيت، دون خادم، ودون اشتراك.
 
 [🚀 تجربة مباشرة](https://ishakdiga55-ops.github.io/Diga-scaner/) ·
 [🐛 الإبلاغ عن خطأ](https://github.com/ishakdiga55-ops/Diga-scaner/issues) ·
@@ -25,7 +26,7 @@
 
 ## نبذة سريعة
 
-CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتيح للمستخدم:
+**CheckDiga Pro** هو تطبيق فحص سيارات يعمل عبر OBD2 ويتيح للمستخدم:
 
 - 📖 قراءة رموز الأعطال (DTC) وتحليلها
 - 🧠 تحليل مبدئي للحالات التقنية (المحرك، ABS، الفرامل، العادم، الكهرباء)
@@ -33,7 +34,7 @@ CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتي�
 - 🌿 فحص جاهزية الانبعاثات
 - 🔋 اختبار البطارية والدينامو
 - 📋 استعراض تفاصيل دقيقة لكل كود عطل
-- 🌐 عمل التطبيق مباشرة داخل المتصفح عبر Web Bluetooth و Web Serial
+- 🌐 عمل مباشر داخل المتصفح عبر Web Bluetooth و Web Serial
 
 ---
 
@@ -47,7 +48,7 @@ CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتي�
 - ✅ كشف تلقائي لـ 10 بروتوكولات OBD2
 
 ### قاعدة بيانات شاملة
-- 📦 **12,458 كود عطل** (بعد الدمج الذكي)
+- 📦 **15,590 كود عطل** (بعد الدمج الذكي)
 - 🏭 تغطية لأكثر من **33 علامة تجارية**
 - 🔍 بحث فوري حسب الكود أو الوصف
 - 🩺 بحث بالأعراض (اهتزاز المحرك، دخان أسود، ضعف التسارع...)
@@ -95,10 +96,10 @@ CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتي�
 |--------|-------|:-------:|
 | [**OBDex**](https://github.com/foerbsnavi/OBDex) | أكواد غنية (أعراض، أسباب، خطوات) | مفتوح المصدر |
 | [**Wal33D**](https://github.com/Wal33D/dtc-database) | أكواد المصنّعين | مفتوح المصدر |
-| **ملفات محلية** | أكواد إضافية (Diga Scaner) | MIT |
+| **ملفات محلية** | أكواد إضافية (أوروبية + صينية) | MIT |
 
 ### إحصائيات سريعة
-- **إجمالي الأكواد:** 12,458
+- **إجمالي الأكواد:** 15,590
 - **مصادر البيانات:** 3
 - **عدد المصنّعين:** 33+
 - **التغطية:** سيارات متعددة الموديلات والعلامات
@@ -134,7 +135,7 @@ CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتي�
 3. أو وصّل جهاز ELM327 عبر **Bluetooth** أو **USB**
 4. ابدأ بقراءة رموز الأعطال
 
-> ⏳ التحميل الأول يستغرق 10-15 ثانية (12,458 كود). بعدها من الكاش → فوري.
+> ⏳ التحميل الأول يستغرق 10-15 ثانية (15,590 كود). بعدها من الكاش → فوري.
 
 ### 📱 تثبيت التطبيق (PWA)
 
@@ -146,50 +147,159 @@ CheckDiga Pro هو تطبيق فحص سيارات يعمل عبر OBD2 ويتي�
 
 ---
 
-## الأجهزة المدعومة
-
-| النوع | الحالة |
-|------|:------:|
-| ELM327 Bluetooth LE (4.0) | ✅ يعمل |
-| ELM327 USB | ✅ يعمل |
-| ELM327 Bluetooth Classic | ❌ غير مدعوم |
-| ELM327 Wi-Fi | ❌ غير مدعوم |
-
-> **ملاحظة:** معظم أجهزة ELM327 الرخيصة (~5$) هي Bluetooth Classic — لن تظهر في المتصفح. ابحث عن **"BLE 4.0"** في اسم المنتج.
-
----
-
-## التقنيات المستخدمة
-
-| الفئة | التقنية |
-|-------|---------|
-| **الواجهة** | HTML5 + Tailwind CSS 3.4 |
-| **المنطق** | Vanilla JavaScript (ES2020+) |
-| **الرسوم** | Chart.js 4.4 |
-| **SQLite** | sql.js 1.10 |
-| **YAML** | js-yaml 4.1 |
-| **الأيقونات** | Font Awesome 6.4 |
-| **الخط** | Cairo (Google Fonts) |
-| **التخزين** | localStorage + gzip |
-| **الاتصال** | Web Bluetooth API + Web Serial API |
-| **PWA** | Service Worker + Manifest |
-
----
-
-## هيكل المشروع
+## التطوير المحلي
 
 ```bash
-Diga-scaner/
-├── index.html                    # التطبيق الكامل (SPA)
-├── sw.js                         # Service Worker (offline)
-├── manifest.json                 # PWA manifest
-├── icon.svg                      # الأيقونة
-├── README.md                     # هذا الملف
-│
-├── dtc_codes_v0.1.0.db          # Wal33D SQLite (3.3 MB)
-├── dtc_p.json                    # أكواد Powertrain (P)
-├── dtc_b.json                    # أكواد Body (B)
-├── dtc_c.json                    # أكواد Chassis (C)
-├── dtc_u.json                    # أكواد Network (U)
-├── dtc_modern.json               # أكواد حديثة
-└── dtc_full.json                 # القاعدة الشاملة
+# 1. استنسخ المستودع
+git clone https://github.com/ishakdiga55-ops/Diga-scaner.git
+cd Diga-scaner
+
+# 2. شغّل خادم محلي
+python -m http.server 8000
+# أو
+npx serve
+
+# 3. افتح المتصفح
+# http://localhost:8000
+
+---
+
+## إخلاء المسؤولية
+
+> ⚠️ **هذا التطبيق أداة مساعدة ولا يُغني عن الفحص الاحترافي.**
+
+- **مسح الأعطال (Mode 04)** قد يؤثر على نتائج الفحص الدوري للسيارة.
+- **القراءات المباشرة** قد تكون غير دقيقة حسب جودة جهاز ELM327.
+- **لا تتحمل الشركة** أي مسؤولية عن أي أضرار مباشرة أو غير مباشرة بالسيارة أو الأفراد.
+- **استخدم التطبيق على مسؤوليتك الشخصية**.
+- **لا تستخدم التطبيق أثناء القيادة** — أوقف السيارة في مكان آمن.
+
+---
+
+## الأسئلة الشائعة (FAQ)
+
+### ❓ هل يحتاج التطبيق إنترنت؟
+**لا** بعد التحميل الأول. شكرًا لـ Service Worker، يعمل التطبيق offline بشكل كامل.
+
+### ❓ هل يُرسل بياناتي إلى أي خادم؟
+**لا**. جميع البيانات (المفضلة، السجل، الإعدادات) تُخزَّن في `localStorage` على جهازك فقط. راجع [PRIVACY.md](PRIVACY.md).
+
+### ❓ هل يعمل على جميع السيارات؟
+السيارات من **1996 أو أحدث** التي تدعم معيار OBD-II لا.
+
+### ❓ هل يعمل على iPhone؟
+**ن يدعم** لكن عبر متصفحعم [**Bluefy**](https://apps.apple.com/app/blue Webfy-web-ble-browser/id1492822055) — لأن Safari Bluetooth.
+
+### ❓ هل يعمل على أندرويد؟
+**نعم** عبر **Chrome** — دعم كامل لـ Web Bluetooth.
+
+### ❓ ما هو الجهاز الأفضل للشراء؟
+ابحث عن **"ELM327 BLE 4.0"** — تأكد من كلمة **BLE** (Bluetooth Low Energy) وليس Classic.
+
+### ❓ هل يستطيع مسح الأعطال؟
+**نعم** عبر Mode 04. لكن احترس: المسح قد يؤثر على نتائج الفحص الدوري.
+
+### ❓ كيف أثبّت التطبيق على الشاشة الرئيسية؟
+- **Android:** افتح الموقع في Chrome → ⋮ → "إضافة إلى الشاشة الرئيسية"
+- **iPhone:** افتح الموقع في Safari → مشاركة → "إضافة إلى الشاشة الرئيسية"
+
+### ❓ كم يستغرق التحميل الأول؟
+**10-15 ثانية** لتحميل 15,590 كود. بعدها من الكاش — فوري.
+
+### ❓ هل يمكنني إضافة أكواد جديدة؟
+**نعم** — أضفها في ملفات `dtc_*.json`، أو افتح Pull Request على المستودع.
+
+---
+
+## استكشاف الأخطاء (Troubleshooting)
+
+| المشكلة | السبب | الحل |
+|--------|-------|------|
+| **الجهاز لا يظهر في المتصفح** | جهاز Bluetooth Classic وليس BLE | اشترِ ELM327 BLE 4.0 |
+| **التطبيق لا يتصل** | فتح الموقع عبر HTTP | استخدم HTTPS أو localhost |
+| **الأكواد لا تظهر** | التحميل الأول بطيء | انتظر 10-15 ثانية |
+| **iPhone لا يعمل** | Safari لا يدعم Web Bluetooth | استخدم Bluefy |
+| **الاتصال ينقطع** | مسافة بعيدة أو بطارية ضعيفة | قرّب الجوال، أو أعد الاتصال |
+| **USB لا يظهر** | USB يعمل على Chrome فقط | استخدم Chrome/Edge |
+| **الرسوم البيانية لا تعمل** | Chart.js لم يُحمّل | أعد تحميل الصفحة |
+| **بطء شديد بعد فترة** | ذاكرة المتصفح ممتلئة | امسح بيانات الموقع |
+| **"لم تردّ السيارة"** | المفتاح على OFF | ضع المفتاح على ON (المحرك مطفأ) |
+
+---
+
+## خارطة الطريق (Roadmap)
+
+- [x] دعم Web Bluetooth
+- [x] دعم Web Serial (USB)
+- [x] قاعدة 15,590 كود
+- [x] PWA offline
+- [x] تحليل ذكي + مؤشر صحة
+- [x] اختبار البطارية
+- [x] فحص الجاهزية (Readiness)
+- [x] تصدير PDF + واتساب
+- [ ] دعم ELM327 Wi-Fi
+- [ ] تغليف بـ Capacitor لـ iOS/Android
+- [ ] دعم Freeze Frame (Mode 02)
+- [ ] قراءة VIN (Mode 09)
+- [ ] دعم أكواد ABS/Airbag عبر Mode 22
+- [ ] واجهة إنجليزية كاملة
+
+---
+
+## المساهمة (Contributing)
+
+نرحّب بالمساهمات! 🎉
+
+### قبل البدء
+- افتح **Issue** لمناقشة الميزة الكبيرة قبل Pull Request
+- اتبع نمط الكود الحالي
+- اختبر على أكثر من متصفح
+
+### خطوات المساهمة
+1. Fork المستودع
+2. أنشئ فرعًا جديدًا: `git checkout -b feature/amazing-feature`
+3. اعمل التعديلات + اختبر
+4. Commit: `git commit -m 'feat: add amazing feature'`
+5. Push: `git push origin feature/amazing-feature`
+6. افتح Pull Request
+
+### نمط Commit Messages
+- `feat:` ميزة جديدة
+- `fix:` إصلاح خطأ
+- `docs:` توثيق
+- `refactor:` إعادة هيكلة
+- `style:` تنسيق
+- `test:` اختبارات
+
+---
+
+## الشكر والتقدير
+
+هذا المشروع يستخدم بيانات و مكتبات مفتوحة المصدر:
+
+- [**OBDex**](https://github.com/foerbsnavi/OBDex) — قاعدة أكواد غنية
+- [**Wal33D**](https://github.com/Wal33D/dtc-database) — أكواد المصنّعين
+- [**Chart.js**](https://www.chartjs.org/) — الرسوم البيانية
+- [**sql.js**](https://github.com/sql-js/sql.js) — SQLite في المتصفح
+- [**js-yaml**](https://github.com/nodeca/js-yaml) — معالجة YAML
+- [**Tailwind CSS**](https://tailwindcss.com/) — الأنماط
+- [**Font Awesome**](https://fontawesome.com/) — الأيقونات
+- [**Google Fonts**](https://fonts.google.com/) — خط Cairo
+
+---
+
+## الترخيص
+
+هذا المشروع مرخّص تحت **MIT License** — راجع ملف [LICENSE](LICENSE) للتفاصيل.
+
+---
+
+<div align="center">
+
+### ⭐ إذا أعجبك المشروع، لا تنسَ إضافة نجمة!
+
+**صُنع بحب في الجزائر 🇩🇿**
+
+[⬆ العودة للأعلى](#checkdiga-pro)
+
+</div>
