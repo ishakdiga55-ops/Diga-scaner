@@ -1,0 +1,35 @@
+{
+  "name": "diga-scaner",
+  "version": "0.4.0",
+  "description": "CheckDiga Pro — تطبيق فحص أعطال السيارات عبر OBD2 (PWA)",
+  "author": "Ishak Diga",
+  "license": "MIT",
+  "homepage": "https://ishakdiga55-ops.github.io/Diga-scaner/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishakdiga55-ops/Diga-scaner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ishakdiga55-ops/Diga-scaner/issues"
+  },
+  "keywords": [
+    "obd2",
+    "elm327",
+    "diagnostics",
+    "car",
+    "dtc",
+    "pwa",
+    "web-bluetooth",
+    "arabic"
+  ],
+  "private": true,
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve .",
+    "test": "echo \"Tests coming soon\"",
+    "lint": "echo \"Lint coming soon\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
