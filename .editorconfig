@@ -1,0 +1,47 @@
+# ============================================
+# EditorConfig
+# https://editorconfig.org
+# ============================================
+
+# القواعد الافتراضية
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# ملفات JavaScript
+[*.{js,mjs,cjs}]
+indent_size = 2
+
+# ملفات CSS
+[*.{css,scss}]
+indent_size = 2
+
+# ملفات HTML
+[*.html]
+indent_size = 2
+
+# ملفات JSON
+[*.{json,jsonc}]
+indent_size = 2
+
+# ملفات Markdown — لا تقص المسافات الزائدة (لأنها مهمة في Markdown)
+[*.md]
+trim_trailing_whitespace = false
+
+# ملفات YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# ملفات Python (للخادم المحلي إن استُخدم)
+[*.py]
+indent_size = 4
+
+# Windows batch files
+[*.{bat,cmd}]
+end_of_line = crlf
