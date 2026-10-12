@@ -117,14 +117,19 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: var all .2s;
+  transition: all .2s;
 }
-.symptom-chip:hover { border-color: var(--pri); color: var(--pri); }
+.symptom-chip:hover {
+  border-color: var(--pri);
+  color: var(--pri);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, .25);
+}
 
 .filter-chip {
   background: rgba(51, 65, 85, .6);
   color: var(--txt-2);
-  border: 1px solid(--brd-2);
+  border: 1px solid var(--brd-2);
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 11px;
@@ -137,10 +142,18 @@ body {
   color: #fff;
   border-color: transparent;
 }
+.filter-chip:hover {
+  transform: translateY(-2px);
+}
 
 /* --- Cards --- */
-.code-card { cursor: pointer; transition: all .25s; }
-.code-card:hover { transform: translateY(-2px); }
+.code-card {
+  cursor: pointer;
+  transition: all .25s;
+}
+.code-card:hover {
+  transform: translateY(-2px);
+}
 .fav-btn.active { color: #fbbf24; }
 
 .recent-item {
@@ -153,12 +166,18 @@ body {
   cursor: pointer;
   transition: all .2s;
 }
-.recent-item:hover { border-color: var(--pri); color: var(--pri); }
+.recent-item:hover {
+  border-color: var(--pri);
+  color: var(--pri);
+  transform: translateY(-1px);
+}
 
 /* --- DB Status Bar --- */
 #dbStatus {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 60;
   background: linear-gradient(90deg, #1e40af, #7c3aed);
   color: #fff;
@@ -172,6 +191,7 @@ body {
 /* --- Animations --- */
 .tab { transition: all .2s; }
 .panel { animation: fadeIn .25s ease; }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }
@@ -179,6 +199,7 @@ body {
 
 .modal-backdrop { animation: fadeIn .2s ease; }
 .modal-content { animation: slideUp .3s cubic-bezier(.4, 0, .2, 1); }
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px) scale(.97); }
   to { opacity: 1; transform: none; }
@@ -188,6 +209,7 @@ body {
   0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(139, 92, 246, .4)); }
   50% { opacity: .9; filter: drop-shadow(0 0 20px rgba(139, 92, 246, .8)); }
 }
+
 .hero-number { animation: pulseGlow 3s ease-in-out infinite; }
 
 /* --- Forms --- */
@@ -196,7 +218,8 @@ input, select, textarea { font-family: inherit; }
 /* --- Source Badges --- */
 .src-badge {
   position: absolute;
-  top: 8px; left: 8px;
+  top: 8px;
+  left: 8px;
   font-size: 9px;
   padding: 2px 6px;
   border-radius: 6px;
@@ -226,7 +249,6 @@ input, select, textarea { font-family: inherit; }
    تحسينات صفحة البحث
    ============================================ */
 
-/* --- Search Input --- */
 #dtcSearchInput {
   transition: all .25s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
@@ -238,7 +260,6 @@ input, select, textarea { font-family: inherit; }
   transform: translateY(-1px);
 }
 
-/* --- Search Results Cards --- */
 #searchResults .code-card {
   transition: all .25s cubic-bezier(.4, 0, .2, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
@@ -255,24 +276,6 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
 }
 
-/* --- Symptom Chips --- */
-.symptom-chip {
-  transition: all .2s cubic-bezier(.4, 0, .2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
-}
-
-.symptom-chip:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, .25);
-  border-color: #8b5cf6;
-  color: #a78bfa;
-}
-
-.symptom-chip:active {
-  transform: translateY(0) scale(.98);
-}
-
-/* --- Popular Codes Cards --- */
 #popularCodes .code-card {
   transition: all .25s cubic-bezier(.4, 0, .2, 1);
   border: 1px solid transparent;
@@ -285,11 +288,6 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 6px 16px rgba(239, 68, 68, .15);
 }
 
-#popularCodes .code-card:active {
-  transform: translateY(0);
-}
-
-/* --- Family Browser Buttons --- */
 #familyBrowser .code-card {
   transition: all .25s cubic-bezier(.4, 0, .2, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
@@ -300,45 +298,48 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
 }
 
-#familyBrowser .code-card:active {
-  transform: translateY(0) scale(.99);
-}
-
-/* --- Recent Searches --- */
-.recent-item {
-  transition: all .2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
-}
-
-.recent-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(59, 130, 246, .2);
-}
-
-.recent-item:active {
-  transform: translateY(0);
-}
-
-/* --- Severity Filter Chips --- */
-.filter-chip {
-  transition: all .2s cubic-bezier(.4, 0, .2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
-}
-
-.filter-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .2);
-}
-
-.filter-chip.active {
-  box-shadow: 0 4px 12px rgba(59, 130, 246, .3);
-}
-
 .filter-chip:active {
   transform: translateY(0) scale(.97);
 }
 
-/* --- Light Mode Adjustments --- */
+/* ============================================
+   Stat Source: إصلاح نهائي
+   يُخفي النص الطويل من JavaScript
+   ويعرض "3 مصادر" بدلًا منه
+   ============================================ */
+
+#statSource {
+  text-indent: -9999px !important;
+  overflow: hidden !important;
+  position: relative;
+  white-space: nowrap;
+  display: block;
+  height: 1.4em;
+}
+
+#statSource::before {
+  content: "3 مصادر" !important;
+  text-indent: 0;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: #c084fc;
+  display: block;
+  line-height: 1.4;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  text-align: center;
+}
+
+body.light-mode #statSource::before {
+  color: #7c3aed;
+}
+
+/* ============================================
+   Light Mode Adjustments
+   ============================================ */
+
 body.light-mode #dtcSearchInput:focus {
   box-shadow: 0 0 0 4px rgba(59, 130, 246, .2),
               0 4px 16px rgba(59, 130, 246, .25);
@@ -346,26 +347,4 @@ body.light-mode #dtcSearchInput:focus {
 
 body.light-mode #searchResults .code-card:hover {
   box-shadow: 0 8px 20px rgba(59, 130, 246, .2);
-  
-/* ============================================
-   Stat Source: نص مختصر
-   يُخفي النص الطويل ويعرض "3 مصادر"
-   ============================================ */
-
-#statSource {
-  font-size: 0 !important;
-  position: relative;
-}
-
-#statSource::before {
-  content: "3 مصادر";
-  font-size: 11px;
-  font-weight: 800;
-  color: #c084fc;
-  display: inline-block;
-}
-
-body.light-mode #statSource::before {
-  color: #7c3aed;
-}
 }
