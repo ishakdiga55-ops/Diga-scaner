@@ -1,0 +1,57 @@
+/* ============================================
+   CheckDiga Pro — Light Theme
+   Loaded AFTER main.css
+   ============================================ */
+
+body.light-mode {
+  --bg: #f1f5f9;
+  --bg-2: #ffffff;
+  --txt: #0f172a;
+  --txt-2: #475569;
+  --brd: #cbd5e1;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+body.light-mode .bg-gray-900 {
+  background: #ffffff !important;
+}
+
+body.light-mode .bg-gray-800 {
+  background: #f8fafc !important;
+}
+
+body.light-mode .bg-black {
+  background: #0a0f1e !important;
+}
+
+body.light-mode .text-gray-400 {
+  color: #475569 !important;
+}
+
+body.light-mode .text-gray-500 {
+  color: #64748b !important;
+}
+
+body.light-mode .text-gray-300 {
+  color: #334155 !important;
+}
+
+body.light-mode .text-white {
+  color: #0f172a !important;
+}
+
+body.light-mode .gauge-box,
+body.light-mode .sys-item {
+  background: #ffffff !important;
+}
+
+body.light-mode .border-gray-800,
+body.light-mode .border-gray-700 {
+  border-color: #cbd5e1 !important;
+}
+
+body.light-mode #console {
+  background: #0a0f1e !important;
+  color: #4ade80 !important;
+}
