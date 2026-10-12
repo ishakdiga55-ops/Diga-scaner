@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.JPG" alt="Diga Scanner" width="320"/>
+<img src="logo.png" alt="Diga Scanner" width="320"/>
 
 # CheckDiga Pro
 
@@ -85,7 +85,7 @@
 - 💾 إمكانية التشغيل بدون اتصال إنترنت
 - 🗜️ تخزين مؤقت مضغوط (ضغط 90%)
 - 🎯 تمييز مصدر البيانات (حقيقي / تجريبي)
-
+- 
 ---
 
 ## 🗄️ قاعدة البيانات
@@ -149,19 +149,77 @@
 
 ## 🔧 التطوير المحلي
 
+### المتطلبات
+
+- **Node.js** 18 أو أحدث ([تحميل](https://nodejs.org/))
+- **npm** 9 أو أحدث (يأتي مع Node.js)
+- **Git** ([تحميل](https://git-scm.com/))
+
+### الإعداد
+
 ```bash
 # 1. استنسخ المستودع
 git clone https://github.com/ishakdiga55-ops/Diga-scaner.git
 cd Diga-scaner
 
-# 2. شغّل خادم محلي
-python -m http.server 8000
+# 2. ثبّت الأدوات
+npm install
+
+# 3. شغّل خادم محلي
+npm start
 # أو
-npx serve
+python -m http.server 8000
 
-# 3. افتح المتصفح
+# 4. افتح المتصفح
 # http://localhost:8000
+```
 
+> ⚠️ **لا تفتح `index.html` مباشرة** (`file://`) — استخدم خادمًا محليًا.
+> Web Bluetooth يحتاج HTTPS أو localhost.
+
+### الأوامر المتاحة
+
+| الأمر | الوظيفة |
+|-------|---------|
+| `npm start` | تشغيل خادم محلي |
+| `npm run lint` | فحص الكود بـ ESLint |
+| `npm run lint:fix` | فحص + إصلاح تلقائي |
+| `npm run format` | تنسيق الملفات بـ Prettier |
+| `npm run format:check` | تحقق من التنسيق |
+
+### هيكل المشروع
+
+```
+Diga-scaner/
+├── index.html          # نقطة الدخول
+├── manifest.json       # PWA manifest
+├── sw.js               # Service Worker
+├── logo.png            # اللوجو
+│
+├── css/                # الأنماط
+│   ├── main.css
+│   └── themes/
+│       └── light.css
+│
+├── js/                 # المنطق
+│   └── app.js
+│
+├── dtc_*.json          # قاعدة بيانات DTC
+└── dtc_codes_v0.1.0.db # Wal33D SQLite
+```
+
+### قبل فتح Pull Request
+
+```bash
+npm run lint          # تأكد من عدم وجود أخطاء
+npm run format        # نسّق الكود
+```
+
+### أدوات التطوير
+
+- **[ESLint](https://eslint.org/)** — فحص جودة الكود
+- **[Prettier](https://prettier.io/)** — تنسيق موحد
+- 
 ---
 
 ## 🔌 الأجهزة المدعومة
@@ -194,45 +252,6 @@ npx serve
 
 ---
 
-## 📁 هيكل المشروع
-
-```bash
-Diga-scaner/
-├── index.html                    # هيكل الصفحة (HTML)
-├── sw.js                         # Service Worker (offline)
-├── manifest.json                 # PWA manifest
-├── logo.JPG                      # لوجو المشروع
-├── icon.svg                      # أيقونة SVG
-├── LICENSE                       # رخصة MIT
-├── README.md                     # هذا الملف
-├── PRIVACY.md                    # سياسة الخصوصية
-│
-├── css/                          # الأنماط
-│   ├── main.css                  # الأنماط الأساسية
-│   └── themes/
-│       └── light.css             # الوضع النهاري
-│
-├── js/                           # JavaScript
-│   └── app.js                    # التطبيق الكامل (SPA logic)
-│
-└── data sources:
-    ├── dtc_codes_v0.1.0.db      # Wal33D SQLite (3.3 MB)
-    ├── dtc_p.json                # أكواد Powertrain (P)
-    ├── dtc_b.json                # أكواد Body (B)
-    ├── dtc_c.json                # أكواد Chassis (C)
-    ├── dtc_u.json                # أكواد Network (U)
-    ├── dtc_modern.json           # أكواد حديثة
-    ├── dtc_full.json             # القاعدة الشاملة
-    ├── dtc_european.json         # أكواد أوروبية
-    ├── dtc_european2.json        # أكواد أوروبية إضافية
-    ├── dtc_chinese.json          # أكواد صينية
-    ├── dtc_chinese2.json         # أكواد صينية إضافية
-    ├── dtc_chinese3.json         # أكواد صينية إضافية
-    └── dtc_chinese4.json         # أكواد صينية إضافية
-   ```
-
----
-
 ## 🔒 الخصوصية
 
 **CheckDiga Pro لا يجمع، لا يرسل، ولا يشارك أي بيانات شخصية.**
@@ -249,12 +268,12 @@ Diga-scaner/
 
 > **هذا التطبيق أداة مساعدة ولا يُغني عن الفحص الاحترافي.**
 
-- **مسح الأعطال (Mode 04)** قد يؤثر على نتائج الفحص الدوري.
+- **مسح الأعطال (Mode 04)** قد يؤثر على نتائج الفحص الدوري للسيارة.
 - **القراءات المباشرة** قد تكون غير دقيقة حسب جودة جهاز ELM327.
 - **لا تتحمل الشركة** أي مسؤولية عن أي أضرار مباشرة أو غير مباشرة.
 - **استخدم التطبيق على مسؤوليتك الشخصية**.
 - **لا تستخدم التطبيق أثناء القيادة** — أوقف السيارة في مكان آمن.
-
+- 
 ---
 
 ## ❓ الأسئلة الشائعة
@@ -324,6 +343,8 @@ Diga-scaner/
 - [ ] قراءة VIN (Mode 09)
 - [ ] دعم أكواد ABS/Airbag عبر Mode 22
 - [ ] واجهة إنجليزية كاملة
+- [ ] اختبارات شاملة (Unit + E2E)
+- [ ] CI/CD عبر GitHub Actions
 
 ---
 
@@ -331,26 +352,26 @@ Diga-scaner/
 
 نرحّب بالمساهمات! 🎉
 
-### قبل البدء
-- افتح **Issue** لمناقشة الميزة الكبيرة قبل Pull Request
-- اتبع نمط الكود الحالي
-- اختبر على أكثر من متصفح
+راجع [**CONTRIBUTING.md**](CONTRIBUTING.md) للتفاصيل الكاملة.
 
-### خطوات المساهمة
+### خطوات سريعة
+
 1. Fork المستودع
-2. أنشئ فرعًا جديدًا: `git checkout -b feature/amazing-feature`
+2. أنشئ فرعًا جديدًا: `git checkout -b feat/amazing-feature`
 3. اعمل التعديلات + اختبر
 4. Commit: `git commit -m 'feat: add amazing feature'`
-5. Push: `git push origin feature/amazing-feature`
+5. Push: `git push origin feat/amazing-feature`
 6. افتح Pull Request
 
 ### نمط Commit Messages
+
 - `feat:` ميزة جديدة
 - `fix:` إصلاح خطأ
 - `docs:` توثيق
 - `refactor:` إعادة هيكلة
 - `style:` تنسيق
 - `test:` اختبارات
+- `chore:` مهام صيانة
 
 ---
 
@@ -365,13 +386,13 @@ Diga-scaner/
 - [**js-yaml**](https://github.com/nodeca/js-yaml) — معالجة YAML
 - [**Tailwind CSS**](https://tailwindcss.com/) — الأنماط
 - [**Font Awesome**](https://fontawesome.com/) — الأيقونات
-- [**Google Fonts**](https://fonts.google.com/) — خط Cairo
+- [**Google Fonts** أ](https://fonts.google.com/) — خط Cairo
 
 ---
 
-## 📜 الترخيص
+دا## 📜 الترخيص
 
-هذا المشروع مرخّص تحت **MIT License** — راجع ملف [LICENSE](LICENSE) للتفاصيل.
+هذا المشروع مرةخّص تحت **MIT License على** — راجع ملف [LICENSE](LICENSE) للتفاصيل.
 
 ---
 
