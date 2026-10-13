@@ -82,6 +82,7 @@
 </div>
 
 <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left">&gt; جاهز!</div>
+
 <div id="panel-faults" class="panel space-y-4">
 <div id="healthBadge" class="hidden"></div>
 <div id="smartDiagnosis" class="hidden"></div>
@@ -140,9 +141,12 @@
 <div class="flex flex-wrap gap-2" id="symptomChips"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-2">
-<h3 class="font-bold"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
-<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="severityFilters">
-<button class="filter-chip active" data-severity="all">الكل</button>
+<h3 class="font-bold"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخط>
+ورة</h3>
+<div class="flex gap</-2 overflowdiv-x-auto scrollbar-thin>
+
+ pb-1" id="sever<divityFilters">
+<button class id="filter-chip active" data="-severity="all">الكل</button>
 <button class="filter-chip" data-severity="critical">🔴 حرج</button>
 <button class="filter-chip" data-severity="high">🟠 خطير</button>
 <button class="filter-chip" data-severity="medium">🟡 متوسط</button>
@@ -168,10 +172,7 @@
 
 <div id="panel-live" class="panel hidden space-y-4">
 <div class="bg-gray-800 p-4 rounded-2xl"><h3 class="font-bold mb-3"><i class="fa-solid fa-chart-line text-blue-400"></i> الرسوم البيانية المباشرة</h3><div class="h-56"><canvas id="liveChart"></canvas></div></div>
-<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div></div>
-</div>
-
-<div id="panel-readiness" class="panel hidden space-y-4">
+<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div></divpanel-readiness" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات (Mode 01 PID 01)</h3>
 <button id="btnReadReadiness" class="w-full bg-green-700 text-white px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
@@ -229,11 +230,9 @@
 </footer>
 
 <script src="js/app.js"></script>
-
 <script>
 /* ============================================
    Advanced Diagnostics — Inline Module v3
-   ملف مدمج — لا يعتمد على أي imports
    ============================================ */
 (function(){
   if (window.__advLoaded) return;
@@ -406,137 +405,204 @@
 
 <script>
 /* ============================================
-   Arabic Patch — وصف عربي للأكواد
+   Language Toggle — AR / FR
    ============================================ */
 (function(){
-  var AR_DESC = {
-    "P0300":"اشتعال متقطع في أكثر من أسطوانة واحدة. يكتشف كمبيوتر المحرك ذلك من سرعة الكرنك: الأسطوانة التي لا تشتغل لا تعطي دفعة تسارع. عند معدل يُتلف الكتلايزر تومض لمبة المحرك، وعند معدل يؤثر على الانبعاثات تضيء بعد رحلتين. الأسباب الشائعة: هواء دخيل في نظام السحب، بواجي أو كويلات متهالكة على عدة أسطوانات، ضغط وقود منخفض أو مرتفع، توقيت الصمامات غير مضبوط، أو قراءة خاطئة من عجلة الأسنان.",
-    "P0301":"اشتعال متقطع في الأسطوانة رقم 1. السبب الأكثر شيوعًا: بوجي أو كويل أو حاقن معطوب في الأسطوانة 1. للتشخيص: بدّل البوجي والكويل مع أسطوانة أخرى — إذا انتقل الكود فهذا يعني أن القطعة تالفة.",
-    "P0302":"اشتعال متقطع في الأسطوانة رقم 2. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 2. للتشخيص: بدّل القطعة مع أسطوانة 1 لمعرفة ما إذا كان العطل ينتقل.",
-    "P0303":"اشتعال متقطع في الأسطوانة رقم 3. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 3. قِس ضغط الأسطوانة للتأكد من عدم وجود مشكلة ميكانيكية.",
-    "P0304":"اشتعال متقطع في الأسطوانة رقم 4. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 4. افحص ضغط الأسطوانة أيضًا.",
-    "P0171":"خليط الهواء والوقود فقير في Bank 1 — أي كمية الهواء أكثر من الوقود. الأسباب المحتملة بنسب: تسرب هواء في مشعب السحب (45%), خرطوم فاكيوم مشقوق (25%), حساس MAF متسخ (15%), مضخة وقود ضعيفة (10%), حاقن مسدود (5%).",
-    "P0172":"خليط الهواء والوقود غني في Bank 1 — الوقود أكثر من اللازم. الأسباب: حاقن يسيل، منظم ضغط الوقود معطوب، أو حساس O2 تالف.",
-    "P0174":"خليط فقير في Bank 2 — نفس أسباب P0171 لكن في البنك الثاني.",
-    "P0175":"خليط غني في Bank 2. الأسباب: حاقن يسيل، ضغط وقود مرتفع، أو حساس O2 تالف.",
-    "P0420":"أداء الكتلايزر منخفض في Bank 1 — لم يعد قادرًا على تنظيف العادم بكفاءة. غالبًا تالف بسبب اشتعال متقطع سابق أو استهلاك زيت. يُنصح بإصلاح الإشعال أولًا قبل استبدال الكتلايزر — وإلا سيتلف الجديد.",
-    "P0430":"أداء الكتلايزر منخفض في Bank 2 — نفس P0420 في البنك الثاني.",
-    "P0128":"ترموستات عاطل — المحرك لا يصل إلى حرارة التشغيل الطبيعية في الوقت المتوقع. السبب: ترموستات مفتوح على الدوام (80%) أو حساس ECT معطوب (20%).",
-    "P0442":"تسرب صغير في نظام EVAP (بخار الوقود). السبب الأكثر شيوعًا: غطاء الوقود غير محكم (55%). افحص الغطاء أولًا، ثم الخراطيم، ثم purge valve.",
-    "P0455":"تسرب كبير في نظام EVAP. افحص غطاء الوقود، الخراطيم، وcanister بالترتيب.",
-    "P0217":"🚨 ارتفاع حرارة المحرك! أوقف السيارة فورًا وانتظر 30 دقيقة قبل فحص الرادياتير. الأسباب: نقص سائل التبريد، مراوح لا تعمل، ترموستات عاطل، أو مضخة ماء تالفة.",
-    "P0335":"دائرة حساس موضع عمود المرفق (الكرنك) معطوبة. السيارة قد لا تشتغل أو تتوقف فجأة. افحص الأسلاك والحساس. في الحالات الشديدة استبدل الحساس.",
-    "P0340":"دائرة حساس موضع عمود الكامات معطوبة. الأعراض: تشغيل صعب، ضعف تسارع، خمول غير مستقر.",
-    "P0505":"خلل في نظام التحكم بالخمول. الأسباب: IAC valve متسخ، تسرب هواء، أو حساس TPS معطوب.",
-    "P0562":"انخفاض في جهد النظام — مشكلة في الشحن. افحص البطارية والدينامو والحزام.",
-    "U0100":"🚨 فقدان الاتصال بكمبيوتر المحرك (ECU). السيارة قد لا تشتغل. افحص فيوز ECU، أسلاك CAN، والأرضية.",
-    "U0101":"فقدان الاتصال بوحدة التحكم في ناقل الحركة (TCM). افحص الفيوز وأسلاك CAN.",
-    "U0121":"فقدان الاتصال بوحدة ABS. افحص فيوز ABS وأسلاك CAN.",
-    "U0001":"CAN Bus معطل — قصر أو انقطاع في الشبكة. أوقف السيارة، افحص المقاومة والأسلاك.",
-    "P0700":"طلب تشخيص من وحدة ناقل الحركة. هذا الكود يعني أن هناك كودًا فرعيًا مخفيًا في TCM يحتاج قارئًا متقدمًا (Mode 22).",
-    "P0715":"دائرة حساس دخل الجير معطوبة. الأعراض: نقل غير سلس، تأخر في التبديل.",
-    "P0730":"نسبة التروس غير صحيحة — مشكلة خطيرة في ناقل الحركة. أوقف السيارة، افحص زيت الجير والحساسات، وراجع مختص فورًا.",
-    "C0035":"دائرة حساس سرعة العجلة الأمامية اليسرى معطوبة. الأعراض: لمبة ABS مضاءة، ABS لا يعمل.",
-    "C0040":"دائرة حساس سرعة العجلة الأمامية اليمنى معطوبة. افحص الأسلاك والحساس.",
-    "C0265":"مشكلة في نظام الفرامل — مستوى سائل منخفض أو تسرب. أوقف السيارة فورًا وافحص.",
-    "B0001":"🚨 عطل في دائرة الوسادة الهوائية للسائق — الوسادة لن تعمل في الحادث. افحص القابس و clock spring فورًا وراجع مختص."
+  if (window.__langToggleLoaded) return;
+  window.__langToggleLoaded = true;
+
+  var FR_DESC = {
+    "P0300":"Ratés d'allumage détectés sur plusieurs cylindres. Le calculateur moteur détecte les ratés à partir de la vitesse du vilebrequin : un cylindre qui ne s'enflamme pas n'apporte aucune impulsion d'accélération. À un taux endommageant le catalyseur, le voyant clignote ; à un taux affectant les émissions, il s'allume après deux trajets.\n\nCauses fréquentes : prise d'air dans l'admission, bougies ou bobines usées sur plusieurs cylindres, pression de carburant incorrecte, calage des soupapes, ou fausse détection.",
+    "P0301":"Ratés d'allumage au cylindre n°1. Cause la plus fréquente : bougie, bobine ou injecteur défectueux au cylindre 1.\n\nDiagnostic : permutez la bougie et la bobine avec un autre cylindre — si le code se déplace, la pièce est défectueuse.",
+    "P0302":"Ratés d'allumage au cylindre n°2. Causes : bougie, bobine ou injecteur défectueux au cylindre 2.",
+    "P0303":"Ratés d'allumage au cylindre n°3. Causes : bougie, bobine ou injecteur défectueux au cylindre 3.",
+    "P0304":"Ratés d'allumage au cylindre n°4. Causes : bougie, bobine ou injecteur défectueux au cylindre 4.",
+    "P0171":"Mélange air/carburant trop pauvre sur Bank 1 — trop d'air par rapport au carburant.\n\nCauses probables :\n• Fuite d'air au collecteur d'admission (45%)\n• Durite à vide fissurée (25%)\n• Capteur MAF encrassé (15%)\n• Pompe à carburant faible (10%)\n• Injecteur bouché (5%)",
+    "P0172":"Mélange trop riche sur Bank 1 — trop de carburant.\n\nCauses : injecteur qui fuit, régulateur de pression défectueux, ou sonde O2 défectueuse.",
+    "P0174":"Mélange trop pauvre sur Bank 2 — mêmes causes que P0171 mais sur le banc 2.",
+    "P0175":"Mélange trop riche sur Bank 2. Causes : injecteur qui fuit, pression de carburant élevée, sonde O2 défectueuse.",
+    "P0420":"Rendement du catalyseur insuffisant sur Bank 1 — il ne nettoie plus efficacement les gaz d'échappement.\n\n⚠️ Réparez d'abord l'allumage avant de remplacer le catalyseur — sinon le nouveau sera endommagé.",
+    "P0430":"Rendement du catalyseur insuffisant sur Bank 2 — même P0420 sur le banc 2.",
+    "P0128":"Thermostat défectueux — le moteur n'atteint pas sa température normale dans le temps prévu.\n\nCause : thermostat bloqué ouvert (80%) ou capteur ECT défectueux (20%).",
+    "P0442":"Petite fuite dans le système EVAP.\n\nCause la plus fréquente : bouchon de réservoir mal serré (55%). Vérifiez d'abord le bouchon, puis les durites, puis la valve de purge.",
+    "P0455":"Fuite importante dans le système EVAP. Vérifiez le bouchon de réservoir, les durites et le canister.",
+    "P0217":"🚨 Surchauffe du moteur !\n\nArrêtez immédiatement le véhicule et attendez 30 minutes avant d'ouvrir le radiateur.\n\nCauses : manque de liquide de refroidissement, ventilateurs inopérants, thermostat défectueux, ou pompe à eau usée.",
+    "P0335":"Circuit du capteur de position du vilebrequin défectueux. Le véhicule peut ne pas démarrer ou caler brutalement.\n\nVérifiez le câblage et le capteur.",
+    "P0340":"Circuit du capteur d'arbre à cames défectueux.\n\nSymptômes : démarrage difficile, perte de puissance, ralenti instable.",
+    "P0505":"Défaut du système de contrôle du ralenti.\n\nCauses : vanne IAC encrassée, prise d'air, ou capteur TPS défectueux.",
+    "P0562":"Baisse de tension du système — problème de charge.\n\nVérifiez la batterie, l'alternateur et la courroie.",
+    "U0100":"🚨 Perte de communication avec l'ECU (calculateur moteur).\n\nLe véhicule peut ne pas démarrer.\n\nVérifiez le fusible ECU, le bus CAN et les masses.",
+    "U0101":"Perte de communication avec le TCM (calculateur de boîte).\n\nVérifiez le fusible et le bus CAN.",
+    "U0121":"Perte de communication avec le module ABS.\n\nVérifiez le fusible ABS et le bus CAN.",
+    "U0001":"Bus CAN hors service — court-circuit ou coupure.\n\nArrêtez le véhicule, vérifiez la résistance et le câblage.",
+    "P0700":"Demande de diagnostic de la boîte de vitesses. Un sous-code caché existe dans le TCM et nécessite un lecteur avancé (Mode 22).",
+    "P0730":"Rapport de transmission incorrect — problème grave de boîte de vitesses.\n\nArrêtez le véhicule, vérifiez l'huile de boîte et les capteurs.",
+    "C0035":"Circuit du capteur de vitesse de roue avant gauche défectueux.\n\nSymptômes : voyant ABS allumé, ABS inactif.",
+    "C0265":"Problème du système de freinage — niveau bas ou fuite.\n\nArrêtez immédiatement le véhicule et vérifiez.",
+    "B0001":"🚨 Défaut du circuit d'airbag conducteur — l'airbag ne se déclenchera pas en cas d'accident.\n\nVérifiez le connecteur et le ressort spiral (clock spring)."
   };
 
-  var TERMS = [
-    [/check engine light on/gi,'لمبة المحرك مضاءة'],
-    [/flashing at a catalyst-damaging rate/gi,'تومض بمعدل يُتلف الكتلايزر'],
-    [/rough idle/gi,'خمول غير مستقر'],
-    [/jerking/gi,'اهتزاز عند التسارع'],
-    [/vibration/gi,'اهتزاز'],
-    [/loss of power/gi,'فقدان قدرة'],
-    [/hesitation/gi,'تأخر في الاستجابة'],
-    [/smell of unburnt fuel/gi,'رائحة وقود غير محترق'],
-    [/higher consumption/gi,'استهلاك وقود مرتفع'],
-    [/false air/gi,'هواء دخيل'],
-    [/vacuum leak/gi,'تسرب فاكيوم'],
-    [/crankcase ventilation/gi,'تهوية علبة المرفق'],
-    [/intake gasket/gi,'حشوة مشعب السحب'],
-    [/worn or wrong spark plugs/gi,'بواجي متهالكة أو خاطئة'],
-    [/faulty ignition coils/gi,'كويلات إشعال معطوبة'],
-    [/fuel pressure too low or high/gi,'ضغط وقود غير طبيعي'],
-    [/contaminated fuel/gi,'وقود ملوّث'],
-    [/valve timing/gi,'توقيت الصمامات'],
-    [/stretched chain/gi,'سلسلة متمددة'],
-    [/compression on several cylinders/gi,'ضغط منخفض في عدة أسطوانات'],
-    [/false detection/gi,'قراءة خاطئة'],
-    [/tone wheel or pulley/gi,'عجلة الأسنان أو البكرة'],
-    [/rough road/gi,'طريق وعر'],
-    [/ignition/gi,'الإشعال'],
-    [/misfire/gi,'اشتعال متقطع'],
-    [/misfiring/gi,'اشتعال متقطع'],
-    [/cylinder/gi,'أسطوانة'],
-    [/spark plug/gi,'بوجي'],
-    [/ignition coil/gi,'كويل إشعال'],
-    [/injector/gi,'حاقن'],
-    [/fuel pump/gi,'مضخة وقود'],
-    [/oxygen sensor/gi,'حساس أكسجين'],
-    [/catalyst/gi,'كتلايزر'],
-    [/catalytic converter/gi,'كتلايزر'],
-    [/vacuum/gi,'فاكيوم'],
-    [/leak/gi,'تسرب'],
-    [/sensor/gi,'حساس'],
-    [/circuit/gi,'دائرة'],
-    [/engine/gi,'المحرك'],
-    [/transmission/gi,'ناقل الحركة'],
-    [/wiring/gi,'الأسلاك'],
-    [/connector/gi,'القابس']
+  var AR_FR = [
+    [/اهتزاز المحرك/g,'Vibration moteur'],[/اهتزاز/g,'Vibration'],[/خمول غير مستقر/g,'Ralenti instable'],
+    [/ضعف التسارع|ضعف تسارع/g,'Faible accélération'],[/فقدان قدرة/g,'Perte de puissance'],
+    [/صرف بنزين|استهلاك مرتفع|صرف الوقود/g,'Surconsommation'],[/دخان أسود/g,'Fumée noire'],[/دخان أبيض/g,'Fumée blanche'],
+    [/لا تشتغل/g,'Ne démarre pas'],[/حرارة مرتفعة/g,'Surchauffe'],[/ضغط الزيت/g,'Pression huile'],
+    [/مشكلة الجير/g,'Problème de boîte'],[/الفرامل/g,'Freins'],[/تسرب هواء/g,'Fuite d\'air'],
+    [/تسرب فاكيوم/g,'Fuite à vide'],[/تسرب/g,'Fuite'],[/هواء دخيل/g,'Prise d\'air'],
+    [/خرطوم فاكيوم/g,'Durite à vide'],[/خرطوم/g,'Durite'],[/حشوة مشعب/g,'Joint de collecteur'],
+    [/مشعب السحب/g,'Collecteur d\'admission'],[/مضخة وقود/g,'Pompe à carburant'],[/مضخة الماء/g,'Pompe à eau'],
+    [/مضخة زيت/g,'Pompe à huile'],[/مضخة/g,'Pompe'],[/حاقن مسدود/g,'Injecteur bouché'],
+    [/حاقن يسيل/g,'Injecteur qui fuit'],[/حاقنات/g,'Injecteurs'],[/حاقن/g,'Injecteur'],
+    [/بواجي/g,'Bougies'],[/بوجي/g,'Bougie'],[/كويلات/g,'Bobines'],[/كويل/g,'Bobine'],
+    [/اشتعال متقطع/g,'Ratés d\'allumage'],[/الإشعال|إشعال/g,'Allumage'],
+    [/حساسات/g,'Capteurs'],[/حساس/g,'Capteur'],[/دائرة/g,'Circuit'],[/كتلايزر/g,'Catalyseur'],
+    [/ترموستات/g,'Thermostat'],[/مراوح/g,'Ventilateurs'],[/سائل التبريد/g,'Liquide de refroidissement'],
+    [/سائل الفرامل/g,'Liquide de frein'],[/غطاء الوقود/g,'Bouchon de réservoir'],[/غطاء/g,'Bouchon'],
+    [/فيوزات/g,'Fusibles'],[/فيوز/g,'Fusible'],[/ريلاي/g,'Relais'],[/أرضية/g,'Masse'],
+    [/أسلاك/g,'Câblage'],[/سلك/g,'Fil'],[/قابس/g,'Connecteur'],[/شبكة/g,'Réseau'],
+    [/ناقل الحركة/g,'Boîte de vitesses'],[/الجير/g,'Boîte'],[/الوقود/g,'Carburant'],
+    [/التبريد/g,'Refroidissement'],[/العادم/g,'Échappement'],[/البطارية/g,'Batterie'],
+    [/الدينامو/g,'Alternateur'],[/الكهرباء/g,'Électricité'],[/الوسائد الهوائية|الوسائد/g,'Airbags'],
+    [/الوسادة/g,'Airbag'],[/مفتاح المنع/g,'Antidémarrage'],[/لوحة العدادات/g,'Tableau de bord'],
+    [/نسبة التروس/g,'Rapport de boîte'],[/توقيت الصمامات/g,'Calage soupapes'],[/توقيت/g,'Calage'],
+    [/أسطوانة 1/g,'Cylindre 1'],[/أسطوانة 2/g,'Cylindre 2'],[/أسطوانة 3/g,'Cylindre 3'],
+    [/أسطوانة 4/g,'Cylindre 4'],[/أسطوانة/g,'Cylindre'],[/المحرك/g,'Moteur'],
+    [/الأعراض/g,'Symptômes'],[/الأسباب المحتملة/g,'Causes probables'],
+    [/خطوات الفحص/g,'Étapes de diagnostic'],[/أكواد مرتبطة/g,'Codes liés'],
+    [/معلومات الإصلاح/g,'Info réparation'],[/الصعوبة/g,'Difficulté'],
+    [/الوقت/g,'Temps'],[/ساعات/g,'heures'],[/ساعة/g,'heure'],
+    [/احتمال مرتفع/g,'Probabilité élevée'],[/احتمال متوسط/g,'Probabilité moyenne'],
+    [/احتمال وارد/g,'Probabilité possible'],[/افحص/g,'Vérifier'],[/استبدل/g,'Remplacer'],
+    [/نظّف/g,'Nettoyer'],[/بدّل/g,'Permuter'],[/قِس/g,'Mesurer'],
+    [/أصلح/g,'Réparer'],[/راجع مختص/g,'Consulter un spécialiste'],
+    [/أوقف/g,'Arrêter'],[/توقف/g,'Arrêter'],[/عطل غير معروف/g,'Défaut inconnu'],
+    [/مؤقت|مؤقتة/g,'En attente'],[/دائم|دائمة/g,'Permanent'],[/مؤكد|مؤكدة/g,'Confirmé']
   ];
 
-  function translate(t){
-    var s = String(t);
-    for (var i=0;i<TERMS.length;i++){ s = s.replace(TERMS[i][0], TERMS[i][1]); }
+  var EN_FR = [
+    [/misfire/gi,'ratés d\'allumage'],[/check engine light on/gi,'voyant moteur allumé'],
+    [/rough idle/gi,'ralenti instable'],[/jerking/gi,'à-coups'],[/vibration/gi,'vibration'],
+    [/loss of power/gi,'perte de puissance'],[/hesitation/gi,'hésitation'],
+    [/smell of unburnt fuel/gi,'odeur de carburant imbrûlé'],[/higher consumption/gi,'consommation élevée'],
+    [/false air/gi,'prise d\'air'],[/vacuum leak/gi,'fuite à vide'],
+    [/crankcase ventilation/gi,'ventilation du carter'],[/intake gasket/gi,'joint d\'admission'],
+    [/worn or wrong spark plugs/gi,'bougies usées'],[/faulty ignition coils/gi,'bobines défectueuses'],
+    [/fuel pressure/gi,'pression carburant'],[/contaminated fuel/gi,'carburant contaminé'],
+    [/valve timing/gi,'calage soupapes'],[/stretched chain/gi,'chaîne étirée'],
+    [/compression/gi,'compression'],[/false detection/gi,'fausse détection'],
+    [/tone wheel/gi,'roue phonique'],[/pulley/gi,'poulie'],[/rough road/gi,'route accidentée'],
+    [/spark plugs?/gi,'bougie(s)'],[/ignition coils?/gi,'bobine(s)'],[/injectors?/gi,'injecteur(s)'],
+    [/fuel pump/gi,'pompe à carburant'],[/oxygen sensor/gi,'sonde lambda'],
+    [/catalytic converter/gi,'pot catalytique'],[/catalyst/gi,'catalyseur'],
+    [/cylinder/gi,'cylindre'],[/engine module/gi,'calculateur moteur'],
+    [/crankshaft/gi,'vilebrequin'],[/camshaft/gi,'arbre à cames'],
+    [/transmission/gi,'boîte de vitesses'],[/sensor/gi,'capteur'],[/circuit/gi,'circuit'],
+    [/wiring/gi,'câblage'],[/connector/gi,'connecteur'],[/leak/gi,'fuite'],
+    [/vacuum/gi,'vide'],[/pressure/gi,'pression']
+  ];
+
+  function tr(text, mapping){
+    var s = String(text);
+    for (var i=0;i<mapping.length;i++){ s = s.replace(mapping[i][0], mapping[i][1]); }
     return s;
   }
 
-  function patch(){
+  var currentLang = 'ar';
+  var snapshot = null;
+
+  function injectBtn(){
     var content = document.getElementById('dtcDetailContent');
     if (!content) return;
-    if (content.dataset.arPatched === '1') return;
-    var codeEl = content.querySelector('.font-mono');
-    if (!codeEl) return;
-    var code = codeEl.textContent.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,10);
-    if (!code) return;
-    var changed = false;
-    if (AR_DESC[code]) {
-      var descBox = content.querySelector('.border-r-4.border-blue-500');
-      if (descBox) {
-        var inner = descBox.querySelector('div');
-        if (inner && /[a-zA-Z]{30,}/.test(inner.textContent)) {
-          inner.textContent = AR_DESC[code];
-          changed = true;
-        }
-      }
-    }
-    var items = content.querySelectorAll('ul li');
-    for (var i=0;i<items.length;i++){
-      var li = items[i];
-      var txt = li.textContent.replace(/^\s*•\s*/,'').trim();
-      if (/^[a-zA-Z\s,.'%\-()0-9]{5,}$/.test(txt)) {
-        li.textContent = '• ' + translate(txt);
-        changed = true;
-      }
-    }
-    if (changed) content.dataset.arPatched = '1';
+    var copyBtn = content.querySelector('#copyDetailBtn');
+    if (!copyBtn) return;
+    var grid = copyBtn.parentNode;
+    if (!grid) return;
+    var old = document.getElementById('btnLangToggle');
+    if (old) old.remove();
+    var b = document.createElement('button');
+    b.id = 'btnLangToggle';
+    b.type = 'button';
+    b.className = 'col-span-2 bg-purple-600 text-white text-xs font-bold py-2 rounded-lg mt-2';
+    b.innerHTML = currentLang === 'ar' ? '🌐 Français' : '🌐 العربية';
+    b.onclick = toggleLang;
+    if (grid.parentNode) grid.parentNode.insertBefore(b, grid.nextSibling);
   }
 
-  setInterval(function(){
-    var c = document.getElementById('dtcDetailContent');
-    if (c && c.dataset.arPatched !== '1') patch();
-  }, 100);
+  function toFrench(){
+    var content = document.getElementById('dtcDetailContent');
+    if (!content) return;
+    var codeEl = content.querySelector('.font-mono');
+    var code = codeEl ? codeEl.textContent.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,10) : '';
+    var allBoxes = content.querySelectorAll('.border-r-4');
+    for (var i=0;i<allBoxes.length;i++){
+      if (allBoxes[i].className.indexOf('border-blue-500') >= 0) {
+        var inner = allBoxes[i].querySelector('div');
+        if (inner) {
+          if (FR_DESC[code]) inner.textContent = FR_DESC[code];
+          else if (/[a-zA-Z]{20,}/.test(inner.textContent)) inner.textContent = tr(inner.textContent, EN_FR);
+        }
+        break;
+      }
+    }
+    var lists = content.querySelectorAll('ul li');
+    for (var j=0;j<lists.length;j++){
+      var li = lists[j];
+      var t = li.textContent.replace(/^\s*•\s*/,'').trim();
+      li.textContent = '• ' + tr(t, AR_FR);
+    }
+    var headers = content.querySelectorAll('.font-bold');
+    for (var k=0;k<headers.length;k++){
+      var h = headers[k];
+      if (h.querySelector('i')) h.innerHTML = tr(h.innerHTML, AR_FR);
+    }
+  }
+
+  function toggleLang(){
+    var content = document.getElementById('dtcDetailContent');
+    if (!content) return;
+    if (currentLang === 'ar') {
+      if (!snapshot) snapshot = content.innerHTML;
+      toFrench();
+      currentLang = 'fr';
+    } else {
+      if (snapshot) content.innerHTML = snapshot;
+      currentLang = 'ar';
+      setTimeout(injectBtn, 20);
+    }
+    var btn = document.getElementById('btnLangToggle');
+    if (btn) btn.innerHTML = currentLang === 'ar' ? '🌐 Français' : '🌐 العربية';
+  }
+
+  function patch(){
+    if (typeof window.showDetail !== 'function') return false;
+    if (window.__langShowDetailPatched) return true;
+    var orig = window.showDetail;
+    window.showDetail = function(){
+      currentLang = 'ar';
+      snapshot = null;
+      var r = orig.apply(this, arguments);
+      setTimeout(injectBtn, 50);
+      setTimeout(injectBtn, 200);
+      return r;
+    };
+    window.__langShowDetailPatched = true;
+    console.log('[Lang Toggle] ✅ Intercepted');
+    return true;
+  }
+
+  if (!patch()) {
+    var t = 0;
+    var timer = setInterval(function(){ if (patch() || ++t > 40) clearInterval(timer); }, 250);
+  }
 
   document.addEventListener('click', function(e){
     if (e.target && e.target.id === 'btnCloseDetail') {
-      var c = document.getElementById('dtcDetailContent');
-      if (c) delete c.dataset.arPatched;
+      currentLang = 'ar';
+      snapshot = null;
     }
   }, true);
 
-  console.log('[Arabic Patch] ✅ Loaded');
+  console.log('[Lang Toggle] ✅ Loaded');
 })();
 </script>
 </body>
