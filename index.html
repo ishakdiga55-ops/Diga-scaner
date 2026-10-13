@@ -20,8 +20,10 @@
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
-  <img src="logo.png" alt="Diga Scanner" class="w-48 mx-auto mb-4"/>
-  <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
+  <img src="logo.png" alt=">
+
+Diga Scanner" class="w-48<div mx-auto mb-4"/>
+  < classdiv class="inline-flex items-center=" gap-2 bg-blue-flex500/10 border border-blue gap-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
     <span class="pro-badge">PRO</span>
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
@@ -68,9 +70,7 @@
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 <button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
 <details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>❌ Wi-Fi: غير مدعوم من المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
-</header>
-
-<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
+</header-2 overflow-x-auto scrollbar-thin pb-1">
 <button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
 <button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites"><i class="fa-solid fa-star"></i> المفضلة</button>
@@ -152,8 +152,9 @@
 </div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
-<div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
+<h3 class="font-bold"><i class="fa-back-solid fa-fire text-orange-drop400"></i>">
+ الأكواد الشائعة</<divh3>
+<div class="grid class grid-cols-2 gap-2" id="="popularCodes"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="font-bold"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
@@ -215,8 +216,7 @@
 
 </div>
 
-<div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto modal-backdrop">
-<div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative modal-content">
+<div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto modalmax-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative modal-content">
 <button id="btnCloseDetail" class="absolute top-3 right-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold">×</button>
 <button id="btnFavDetail" class="absolute top-3 right-14 bg-amber-600 text-white w-8 h-8 rounded-full text-sm font-bold fav-btn"><i class="fa-solid fa-star"></i></button>
 <div id="dtcDetailContent" class="pt-2"></div>
@@ -233,9 +233,6 @@
 <script src="js/app.js"></script>
 
 <script>
-/* ============================================
-   Advanced Diagnostics — Inline Module
-   ============================================ */
 (function(){
   if (window.__advLoaded) return;
   window.__advLoaded = true;
@@ -270,7 +267,17 @@
     {id:'AIRBAG',pr:'critical',sys:['airbag'],req:['B0001'],opt:['B0010','B1000'],t:'عطل الوسائد الهوائية',cs:[{c:'قابس مفصول',p:0.40},{c:'clock spring',p:0.30},{c:'أسلاك',p:0.20},{c:'الوسادة',p:0.10}],ac:['افحص القابس','افحص clock spring','راجع مختص'],cost:{min:200,max:2000},time:4,diy:false,urg:true},
     {id:'CHARGING',pr:'high',sys:['battery'],req:['P0562'],opt:[],t:'مشكلة في الشحن',cs:[{c:'دينامو',p:0.50},{c:'بطارية',p:0.30},{c:'حزام',p:0.15},{c:'أسلاك',p:0.05}],ac:['افحص فولت البطارية','افحص الدينامو','افحص الحزام'],cost:{min:100,max:1500},time:3,diy:true,urg:false},
     {id:'TRANSM',pr:'high',sys:['transmission'],req:['P0700'],opt:[],t:'عطل ناقل الحركة',cs:[{c:'كود فرعي TCM',p:0.70},{c:'TCM',p:0.15},{c:'أسلاك',p:0.15}],ac:['اقرأ أكواد TCM','افحص زيت الجير','راجع مختص'],cost:{min:100,max:5000},time:8,diy:false,urg:false},
-    {id:'GEAR_R',pr:'critical',sys:['transmission'],req:['P0730'],opt:[],t:'نسبة التروس غير صحيحة',cs:[{c:'زيت منخفض',p:0.35},{c:'حساس سرعة',p:0.25},{c:'قابض تالف',p:0.25},{c:'هيدروليكي',p:0.15}],ac:['توقف','افحص زيت الجير','راجع مختص'],cost:{min:500,max:8000},time:12,diy:false,urg:true}
+    {id:'GEAR_R',pr:'critical',sys:['transmission'],req:['P0730'],opt:[],t:'نسبة التروس غير صحيحة',cs:[{c:'زيت منخفض',p:0.35},{c:'حساس سرعة',p:0.25},{c:'قابض تالف',p:0.25},{c:'هيدروليكي',p:0.15}],ac:['توقف','افحص زيت الجير','راجع مختص'],cost:{min:500,max:8000},time:12,diy:false,urg:true},
+    {id:'PSA_COIL',pr:'high',sys:['engine'],req:['P1351'],opt:[],t:'وشيعة إشعال (Peugeot/Citroën)',cs:[{c:'وشيعة معطوبة',p:0.60},{c:'بواجي',p:0.25},{c:'أسلاك',p:0.15}],ac:['افحص الوشيعة','استبدل البواجي','افحص الأسلاك'],cost:{min:50,max:300},time:2,diy:true,urg:false},
+    {id:'GLOW_PLUG',pr:'high',sys:['engine'],req:['P0380'],opt:['P0381','P0382'],t:'عطل شمعات التسخين (ديزل)',cs:[{c:'شمعات محروقة',p:0.55},{c:'ريلاي',p:0.25},{c:'أسلاك',p:0.20}],ac:['افحص الشمعات','افحص الريلاي'],cost:{min:80,max:400},time:3,diy:true,urg:false},
+    {id:'EGR_PSA',pr:'medium',sys:['engine','exhaust'],req:['P0490'],opt:['P0403','P0401'],t:'صمام EGR (Renault/Peugeot)',cs:[{c:'صمام متسخ',p:0.55},{c:'أسلاك',p:0.25},{c:'حساس',p:0.20}],ac:['نظّف EGR','افحص الأسلاك'],cost:{min:0,max:400},time:2,diy:true,urg:false},
+    {id:'THROTTLE_REN',pr:'high',sys:['engine'],req:['P0638'],opt:['P2100','P2101'],t:'موتور الخانق (Renault/Dacia)',cs:[{c:'موتور معطوب',p:0.50},{c:'متسخ',p:0.30},{c:'أسلاك',p:0.20}],ac:['نظّف الخانق','افحص الموتور','راجع مختص'],cost:{min:150,max:800},time:3,diy:false,urg:false},
+    {id:'FAN_PSA',pr:'medium',sys:['cooling'],req:['P0480'],opt:['P0481'],t:'مروحة التبريد (Peugeot/Citroën)',cs:[{c:'مروحة معطوبة',p:0.55},{c:'ريلاي',p:0.30},{c:'أسلاك',p:0.15}],ac:['افحص المروحة','افحص الريلاي'],cost:{min:100,max:600},time:3,diy:true,urg:false},
+    {id:'O2_REN',pr:'medium',sys:['exhaust','fuel'],req:['P0130'],opt:['P0135'],t:'حساس O2 أمامي (Renault)',cs:[{c:'حساس معطوب',p:0.60},{c:'أسلاك',p:0.25},{c:'تسرب',p:0.15}],ac:['افحص الحساس','افحص الأسلاك'],cost:{min:80,max:400},time:2,diy:true,urg:false},
+    {id:'CAM_PSA',pr:'high',sys:['engine'],req:['P0341'],opt:['P0340'],t:'حساس الكام (Peugeot/Renault)',cs:[{c:'حساس معطوب',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الحساس','افحص الأسلاك'],cost:{min:60,max:400},time:2,diy:true,urg:false},
+    {id:'SENSOR_REF',pr:'medium',sys:['electronics','engine'],req:['P0641'],opt:['P0651'],t:'فولت مرجعي 5V للحساسات',cs:[{c:'قصر في 5V',p:0.55},{c:'ECU',p:0.30},{c:'أسلاك',p:0.15}],ac:['افحص فولت 5V','افحص الأسلاك'],cost:{min:100,max:2000},time:5,diy:false,urg:false},
+    {id:'INJECTOR_REN',pr:'high',sys:['fuel','engine'],req:['P0200'],opt:['P0201','P0202'],t:'حاقن (Renault/Dacia)',cs:[{c:'حاقن معطوب',p:0.55},{c:'أسلاك',p:0.30},{c:'قابس',p:0.15}],ac:['افحص الحاقن','افحص الأسلاك'],cost:{min:150,max:800},time:4,diy:false,urg:false},
+    {id:'CAT_DACIA',pr:'medium',sys:['exhaust'],req:['P0420'],opt:['P0430'],t:'كتلايزر ضعيف (Dacia/Renault)',cs:[{c:'كتلايزر تالف',p:0.50},{c:'حساس O2',p:0.35},{c:'تسرب',p:0.15}],ac:['افحص O2','افحص الكتلايزر'],cost:{min:300,max:2000},time:4,diy:false,urg:false}
   ];
 
   var SYS_NAME = {engine:'المحرك',transmission:'الجير',abs:'ABS',brakes:'الفرامل',airbag:'الوسائد',fuel:'الوقود',cooling:'التبريد',exhaust:'العادم',battery:'البطارية',electronics:'الكهرباء'};
@@ -290,8 +297,8 @@
     RULES.forEach(function(r){
       var ok = r.req.every(function(c){ return set[c]; });
       if (!ok) return;
-      var score = r.req.filter(function(c){return set[c];}).length * 10 + r.opt.filter(function(c){return set[c];}).length * 3;
-      matches.push({r:r, score:score});
+0      var score = r.req.filter(function(c){return set,[c];}).length * 10 + r c.opt.filter(function(c){return set[cMax];}).length * 3;
+     = matches.push({r:0r, score:score});
     });
     var prOrd = {critical:0, high:1, medium:2, low:3};
     matches.sort(function(a,b){ return (prOrd[a.r.pr]||9) - (prOrd[b.r.pr]||9) || b.score - a.score; });
@@ -302,7 +309,7 @@
     var score = Math.max(5, Math.min(100, 100 - penalty));
     var level = score<30?'critical':score<50?'poor':score<70?'fair':score<85?'good':'excellent';
     var warns = result.filter(function(m){return m.r.urg;}).map(function(m){return {t:m.r.t, ac:m.r.ac[0]||'راجع مختص'};});
-    var cMin=0, cMax=0, hrs=0;
+    var cMin=, hrs=0;
     result.forEach(function(m){ if(m.r.cost){cMin+=m.r.cost.min;cMax+=m.r.cost.max;} hrs+=m.r.time||0; });
     var sysCnt = {};
     result.forEach(function(m){ m.r.sys.forEach(function(s){ sysCnt[s]=(sysCnt[s]||0)+1; }); });
@@ -382,7 +389,7 @@
     b.id = 'btnAdvDiag';
     b.type = 'button';
     b.className = 'w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold mt-3 flex items-center justify-center gap-2';
-    b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(30 قاعدة)</span>';
+    b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(40 قاعدة)</span>';
     b.onclick = function(){
       var codes = getCodes();
       if (!codes.length) {
