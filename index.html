@@ -605,5 +605,287 @@
   console.log('[Lang Toggle] ✅ Loaded');
 })();
 </script>
+<script>
+/* ============================================
+   Full UI Translation — AR / FR
+   ============================================ */
+(function(){
+  if (window.__fullI18nLoaded) return;
+  window.__fullI18nLoaded = true;
+
+  var DICT = {
+    'افحص سيارتك من هاتفك':'Diagnostiquez votre voiture',
+    'الآن':'maintenant',
+    'قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي':'Base massive + recherche instantanée + analyse intelligente',
+    'كود عطل في القاعدة':'codes dans la base',
+    'ابدأ الآن':'Commencer',
+    'عطل':'Défaut',
+    'حقيقي':'Réel',
+    'المصدر':'Source',
+    'مصادر':'sources',
+    'غير متصل':'Déconnecté',
+    'متصل':'Connecté',
+    'وضع تجريبي':'Mode démo',
+    'قطع الاتصال':'Déconnecter',
+    'مسح الأعطال':'Effacer les défauts',
+    'لا يظهر جهازك؟ عرض كل أجهزة Bluetooth':'Appareil non visible ? Voir tous les appareils',
+    'أي جهاز ELM327 يعمل؟':'Quel ELM327 fonctionne ?',
+    'يجب فتح الموقع عبر HTTPS':'HTTPS requis',
+    'غير مدعوم من المتصفح':'Non supporté',
+    'لا يظهر في المتصفح':'Non visible',
+    'معظم الأجهزة الرخيصة':'La plupart des appareils',
+    'أندرويد Chrome أو iPhone Bluefy':'Android Chrome ou iPhone Bluefy',
+    'للحاسوب أو أندرويد':'PC ou Android',
+    'الأعطال':'Défauts',
+    'بحث':'Recherche',
+    'المفضلة':'Favoris',
+    'حية':'Direct',
+    'الجاهزية':'Préparation',
+    'البطارية':'Batterie',
+    'السجل':'Historique',
+    'إحصائيات':'Statistiques',
+    'أكواد الأعطال':'Codes de défaut',
+    'فحص المحرك':'Vérifier moteur',
+    'فحص الكل':'Vérifier tout',
+    'لم يتم الفحص بعد.':'Aucun diagnostic.',
+    'لم يتم الفحص بعد':'Aucun diagnostic',
+    'قراءة الأعطال':'Lecture défauts',
+    'جاري الفحص الشامل':'Diagnostic complet...',
+    'لا أعطال مسجلة':'Aucun défaut enregistré',
+    'لا يعني ذلك أن كل الأنظمة سليمة — استخدم «فحص الكل»':'Cela ne signifie pas que tous les systèmes sont OK — utilisez Vérifier tout',
+    'الوحدات التي ردّت لا تحتوي أعطالاً':'Les modules ayant répondu n\'ont pas de défauts',
+    'الوحدات التي لم تردّ لم تُفحص':'Les modules sans réponse non testés',
+    'لم تردّ السيارة':'Aucune réponse de la voiture',
+    'تأكد أن المفتاح على ON.':'Vérifiez que la clé est sur ON.',
+    'لم تردّ أي وحدة على UDS':'Aucun module UDS n\'a répondu',
+    'لم تؤكد السيارة تنفيذ المسح.':'Effacement non confirmé.',
+    'تم مسح الأعطال':'Défauts effacés',
+    'جاهز':'Prêt',
+    'بيانات تجريبية — ليست من سيارتك':'Données démo — pas de votre voiture',
+    'بيانات مقروءة فعلياً من السيارة':'Données réelles de la voiture',
+    'تجريبي':'Démo',
+    'مؤكد':'Confirmé',
+    'مؤقت':'En attente',
+    'دائم':'Permanent',
+    'تفاصيل':'Détails',
+    'شارك النتائج':'Partager',
+    'واتساب':'WhatsApp',
+    'التشخيصات':'Diagnostics',
+    'معلومات الإصلاح':'Infos réparation',
+    'الصعوبة':'Difficulté',
+    'سهل':'Facile',
+    'متوسط':'Moyen',
+    'صعب':'Difficile',
+    'الوقت':'Temps',
+    'ساعة':'heure',
+    'ساعات':'heures',
+    'البحث الذكي':'Recherche intelligente',
+    'النتائج':'Résultats',
+    'نتيجة':'résultat',
+    'نتائج':'résultats',
+    'ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW, BYD...)':'Rechercher code, défaut ou fabricant...',
+    'آخر البحث':'Recherches récentes',
+    'ابحث بالأعراض':'Rechercher par symptômes',
+    'تصفية حسب الخطورة':'Filtrer par sévérité',
+    'الكل':'Tous',
+    'حرج':'Critique',
+    'خطير':'Grave',
+    'منخفض':'Faible',
+    'الأكواد الشائعة':'Codes populaires',
+    'تصفح حسب الفئة':'Naviguer par catégorie',
+    'لا توجد نتائج':'Aucun résultat',
+    'الأعراض':'Symptômes',
+    'الأسباب المحتملة':'Causes probables',
+    'خطوات الفحص':'Étapes de diagnostic',
+    'أكواد مرتبطة':'Codes liés',
+    'احتمال مرتفع':'Probabilité élevée',
+    'احتمال متوسط':'Probabilité moyenne',
+    'احتمال وارد':'Probabilité possible',
+    'نسخ':'Copier',
+    'تم نسخ':'Copié',
+    'يمكن DIY':'Possible DIY',
+    'يحتاج مختص':'Spécialiste requis',
+    'الأكواد المفضلة':'Codes favoris',
+    'لا توجد أكواد في المفضلة':'Aucun code favori',
+    'الرسوم البيانية المباشرة':'Graphiques en direct',
+    'التحليل التلقائي':'Analyse automatique',
+    'في انتظار البيانات...':'En attente de données...',
+    'جاهزية الانبعاثات (Mode 01 PID 01)':'Émissions (Mode 01 PID 01)',
+    'فحص الجاهزية':'Vérifier préparation',
+    'اضغط الزر':'Appuyez sur le bouton',
+    'جاري الفحص...':'Vérification...',
+    'لا يوجد رد':'Aucune réponse',
+    'خطأ':'Erreur',
+    'لمبة المحرك مضاءة':'Voyant moteur allumé',
+    'لمبة المحرك مطفأة':'Voyant moteur éteint',
+    'أعطال':'Défauts',
+    'مراقبات مستمرة':'Surveillances continues',
+    'الاشتعال':'Allumage',
+    'الوقود':'Carburant',
+    'المكونات الشاملة':'Composants globaux',
+    'مراقبات غير مستمرة':'Surveillances non continues',
+    'الكتلايزر':'Catalyseur',
+    'حساس O2':'Sonde O2',
+    'غير جاهز':'Non prêt',
+    'غير مدعوم':'Non supporté',
+    'اختبار البطارية والدينامو':'Test batterie + alternateur',
+    'بدء الاختبار':'Démarrer le test',
+    'قراءة المرحلة':'Lecture étape',
+    'مطفأ':'Éteint',
+    'يعمل':'En marche',
+    'تحت الحمل':'Sous charge',
+    'نتيجة مبدئية':'Résultat préliminaire',
+    'البطارية فارغة':'Batterie vide',
+    'تحتاج شحن':'Nécessite charge',
+    'البطارية جيدة':'Batterie OK',
+    'الدينامو لا يشحن':'Alternateur ne charge pas',
+    'الشحن ضعيف':'Charge faible',
+    'شحن زائد':'Surcharge',
+    'الشحن جيد':'Charge OK',
+    'لا يتحمل الأحمال':'Ne supporte pas la charge',
+    'الشحن تحت الحمل ضعيف':'Charge faible sous charge',
+    'لم نتمكن من قراءة الجهد':'Tension non lisible',
+    'المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»':'Clé sur ON, moteur éteint puis Lire',
+    'شغّل المحرك على الخمول ثم اضغط «قراءة»':'Démarrez au ralenti puis Lire',
+    'شغّل الأحمال وارفع الدوران ~2000 ثم اضغط «قراءة»':'Charges + ~2000 tr/min puis Lire',
+    '(تجريبي)':'(démo)',
+    'سجل الفحوصات':'Historique diagnostics',
+    'مسح':'Effacer',
+    'لا يوجد سجل بعد':'Aucun historique',
+    'عطل':'Défaut',
+    'الإحصائيات':'Statistiques',
+    'عطل في القاعدة':'défauts dans la base',
+    'كود بمصنّع':'codes avec fabricant',
+    'محمّلة':'Chargée',
+    'تحميل...':'Chargement...',
+    'ملفات محلية':'Fichiers locaux',
+    'مُثرى':'enrichis',
+    'أوروبي':'Européen',
+    'صيني':'Chinois',
+    'مصنّعين':'Fabricants',
+    'مصنّع':'fabricant',
+    'أداة فحص سيارات احترافية':'Outil professionnel de diagnostic auto',
+    'صُنع في الجزائر':'Fabriqué en Algérie',
+    'تحليل متقدم':'Analyse avancée',
+    'قاعدة':'règle',
+    'تقرير التحليل المتقدم':'Rapport d\'analyse avancée',
+    'تحذيرات حرجة':'Avertissements critiques',
+    'مؤشر صحة السيارة':'Santé du véhicule',
+    'السبب الجذري المحتمل':'Cause racine probable',
+    'النظام:':'Système :',
+    'قاعدة مرتبطة':'règles liées',
+    'التكلفة التقديرية':'Coût estimé',
+    'الوقت المتوقع':'Temps estimé',
+    'الأسباب المحتملة:':'Causes probables :',
+    'خطوات الفحص:':'Étapes :',
+    'لا توجد نتائج بعد':'Aucun résultat',
+    'اضغط "تجريبي" أو "فحص المحرك" أولاً':'Cliquez Démo ou Vérifier moteur',
+    'خطأ في التحليل':'Erreur d\'analyse',
+    'تم تحليل':'Analyse de',
+    'كود بناءً على':'code(s) selon',
+    'قواعد':'règles',
+    'المحرك':'Moteur',
+    'الجير':'Boîte',
+    'فرامل':'Freins',
+    'وسائد':'Airbags',
+    'وقود':'Carburant',
+    'عوادم':'Échappement',
+    'تبريد':'Refroidissement',
+    'بطارية':'Batterie',
+    'كهرباء':'Électricité',
+    '⚠️ غير متصل':'⚠️ Déconnecté',
+    '⚠️ العملية قيد التنفيذ — انتظر':'⚠️ Opération en cours — patientez',
+    'اتصل بالسيارة أولاً':'Connectez-vous d\'abord'
+  };
+
+  var KEYS = Object.keys(DICT).sort(function(a,b){ return b.length - a.length; });
+
+  function translateText(text){
+    var t = String(text);
+    if (DICT[t]) return DICT[t];
+    for (var i=0; i<KEYS.length; i++){
+      var k = KEYS[i];
+      if (k.length > 3 && t.indexOf(k) >= 0) {
+        t = t.split(k).join(DICT[k]);
+      }
+    }
+    return t;
+  }
+
+  function translateNode(node){
+    if (node.nodeType === 3) {
+      var txt = node.nodeValue;
+      if (txt && txt.trim() && /[\u0600-\u06FF]/.test(txt)) {
+        node.nodeValue = translateText(txt);
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'PRE') return;
+      if (node.id === 'console' || (node.className && String(node.className).indexOf('font-mono') >= 0)) return;
+      if (node.placeholder) node.placeholder = translateText(node.placeholder);
+      if (node.title) node.title = translateText(node.title);
+      for (var i=0; i<node.childNodes.length; i++){
+        translateNode(node.childNodes[i]);
+      }
+    }
+  }
+
+  function injectLangBtn(){
+    if (document.getElementById('btnLangSwitch')) return;
+    var themeBtn = document.getElementById('btnTheme');
+    if (!themeBtn) return;
+    var parent = themeBtn.parentNode;
+    if (!parent) return;
+    var btn = document.createElement('button');
+    btn.id = 'btnLangSwitch';
+    btn.type = 'button';
+    btn.className = 'bg-gray-800 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold';
+    btn.innerHTML = '<span id="langLabel">FR</span>';
+    btn.title = 'Changer la langue';
+    btn.onclick = switchLang;
+    parent.insertBefore(btn, themeBtn);
+  }
+
+  var currentLang = localStorage.getItem('checkdiga_lang') || 'ar';
+
+  function switchLang(){
+    if (currentLang === 'ar') {
+      currentLang = 'fr';
+      translateNode(document.body);
+      document.documentElement.lang = 'fr';
+      document.documentElement.dir = 'ltr';
+      var lbl = document.getElementById('langLabel');
+      if (lbl) lbl.textContent = 'ع';
+    } else {
+      localStorage.setItem('checkdiga_lang', 'ar');
+      location.reload();
+      return;
+    }
+    localStorage.setItem('checkdiga_lang', currentLang);
+  }
+
+  function boot(){
+    injectLangBtn();
+    if (currentLang === 'fr') {
+      setTimeout(function(){
+        translateNode(document.body);
+        document.documentElement.lang = 'fr';
+        document.documentElement.dir = 'ltr';
+        var lbl = document.getElementById('langLabel');
+        if (lbl) lbl.textContent = 'ع';
+      }, 1500);
+    }
+    console.log('[Full i18n] ✅ Loaded — lang:', currentLang);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  setTimeout(boot, 2000);
+  setTimeout(boot, 4000);
+})();
+</script>
 </body>
 </html>
