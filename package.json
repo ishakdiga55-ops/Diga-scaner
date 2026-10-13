@@ -23,6 +23,7 @@
     "arabic"
   ],
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "npx serve .",
     "dev": "npx serve .",
