@@ -12,15 +12,21 @@
   "globals": {
     "Chart": "readonly",
     "initSqlJs": "readonly",
-    "jsyaml": "readonly",
-    "$": "readonly",
-    "$$": "readonly"
+    "jsyaml": "readonly"
   },
   "extends": "eslint:recommended",
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "none",
+        "caughtErrors": "none",
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
+      }
+    ],
     "no-undef": "error",
-    "no-redeclare": "error",
+    "no-redeclare": ["error", { "builtinGlobals": false }],
     "no-console": "off",
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "no-constant-condition": ["error", { "checkLoops": false }],
