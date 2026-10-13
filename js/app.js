@@ -1,7 +1,8 @@
 'use strict';
 
 /* ============================================
-   CheckDiga Pro — app.js (All JavaScript)
+   CheckDiga Pro — app.js
+   v0.4.1 — with 8 critical fixes
    ============================================ */
 
 /* --- DOM Helpers --- */
@@ -113,10 +114,12 @@ const RECV_BUF_LIMIT=4096;
 let uartTx=null,txNoResp=false,isCAN=null,isCAN11=null,userDisc=false,reconnecting=false,usbGen=0,livePaused=false,liveBusy=false,batStep=0,batVals=[null,null,null];
 const sleepMs=ms=>new Promise(r=>setTimeout(r,ms));
 
+/* FIX #3: reuse single TextDecoder */
+const _decoder = new TextDecoder();
+
 /* --- Bluetooth Service UUIDs --- */
 const KNOWN_SVC=['0000ffe0-0000-1000-8000-00805f9b34fb','0000fff0-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb','0000ffe5-0000-1000-8000-00805f9b34fb','e7810a71-73ae-499d-8c15-faa9aef0c3f2','000018f0-0000-1000-8000-00805f9b34fb'];
 const KNOWN_CHR=['0000ffe1-0000-1000-8000-00805f9b34fb','0000fff1-0000-1000-8000-00805f9b34fb','0000fff2-0000-1000-8000-00805f9b34fb','0000ff01-0000-1000-8000-00805f9b34fb','0000ffe9-0000-1000-8000-00805f9b34fb'];
-
 
 /* --- Symptoms Database --- */
 const SYMPTOMS_DB=[
@@ -489,7 +492,7 @@ function updateDTCCount(n){
     if(stats.obdex>0)parts.push('OBDex');
     if(stats.local>0)parts.push('محلي');
     if(stats.wal33d>0)parts.push('Wal33D');
-    ss.textContent=parts.length?parts.join('+').slice(0,20):'—';
+    ss.textContent=parts.length?parts.length+' مصادر':'—';
   }
 }
 
@@ -575,6 +578,10 @@ function updAllG(v){
 
 /* --- System Grid --- */
 function resetSysGrid(){$$('.sys-item').forEach(e=>e.classList.remove('good','bad','unknown'))}
+
+function markSysGridUnknown(){
+  $$('.sys-item').forEach(e=>{e.classList.remove('good','bad');e.classList.add('unknown')});
+}
 
 function updSysGrid(flt,scanned){
   resetSysGrid();
@@ -691,6 +698,7 @@ function initPop(){
   e.innerHTML=POPULAR.map(c=>{const i=getInfo(c);return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="'+c+'"><div class="font-mono font-bold text-red-300 text-xs">'+c+'</div><div class="text-[10px] text-gray-500 truncate">'+escapeHtml(i.title)+'</div></button>'}).join('');
   e.querySelectorAll('[data-code]').forEach(b=>{b.onclick=()=>showDetail(b.dataset.code)});
 }
+
 /* --- Family Browser --- */
 function initFamily(){
   const e=$('familyBrowser');if(!e)return;
@@ -873,11 +881,19 @@ function shareDetail(){
   window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');
 }
 
-/* --- BLE Notification Handler --- */
+/* ============================================
+   OBD Core
+   ============================================ */
+
+/* FIX #3: Reuse single decoder for notifications */
 function handleNotif(e){
-  recvBuf+=new TextDecoder().decode(e.target.value);
+  recvBuf+=_decoder.decode(e.target.value);
   if(recvBuf.length>RECV_BUF_LIMIT)recvBuf=recvBuf.slice(-2048);
-  if(recvBuf.indexOf('>')>=0&&curResolve){clearTimeout(curTimeout);curTimeout=null;const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;res(r)}
+  if(recvBuf.indexOf('>')>=0&&curResolve){
+    clearTimeout(curTimeout);curTimeout=null;
+    const r=recvBuf;recvBuf='';
+    const res=curResolve;curResolve=null;res(r);
+  }
 }
 
 function isBad(r){
@@ -888,7 +904,7 @@ function isBad(r){
   return false;
 }
 
-/* --- Send Command --- */
+/* FIX #5: Better timeout handling */
 function sendCmd(cmd,timeout,retries){
   timeout=timeout||3000;retries=(retries==null)?1:retries;
   return new Promise((resolve,reject)=>{
@@ -897,7 +913,19 @@ function sendCmd(cmd,timeout,retries){
     const sJ=e=>{if(done)return;done=true;reject(e)};
     function tOnce(){
       att++;
-      cmdQ.push({cmd,timeout,resolve:r=>{if(isBad(r)&&att<=retries){isProcessing=false;setTimeout(tOnce,300);return}sR(r);isProcessing=false;procQ()},reject:e=>{isProcessing=false;if(att<=retries)setTimeout(tOnce,300);else{sJ(e);procQ()}}});
+      cmdQ.push({
+        cmd,
+        timeout,
+        resolve:r=>{
+          if(isBad(r)&&att<=retries){isProcessing=false;setTimeout(tOnce,300);return}
+          sR(r);isProcessing=false;procQ();
+        },
+        reject:e=>{
+          isProcessing=false;
+          if(att<=retries)setTimeout(tOnce,300);
+          else{sJ(e);procQ()}
+        }
+      });
       procQ();
     }
     tOnce();
@@ -915,21 +943,55 @@ async function procQ(){
   try{
     const d=new TextEncoder().encode(it.cmd+'\r');
     if(transport==='usb')await usbWriter.write(d);else await bleWrite(d);
-    curTimeout=setTimeout(()=>{if(curResolve){const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;curTimeout=null;isProcessing=false;res(r);procQ()}},it.timeout);
-  }catch(e){isProcessing=false;curResolve=null;if(curTimeout){clearTimeout(curTimeout);curTimeout=null}it.reject(e);procQ()}
+    curTimeout=setTimeout(()=>{
+      if(curResolve){
+        const r=recvBuf;recvBuf='';
+        const res=curResolve;curResolve=null;curTimeout=null;
+        isProcessing=false;
+        /* FIX #5: reject empty/truncated responses */
+        if(!r||!r.includes('>')){
+          it.reject(new Error('timeout'));
+        }else{
+          res(r);
+        }
+        procQ();
+      }
+    },it.timeout);
+  }catch(e){
+    isProcessing=false;curResolve=null;
+    if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
+    it.reject(e);procQ();
+  }
 }
 
-/* --- ELM327 Initialization --- */
+/* FIX #6: Faster ELM init — try Auto protocol first */
 async function initELM(){
   log('INFO: تهيئة ELM327...');
   await sendCmd('AT Z',6000);
-  await sleepMs(500);
-  await sendCmd('AT E0',2000);await sendCmd('AT L0',2000);await sendCmd('AT S0',2000);await sendCmd('AT H0',2000);
-  const protocols=['AT SP 0','AT SP 6','AT SP 7','AT SP 8','AT SP 9','AT SP 5','AT SP 4','AT SP 3','AT SP 2','AT SP 1'];
+  await sleepMs(300);
+  await sendCmd('AT E0',1500);
+  await sendCmd('AT L0',1000);
+  await sendCmd('AT S0',1000);
+  await sendCmd('AT H0',1000);
+  /* جرب Auto أولًا */
+  await sendCmd('AT SP 0',1500);
+  await sleepMs(300);
+  let t=await sendCmd('0100',4500);
+  if(String(t).replace(/[^0-9A-F]/gi,'').toUpperCase().indexOf('4100')>=0){
+    log('OK: بروتوكول Auto (SP 0)');
+    try{
+      const d=String(await sendCmd('AT DPN',1500)).replace(/[^0-9A-F]/gi,'').toUpperCase();
+      const n=d.replace(/^A/,'').slice(0,1);
+      isCAN=/[6-9A-C]/.test(n);isCAN11=/[68B]/.test(n);
+    }catch(e){isCAN=null;isCAN11=null}
+    return true;
+  }
+  /* Fallback: يدوي */
+  const protocols=['AT SP 6','AT SP 7','AT SP 8','AT SP 9','AT SP 5','AT SP 4','AT SP 3','AT SP 2','AT SP 1'];
   for(const p of protocols){
-    await sendCmd(p,2000);
-    await sleepMs(200);
-    const t=await sendCmd('0100',5000);
+    await sendCmd(p,1500);
+    await sleepMs(150);
+    t=await sendCmd('0100',3500);
     if(String(t).replace(/[^0-9A-F]/gi,'').toUpperCase().indexOf('4100')>=0){
       log('OK: بروتوكول '+p);
       try{
@@ -944,17 +1006,22 @@ async function initELM(){
   return false;
 }
 
-/* --- BLE Write --- */
-async function bleWrite(d){if(txNoResp&&uartTx.writeValueWithoutResponse)await uartTx.writeValueWithoutResponse(d);else await uartTx.writeValue(d)}
+async function bleWrite(d){
+  if(txNoResp&&uartTx.writeValueWithoutResponse)
+    await uartTx.writeValueWithoutResponse(d);
+  else 
+    await uartTx.writeValue(d);
+}
 
-/* --- Setup BLE Connection --- */
 async function setupBle(){
   btServer=await btDevice.gatt.connect();
   let rx=null,tx=null;
-  const isN=c=>c.properties.notify||c.properties.indicate,isW=c=>c.properties.write||c.properties.writeWithoutResponse;
+  const isN=c=>c.properties.notify||c.properties.indicate;
+  const isW=c=>c.properties.write||c.properties.writeWithoutResponse;
   const scan=async svcs=>{
     for(const s of svcs){
-      let chs=[];try{chs=await s.getCharacteristics()}catch(e){continue}
+      let chs=[];
+      try{chs=await s.getCharacteristics()}catch(e){continue}
       const both=chs.find(c=>isN(c)&&isW(c));
       if(both){rx=both;tx=both;return true}
       const n=chs.find(isN),w=chs.find(isW);
@@ -963,27 +1030,38 @@ async function setupBle(){
     return false;
   };
   const known=[];
-  for(const u of KNOWN_SVC){try{known.push(await btServer.getPrimaryService(u))}catch(e){}}
+  for(const u of KNOWN_SVC){
+    try{known.push(await btServer.getPrimaryService(u))}catch(e){}
+  }
   if(!(await scan(known)))await scan(await btServer.getPrimaryServices());
   if(!rx||!tx)throw new Error('لم يتم العثور على قناة إرسال/استقبال');
-  uartChar=rx;uartTx=tx;txNoResp=!tx.properties.write&&!!tx.properties.writeWithoutResponse;
+  uartChar=rx;uartTx=tx;
+  txNoResp=!tx.properties.write&&!!tx.properties.writeWithoutResponse;
   await rx.startNotifications();
   rx.removeEventListener('characteristicvaluechanged',handleNotif);
   rx.addEventListener('characteristicvaluechanged',handleNotif);
   log('OK: قناة '+(rx===tx?'واحدة':'RX/TX منفصلة'));
 }
 
-/* --- Connect Bluetooth --- */
 async function connectOBD(showAll){
-  if(!hasBLE){alert(window.isSecureContext===false?'Web Bluetooth يحتاج HTTPS.':'المتصفح لا يدعم Web Bluetooth.');return}
+  if(!hasBLE){
+    alert(window.isSecureContext===false?'Web Bluetooth يحتاج HTTPS.':'المتصفح لا يدعم Web Bluetooth.');
+    return;
+  }
   const btn=$('connect-btn');
   const orig=btn.innerHTML;
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';userDisc=false;
   try{
     log('INFO: البحث عن أجهزة BLE...');
     const names=['OBD','OBDII','ELM','Vgate','Viecar','V-Link','KONNWEI','iCar'];
-    const opts=showAll?{acceptAllDevices:true,optionalServices:KNOWN_SVC}:{filters:[...KNOWN_SVC.map(s=>({services:[s]})),...names.map(n=>({namePrefix:n}))],optionalServices:KNOWN_SVC};
-    try{btDevice=await navigator.bluetooth.requestDevice(opts)}catch(e){if(e.name==='NotFoundError'){log('INFO: لم يتم اختيار جهاز');return}throw e}
+    const opts=showAll
+      ?{acceptAllDevices:true,optionalServices:KNOWN_SVC}
+      :{filters:[...KNOWN_SVC.map(s=>({services:[s]})),...names.map(n=>({namePrefix:n}))],optionalServices:KNOWN_SVC};
+    try{btDevice=await navigator.bluetooth.requestDevice(opts)}
+    catch(e){
+      if(e.name==='NotFoundError'){log('INFO: لم يتم اختيار جهاز');return}
+      throw e;
+    }
     log('INFO: جهاز: '+(btDevice.name||'بدون اسم'));
     btDevice.removeEventListener('gattserverdisconnected',onGattDisc);
     btDevice.addEventListener('gattserverdisconnected',onGattDisc);
@@ -993,11 +1071,13 @@ async function connectOBD(showAll){
     log('OK: متصل Bluetooth');
     if(!await initELM())throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');startLive();
-  }catch(e){log('ERR: '+e.message);await handleDisc()}
+  }catch(e){
+    log('ERR: '+e.message);
+    await handleDisc();
+  }
   finally{btn.disabled=false;btn.innerHTML=orig}
 }
 
-/* --- Connect USB --- */
 async function connectUSB(){
   if(!navigator.serial){alert('Web Serial غير مدعوم');return}
   const btn=$('usb-btn');
@@ -1010,7 +1090,8 @@ async function connectUSB(){
       usbPort=port;
       try{
         await port.open({baudRate:b,dataBits:8,stopBits:1,parity:'none'});
-        usbWriter=port.writable.getWriter();transport='usb';startUSBLoop();
+        usbWriter=port.writable.getWriter();
+        transport='usb';startUSBLoop();
         const r=await sendCmd('AT Z',3000,0);
         if(/ELM|OBD|STN|v\d\.\d/i.test(String(r))){ok=true;log('OK: USB @'+b);break}
       }catch(e){log('INFO: '+b+' — '+e.message)}
@@ -1020,11 +1101,13 @@ async function connectUSB(){
     isConnected=true;setStatus('connected');updConnUI(true);
     if(!await initELM())throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');startLive();
-  }catch(e){log('ERR: '+e.message);await handleDisc()}
+  }catch(e){
+    log('ERR: '+e.message);
+    await handleDisc();
+  }
   finally{btn.disabled=false;btn.innerHTML=orig}
 }
 
-/* --- USB Loop --- */
 async function startUSBLoop(){
   if(!usbPort||!usbPort.readable)return;
   const gen=++usbGen,port=usbPort,dec=new TextDecoder();
@@ -1038,13 +1121,20 @@ async function startUSBLoop(){
         if(v.value){
           recvBuf+=dec.decode(v.value,{stream:true});
           if(recvBuf.length>RECV_BUF_LIMIT)recvBuf=recvBuf.slice(-2048);
-          if(recvBuf.indexOf('>')>=0&&curResolve){clearTimeout(curTimeout);curTimeout=null;const r=recvBuf;recvBuf='';const res=curResolve;curResolve=null;res(r)}
+          if(recvBuf.indexOf('>')>=0&&curResolve){
+            clearTimeout(curTimeout);curTimeout=null;
+            const r=recvBuf;recvBuf='';
+            const res=curResolve;curResolve=null;res(r);
+          }
         }
       }
     }catch(e){}
     finally{try{rd.releaseLock()}catch(_){}}
   }
-  if(gen===usbGen&&transport==='usb'&&isConnected){log('WARN: انقطع USB');handleDisc()}
+  if(gen===usbGen&&transport==='usb'&&isConnected){
+    log('WARN: انقطع USB');
+    handleDisc();
+  }
 }
 
 async function cleanupUSB(){
@@ -1057,40 +1147,71 @@ async function cleanupUSB(){
   if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
 }
 
-/* --- Handle Disconnect --- */
 async function handleDisc(){
   userDisc=true;isConnected=false;isDemo=false;livePaused=false;
   if(liveTimer){clearTimeout(liveTimer);liveTimer=null}
   if(transport==='usb'||usbPort)await cleanupUSB();
-  if(uartChar){try{uartChar.removeEventListener('characteristicvaluechanged',handleNotif)}catch(_){}try{await uartChar.stopNotifications()}catch(_){}uartChar=null}
+  if(uartChar){
+    try{uartChar.removeEventListener('characteristicvaluechanged',handleNotif)}catch(_){}
+    try{await uartChar.stopNotifications()}catch(_){}
+    uartChar=null;
+  }
   uartTx=null;
-  if(btDevice&&btDevice.gatt&&btDevice.gatt.connected){try{btDevice.gatt.disconnect()}catch(_){}}
+  if(btDevice&&btDevice.gatt&&btDevice.gatt.connected){
+    try{btDevice.gatt.disconnect()}catch(_){}
+  }
   transport=null;isCAN=null;isCAN11=null;
   cmdQ=[];isProcessing=false;curResolve=null;
   if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
-  setStatus('disconnected');updConnUI(false);log('INFO: تم قطع الاتصال');
+  setStatus('disconnected');updConnUI(false);
+  log('INFO: تم قطع الاتصال');
 }
 
 function updConnUI(c){
   const cb=$('connect-btn'),ub=$('usb-btn'),db=$('demo-btn'),x=$('disconnect-btn');
   if(!cb||!ub||!db||!x)return;
-  if(c){cb.classList.add('hidden');ub.classList.add('hidden');db.classList.add('hidden');x.classList.remove('hidden')}
-  else{cb.classList.remove('hidden');if(!hasSerial||isIOS)ub.classList.add('hidden');else ub.classList.remove('hidden');db.classList.remove('hidden');x.classList.add('hidden')}
+  if(c){
+    cb.classList.add('hidden');
+    ub.classList.add('hidden');
+    db.classList.add('hidden');
+    x.classList.remove('hidden');
+  }else{
+    cb.classList.remove('hidden');
+    if(!hasSerial||isIOS)ub.classList.add('hidden');
+    else ub.classList.remove('hidden');
+    db.classList.remove('hidden');
+    x.classList.add('hidden');
+  }
 }
 
 async function onGattDisc(){
   if(userDisc||reconnecting||transport!=='ble'||!isConnected)return;
   reconnecting=true;pauseLive();
-  cmdQ=[];isProcessing=false;curResolve=null;if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
-  setStatus('disconnected');log('WARN: انقطع Bluetooth — إعادة المحاولة...');
+  cmdQ=[];isProcessing=false;curResolve=null;
+  if(curTimeout){clearTimeout(curTimeout);curTimeout=null}
+  setStatus('disconnected');
+  log('WARN: انقطع Bluetooth — إعادة المحاولة...');
   for(let i=1;i<=3&&!userDisc;i++){
     await sleepMs(1500*i);
-    try{await setupBle();if(await initELM()){log('OK: أُعيد الاتصال');setStatus('connected');reconnecting=false;startLive();return}}catch(e){}
+    try{
+      await setupBle();
+      if(await initELM()){
+        log('OK: أُعيد الاتصال');
+        setStatus('connected');
+        reconnecting=false;
+        startLive();
+        return;
+      }
+    }catch(e){}
   }
-  reconnecting=false;await handleDisc();
+  reconnecting=false;
+  await handleDisc();
 }
 
-/* --- Live Data --- */
+/* ============================================
+   Live Data + Auto Analysis
+   ============================================ */
+
 function pauseLive(){livePaused=true;if(liveTimer){clearTimeout(liveTimer);liveTimer=null}}
 function resumeLive(){livePaused=false;if(isConnected&&!isDemo&&!liveTimer&&!liveBusy)startLive()}
 async function pauseLiveWait(){pauseLive();for(let i=0;i<60&&liveBusy;i++)await sleepMs(100)}
@@ -1106,9 +1227,14 @@ function startLive(){
       try{
         const rpm=pRPM(await sendCmd('01 0C',800,1));
         const spd=pSpeed(await sendCmd('01 0D',800,1));
-        if(liveTick%4===0){lastCoolant=pCool(await sendCmd('01 05',800,1));lastFuel=pFuel(await sendCmd('01 2F',800,1))}
+        if(liveTick%4===0){
+          lastCoolant=pCool(await sendCmd('01 05',800,1));
+          lastFuel=pFuel(await sendCmd('01 2F',800,1));
+        }
         updAllG({rpm,speed:spd,coolant:lastCoolant,fuelLevel:lastFuel});
-        updChart(rpm||0,spd||0);autoAnalyze(rpm,spd,lastCoolant);liveTick++;
+        updChart(rpm||0,spd||0);
+        autoAnalyze(rpm,spd,lastCoolant);
+        liveTick++;
       }catch(e){}
       finally{liveBusy=false}
     }
@@ -1129,7 +1255,10 @@ function autoAnalyze(rpm,spd,coolant){
   e.textContent=msg+' (RPM: '+f(rpm)+' | Speed: '+f(spd)+' | Coolant: '+f(coolant)+(coolant!=null?'°C':'')+')';
 }
 
-/* --- PID Parsers --- */
+/* ============================================
+   PID Parsers
+   ============================================ */
+
 function pHex(txt){
   if(!txt)return [];
   const cleaned=txt.replace(/[^0-9A-Fa-f]/g,' ');
@@ -1137,17 +1266,46 @@ function pHex(txt){
   const bytes=[];
   for(const x of parts){
     if(x.length===2)bytes.push(parseInt(x,16));
-    else if(x.length>2&&x.length%2===0)for(let j=0;j<x.length;j+=2)bytes.push(parseInt(x.substr(j,2),16));
+    else if(x.length>2&&x.length%2===0)
+      for(let j=0;j<x.length;j+=2)bytes.push(parseInt(x.substr(j,2),16));
   }
   return bytes;
 }
 
-function pRPM(r){const b=pHex(r);for(let i=0;i<b.length-3;i++)if(b[i]===0x41&&b[i+1]===0x0C)return Math.round(((b[i+2]*256)+b[i+3])/4);return null}
-function pSpeed(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x0D)return b[i+2];return null}
-function pCool(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x05)return b[i+2]-40;return null}
-function pFuel(r){const b=pHex(r);for(let i=0;i<b.length-2;i++)if(b[i]===0x41&&b[i+1]===0x2F)return Math.round(b[i+2]*100/255);return null}
+function pRPM(r){
+  const b=pHex(r);
+  for(let i=0;i<b.length-3;i++)
+    if(b[i]===0x41&&b[i+1]===0x0C)
+      return Math.round(((b[i+2]*256)+b[i+3])/4);
+  return null;
+}
 
-/* --- Message Parsers --- */
+function pSpeed(r){
+  const b=pHex(r);
+  for(let i=0;i<b.length-2;i++)
+    if(b[i]===0x41&&b[i+1]===0x0D)return b[i+2];
+  return null;
+}
+
+function pCool(r){
+  const b=pHex(r);
+  for(let i=0;i<b.length-2;i++)
+    if(b[i]===0x41&&b[i+1]===0x05)return b[i+2]-40;
+  return null;
+}
+
+function pFuel(r){
+  const b=pHex(r);
+  for(let i=0;i<b.length-2;i++)
+    if(b[i]===0x41&&b[i+1]===0x2F)
+      return Math.round(b[i+2]*100/255);
+  return null;
+}
+
+/* ============================================
+   Message Parsers
+   ============================================ */
+
 function parseMsgs(resp){
   const out=[];let multi=null;
   const flush=()=>{if(multi&&multi.length)out.push(multi);multi=null};
@@ -1161,43 +1319,84 @@ function parseMsgs(resp){
     flush();
     if(c.length%2===0)out.push(pHex(t));
   });
-  flush();return out;
+  flush();
+  return out;
 }
 
-function dtcFromPairs(b){const o=[];for(let k=0;k+1<b.length;k+=2){const a=b[k],c=b[k+1];if(!a&&!c)continue;o.push(['P','C','B','U'][a>>6]+((a>>4)&3).toString(16)+(a&15).toString(16)+(c>>4).toString(16)+(c&15).toString(16))}return o}
+function dtcFromPairs(b){
+  const o=[];
+  for(let k=0;k+1<b.length;k+=2){
+    const a=b[k],c=b[k+1];
+    if(!a&&!c)continue;
+    o.push(['P','C','B','U'][a>>6]+((a>>4)&3).toString(16)+(a&15).toString(16)+(c>>4).toString(16)+(c&15).toString(16));
+  }
+  return o;
+}
 
 function parseDTC(resp,mark){
   let ok=false;const codes=[];
   parseMsgs(resp).forEach(m=>{
-    if(m[0]!==mark)return;ok=true;
+    if(m[0]!==mark)return;
+    ok=true;
     const body=m.slice(1);
-    dtcFromPairs(isCAN===false?body:body.slice(1)).forEach(c=>{if(!codes.includes(c))codes.push(c)});
+    dtcFromPairs(isCAN===false?body:body.slice(1)).forEach(c=>{
+      if(!codes.includes(c))codes.push(c);
+    });
   });
   return {ok,codes};
 }
 
+/* FIX #8: Auto-detect UDS DTC byte-length (3 or 4) */
 function parseUDS(resp){
   let ok=false;const codes=[];
   parseMsgs(resp).forEach(m=>{
-    if(m[0]===0x59&&m[1]===0x02){ok=true;for(let p=3;p+4<=m.length;p+=4)dtcFromPairs([m[p],m[p+1]]).forEach(c=>{if(!codes.includes(c))codes.push(c)})}
+    if(m[0]!==0x59||m[1]!==0x02)return;
+    ok=true;
+    const body=m.slice(3);
+    if(body.length<2)return;
+    /* كشف الحجم: إذا قبل القسمة على 4 → 4 bytes، على 3 → 3 bytes */
+    let step=4;
+    if(body.length%4!==0 && body.length%3===0)step=3;
+    for(let p=0;p+2<=body.length;p+=step){
+      dtcFromPairs([body[p],body[p+1]]).forEach(c=>{
+        if(!codes.includes(c))codes.push(c);
+      });
+    }
   });
   return {ok,codes};
 }
 
-/* --- Read DTCs --- */
+/* ============================================
+   Read DTCs
+   FIX #1: mark as unknown when car doesn't respond
+   FIX #2: busy guard
+   ============================================ */
+
 async function readDTCs(){
+  /* FIX #2: prevent concurrent operations */
+  if(isProcessing||cmdQ.length>0){
+    alert('⚠️ العملية قيد التنفيذ — انتظر');
+    return;
+  }
   const l=$('dtcList');if(!l)return;
-  if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  if(!isConnected&&!isDemo){
+    l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';
+    return;
+  }
   if(isDemo){await runDemoScan();return}
   l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> قراءة الأعطال...</p>';
-  setSummary([]);await pauseLiveWait();
+  setSummary([]);
+  await pauseLiveWait();
   try{
     const p3=parseDTC(await sendCmd('03',8000),0x43);
     const p7=parseDTC(await sendCmd('07',8000),0x47);
     const pa=parseDTC(await sendCmd('0A',8000),0x4A);
     const eb=$('proExportBar');
     if(!p3.ok){
-      lastFaults=[];updSysGrid([],[]);if(eb)eb.classList.add('hidden');
+      /* FIX #1: mark everything as UNKNOWN (yellow) */
+      lastFaults=[];
+      markSysGridUnknown();
+      if(eb)eb.classList.add('hidden');
       l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ السيارة<br><span class="text-xs font-normal">تأكد أن المفتاح على ON.</span></div>';
       return;
     }
@@ -1209,23 +1408,49 @@ async function readDTCs(){
     if(!all.length){
       lastFaults=[];
       l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ لا أعطال مسجلة</div><div class="text-xs text-green-200/70">لا يعني ذلك أن كل الأنظمة سليمة — استخدم «فحص الكل»</div></div>';
-      updSysGrid([],['engine']);if(eb)eb.classList.add('hidden');return;
+      updSysGrid([],['engine']);
+      if(eb)eb.classList.add('hidden');
+      return;
     }
-    renderFaults(all);dispSmart(all.map(f=>f.code));dispHealth(all,runDiag(all.map(f=>f.code)));updSysGrid(all,['engine']);
-  }catch(e){log('ERR: '+e.message);l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>'}
+    renderFaults(all);
+    dispSmart(all.map(f=>f.code));
+    dispHealth(all,runDiag(all.map(f=>f.code)));
+    updSysGrid(all,['engine']);
+  }catch(e){
+    log('ERR: '+e.message);
+    l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>';
+  }
   finally{resumeLive()}
 }
 
-/* --- Scan All Modules --- */
+/* ============================================
+   Scan All Modules
+   FIX #1: mark as unknown when no ECU responds
+   FIX #2: busy guard
+   ============================================ */
+
 async function scanAll(){
+  /* FIX #2: busy guard */
+  if(isProcessing||cmdQ.length>0){
+    alert('⚠️ العملية قيد التنفيذ — انتظر');
+    return;
+  }
   const l=$('dtcList');if(!l)return;
-  if(!isConnected&&!isDemo){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  if(!isConnected&&!isDemo){
+    l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';
+    return;
+  }
   if(isDemo){await runDemoScan();return}
-  if(isCAN11===false){l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ الفحص الشامل يحتاج CAN 11-bit.</p>';return}
+  if(isCAN11===false){
+    l.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ الفحص الشامل يحتاج CAN 11-bit.</p>';
+    return;
+  }
   l.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص الشامل...</p>';
-  setSummary([]);await pauseLiveWait();
+  setSummary([]);
+  await pauseLiveWait();
   try{
-    const rows=[],all=[],scanned=[];let answered=0;
+    const rows=[],all=[],scanned=[];
+    let answered=0;
     for(let n=0;n<8;n++){
       const a='7E'+n;
       await sendCmd('AT SH '+a,800,0);
@@ -1233,28 +1458,55 @@ async function scanAll(){
       const sys=n===0?'engine':n===1?'transmission':null;
       const lb=n===0?'المحرك':n===1?'الجير':'وحدة '+a;
       if(!p.ok){rows.push('⚪ '+lb+': لا رد');continue}
-      answered++;if(sys)scanned.push(sys);
+      answered++;
+      if(sys)scanned.push(sys);
       rows.push((p.codes.length?'🔴 ':'✅ ')+lb+': '+(p.codes.length?p.codes.length+' عطل':'لا أعطال'));
-      p.codes.forEach(c=>{if(!all.some(f=>f.code===c))all.push({code:c,system:sys||('ECU '+a),type:'confirmed'})});
+      p.codes.forEach(c=>{
+        if(!all.some(f=>f.code===c))
+          all.push({code:c,system:sys||('ECU '+a),type:'confirmed'});
+      });
     }
     try{await sendCmd('AT SH 7DF',800,0)}catch(_){}
     setSummary(rows);
     const eb=$('proExportBar');
-    if(!answered){lastFaults=[];updSysGrid([],[]);if(eb)eb.classList.add('hidden');l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ أي وحدة على UDS</div>';return}
-    if(!all.length){lastFaults=[];l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ الوحدات التي ردّت لا تحتوي أعطالاً</div><div class="text-xs text-green-200/70">الوحدات التي لم تردّ لم تُفحص</div></div>';updSysGrid([],scanned);if(eb)eb.classList.add('hidden');return}
-    renderFaults(all);dispSmart(all.map(f=>f.code));dispHealth(all,runDiag(all.map(f=>f.code)));
+    if(!answered){
+      /* FIX #1: no ECU responded → unknown */
+      lastFaults=[];
+      markSysGridUnknown();
+      if(eb)eb.classList.add('hidden');
+      l.innerHTML='<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ أي وحدة على UDS</div>';
+      return;
+    }
+    if(!all.length){
+      lastFaults=[];
+      l.innerHTML='<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ الوحدات التي ردّت لا تحتوي أعطالاً</div><div class="text-xs text-green-200/70">الوحدات التي لم تردّ لم تُفحص</div></div>';
+      updSysGrid([],scanned);
+      if(eb)eb.classList.add('hidden');
+      return;
+    }
+    renderFaults(all);
+    dispSmart(all.map(f=>f.code));
+    dispHealth(all,runDiag(all.map(f=>f.code)));
     const known=['engine','transmission'];
     updSysGrid(all.filter(f=>known.includes(f.system)),scanned);
-  }catch(e){log('ERR: '+e.message);l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>'}
+  }catch(e){
+    log('ERR: '+e.message);
+    l.innerHTML='<p class="text-red-400 text-center py-4">❌ خطأ: '+escapeHtml(e.message)+'</p>';
+  }
   finally{resumeLive()}
 }
 
-/* --- Clear DTCs --- */
 async function clearDTCs(){
   if(!isConnected&&!isDemo){alert('غير متصل');return}
   if(!confirm('⚠️ مسح الأعطال سيحذف freeze frame.\nالمفتاح على ON والمحرك مطفأ. متابعة؟'))return;
   const l=$('dtcList');
-  const done=()=>{lastFaults=[];if(l)l.innerHTML='<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';resetSysGrid();setSummary([]);const eb=$('proExportBar');if(eb)eb.classList.add('hidden')};
+  const done=()=>{
+    lastFaults=[];
+    if(l)l.innerHTML='<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
+    resetSysGrid();
+    setSummary([]);
+    const eb=$('proExportBar');if(eb)eb.classList.add('hidden');
+  };
   if(isDemo){done();return}
   await pauseLiveWait();
   try{
@@ -1265,12 +1517,18 @@ async function clearDTCs(){
   finally{resumeLive()}
 }
 
-/* --- Render Faults List --- */
 function renderFaults(faults){
   lastFaults=faults||[];
   const l=$('dtcList');if(!l)return;
-  if(!faults.length){l.innerHTML='<p class="text-gray-500 text-center py-4">لا أعطال</p>';return}
-  const sysMap={engine:'المحرك',exhaust:'العوادم',electronics:'الكهرباء',fuel:'الوقود',cooling:'التبريد',brakes:'الفرامل',airbag:'الوسائد',transmission:'الجير',abs:'ABS'};
+  if(!faults.length){
+    l.innerHTML='<p class="text-gray-500 text-center py-4">لا أعطال</p>';
+    return;
+  }
+  const sysMap={
+    engine:'المحرك',exhaust:'العوادم',electronics:'الكهرباء',
+    fuel:'الوقود',cooling:'التبريد',brakes:'الفرامل',
+    airbag:'الوسائد',transmission:'الجير',abs:'ABS'
+  };
   const source=isDemo?'demo':'real';
   const sourceLabel=isDemo
     ?'<div class="bg-amber-600 text-black text-xs font-bold p-2 rounded-lg mb-2 text-center">🧪 بيانات تجريبية — ليست من سيارتك</div>'
@@ -1287,20 +1545,26 @@ function renderFaults(faults){
     h+='<div class="relative code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3 pt-6" data-code="'+sc+'"><span class="src-badge src-'+source+'">'+(source==='real'?'🚗 حقيقي':'🧪 تجريبي')+'</span><div class="flex items-center gap-2 mb-1 flex-wrap"><span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">'+escapeHtml(sysMap[f.system]||f.system)+'</span><span class="font-mono font-bold text-red-300">'+sc+'</span>'+bb+'<span class="text-[9px] px-1.5 py-0.5 rounded '+tc+' text-white font-bold">'+tl+'</span><button class="fav-btn ml-auto '+(fav?'active':'text-gray-500')+'" data-fav="'+sc+'"><i class="fa-solid fa-star"></i></button></div><div class="text-xs text-gray-300 mb-2">'+escapeHtml(info.title)+'</div><button class="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-det="'+sc+'"><i class="fa-solid fa-book-medical"></i> تفاصيل</button></div>';
   });
   l.innerHTML=h;
-  l.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
-  l.querySelectorAll('[data-det]').forEach(b=>{b.onclick=function(e){e.stopPropagation();showDetail(b.dataset.det)}});
+  l.querySelectorAll('[data-fav]').forEach(b=>{
+    b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}
+  });
+  l.querySelectorAll('[data-det]').forEach(b=>{
+    b.onclick=function(e){e.stopPropagation();showDetail(b.dataset.det)}
+  });
   saveHist(faults);
   const eb=$('proExportBar');if(eb&&faults.length)eb.classList.remove('hidden');
 }
 
-/* --- Demo Mode --- */
 async function runDemoScan(){
   const df=[
     {code:'P0301',system:'engine',type:'confirmed'},
     {code:'P0171',system:'engine',type:'confirmed'},
     {code:'P0420',system:'exhaust',type:'pending'},
-    {code:'U0100',system:'electronics',type:'confirmed'}];
-  renderFaults(df);dispSmart(df.map(f=>f.code));dispHealth(df,runDiag(df.map(f=>f.code)));
+    {code:'U0100',system:'electronics',type:'confirmed'}
+  ];
+  renderFaults(df);
+  dispSmart(df.map(f=>f.code));
+  dispHealth(df,runDiag(df.map(f=>f.code)));
   updSysGrid(df,['engine','transmission','abs','airbag','exhaust','electronics']);
 }
 
@@ -1318,14 +1582,21 @@ function startDemo(){
     const f=40+Math.floor(Math.random()*50);
     lastCoolant=c;lastFuel=f;
     updAllG({rpm:r,speed:s,coolant:c,fuelLevel:f});
-    updChart(r,s);autoAnalyze(r,s,c);
+    updChart(r,s);
+    autoAnalyze(r,s,c);
   },1500);
   log('OK: وضع تجريبي جاهز');
 }
 
-function stopDemo(){if(demoTimer)clearInterval(demoTimer);demoTimer=null;isDemo=false}
+function stopDemo(){
+  if(demoTimer)clearInterval(demoTimer);
+  demoTimer=null;isDemo=false;
+}
 
-function setSummary(rows){const e=$('scanSummary');if(e)e.innerHTML=rows.map(r=>'<div class="text-gray-300">'+escapeHtml(r)+'</div>').join('')}
+function setSummary(rows){
+  const e=$('scanSummary');
+  if(e)e.innerHTML=rows.map(r=>'<div class="text-gray-300">'+escapeHtml(r)+'</div>').join('');
+}
 
 /* --- History --- */
 function saveHist(faults){
@@ -1339,20 +1610,33 @@ function saveHist(faults){
 function renderHist(){
   const c=$('historyContent');if(!c)return;
   const h=JSON.parse(localStorage.getItem('checkdiga_hist')||'[]');
-  if(!h.length){c.innerHTML='<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>';return}
+  if(!h.length){
+    c.innerHTML='<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>';
+    return;
+  }
   let html='';
   h.forEach(e=>{
     const d=new Date(e.date);
     html+='<div class="bg-gray-900 rounded-xl p-3 mb-2 border-r-4 border-blue-500"><div class="flex justify-between mb-2"><span class="text-xs text-gray-400">'+d.toLocaleDateString('ar')+' '+d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})+'</span><span class="text-xs text-blue-400 font-bold">'+e.faults.length+' عطل</span></div><div class="flex flex-wrap gap-1">';
-    e.faults.slice(0,10).forEach(f=>{html+='<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">'+escapeHtml(f.code)+'</span>'});
+    e.faults.slice(0,10).forEach(f=>{
+      html+='<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">'+escapeHtml(f.code)+'</span>';
+    });
     html+='</div></div>';
   });
   c.innerHTML=html;
 }
 
-function clearHist(){if(confirm('حذف السجل بالكامل؟')){localStorage.removeItem('checkdiga_hist');renderHist()}}
+function clearHist(){
+  if(confirm('حذف السجل بالكامل؟')){
+    localStorage.removeItem('checkdiga_hist');
+    renderHist();
+  }
+}
 
-/* --- Search --- */
+/* ============================================
+   Search
+   ============================================ */
+
 let sTimer=null,recentTimer=null;
 
 function initSearch(){
@@ -1361,9 +1645,18 @@ function initSearch(){
     clearTimeout(sTimer);
     sTimer=setTimeout(()=>searchDTC(e.target.value),180);
     clearTimeout(recentTimer);
-    recentTimer=setTimeout(()=>{const v=e.target.value.trim();if(v.length>=3)addRecent(v)},1500);
+    recentTimer=setTimeout(()=>{
+      const v=e.target.value.trim();
+      if(v.length>=3)addRecent(v);
+    },1500);
   });
-  i.addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(recentTimer);const v=e.target.value.trim();if(v.length>=2){addRecent(v);searchDTC(v)}}});
+  i.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      clearTimeout(recentTimer);
+      const v=e.target.value.trim();
+      if(v.length>=2){addRecent(v);searchDTC(v)}
+    }
+  });
 }
 
 function searchDTC(q){
@@ -1376,7 +1669,10 @@ function searchDTC(q){
   if(!SEARCH_INDEX.length)buildSearchIndex();
   const looksLikeCode=/^[PCBU][0-9A-F]*$/i.test(qq);
   let candidates=null;
-  if(looksLikeCode&&qq.length<=5){candidates=BY_PREFIX.get(qq);if(!candidates)candidates=[]}
+  if(looksLikeCode&&qq.length<=5){
+    candidates=BY_PREFIX.get(qq);
+    if(!candidates)candidates=[];
+  }
   const m=[];
   const source=candidates||SEARCH_INDEX;
   for(let idx=0;idx<source.length&&m.length<80;idx++){
@@ -1386,7 +1682,9 @@ function searchDTC(q){
     if(candidates)match=true;
     else{
       ensureTitleLc(item);
-      match=item.code.indexOf(qq)>=0||item.cleanCode.indexOf(qq)>=0||item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||item._brandLc.indexOf(ql)>=0;
+      match=item.code.indexOf(qq)>=0||item.cleanCode.indexOf(qq)>=0||
+            item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||
+            item._brandLc.indexOf(ql)>=0;
     }
     if(match)m.push(item);
   }
@@ -1395,10 +1693,15 @@ function searchDTC(q){
       const item=SEARCH_INDEX[idx];
       if(currentSevFilter!=='all'&&item.info.severity!==currentSevFilter)continue;
       ensureTitleLc(item);
-      if(item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||item._brandLc.indexOf(ql)>=0)m.push(item);
+      if(item._titleLc.indexOf(ql)>=0||item._titleEnLc.indexOf(ql)>=0||
+         item._brandLc.indexOf(ql)>=0)m.push(item);
     }
   }
-  if(!m.length){d.innerHTML='<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';if(cEl)cEl.textContent='';return}
+  if(!m.length){
+    d.innerHTML='<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';
+    if(cEl)cEl.textContent='';
+    return;
+  }
   let h='<div class="space-y-2">';
   m.forEach(x=>{
     const cl={critical:'#dc2626',high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[x.info.severity]||'#64748b';
@@ -1406,40 +1709,84 @@ function searchDTC(q){
     const bb=x.info.brand?'<span class="'+brandClass(x.info.brand)+'">🏭 '+escapeHtml(x.info.brand)+'</span>':'';
     h+='<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-key="'+x.cleanCode+'"><div class="w-1 self-stretch rounded-full" style="background:'+cl+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-red-300 font-bold text-sm">'+escapeHtml(x.cleanCode)+'</span>'+bb+'</div><div class="text-xs text-gray-400 mt-0.5 truncate">'+escapeHtml(x.info.title)+'</div></div><button class="fav-btn '+(fav?'active':'text-gray-500')+'" data-fav="'+x.cleanCode+'"><i class="fa-solid fa-star text-sm"></i></button></div>';
   });
-  h+='</div>';d.innerHTML=h;
-  if(cEl){if(m.length===80)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';else cEl.textContent='('+m.length+' نتيجة)'}
-  d.querySelectorAll('[data-fav]').forEach(b=>{b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}});
-  d.querySelectorAll('[data-key]').forEach(e=>{e.onclick=function(ev){if(ev.target.closest('[data-fav]'))return;showDetail(e.dataset.key)}});
+  h+='</div>';
+  d.innerHTML=h;
+  if(cEl){
+    if(m.length===80)cEl.innerHTML='<span class="text-amber-400 font-bold">'+m.length+'+ نتيجة</span>';
+    else cEl.textContent='('+m.length+' نتيجة)';
+  }
+  d.querySelectorAll('[data-fav]').forEach(b=>{
+    b.onclick=function(e){e.stopPropagation();toggleFav(b.dataset.fav);b.classList.toggle('active',isFav(b.dataset.fav))}
+  });
+  d.querySelectorAll('[data-key]').forEach(e=>{
+    e.onclick=function(ev){
+      if(ev.target.closest('[data-fav]'))return;
+      showDetail(e.dataset.key);
+    }
+  });
 }
 
-/* --- Theme --- */
+/* ============================================
+   Theme
+   ============================================ */
+
 function applyTheme(){
   const t=localStorage.getItem('checkdiga_theme')||'dark';
   const ic=$('themeIcon');
-  if(t==='light'){document.body.classList.add('light-mode');if(ic)ic.className='fa-solid fa-moon text-lg'}
-  else{document.body.classList.remove('light-mode');if(ic)ic.className='fa-solid fa-sun text-lg'}
+  if(t==='light'){
+    document.body.classList.add('light-mode');
+    if(ic)ic.className='fa-solid fa-moon text-lg';
+  }else{
+    document.body.classList.remove('light-mode');
+    if(ic)ic.className='fa-solid fa-sun text-lg';
+  }
 }
 
 function toggleTheme(){
   const cur=localStorage.getItem('checkdiga_theme')||'dark';
-  localStorage.setItem('checkdiga_theme',cur==='dark'?'light':'dark');applyTheme();
+  localStorage.setItem('checkdiga_theme',cur==='dark'?'light':'dark');
+  applyTheme();
 }
 
-/* --- Readiness Test --- */
-function pMon(b,bit){if(!(b&(1<<bit)))return 'na';return (b&(1<<(bit+4)))?'no':'yes'}
+/* ============================================
+   Readiness
+   ============================================ */
+
+function pMon(b,bit){
+  if(!(b&(1<<bit)))return 'na';
+  return (b&(1<<(bit+4)))?'no':'yes';
+}
 
 function runReadiness(){
   const c=$('readinessContent');if(!c)return;
-  if(isDemo){renderReadiness({mil:true,dtc:3,c1:'no',c2:'yes',c3:'yes',n1:'yes',n3:'no',n4:'yes',n6:'na'});return}
-  if(!isConnected){c.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';return}
+  if(isDemo){
+    renderReadiness({mil:true,dtc:3,c1:'no',c2:'yes',c3:'yes',n1:'yes',n3:'no',n4:'yes',n6:'na'});
+    return;
+  }
+  if(!isConnected){
+    c.innerHTML='<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';
+    return;
+  }
   c.innerHTML='<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص...</p>';
   sendCmd('01 01',3500).then(res=>{
-    const b=pHex(res);let idx=-1;
-    for(let i=0;i<b.length-5;i++)if(b[i]===0x41&&b[i+1]===0x01){idx=i;break}
-    if(idx===-1){c.innerHTML='<p class="text-red-400 text-center py-4">لا يوجد رد</p>';return}
+    const b=pHex(res);
+    let idx=-1;
+    for(let i=0;i<b.length-5;i++){
+      if(b[i]===0x41&&b[i+1]===0x01){idx=i;break}
+    }
+    if(idx===-1){
+      c.innerHTML='<p class="text-red-400 text-center py-4">لا يوجد رد</p>';
+      return;
+    }
     const A=b[idx+2],B=b[idx+3],C=b[idx+4];
-    renderReadiness({mil:(A&0x80)!==0,dtc:A&0x7F,c1:pMon(B,0),c2:pMon(B,1),c3:pMon(B,2),n1:pMon(C,0),n3:pMon(C,2),n4:pMon(C,5),n6:pMon(C,7)});
-  }).catch(()=>{c.innerHTML='<p class="text-red-400 text-center py-4">خطأ</p>'});
+    renderReadiness({
+      mil:(A&0x80)!==0,dtc:A&0x7F,
+      c1:pMon(B,0),c2:pMon(B,1),c3:pMon(B,2),
+      n1:pMon(C,0),n3:pMon(C,2),n4:pMon(C,5),n6:pMon(C,7)
+    });
+  }).catch(()=>{
+    c.innerHTML='<p class="text-red-400 text-center py-4">خطأ</p>';
+  });
 }
 
 function renderReadiness(d){
@@ -1450,72 +1797,162 @@ function renderReadiness(d){
     return '<div class="flex justify-between items-center p-2 bg-gray-900 rounded-lg mb-1"><span class="text-xs">'+n+'</span><span class="text-[10px] px-2 py-1 rounded '+cl+' text-white font-bold">'+l+'</span></div>';
   };
   let h='<div class="'+(d.mil?'bg-red-600':'bg-green-600')+' text-white p-3 rounded-xl mb-3 flex justify-between"><span class="font-bold text-sm">'+(d.mil?'🚨 لمبة المحرك مضاءة':'✅ لمبة المحرك مطفأة')+'</span><span>أعطال: '+d.dtc+'</span></div>';
-  h+='<div class="text-xs font-bold text-blue-300 mb-2">مراقبات مستمرة:</div>'+ri('الاشتعال',d.c1)+ri('الوقود',d.c2)+ri('المكونات الشاملة',d.c3);
-  h+='<div class="text-xs font-bold text-purple-300 mb-2 mt-3">مراقبات غير مستمرة:</div>'+ri('الكتلايزر',d.n1)+ri('EVAP',d.n3)+ri('حساس O2',d.n4)+ri('EGR / VVT',d.n6);
+  h+='<div class="text-xs font-bold text-blue-300 mb-2">مراقبات مستمرة:</div>';
+  h+=ri('الاشتعال',d.c1)+ri('الوقود',d.c2)+ri('المكونات الشاملة',d.c3);
+  h+='<div class="text-xs font-bold text-purple-300 mb-2 mt-3">مراقبات غير مستمرة:</div>';
+  h+=ri('الكتلايزر',d.n1)+ri('EVAP',d.n3)+ri('حساس O2',d.n4)+ri('EGR / VVT',d.n6);
   c.innerHTML=h;
 }
 
-/* --- Battery Test --- */
-const BAT_HINTS=['① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»','② شغّل المحرك على الخمول ثم اضغط «قراءة»','③ شغّل الأحمال وارفع الدوران ~2000 ثم اضغط «قراءة»'];
+/* ============================================
+   Battery Test
+   FIX #4: readVolt range validation + retry
+   ============================================ */
+
+const BAT_HINTS=[
+  '① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»',
+  '② شغّل المحرك على الخمول ثم اضغط «قراءة»',
+  '③ شغّل الأحمال وارفع الدوران ~2000 ثم اضغط «قراءة»'
+];
 
 function batUI(){
   const b=$('btnBatteryTest'),h=$('batHint');
   if(h)h.textContent=BAT_HINTS[batStep]+(isDemo?' (تجريبي)':'');
-  if(b){if(batStep===0)b.innerHTML='<i class="fa-solid fa-bolt"></i> بدء الاختبار';else b.innerHTML='<i class="fa-solid fa-bolt"></i> قراءة المرحلة '+(batStep+1)}
+  if(b){
+    if(batStep===0)b.innerHTML='<i class="fa-solid fa-bolt"></i> بدء الاختبار';
+    else b.innerHTML='<i class="fa-solid fa-bolt"></i> قراءة المرحلة '+(batStep+1);
+  }
 }
 
 function batSet(n,val){
-  const rg=[[12.4,12.8],[13.8,14.8],[13.5,14.8]][n-1],b=$('bat'+n),e=$('batVal'+n);if(!b||!e)return;
+  const rg=[[12.4,12.8],[13.8,14.8],[13.5,14.8]][n-1];
+  const b=$('bat'+n),e=$('batVal'+n);
+  if(!b||!e)return;
   if(val==null){e.textContent='غير مدعوم';e.style.color='#94a3b8';return}
   e.textContent=val.toFixed(2)+'V';
-  const ok=val>=rg[0]&&val<=rg[1],w=val>=rg[0]-0.5&&val<=rg[1]+0.5,c=ok?'#10b981':w?'#f59e0b':'#ef4444';
-  b.style.borderColor=c;e.style.color=c;
+  const ok=val>=rg[0]&&val<=rg[1];
+  const w=val>=rg[0]-0.5&&val<=rg[1]+0.5;
+  const c=ok?'#10b981':w?'#f59e0b':'#ef4444';
+  b.style.borderColor=c;
+  e.style.color=c;
 }
 
 function batFinish(){
-  const [a,b,c]=batVals;let cl='bg-green-600';const t=[];
-  const bad=()=>{cl='bg-red-600'},warn=()=>{if(cl!=='bg-red-600')cl='bg-yellow-600'};
-  if(a==null&&b==null&&c==null){batVerdictShow('bg-gray-600','⚠️ لم نتمكن من قراءة الجهد');return}
-  if(a!=null){if(a<12.0){bad();t.push('البطارية فارغة')}else if(a<12.4){warn();t.push('تحتاج شحن')}else t.push('البطارية جيدة')}
-  if(b!=null){if(b<13.0){bad();t.push('الدينامو لا يشحن')}else if(b<13.8){warn();t.push('الشحن ضعيف')}else if(b>15.0){bad();t.push('شحن زائد')}else t.push('الشحن جيد')}
-  if(c!=null){if(c<13.0){bad();t.push('لا يتحمل الأحمال')}else if(c<13.5){warn();t.push('الشحن تحت الحمل ضعيف')}}
+  const [a,b,c]=batVals;
+  let cl='bg-green-600';
+  const t=[];
+  const bad=()=>{cl='bg-red-600'};
+  const warn=()=>{if(cl!=='bg-red-600')cl='bg-yellow-600'};
+  if(a==null&&b==null&&c==null){
+    batVerdictShow('bg-gray-600','⚠️ لم نتمكن من قراءة الجهد');
+    return;
+  }
+  if(a!=null){
+    if(a<12.0){bad();t.push('البطارية فارغة')}
+    else if(a<12.4){warn();t.push('تحتاج شحن')}
+    else t.push('البطارية جيدة');
+  }
+  if(b!=null){
+    if(b<13.0){bad();t.push('الدينامو لا يشحن')}
+    else if(b<13.8){warn();t.push('الشحن ضعيف')}
+    else if(b>15.0){bad();t.push('شحن زائد')}
+    else t.push('الشحن جيد');
+  }
+  if(c!=null){
+    if(c<13.0){bad();t.push('لا يتحمل الأحمال')}
+    else if(c<13.5){warn();t.push('الشحن تحت الحمل ضعيف')}
+  }
   batVerdictShow(cl,t.join(' • ')+' (نتيجة مبدئية)');
 }
 
-function batVerdictShow(cl,t){const v=$('batteryVerdict');if(!v)return;v.className='p-3 rounded-xl text-white font-bold text-center '+cl;v.textContent=t;v.classList.remove('hidden')}
+function batVerdictShow(cl,t){
+  const v=$('batteryVerdict');if(!v)return;
+  v.className='p-3 rounded-xl text-white font-bold text-center '+cl;
+  v.textContent=t;
+  v.classList.remove('hidden');
+}
 
+/* FIX #4: readVolt with range validation + retry */
 async function readVolt(){
+  /* محاولة 1: AT RV (الأسرع والأدق) */
   const m=String(await sendCmd('AT RV',2000,0)).match(/(\d{1,2}\.\d+)/);
-  if(m)return parseFloat(m[1]);
-  const b=pHex(await sendCmd('01 42',2000,0));
-  for(let i=0;i<b.length-3;i++)if(b[i]===0x41&&b[i+1]===0x42)return((b[i+2]*256)+b[i+3])/1000;
+  if(m){
+    const v=parseFloat(m[1]);
+    if(v>0&&v<20)return v;
+  }
+  /* محاولة 2: PID 42 (2 bytes, big-endian, ÷1000) مع إعادة محاولة */
+  const resp=await sendCmd('01 42',2500,1);
+  const b=pHex(resp);
+  for(let i=0;i<b.length-3;i++){
+    if(b[i]===0x41 && b[i+1]===0x42){
+      const volts=((b[i+2]*256)+b[i+3])/1000;
+      if(volts>0 && volts<20)return volts;
+    }
+  }
   return null;
 }
 
 async function runBatteryTest(){
-  const btn=$('btnBatteryTest'),v=$('batteryVerdict');if(!btn)return;
-  if(!isConnected&&!isDemo){batVerdictShow('bg-red-600','⚠️ غير متصل');return}
-  if(batStep===0){batVals=[null,null,null];for(let i=1;i<=3;i++){const b=$('bat'+i),e=$('batVal'+i);if(b)b.style.borderColor='';if(e){e.textContent='--';e.style.color=''}}if(v)v.classList.add('hidden')}
+  const btn=$('btnBatteryTest'),v=$('batteryVerdict');
+  if(!btn)return;
+  if(!isConnected&&!isDemo){
+    batVerdictShow('bg-red-600','⚠️ غير متصل');
+    return;
+  }
+  if(batStep===0){
+    batVals=[null,null,null];
+    for(let i=1;i<=3;i++){
+      const b=$('bat'+i),e=$('batVal'+i);
+      if(b)b.style.borderColor='';
+      if(e){e.textContent='--';e.style.color=''}
+    }
+    if(v)v.classList.add('hidden');
+  }
   btn.disabled=true;
   try{
     let val;
     if(isDemo)val=[12.6,14.2,13.9][batStep]+(Math.random()*0.3-0.1);
     else{await pauseLiveWait();val=await readVolt()}
-    batVals[batStep]=val;batSet(batStep+1,val);batStep++;
+    batVals[batStep]=val;
+    batSet(batStep+1,val);
+    batStep++;
     if(batStep>=3){batStep=0;batFinish()}
   }catch(e){log('ERR: '+e.message)}
-  finally{btn.disabled=false;if(!isDemo)resumeLive();batUI()}
+  finally{
+    btn.disabled=false;
+    if(!isDemo)resumeLive();
+    batUI();
+  }
 }
 
-/* --- Charts --- */
+/* ============================================
+   Charts
+   ============================================ */
+
 function initChart(){
   if(chartInstance)return;
   const cv=$('liveChart');if(!cv||!window.Chart)return;
   try{
     chartInstance=new Chart(cv.getContext('2d'),{
       type:'line',
-      data:{labels:[],datasets:[{label:'RPM',data:[],borderColor:'#3b82f6',tension:0.3,yAxisID:'y'},{label:'Speed',data:[],borderColor:'#22c55e',tension:0.3,yAxisID:'y1'}]},
-      options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{labels:{color:'#94a3b8',font:{family:'Cairo'}}}},scales:{y:{type:'linear',position:'left',grid:{color:'#374151'},ticks:{color:'#94a3b8'}},y1:{type:'linear',position:'right',grid:{display:false},ticks:{color:'#94a3b8'}},x:{grid:{color:'#374151'},ticks:{color:'#94a3b8',font:{size:9}}}}}
+      data:{
+        labels:[],
+        datasets:[
+          {label:'RPM',data:[],borderColor:'#3b82f6',tension:0.3,yAxisID:'y'},
+          {label:'Speed',data:[],borderColor:'#22c55e',tension:0.3,yAxisID:'y1'}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:{duration:300},
+        plugins:{legend:{labels:{color:'#94a3b8',font:{family:'Cairo'}}}},
+        scales:{
+          y:{type:'linear',position:'left',grid:{color:'#374151'},ticks:{color:'#94a3b8'}},
+          y1:{type:'linear',position:'right',grid:{display:false},ticks:{color:'#94a3b8'}},
+          x:{grid:{color:'#374151'},ticks:{color:'#94a3b8',font:{size:9}}}
+        }
+      }
     });
   }catch(e){}
 }
@@ -1524,26 +1961,41 @@ function updChart(r,s){
   if(!chartInstance)initChart();
   if(!chartInstance)return;
   const t=new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  if(chartData.labels.length>20){chartData.labels.shift();chartData.rpm.shift();chartData.speed.shift()}
-  chartData.labels.push(t);chartData.rpm.push(r);chartData.speed.push(s);
+  if(chartData.labels.length>20){
+    chartData.labels.shift();
+    chartData.rpm.shift();
+    chartData.speed.shift();
+  }
+  chartData.labels.push(t);
+  chartData.rpm.push(r);
+  chartData.speed.push(s);
   chartInstance.data.labels=chartData.labels.slice();
   chartInstance.data.datasets[0].data=chartData.rpm.slice();
   chartInstance.data.datasets[1].data=chartData.speed.slice();
   chartInstance.update('none');
 }
 
-/* --- Tabs --- */
+/* ============================================
+   Tabs
+   ============================================ */
+
 function initTabs(){
   $$('.tab').forEach(tab=>{
     tab.onclick=function(){
-      $$('.tab').forEach(t=>{t.classList.remove('bg-blue-600','text-white');t.classList.add('bg-gray-800','text-gray-400')});
+      $$('.tab').forEach(t=>{
+        t.classList.remove('bg-blue-600','text-white');
+        t.classList.add('bg-gray-800','text-gray-400');
+      });
       tab.classList.remove('bg-gray-800','text-gray-400');
       tab.classList.add('bg-blue-600','text-white');
       $$('.panel').forEach(p=>p.classList.add('hidden'));
       const t=$('panel-'+tab.dataset.tab);
       if(t)t.classList.remove('hidden');
       const which=tab.dataset.tab;
-      if(which==='live')setTimeout(()=>{if(!chartInstance)initChart();else try{chartInstance.resize()}catch(e){}},200);
+      if(which==='live')setTimeout(()=>{
+        if(!chartInstance)initChart();
+        else try{chartInstance.resize()}catch(e){}
+      },200);
       if(which==='favorites')renderFav();
       if(which==='history')renderHist();
       if(which==='stats')renderStats();
@@ -1551,7 +2003,10 @@ function initTabs(){
   });
 }
 
-/* --- Export PDF --- */
+/* ============================================
+   Export PDF
+   ============================================ */
+
 function exportPDF(){
   const faults=lastFaults||[];
   if(!faults.length){alert('لا توجد أعطال لتصديرها');return}
@@ -1559,31 +2014,63 @@ function exportPDF(){
   const diag=runDiag(faults.map(f=>f.code));
   const score=calcHealth(faults,diag);
   let h='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:'+(score>=75?'#10b981':score>=50?'#f59e0b':'#ef4444')+';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
-  h+='<h1>🔧 تقرير فحص CheckDiga Pro</h1><p><b>التاريخ:</b> '+escapeHtml(date)+'</p><div class="sc">صحة السيارة: '+score+'/100</div><h2>الأعطال ('+faults.length+')</h2>';
-  faults.forEach((f,i)=>{const info=getInfo(f.code);const b=info.brand?' ['+escapeHtml(info.brand)+']':'';h+='<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+b+'</b><br>'+escapeHtml(info.title)+'</div>'});
-  if(diag.length){h+='<h2>تحليل مبدئي</h2>';diag.forEach(d=>{h+='<div class="d"><b>'+escapeHtml(d.title)+' ('+confLabel(d.conf)+')</b><br>'+escapeHtml(d.desc)+'</div>'})}
+  h+='<h1>🔧 تقرير فحص CheckDiga Pro</h1>';
+  h+='<p><b>التاريخ:</b> '+escapeHtml(date)+'</p>';
+  h+='<div class="sc">صحة السيارة: '+score+'/100</div>';
+  h+='<h2>الأعطال ('+faults.length+')</h2>';
+  faults.forEach((f,i)=>{
+    const info=getInfo(f.code);
+    const b=info.brand?' ['+escapeHtml(info.brand)+']':'';
+    h+='<div class="f"><b style="font-family:monospace;color:#b91c1c">#'+(i+1)+' '+escapeHtml(f.code)+b+'</b><br>'+escapeHtml(info.title)+'</div>';
+  });
+  if(diag.length){
+    h+='<h2>تحليل مبدئي</h2>';
+    diag.forEach(d=>{
+      h+='<div class="d"><b>'+escapeHtml(d.title)+' ('+confLabel(d.conf)+')</b><br>'+escapeHtml(d.desc)+'</div>';
+    });
+  }
   h+='<footer>CheckDiga Pro 2026 — صُنع في الجزائر 🇩🇿</footer></body></html>';
   const blob=new Blob([h],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const w=window.open(url,'_blank');
-  if(!w){alert('من فضلك اسمح بالنوافذ المنبثقة');URL.revokeObjectURL(url);return}
-  setTimeout(()=>{try{w.focus();w.print()}catch(e){}setTimeout(()=>URL.revokeObjectURL(url),60000)},600);
+  if(!w){
+    alert('من فضلك اسمح بالنوافذ المنبثقة');
+    URL.revokeObjectURL(url);
+    return;
+  }
+  setTimeout(()=>{
+    try{w.focus();w.print()}catch(e){}
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  },600);
 }
 
-/* --- Share WhatsApp --- */
+/* ============================================
+   Share WhatsApp
+   ============================================ */
+
 function shareWA(){
   const faults=lastFaults||[];
   if(!faults.length){alert('لا توجد أعطال');return}
   const diag=runDiag(faults.map(f=>f.code));
   const score=calcHealth(faults,diag);
   let m='*تقرير CheckDiga Pro*\n----------------\n\nصحة السيارة: '+score+'/100\n\n*الأعطال ('+faults.length+'):*\n';
-  faults.forEach((f,i)=>{const info=getInfo(f.code);const b=info.brand?' ['+info.brand+']':'';m+=(i+1)+'. *'+f.code+'*'+b+' — '+info.title+'\n'});
-  if(diag.length){m+='\n*التشخيص:*\n';diag.forEach(d=>{m+='• '+d.title+' ('+d.conf+'%)\n'})}
+  faults.forEach((f,i)=>{
+    const info=getInfo(f.code);
+    const b=info.brand?' ['+info.brand+']':'';
+    m+=(i+1)+'. *'+f.code+'*'+b+' — '+info.title+'\n';
+  });
+  if(diag.length){
+    m+='\n*التشخيص:*\n';
+    diag.forEach(d=>{m+='• '+d.title+' ('+d.conf+'%)\n'});
+  }
   m+='\n----------------\n'+location.origin;
   window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank');
 }
 
-/* --- Stats --- */
+/* ============================================
+   Stats
+   ============================================ */
+
 function renderStats(){
   const c=$('statsContent');if(!c)return;
   const tot=Object.keys(DTC_DATABASE).length;
@@ -1591,8 +2078,13 @@ function renderStats(){
   let withBrand=0,cnBrand=0,euBrand=0;
   for(const k of Object.keys(DTC_DATABASE)){
     const v=DTC_DATABASE[k];
-    const s=v.severity||'medium';if(sev[s]!==undefined)sev[s]++;
-    if(v.brand){withBrand++;if(v.brand.includes('صيني'))cnBrand++;if(v.brand.includes('أوروبي'))euBrand++}
+    const s=v.severity||'medium';
+    if(sev[s]!==undefined)sev[s]++;
+    if(v.brand){
+      withBrand++;
+      if(v.brand.includes('صيني'))cnBrand++;
+      if(v.brand.includes('أوروبي'))euBrand++;
+    }
   }
   c.innerHTML='<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">'+tot.toLocaleString('en-US')+'</div><div class="text-xs text-gray-400">عطل في القاعدة</div><div class="mt-2 text-xs text-emerald-400 font-bold">🏭 '+withBrand.toLocaleString('en-US')+' كود بمصنّع</div><div class="mt-1 text-xs text-gray-500">'+(OBDEX_LOADED?'✅ محمّلة':'⏳ تحميل...')+'</div></div>'
    +'<div class="bg-gray-900 rounded-xl p-3 mb-3 space-y-1 text-xs">'
@@ -1614,38 +2106,83 @@ function renderStats(){
   try{
     statsChartInstance=new Chart(cv.getContext('2d'),{
       type:'doughnut',
-      data:{labels:['حرج','خطير','متوسط','منخفض'],datasets:[{data:[sev.critical,sev.high,sev.medium,sev.low],backgroundColor:['#dc2626','#ef4444','#f59e0b','#10b981'],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:getComputedStyle(document.body).color,font:{family:'Cairo'}}}}}
+      data:{
+        labels:['حرج','خطير','متوسط','منخفض'],
+        datasets:[{data:[sev.critical,sev.high,sev.medium,sev.low],backgroundColor:['#dc2626','#ef4444','#f59e0b','#10b981'],borderWidth:0}]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:getComputedStyle(document.body).color,font:{family:'Cairo'}}}}
+      }
     });
   }catch(e){}
 }
 
-/* --- Extras --- */
+/* ============================================
+   Extras
+   ============================================ */
+
 function initExtras(){
-  try{if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
-  try{if(navigator.serial)navigator.serial.addEventListener('disconnect',e=>{if(transport==='usb'&&(e.target===usbPort||e.port===usbPort))handleDisc()})}catch(e){}
+  try{
+    if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }catch(e){}
+  try{
+    if(navigator.serial)
+      navigator.serial.addEventListener('disconnect',e=>{
+        if(transport==='usb'&&(e.target===usbPort||e.port===usbPort))handleDisc();
+      });
+  }catch(e){}
   batUI();
 }
 
-/* --- Init --- */
+/* ============================================
+   Init — Main Entry Point
+   ============================================ */
+
 function init(){
   cleanOldCache();
   const bind=(id,fn)=>{const el=$(id);if(el)el.onclick=fn};
-  bind('connect-btn',()=>connectOBD(false));bind('btShowAll',()=>connectOBD(true));
-  bind('usb-btn',connectUSB);bind('demo-btn',startDemo);
+  bind('connect-btn',()=>connectOBD(false));
+  bind('btShowAll',()=>connectOBD(true));
+  bind('usb-btn',connectUSB);
+  bind('demo-btn',startDemo);
   bind('disconnect-btn',async()=>{stopDemo();await handleDisc()});
-  bind('clear-btn',()=>{if(!isConnected&&!isDemo){alert('اتصل بالسيارة أولاً');return}clearDTCs()});
-  bind('btnReadDTC',readDTCs);bind('btnScanAll',scanAll);bind('btnTheme',toggleTheme);
-  bind('btnFavorites',()=>{const t=document.querySelector('[data-tab="favorites"]');if(t)t.click()});
-  bind('btnFavDetail',function(){if(currentDetailCode){toggleFav(currentDetailCode);this.classList.toggle('active',isFav(currentDetailCode));updFavCount()}});
+  bind('clear-btn',()=>{
+    if(!isConnected&&!isDemo){alert('اتصل بالسيارة أولاً');return}
+    clearDTCs();
+  });
+  bind('btnReadDTC',readDTCs);
+  bind('btnScanAll',scanAll);
+  bind('btnTheme',toggleTheme);
+  bind('btnFavorites',()=>{
+    const t=document.querySelector('[data-tab="favorites"]');
+    if(t)t.click();
+  });
+  bind('btnFavDetail',function(){
+    if(currentDetailCode){
+      toggleFav(currentDetailCode);
+      this.classList.toggle('active',isFav(currentDetailCode));
+      updFavCount();
+    }
+  });
   bind('btnCloseDetail',()=>$('dtcDetailModal').classList.add('hidden'));
-  bind('btnReadReadiness',runReadiness);bind('btnBatteryTest',runBatteryTest);
-  bind('btnClearHistory',clearHist);bind('btnExportPDF',exportPDF);bind('btnShareWA',shareWA);
+  bind('btnReadReadiness',runReadiness);
+  bind('btnBatteryTest',runBatteryTest);
+  bind('btnClearHistory',clearHist);
+  bind('btnExportPDF',exportPDF);
+  bind('btnShareWA',shareWA);
   initTabs();
   const dd=$('dtcDetailModal');
   if(dd)dd.onclick=e=>{if(e.target.id==='dtcDetailModal')dd.classList.add('hidden')};
-  initSearch();initSymp();initPop();initFamily();initSevFilters();
-  renderRecent();updFavCount();
+  initSearch();
+  initSymp();
+  initPop();
+  initFamily();
+  initSevFilters();
+  renderRecent();
+  updFavCount();
   if(isIOS&&!isBluefy){const b=$('bluefyBanner');if(b)b.classList.remove('hidden')}
   if(!hasSerial&&!isIOS){const b=$('serialBanner');if(b)b.classList.remove('hidden')}
   applyTheme();
@@ -1656,5 +2193,7 @@ function init(){
   initExtras();
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
-else init();
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',init);
+else
+  init();
