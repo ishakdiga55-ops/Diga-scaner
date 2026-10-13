@@ -1,0 +1,42 @@
+name: ESLint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint (JSON output)
+        run: |
+          npx eslint js/ -f json -o eslint-results.json || true
+          npx eslint js/ -f stylish -o eslint-results.txt || true
+          echo "=== ESLint Summary ==="
+          npx eslint js/ || true
+
+      - name: Upload ESLint results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-results
+          path: |
+            eslint-results.json
+            eslint-results.txt
+          retention-days: 30
