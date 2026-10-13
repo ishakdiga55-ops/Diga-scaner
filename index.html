@@ -887,5 +887,113 @@
   setTimeout(boot, 4000);
 })();
 </script>
+<script>
+/* ============================================
+   i18n Live Observer — ترجمة النصوص الديناميكية
+   ============================================ */
+(function(){
+  if (window.__i18nObserver) return;
+  window.__i18nObserver = true;
+
+  var EXTRA = {
+    '3 مصادر':'3 sources',
+    'مصادر':'sources',
+    'المصدر':'Source',
+    'أعطال':'Défauts',
+    'عطل':'Défaut',
+    'بحث':'Recherche',
+    'المفضلة':'Favoris',
+    'حية':'Direct',
+    'الجاهزية':'Préparation',
+    'إحصائيات':'Statistiques',
+    'نسخ':'Copier',
+    'واتساب':'WhatsApp',
+    'تفاصيل':'Détails',
+    'شارك النتائج':'Partager',
+    'engine':'Moteur',
+    'خليط فقير Bank 1':'Mélange pauvre Bank 1',
+    'خليط غني Bank 1':'Mélange riche Bank 1',
+    'خليط فقير Bank 2':'Mélange pauvre Bank 2',
+    'خليط غني Bank 2':'Mélange riche Bank 2',
+    'اشتعال متقطع متعدد':'Ratés d\'allumage multiples',
+    'اشتعال أسطوانة 1':'Ratés cylindre 1',
+    'اشتعال أسطوانة 2':'Ratés cylindre 2',
+    'اشتعال أسطوانة 3':'Ratés cylindre 3',
+    'اشتعال أسطوانة 4':'Ratés cylindre 4',
+    'كتلايزر ضعيف':'Catalyseur faible',
+    'ارتفاع حرارة المحرك':'Surchauffe moteur',
+    'ضغط الزيت منخفض':'Pression huile basse',
+    'حساس الكرنك':'Capteur vilebrequin',
+    'حساس الكام':'Capteur arbre à cames',
+    'نظام الخمول':'Système ralenti',
+    'ترموستات عاطل':'Thermostat défectueux',
+    'تسرب EVAP':'Fuite EVAP',
+    'مشكلة في الشحن':'Problème de charge',
+    'عطل ناقل الحركة':'Défaut boîte de vitesses',
+    'عطل الوسائد الهوائية':'Défaut airbag',
+    'مضخة ABS':'Pompe ABS',
+    'حساس عجلة ABS':'Capteur roue ABS',
+    'فقدان الاتصال':'Perte de communication',
+    'CAN Bus معطل':'Bus CAN hors service',
+    'اختبار البطارية':'Test batterie',
+    'الرسوم البيانية':'Graphiques',
+    'التحليل التلقائي':'Analyse auto'
+  };
+
+  function trText(node){
+    if (node.nodeType === 3) {
+      var t = node.nodeValue;
+      if (t && t.trim() && /[\u0600-\u06FF]/.test(t)) {
+        var orig = t;
+        for (var k in EXTRA) {
+          if (t.indexOf(k) >= 0) t = t.split(k).join(EXTRA[k]);
+        }
+        if (t !== orig) node.nodeValue = t;
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'PRE') return;
+      if (node.id === 'console') return;
+      if (node.placeholder) {
+        var p = node.placeholder;
+        for (var k in EXTRA) {
+          if (p.indexOf(k) >= 0) p = p.split(k).join(EXTRA[k]);
+        }
+        if (p !== node.placeholder) node.placeholder = p;
+      }
+      for (var i=0; i<node.childNodes.length; i++) trText(node.childNodes[i]);
+    }
+  }
+
+  var isTranslating = false;
+
+  function safeTranslate(){
+    if (isTranslating) return;
+    isTranslating = true;
+    try { trText(document.body); } catch(e) {}
+    isTranslating = false;
+  }
+
+  function startWatching(){
+    if (localStorage.getItem('checkdiga_lang') !== 'fr') return;
+    var mo = new MutationObserver(function(mutations){
+      /* فقط إذا كان هناك تغيير فعلي */
+      var hasChange = false;
+      for (var i=0; i<mutations.length; i++){
+        var m = mutations[i];
+        if (m.type === 'childList' && m.addedNodes.length) { hasChange = true; break; }
+      }
+      if (hasChange) setTimeout(safeTranslate, 50);
+    });
+    mo.observe(document.body, {childList: true, subtree: true});
+    console.log('[i18n Observer] ✅ Active');
+    /* ترجمة فورية لما هو موجود */
+    safeTranslate();
+  }
+
+  setTimeout(startWatching, 2500);
+  setTimeout(startWatching, 5000);
+})();
+</script>
 </body>
 </html>
