@@ -232,7 +232,7 @@
 
 <script>
 /* ============================================
-   Advanced Diagnostics — Inline Module
+   Advanced Diagnostics — Inline Module v3
    ملف مدمج — لا يعتمد على أي imports
    ============================================ */
 (function(){
@@ -246,8 +246,8 @@
     {id:'MISFIRE2',pr:'high',sys:['engine'],req:['P0302'],opt:[],t:'اشتعال أسطوانة 2',cs:[{c:'بوجي 2',p:0.45},{c:'كويل 2',p:0.35},{c:'حاقن 2',p:0.15}],ac:['بدّل البوجي 2↔1','بدّل الكويل 2↔1'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'MISFIRE3',pr:'high',sys:['engine'],req:['P0303'],opt:[],t:'اشتعال أسطوانة 3',cs:[{c:'بوجي 3',p:0.45},{c:'كويل 3',p:0.35}],ac:['بدّل البوجي 3↔4','بدّل الكويل 3↔4'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'MISFIRE4',pr:'high',sys:['engine'],req:['P0304'],opt:[],t:'اشتعال أسطوانة 4',cs:[{c:'بوجي 4',p:0.45},{c:'كويل 4',p:0.35}],ac:['بدّل البوجي 4↔3','بدّل الكويل 4↔3'],cost:{min:20,max:500},time:2,diy:true,urg:false},
-    {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['🛑 أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
-    {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['🛑 أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
+    {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
+    {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
     {id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
     {id:'CAM',pr:'high',sys:['engine'],req:['P0340'],opt:[],t:'حساس الكام',cs:[{c:'الحساس',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الأسلاك','استبدل الحساس'],cost:{min:60,max:500},time:2,diy:true,urg:false},
     {id:'EGR',pr:'medium',sys:['engine','exhaust'],req:['P0401'],opt:[],t:'تدفق EGR غير كافٍ',cs:[{c:'EGR متسخ',p:0.55},{c:'قناة مسدودة',p:0.30},{c:'حساس',p:0.15}],ac:['نظّف EGR','افحص القناة'],cost:{min:0,max:400},time:2,diy:true,urg:false},
@@ -258,18 +258,18 @@
     {id:'MAF',pr:'medium',sys:['engine','fuel'],req:['P0100'],opt:['P0101','P0102','P0103'],t:'دائرة MAF',cs:[{c:'MAF متسخ',p:0.55},{c:'تسرب',p:0.25},{c:'أسلاك',p:0.15}],ac:['نظّف MAF','افحص الأسلاك'],cost:{min:0,max:150},time:1,diy:true,urg:false},
     {id:'ECT',pr:'medium',sys:['cooling'],req:['P0115'],opt:['P0117','P0118'],t:'حساس حرارة المحرك',cs:[{c:'الحساس',p:0.50},{c:'أسلاك',p:0.30},{c:'قابس',p:0.20}],ac:['افحص الأسلاك','قِس المقاومة','استبدل'],cost:{min:20,max:100},time:1,diy:true,urg:false},
     {id:'THERMO',pr:'medium',sys:['cooling'],req:['P0128'],opt:[],t:'ترموستات عاطل',cs:[{c:'ترموستات',p:0.80},{c:'حساس ECT',p:0.20}],ac:['استبدل الترموستات','افحص السائل'],cost:{min:30,max:150},time:2,diy:true,urg:false},
-    {id:'TIMING',pr:'critical',sys:['engine'],req:['P0016'],opt:[],t:'عدم توافق التوقيت',cs:[{c:'حزام/سلسلة',p:0.55},{c:'حساسات',p:0.30},{c:'VVT',p:0.15}],ac:['🛑 أوقف السيارة','افحص التوقيت'],cost:{min:500,max:5000},time:12,diy:false,urg:true},
-    {id:'LOST_ECU',pr:'critical',sys:['electronics','engine'],req:['U0100'],opt:[],t:'فقدان الاتصال بـ ECU',cs:[{c:'أسلاك CAN',p:0.40},{c:'فيوز ECU',p:0.25},{c:'ECU',p:0.20},{c:'أرضية',p:0.15}],ac:['🛑 توقف','افحص فيوز ECU','افحص CAN'],cost:{min:200,max:4000},time:8,diy:false,urg:true},
+    {id:'TIMING',pr:'critical',sys:['engine'],req:['P0016'],opt:[],t:'عدم توافق التوقيت',cs:[{c:'حزام/سلسلة',p:0.55},{c:'حساسات',p:0.30},{c:'VVT',p:0.15}],ac:['أوقف السيارة','افحص التوقيت'],cost:{min:500,max:5000},time:12,diy:false,urg:true},
+    {id:'LOST_ECU',pr:'critical',sys:['electronics','engine'],req:['U0100'],opt:[],t:'فقدان الاتصال بـ ECU',cs:[{c:'أسلاك CAN',p:0.40},{c:'فيوز ECU',p:0.25},{c:'ECU',p:0.20},{c:'أرضية',p:0.15}],ac:['توقف فورًا','افحص فيوز ECU','افحص CAN'],cost:{min:200,max:4000},time:8,diy:false,urg:true},
     {id:'LOST_TCM',pr:'critical',sys:['transmission','electronics'],req:['U0101'],opt:[],t:'فقدان الاتصال بـ TCM',cs:[{c:'أسلاك CAN',p:0.45},{c:'فيوز',p:0.30},{c:'TCM',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:200,max:3000},time:6,diy:false,urg:true},
     {id:'LOST_ABS',pr:'high',sys:['abs','electronics'],req:['U0121'],opt:[],t:'فقدان الاتصال بـ ABS',cs:[{c:'CAN',p:0.40},{c:'فيوز',p:0.35},{c:'وحدة ABS',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:100,max:2000},time:4,diy:false,urg:false},
-    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['🛑 لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
+    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
     {id:'ABS_FL',pr:'high',sys:['abs','brakes'],req:['C0035'],opt:['C0040','C0045','C0050'],t:'حساس عجلة ABS',cs:[{c:'الحساس',p:0.55},{c:'أسلاك',p:0.30},{c:'حلقة ABS',p:0.15}],ac:['افحص الأسلاك','افحص الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:false},
-    {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['🛑 توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
-    {id:'BRAKE_FLUID',pr:'critical',sys:['brakes'],req:['C0265'],opt:[],t:'مشكلة نظام الفرامل',cs:[{c:'تسرب سائل',p:0.45},{c:'مستوى منخفض',p:0.30},{c:'حساس',p:0.15},{c:'master',p:0.10}],ac:['🛑 أوقف','افحص سائل الفرامل','راجع مختص'],cost:{min:100,max:2000},time:4,diy:false,urg:true},
+    {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
+    {id:'BRAKE_FLUID',pr:'critical',sys:['brakes'],req:['C0265'],opt:[],t:'مشكلة نظام الفرامل',cs:[{c:'تسرب سائل',p:0.45},{c:'مستوى منخفض',p:0.30},{c:'حساس',p:0.15},{c:'master',p:0.10}],ac:['أوقف السيارة','افحص سائل الفرامل','راجع مختص'],cost:{min:100,max:2000},time:4,diy:false,urg:true},
     {id:'AIRBAG',pr:'critical',sys:['airbag'],req:['B0001'],opt:['B0010','B1000'],t:'عطل الوسائد الهوائية',cs:[{c:'قابس مفصول',p:0.40},{c:'clock spring',p:0.30},{c:'أسلاك',p:0.20},{c:'الوسادة',p:0.10}],ac:['افحص القابس','افحص clock spring','راجع مختص'],cost:{min:200,max:2000},time:4,diy:false,urg:true},
     {id:'CHARGING',pr:'high',sys:['battery'],req:['P0562'],opt:[],t:'مشكلة في الشحن',cs:[{c:'دينامو',p:0.50},{c:'بطارية',p:0.30},{c:'حزام',p:0.15},{c:'أسلاك',p:0.05}],ac:['افحص فولت البطارية','افحص الدينامو','افحص الحزام'],cost:{min:100,max:1500},time:3,diy:true,urg:false},
     {id:'TRANSM',pr:'high',sys:['transmission'],req:['P0700'],opt:[],t:'عطل ناقل الحركة',cs:[{c:'كود فرعي TCM',p:0.70},{c:'TCM',p:0.15},{c:'أسلاك',p:0.15}],ac:['اقرأ أكواد TCM','افحص زيت الجير','راجع مختص'],cost:{min:100,max:5000},time:8,diy:false,urg:false},
-    {id:'GEAR_R',pr:'critical',sys:['transmission'],req:['P0730'],opt:[],t:'نسبة التروس غير صحيحة',cs:[{c:'زيت منخفض',p:0.35},{c:'حساس سرعة',p:0.25},{c:'قابض تالف',p:0.25},{c:'هيدروليكي',p:0.15}],ac:['🛑 توقف','افحص زيت الجير','راجع مختص'],cost:{min:500,max:8000},time:12,diy:false,urg:true}
+    {id:'GEAR_R',pr:'critical',sys:['transmission'],req:['P0730'],opt:[],t:'نسبة التروس غير صحيحة',cs:[{c:'زيت منخفض',p:0.35},{c:'حساس سرعة',p:0.25},{c:'قابض تالف',p:0.25},{c:'هيدروليكي',p:0.15}],ac:['توقف','افحص زيت الجير','راجع مختص'],cost:{min:500,max:8000},time:12,diy:false,urg:true}
   ];
 
   var SYS_NAME = {engine:'المحرك',transmission:'الجير',abs:'ABS',brakes:'الفرامل',airbag:'الوسائد',fuel:'الوقود',cooling:'التبريد',exhaust:'العادم',battery:'البطارية',electronics:'الكهرباء'};
@@ -293,10 +293,7 @@
       matches.push({r:r, score:score});
     });
     var prOrd = {critical:0, high:1, medium:2, low:3};
-    matches.sort(function(a,b){
-      var pa = prOrd[a.r.pr]||9, pb = prOrd[b.r.pr]||9;
-      return pa - pb || b.score - a.score;
-    });
+    matches.sort(function(a,b){ return (prOrd[a.r.pr]||9) - (prOrd[b.r.pr]||9) || b.score - a.score; });
     var seen = {}, result = [];
     matches.forEach(function(m){ if(!seen[m.r.id]){ seen[m.r.id]=true; result.push(m); }});
     var penalty = 0;
@@ -305,12 +302,9 @@
     var level = score<30?'critical':score<50?'poor':score<70?'fair':score<85?'good':'excellent';
     var warns = result.filter(function(m){return m.r.urg;}).map(function(m){return {t:m.r.t, ac:m.r.ac[0]||'راجع مختص'};});
     var cMin=0, cMax=0, hrs=0;
-    result.forEach(function(m){
-      if (m.r.cost) { cMin += m.r.cost.min; cMax += m.r.cost.max; }
-      hrs += m.r.time || 0;
-    });
+    result.forEach(function(m){ if(m.r.cost){cMin+=m.r.cost.min;cMax+=m.r.cost.max;} hrs+=m.r.time||0; });
     var sysCnt = {};
-    result.forEach(function(m){ m.r.sys.forEach(function(s){ sysCnt[s] = (sysCnt[s]||0)+1; }); });
+    result.forEach(function(m){ m.r.sys.forEach(function(s){ sysCnt[s]=(sysCnt[s]||0)+1; }); });
     var rootSys=null, maxC=0;
     for(var k in sysCnt){ if(sysCnt[k]>maxC){ maxC=sysCnt[k]; rootSys=k; }}
     return {
@@ -334,56 +328,30 @@
   function showReport(rep){
     var prColor = {critical:'#dc2626', high:'#ef4444', medium:'#f59e0b', low:'#10b981'};
     var hlColor = {excellent:'from-green-500 to-emerald-600', good:'from-emerald-500 to-green-600', fair:'from-amber-500 to-orange-600', poor:'from-red-500 to-rose-600', critical:'from-red-600 to-rose-700'};
-
     var h = '<div class="text-center mb-5 pb-4 border-b border-gray-700"><div class="text-xs text-gray-400 mb-1">تقرير التحليل المتقدم</div><div class="text-lg font-bold">CheckDiga Pro 🔬</div></div>';
-
     if (rep.warnings.length) {
       h += '<div class="bg-red-600 text-white p-4 rounded-2xl mb-4"><div class="font-bold text-sm mb-2">🛑 تحذيرات حرجة ('+rep.warnings.length+')</div>';
-      rep.warnings.slice(0,3).forEach(function(w){
-        h += '<div class="bg-black/20 rounded-lg p-2 mt-2"><div class="text-xs font-bold">'+w.t+'</div><div class="text-[11px] mt-1">→ '+w.ac+'</div></div>';
-      });
+      rep.warnings.slice(0,3).forEach(function(w){ h += '<div class="bg-black/20 rounded-lg p-2 mt-2"><div class="text-xs font-bold">'+w.t+'</div><div class="text-[11px] mt-1">→ '+w.ac+'</div></div>'; });
       h += '</div>';
     }
-
     h += '<div class="bg-gradient-to-l '+(hlColor[rep.health.level]||'from-gray-500 to-gray-600')+' rounded-2xl p-4 text-white mb-4"><div class="flex justify-between items-center"><div><div class="text-xs opacity-90">مؤشر صحة السيارة</div><div class="text-2xl font-bold mt-1">'+rep.health.score+'<span class="text-sm opacity-80">/100</span></div></div><div class="text-4xl font-bold">'+(rep.health.level==='excellent'?'✓':rep.health.level==='good'?'👍':'⚠️')+'</div></div></div>';
-
-    if (rep.root) {
-      h += '<div class="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 mb-4"><div class="font-bold text-purple-300 text-sm mb-2">🎯 السبب الجذري المحتمل</div><div class="text-sm mb-1">النظام: <b>'+rep.root.name+'</b></div><div class="text-xs text-gray-400">'+rep.root.count+' قاعدة مرتبطة</div></div>';
-    }
-
-    if (rep.cost.max > 0 || rep.time > 0) {
-      h += '<div class="grid grid-cols-2 gap-2 mb-4"><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">💰 التكلفة التقديرية</div><div class="font-bold text-sm">$'+rep.cost.min+' - $'+rep.cost.max+'</div></div><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">⏱️ الوقت المتوقع</div><div class="font-bold text-sm">'+rep.time+' ساعات</div></div></div>';
-    }
-
+    if (rep.root) { h += '<div class="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 mb-4"><div class="font-bold text-purple-300 text-sm mb-2">🎯 السبب الجذري المحتمل</div><div class="text-sm mb-1">النظام: <b>'+rep.root.name+'</b></div><div class="text-xs text-gray-400">'+rep.root.count+' قاعدة مرتبطة</div></div>'; }
+    if (rep.cost.max > 0 || rep.time > 0) { h += '<div class="grid grid-cols-2 gap-2 mb-4"><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">💰 التكلفة التقديرية</div><div class="font-bold text-sm">$'+rep.cost.min+' - $'+rep.cost.max+'</div></div><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">⏱️ الوقت المتوقع</div><div class="font-bold text-sm">'+rep.time+' ساعات</div></div></div>'; }
     if (rep.diagnoses.length) {
       h += '<div class="mb-3"><div class="font-bold text-sm mb-3">🔍 التشخيصات ('+rep.diagnoses.length+')</div>';
       rep.diagnoses.forEach(function(d,i){
         var pc = prColor[d.pr] || '#64748b';
         h += '<div class="bg-gray-900 rounded-xl p-4 mb-3" style="border-right:4px solid '+pc+'">';
         h += '<div class="flex justify-between items-start mb-2 gap-2"><div class="font-bold text-sm">#'+(i+1)+' '+d.t+'</div><span class="text-[10px] px-2 py-1 rounded-full text-white font-bold" style="background:'+pc+'">'+d.pr+'</span></div>';
-        if (d.mc && d.mc.length) {
-          h += '<div class="flex flex-wrap gap-1 mb-2">';
-          d.mc.forEach(function(c){ h += '<span class="text-[10px] font-mono bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded">'+c+'</span>'; });
-          h += '</div>';
-        }
-        if (d.cs && d.cs.length) {
-          h += '<div class="text-xs text-gray-300 mb-2"><div class="font-bold text-[11px] mb-1">الأسباب المحتملة:</div><ul class="space-y-0.5">';
-          d.cs.slice(0,3).forEach(function(c){ h += '<li>• '+c.c+' <span class="text-gray-500">('+Math.round(c.p*100)+'%)</span></li>'; });
-          h += '</ul></div>';
-        }
-        if (d.ac && d.ac.length) {
-          h += '<div class="text-xs text-blue-300 bg-blue-900/20 rounded p-2"><div class="font-bold text-[11px] mb-1">خطوات الفحص:</div><ul class="space-y-0.5">';
-          d.ac.slice(0,3).forEach(function(a){ h += '<li>• '+a+'</li>'; });
-          h += '</ul></div>';
-        }
+        if (d.mc && d.mc.length) { h += '<div class="flex flex-wrap gap-1 mb-2">'; d.mc.forEach(function(c){ h += '<span class="text-[10px] font-mono bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded">'+c+'</span>'; }); h += '</div>'; }
+        if (d.cs && d.cs.length) { h += '<div class="text-xs text-gray-300 mb-2"><div class="font-bold text-[11px] mb-1">الأسباب المحتملة:</div><ul class="space-y-0.5">'; d.cs.slice(0,3).forEach(function(c){ h += '<li>• '+c.c+' <span class="text-gray-500">('+Math.round(c.p*100)+'%)</span></li>'; }); h += '</ul></div>'; }
+        if (d.ac && d.ac.length) { h += '<div class="text-xs text-blue-300 bg-blue-900/20 rounded p-2"><div class="font-bold text-[11px] mb-1">خطوات الفحص:</div><ul class="space-y-0.5">'; d.ac.slice(0,3).forEach(function(a){ h += '<li>• '+a+'</li>'; }); h += '</ul></div>'; }
         h += '<div class="flex justify-between text-[10px] text-gray-500 mt-2 pt-2 border-t border-gray-800"><span>'+(d.diy?'✅ يمكن DIY':'👨‍🔧 يحتاج مختص')+'</span><span>'+(d.time||'?')+' ساعات</span></div>';
         h += '</div>';
       });
       h += '</div>';
     }
-
     h += '<div class="text-center text-[10px] text-gray-500 mt-4 pt-3 border-t border-gray-700">تم تحليل '+rep.codes.length+' كود بناءً على '+rep.n+' قاعدة</div>';
-
     openModal(h);
   }
 
@@ -421,25 +389,154 @@
         return;
       }
       try { showReport(analyze(codes)); }
-      catch(e) {
-        openModal('<div class="text-center py-8"><div class="text-5xl mb-3">❌</div><div class="font-bold text-lg mb-2">خطأ في التحليل</div><p class="text-red-400 text-sm">'+e.message+'</p></div>');
-      }
+      catch(e) { openModal('<div class="text-center py-8"><div class="text-5xl mb-3">❌</div><div class="font-bold text-lg mb-2">خطأ في التحليل</div><p class="text-red-400 text-sm">'+e.message+'</p></div>'); }
     };
     parent.appendChild(b);
     console.log('[Advanced] ✅ Button ready');
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(injectBtn, 400); });
-  } else {
-    setTimeout(injectBtn, 400);
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(injectBtn, 400); });
+  else setTimeout(injectBtn, 400);
   setTimeout(injectBtn, 1500);
   setTimeout(injectBtn, 3000);
   setTimeout(injectBtn, 6000);
-  setTimeout(injectBtn, 10000);
+  console.log('[Advanced Diagnostics] Inline v3 loaded ✅');
+})();
+</script>
 
-  console.log('[Advanced Diagnostics] Inline v2 loaded ✅');
+<script>
+/* ============================================
+   Arabic Patch — وصف عربي للأكواد
+   ============================================ */
+(function(){
+  var AR_DESC = {
+    "P0300":"اشتعال متقطع في أكثر من أسطوانة واحدة. يكتشف كمبيوتر المحرك ذلك من سرعة الكرنك: الأسطوانة التي لا تشتغل لا تعطي دفعة تسارع. عند معدل يُتلف الكتلايزر تومض لمبة المحرك، وعند معدل يؤثر على الانبعاثات تضيء بعد رحلتين. الأسباب الشائعة: هواء دخيل في نظام السحب، بواجي أو كويلات متهالكة على عدة أسطوانات، ضغط وقود منخفض أو مرتفع، توقيت الصمامات غير مضبوط، أو قراءة خاطئة من عجلة الأسنان.",
+    "P0301":"اشتعال متقطع في الأسطوانة رقم 1. السبب الأكثر شيوعًا: بوجي أو كويل أو حاقن معطوب في الأسطوانة 1. للتشخيص: بدّل البوجي والكويل مع أسطوانة أخرى — إذا انتقل الكود فهذا يعني أن القطعة تالفة.",
+    "P0302":"اشتعال متقطع في الأسطوانة رقم 2. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 2. للتشخيص: بدّل القطعة مع أسطوانة 1 لمعرفة ما إذا كان العطل ينتقل.",
+    "P0303":"اشتعال متقطع في الأسطوانة رقم 3. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 3. قِس ضغط الأسطوانة للتأكد من عدم وجود مشكلة ميكانيكية.",
+    "P0304":"اشتعال متقطع في الأسطوانة رقم 4. الأسباب: بوجي أو كويل أو حاقن في الأسطوانة 4. افحص ضغط الأسطوانة أيضًا.",
+    "P0171":"خليط الهواء والوقود فقير في Bank 1 — أي كمية الهواء أكثر من الوقود. الأسباب المحتملة بنسب: تسرب هواء في مشعب السحب (45%), خرطوم فاكيوم مشقوق (25%), حساس MAF متسخ (15%), مضخة وقود ضعيفة (10%), حاقن مسدود (5%).",
+    "P0172":"خليط الهواء والوقود غني في Bank 1 — الوقود أكثر من اللازم. الأسباب: حاقن يسيل، منظم ضغط الوقود معطوب، أو حساس O2 تالف.",
+    "P0174":"خليط فقير في Bank 2 — نفس أسباب P0171 لكن في البنك الثاني.",
+    "P0175":"خليط غني في Bank 2. الأسباب: حاقن يسيل، ضغط وقود مرتفع، أو حساس O2 تالف.",
+    "P0420":"أداء الكتلايزر منخفض في Bank 1 — لم يعد قادرًا على تنظيف العادم بكفاءة. غالبًا تالف بسبب اشتعال متقطع سابق أو استهلاك زيت. يُنصح بإصلاح الإشعال أولًا قبل استبدال الكتلايزر — وإلا سيتلف الجديد.",
+    "P0430":"أداء الكتلايزر منخفض في Bank 2 — نفس P0420 في البنك الثاني.",
+    "P0128":"ترموستات عاطل — المحرك لا يصل إلى حرارة التشغيل الطبيعية في الوقت المتوقع. السبب: ترموستات مفتوح على الدوام (80%) أو حساس ECT معطوب (20%).",
+    "P0442":"تسرب صغير في نظام EVAP (بخار الوقود). السبب الأكثر شيوعًا: غطاء الوقود غير محكم (55%). افحص الغطاء أولًا، ثم الخراطيم، ثم purge valve.",
+    "P0455":"تسرب كبير في نظام EVAP. افحص غطاء الوقود، الخراطيم، وcanister بالترتيب.",
+    "P0217":"🚨 ارتفاع حرارة المحرك! أوقف السيارة فورًا وانتظر 30 دقيقة قبل فحص الرادياتير. الأسباب: نقص سائل التبريد، مراوح لا تعمل، ترموستات عاطل، أو مضخة ماء تالفة.",
+    "P0335":"دائرة حساس موضع عمود المرفق (الكرنك) معطوبة. السيارة قد لا تشتغل أو تتوقف فجأة. افحص الأسلاك والحساس. في الحالات الشديدة استبدل الحساس.",
+    "P0340":"دائرة حساس موضع عمود الكامات معطوبة. الأعراض: تشغيل صعب، ضعف تسارع، خمول غير مستقر.",
+    "P0505":"خلل في نظام التحكم بالخمول. الأسباب: IAC valve متسخ، تسرب هواء، أو حساس TPS معطوب.",
+    "P0562":"انخفاض في جهد النظام — مشكلة في الشحن. افحص البطارية والدينامو والحزام.",
+    "U0100":"🚨 فقدان الاتصال بكمبيوتر المحرك (ECU). السيارة قد لا تشتغل. افحص فيوز ECU، أسلاك CAN، والأرضية.",
+    "U0101":"فقدان الاتصال بوحدة التحكم في ناقل الحركة (TCM). افحص الفيوز وأسلاك CAN.",
+    "U0121":"فقدان الاتصال بوحدة ABS. افحص فيوز ABS وأسلاك CAN.",
+    "U0001":"CAN Bus معطل — قصر أو انقطاع في الشبكة. أوقف السيارة، افحص المقاومة والأسلاك.",
+    "P0700":"طلب تشخيص من وحدة ناقل الحركة. هذا الكود يعني أن هناك كودًا فرعيًا مخفيًا في TCM يحتاج قارئًا متقدمًا (Mode 22).",
+    "P0715":"دائرة حساس دخل الجير معطوبة. الأعراض: نقل غير سلس، تأخر في التبديل.",
+    "P0730":"نسبة التروس غير صحيحة — مشكلة خطيرة في ناقل الحركة. أوقف السيارة، افحص زيت الجير والحساسات، وراجع مختص فورًا.",
+    "C0035":"دائرة حساس سرعة العجلة الأمامية اليسرى معطوبة. الأعراض: لمبة ABS مضاءة، ABS لا يعمل.",
+    "C0040":"دائرة حساس سرعة العجلة الأمامية اليمنى معطوبة. افحص الأسلاك والحساس.",
+    "C0265":"مشكلة في نظام الفرامل — مستوى سائل منخفض أو تسرب. أوقف السيارة فورًا وافحص.",
+    "B0001":"🚨 عطل في دائرة الوسادة الهوائية للسائق — الوسادة لن تعمل في الحادث. افحص القابس و clock spring فورًا وراجع مختص."
+  };
+
+  var TERMS = [
+    [/check engine light on/gi,'لمبة المحرك مضاءة'],
+    [/flashing at a catalyst-damaging rate/gi,'تومض بمعدل يُتلف الكتلايزر'],
+    [/rough idle/gi,'خمول غير مستقر'],
+    [/jerking/gi,'اهتزاز عند التسارع'],
+    [/vibration/gi,'اهتزاز'],
+    [/loss of power/gi,'فقدان قدرة'],
+    [/hesitation/gi,'تأخر في الاستجابة'],
+    [/smell of unburnt fuel/gi,'رائحة وقود غير محترق'],
+    [/higher consumption/gi,'استهلاك وقود مرتفع'],
+    [/false air/gi,'هواء دخيل'],
+    [/vacuum leak/gi,'تسرب فاكيوم'],
+    [/crankcase ventilation/gi,'تهوية علبة المرفق'],
+    [/intake gasket/gi,'حشوة مشعب السحب'],
+    [/worn or wrong spark plugs/gi,'بواجي متهالكة أو خاطئة'],
+    [/faulty ignition coils/gi,'كويلات إشعال معطوبة'],
+    [/fuel pressure too low or high/gi,'ضغط وقود غير طبيعي'],
+    [/contaminated fuel/gi,'وقود ملوّث'],
+    [/valve timing/gi,'توقيت الصمامات'],
+    [/stretched chain/gi,'سلسلة متمددة'],
+    [/compression on several cylinders/gi,'ضغط منخفض في عدة أسطوانات'],
+    [/false detection/gi,'قراءة خاطئة'],
+    [/tone wheel or pulley/gi,'عجلة الأسنان أو البكرة'],
+    [/rough road/gi,'طريق وعر'],
+    [/ignition/gi,'الإشعال'],
+    [/misfire/gi,'اشتعال متقطع'],
+    [/misfiring/gi,'اشتعال متقطع'],
+    [/cylinder/gi,'أسطوانة'],
+    [/spark plug/gi,'بوجي'],
+    [/ignition coil/gi,'كويل إشعال'],
+    [/injector/gi,'حاقن'],
+    [/fuel pump/gi,'مضخة وقود'],
+    [/oxygen sensor/gi,'حساس أكسجين'],
+    [/catalyst/gi,'كتلايزر'],
+    [/catalytic converter/gi,'كتلايزر'],
+    [/vacuum/gi,'فاكيوم'],
+    [/leak/gi,'تسرب'],
+    [/sensor/gi,'حساس'],
+    [/circuit/gi,'دائرة'],
+    [/engine/gi,'المحرك'],
+    [/transmission/gi,'ناقل الحركة'],
+    [/wiring/gi,'الأسلاك'],
+    [/connector/gi,'القابس']
+  ];
+
+  function translate(t){
+    var s = String(t);
+    for (var i=0;i<TERMS.length;i++){ s = s.replace(TERMS[i][0], TERMS[i][1]); }
+    return s;
+  }
+
+  function patch(){
+    var content = document.getElementById('dtcDetailContent');
+    if (!content) return;
+    if (content.dataset.arPatched === '1') return;
+    var codeEl = content.querySelector('.font-mono');
+    if (!codeEl) return;
+    var code = codeEl.textContent.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'').slice(0,10);
+    if (!code) return;
+    var changed = false;
+    if (AR_DESC[code]) {
+      var descBox = content.querySelector('.border-r-4.border-blue-500');
+      if (descBox) {
+        var inner = descBox.querySelector('div');
+        if (inner && /[a-zA-Z]{30,}/.test(inner.textContent)) {
+          inner.textContent = AR_DESC[code];
+          changed = true;
+        }
+      }
+    }
+    var items = content.querySelectorAll('ul li');
+    for (var i=0;i<items.length;i++){
+      var li = items[i];
+      var txt = li.textContent.replace(/^\s*•\s*/,'').trim();
+      if (/^[a-zA-Z\s,.'%\-()0-9]{5,}$/.test(txt)) {
+        li.textContent = '• ' + translate(txt);
+        changed = true;
+      }
+    }
+    if (changed) content.dataset.arPatched = '1';
+  }
+
+  setInterval(function(){
+    var c = document.getElementById('dtcDetailContent');
+    if (c && c.dataset.arPatched !== '1') patch();
+  }, 100);
+
+  document.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'btnCloseDetail') {
+      var c = document.getElementById('dtcDetailContent');
+      if (c) delete c.dataset.arPatched;
+    }
+  }, true);
+
+  console.log('[Arabic Patch] ✅ Loaded');
 })();
 </script>
 </body>
