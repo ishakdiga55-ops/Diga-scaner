@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Toast Test</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+<h1 class="text-2xl mb-6">اختبار Toast</h1>
+<button id="btn1" class="bg-blue-600 px-4 py-2 rounded mb-2 block">Toast Info</button>
+<button id="btn2" class="bg-emerald-600 px-4 py-2 rounded mb-2 block">Toast Success</button>
+<button id="btn3" class="bg-amber-600 px-4 py-2 rounded mb-2 block">Toast Warn</button>
+<button id="btn4" class="bg-red-600 px-4 py-2 rounded mb-2 block">Toast Error</button>
+<script type="module">
+import { toast, confirmDialog } from './js/ui/toast.js';
+document.getElementById('btn1').onclick = () => toast('رسالة معلومات', 'info');
+document.getElementById('btn2').onclick = () => toast('نجح!', 'success');
+document.getElementById('btn3').onclick = () => toast('تحذير', 'warn');
+document.getElementById('btn4').onclick = () => toast('خطأ', 'error');
+window.testConfirm = async () => {
+  const r = await confirmDialog('هل أنت متأكد؟');
+  toast('اخترت: ' + (r ? 'نعم' : 'لا'), r ? 'success' : 'info');
+};
+</script>
+<button onclick="testConfirm()" class="bg-purple-600 px-4 py-2 rounded mt-4">اختبار Confirm</button>
+</body>
+</html>
