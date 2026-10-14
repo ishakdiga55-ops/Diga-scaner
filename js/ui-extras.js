@@ -78,6 +78,7 @@ export function renderFav() {
     };
   });
 }
+
 export function initSymp() {
   const e = document.getElementById('symptomChips');
   if (!e) return;
@@ -196,84 +197,6 @@ export function initTabs() {
       if (tab.dataset.tab === 'stats') renderStats();
     };
   });
-}
-
-export function renderHist() {
-  const c = document.getElementById('historyContent');
-  if (!c) return;
-  let h = [];
-  try { h = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]'); } catch (_) { h = []; }
-  if (!h.length) {
-    c.innerHTML = '<p class="text-gray-500 text-center py-6">لا يوجد سجل بعد</p>';
-    return;
-  }
-  let html = '';
-  h.forEach(e => {
-    const d = new Date(e.date);
-    html += '<div class="bg-gray-900 rounded-xl p-3 mb-2 border-r-4 border-blue-500">';
-    html += '<div class="flex justify-between mb-2"><span class="text-xs text-gray-400">' + d.toLocaleDateString('ar') + ' ' + d.toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' }) + '</span>';
-    html += '<span class="text-xs text-blue-400 font-bold">' + e.faults.length + ' عطل</span></div>';
-    html += '<div class="flex flex-wrap gap-1">';
-    e.faults.slice(0, 10).forEach(f => {
-      html += '<span class="font-mono text-xs bg-red-900/50 text-red-300 px-2 py-0.5 rounded">' + f.code + '</span>';
-    });
-    html += '</div></div>';
-  });
-  c.innerHTML = html;
-}
-
-export function clearHist() {
-  if (confirm('حذف السجل بالكامل؟')) {
-    localStorage.removeItem('checkdiga_hist');
-    renderHist();
-  }
-}
-
-export function renderStats() {
-  const c = document.getElementById('statsContent');
-  if (!c) return;
-  const tot = Object.keys(DTC_DATABASE).length;
-  const sev = { critical: 0, high: 0, medium: 0, low: 0 };
-  for (const k of Object.keys(DTC_DATABASE)) {
-    const s = DTC_DATABASE[k].severity || 'medium';
-    if (sev[s] !== undefined) sev[s]++;
-  }
-  c.innerHTML = '<div class="text-center mb-4"><div class="text-5xl font-extrabold text-blue-400">' + tot.toLocaleString('en-US') + '</div><div class="text-xs text-gray-400">عطل في القاعدة</div></div>'
-    + '<div class="grid grid-cols-2 gap-2 mb-3">'
-    + '<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-red-400 font-bold">' + sev.critical + '</div><div class="text-[10px] text-gray-500">حرج</div></div>'
-    + '<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-orange-400 font-bold">' + sev.high + '</div><div class="text-[10px] text-gray-500">خطير</div></div>'
-    + '<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-amber-400 font-bold">' + sev.medium + '</div><div class="text-[10px] text-gray-500">متوسط</div></div>'
-    + '<div class="bg-gray-900 rounded-lg p-2 text-center"><div class="text-emerald-400 font-bold">' + sev.low + '</div><div class="text-[10px] text-gray-500">منخفض</div></div>'
-    + '</div>';
-}
-
-export function showDetail(cod) {
-  cod = String(cod);
-  const isBranded = /_[A-Z]+$/.test(cod);
-  const cleanCode = sanitizeCode(cod.replace(/_[A-Z]+$/, ''));
-  const info = isBranded ? (DTC_DATABASE[cod] || getInfo(cleanCode)) : getInfo(cod);
-  const m = document.getElementById('dtcDetailModal');
-  const c = document.getElementById('dtcDetailContent');
-  if (!m || !c) return;
-  const sm = { critical: { bg: '#dc2626', l: 'حرج' }, high: { bg: '#ef4444', l: 'خطير' }, medium: { bg: '#f59e0b', l: 'متوسط' }, low: { bg: '#10b981', l: 'منخفض' } };
-  const sv = sm[info.severity] || { bg: '#64748b', l: 'غير محدد' };
-  let h = '<div class="text-center mb-4"><div class="font-mono font-bold text-3xl text-red-400 mb-1">' + escapeHtml(cleanCode) + '</div>';
-  h += '<div class="text-base font-bold text-white">' + escapeHtml(info.title || 'عطل غير معروف') + '</div>';
-  if (info.title_en && info.title_en !== info.title) h += '<div class="text-xs text-gray-500 mt-1" dir="ltr">' + escapeHtml(info.title_en) + '</div>';
-  h += '<div class="flex justify-center gap-2 mt-3 flex-wrap"><span class="text-xs px-3 py-1 rounded-full text-white font-bold" style="background:' + sv.bg + '">' + sv.l + '</span>';
-  if (info.zone) h += '<span class="text-xs px-3 py-1 rounded-full bg-blue-600 text-white font-bold">' + escapeHtml(info.zone) + '</span>';
-  if (info.brand) h += '<span class="text-xs px-3 py-1 rounded-full bg-purple-600 text-white font-bold">🏭 ' + escapeHtml(info.brand) + '</span>';
-  h += '</div></div>';
-  if (info.desc) h += '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4 border-blue-500"><div class="text-xs text-gray-300">' + escapeHtml(info.desc) + '</div></div>';
-  const blk = (it, t, col) => {
-    if (!it || !it.length) return '';
-    return '<div class="bg-gray-900/60 rounded-xl p-4 mb-3 border-r-4" style="border-color:' + col + '"><div class="font-bold text-sm mb-2" style="color:' + col + '">' + t + '</div><ul class="space-y-1.5">' + it.map(i => '<li class="text-xs text-gray-300">• ' + escapeHtml(i) + '</li>').join('') + '</ul></div>';
-  };
-  h += blk(info.symptoms, '🔴 الأعراض', '#ef4444');
-  h += blk(info.causes, '⚙️ الأسباب المحتملة', '#f59e0b');
-  h += blk(info.steps, '📋 خطوات الفحص', '#10b981');
-  c.innerHTML = h;
-  m.classList.remove('hidden');
 }
 
 export function renderHist() {
