@@ -7,9 +7,13 @@ const OBDEX_FILES = [
   'P3xxx_enriched.yaml', 'B0xxx_enriched.yaml', 'C0xxx_enriched.yaml',
   'U0xxx_enriched.yaml', 'U3xxx_enriched.yaml'
 ];
-const QUICK_FILES = ['dtc_p.json', 'dtc_b.json', 'dtc_c.json', 'dtc_u.json'];
+
+const QUICK_FILES = [
+  'dtc_p.json', 'dtc_b.json', 'dtc_c.json', 'dtc_u.json',
+  'dtc_full.json', 'dtc_modern.json', 'dtc_core.json'
+];
+
 const SLOW_FILES = [
-  'dtc_modern.json', 'dtc_full.json',
   'dtc_european.json', 'dtc_european2.json',
   'dtc_chinese.json', 'dtc_chinese2.json',
   'dtc_chinese3.json', 'dtc_chinese4.json'
@@ -48,8 +52,8 @@ function convItem(it) {
   if (!it || !it.code) return null;
   const code = String(it.code).toUpperCase().trim();
   if (!code || code === 'P0000') return null;
-  const tAr = (it.title && it.title.ar) ? it.title.ar : '';
-  const tEn = (it.title && it.title.en) ? it.title.en : (typeof it.title === 'string' ? it.title : code);
+  const tAr = (it[c.title && it.title.ar) ? it.title.ar : '';
+]  const tEn = (it.title && it.title.en) ? it.title.en : (typeof it.title === 'string' ? it.title : code);
   let dAr = '', dEn = '';
   if (it.description) {
     if (typeof it.description === 'object') { dAr = it.description.ar || ''; dEn = it.description.en || ''; }
@@ -151,7 +155,7 @@ async function loadWal33D() {
     if (!r[0]) return 0;
     const cols = r[0].columns;
     const rows = r[0].values.map(row => {
-      const o = {}; cols.forEach((c, i) => o[c] = row[i]); return o;
+      const o = {}; cols.forEach((c, i) => o = row[i]); return o;
     });
     let added = 0;
     for (const row of rows) {
@@ -188,9 +192,9 @@ export async function loadFullDatabase() {
   const bt = document.getElementById('dbStatusText');
   if (b) b.style.display = 'block';
 
-  // ⚡ المرحلة 0: ملفات سريعة (فورية)
-  log('INFO: تحميل سريع...');
-  if (bt) bt.textContent = 'تحميل سريع...';
+  log('INFO: تحميل الملفات المحلية...');
+  if (bt) bt.textContent = 'تحميل الملفات المحلية...';
+
   for (const f of QUICK_FILES) {
     const items = await fetchLocalJSON(f);
     if (items.length) addItems(items);
@@ -198,35 +202,33 @@ export async function loadFullDatabase() {
   buildDTCIndex();
   buildSearchIndex();
   updateCount();
-  log('OK: جاهز للاستخدام (' + Object.keys(DTC_DATABASE).length + ' كود)');
+  log('OK: محلي — ' + Object.keys(DTC_DATABASE).length + ' كود');
+
+  if (bt) bt.textContent = 'تحميل الملفات الإقليمية...';
+  for (const f of SLOW_FILES) {
+    const items = await fetchLocalJSON(f);
+    if (!items.length) continue;
+    const isEuro = f.indexOf('european') >= 0;
+    const isChinese = f.indexOf('chinese') >= 0;
+    addItems(items, { isEuro, isChinese });
+  }
+  buildDTCIndex();
+  buildSearchIndex();
+  updateCount();
+  log('OK: إقليمي — ' + Object.keys(DTC_DATABASE).length + ' كود');
+
   if (b) b.style.display = 'none';
 
-  // 🚀 المرحلة 1: OBDex CDN (خلفية)
   setTimeout(async () => {
-    log('INFO: مرحلة 1/3 — OBDex CDN...');
+    log('INFO: OBDex CDN في الخلفية...');
     let obdexCount = 0;
     for (let f = 0; f < OBDEX_FILES.length; f++) {
       const items = await fetchYaml(OBDEX_FILES[f]);
-      if (items.length) {
-        obdexCount += addItems(items);
-      }
+      if (items.length) obdexCount += addItems(items);
     }
     log('OK: OBDex — ' + obdexCount + ' كود');
 
-    // 📦 المرحلة 2: ملفات محلية إضافية
-    log('INFO: مرحلة 2/3 — ملفات محلية...');
-    let localCount = 0;
-    for (const f of SLOW_FILES) {
-      const items = await fetchLocalJSON(f);
-      if (!items.length) continue;
-      const isEuro = f.indexOf('european') >= 0;
-      const isChinese = f.indexOf('chinese') >= 0;
-      localCount += addItems(items, { isEuro, isChinese });
-    }
-    log('OK: محلي — ' + localCount + ' كود');
-
-    // 🗄️ المرحلة 3: Wal33D
-    log('INFO: مرحلة 3/3 — Wal33D...');
+    log('INFO: Wal33D في الخلفية...');
     await loadWal33D();
 
     app.obdexLoaded = true;
@@ -234,5 +236,5 @@ export async function loadFullDatabase() {
     buildSearchIndex();
     const tot = updateCount();
     log('OK: الإجمالي النهائي: ' + tot);
-  }, 100);
+  }, 500);
 }
