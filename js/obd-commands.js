@@ -65,25 +65,26 @@ function parseUDS(resp) {
   });
   return { ok, codes };
 }
+
 export async function readDTCs() {
   if (comm.isProcessing || comm.cmdQ.length > 0) {
-    alert('⚠️ العملية قيد التنفيذ — انتظر');
+    alert('العملية قيد التنفيذ — انتظر');
     return;
   }
   const l = document.getElementById('dtcList');
   if (!l) return;
   if (!app.isConnected && !app.isDemo) {
-    l.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';
+    l.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>';
     return;
   }
-  l.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> قراءة الأعطال...</p>';
+  l.innerHTML = '<p class="text-blue-400 text-center py-4">قراءة الأعطال...</p>';
   await pauseLiveWait();
   try {
     const p3 = parseDTC(await sendCmd('03', 8000), 0x43);
     const p7 = parseDTC(await sendCmd('07', 8000), 0x47);
     const pa = parseDTC(await sendCmd('0A', 8000), 0x4A);
     if (!p3.ok) {
-      l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ السيارة<br><span class="text-xs font-normal">تأكد أن المفتاح على ON.</span></div>';
+      l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد السيارة — تأكد أن المفتاح على ON</div>';
       return;
     }
     const all = [];
@@ -91,14 +92,14 @@ export async function readDTCs() {
     p7.codes.forEach(c => { if (!all.some(f => f.code === c)) all.push({ code: c, system: 'engine', type: 'pending' }); });
     pa.codes.forEach(c => { if (!all.some(f => f.code === c)) all.push({ code: c, system: 'engine', type: 'permanent' }); });
     if (!all.length) {
-      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center"><div class="font-bold mb-1">✅ لا أعطال مسجلة</div></div>';
+      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال مسجلة</div>';
       return;
     }
     renderFaults(all);
-    disp (!Smart(all.map(f => f.code));
+    dispSmart(all.map(f => f.code));
     dispHealth(all, runDiag(all.map(f => f.code)));
   } catch (e) {
-    l.innerHTML = '<p class="text-red-400 text-center py-4">❌ خطأ: ' + e.message + '</p>';
+    l.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>';
   } finally {
     resumeLive();
   }
@@ -106,16 +107,16 @@ export async function readDTCs() {
 
 export async function scanAll() {
   if (comm.isProcessing || comm.cmdQ.length > 0) {
-    alert('⚠️ العملية قيد التنفيذ — انتظر');
+    alert('العملية قيد التنفيذ — انتظر');
     return;
   }
   const l = document.getElementById('dtcList');
-  ifl) return;
+  if (!l) return;
   if (!app.isConnected && !app.isDemo) {
-    l.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ غير متصل</p>';
+    l.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>';
     return;
   }
-  l.innerHTML = '<p class="text-blue-400 text-center py-4"><span class="spinner"></span> جاري الفحص الشامل...</p>';
+  l.innerHTML = '<p class="text-blue-400 text-center py-4">جاري الفحص الشامل...</p>';
   await pauseLiveWait();
   try {
     const all = [];
@@ -134,18 +135,18 @@ export async function scanAll() {
     }
     try { await sendCmd('AT SH 7DF', 800, 0); } catch (_) {}
     if (!answered) {
-      l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">⚠️ لم تردّ أي وحدة</div>';
+      l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد أي وحدة</div>';
       return;
     }
     if (!all.length) {
-      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ لا أعطال</div>';
+      l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال</div>';
       return;
     }
     renderFaults(all);
     dispSmart(all.map(f => f.code));
     dispHealth(all, runDiag(all.map(f => f.code)));
   } catch (e) {
-    l.innerHTML = '<p class="text-red-400 text-center py-4">❌ خطأ: ' + e.message + '</p>';
+    l.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>';
   } finally {
     resumeLive();
   }
@@ -153,18 +154,18 @@ export async function scanAll() {
 
 export async function clearDTCs() {
   if (!app.isConnected && !app.isDemo) { alert('غير متصل'); return; }
-  if (!confirm('⚠️ مسح الأعطال سيحذف freeze frame.\nمتابعة؟')) return;
+  if (!confirm('مسح الأعطال سيحذف freeze frame. متابعة؟')) return;
   const l = document.getElementById('dtcList');
   await pauseLiveWait();
   try {
     const r = await sendCmd('04', 5000, 0);
     if (parseMsgs(r).some(m => m[0] === 0x44)) {
-      if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">✅ تم مسح الأعطال</p>';
+      if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال</p>';
     } else {
-      if (l) l.innerHTML = '<p class="text-amber-400 text-center py-4">⚠️ لم تؤكد السيارة المسح.</p>';
+      if (l) l.innerHTML = '<p class="text-amber-400 text-center py-4">لم تؤكد السيارة المسح</p>';
     }
   } catch (e) {
-    if (l) l.innerHTML = '<p class="text-red-400 text-center py-4">❌ ' + e.message + '</p>';
+    if (l) l.innerHTML = '<p class="text-red-400 text-center py-4">' + e.message + '</p>';
   } finally {
     resumeLive();
   }
@@ -182,7 +183,7 @@ function renderFaults(faults) {
     fuel: 'الوقود', cooling: 'التبريد', brakes: 'الفرامل',
     airbag: 'الوسائد', transmission: 'الجير', abs: 'ABS'
   };
-  let h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">🚗 بيانات مقروءة فعلياً من السيارة</div>';
+  let h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة فعلياً من السيارة</div>';
   faults.forEach(f => {
     const info = getInfo(f.code);
     const tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
