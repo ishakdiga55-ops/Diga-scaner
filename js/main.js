@@ -4,12 +4,12 @@ import { readDTCs, scanAll, clearDTCs } from './obd-commands.js';
 import { initTheme } from './ui/theme.js';
 import { initSearch } from './ui/search.js';
 import { initSymp, initPop, initFamily, initSevFilters, initTabs,
-         renderFav, updFavCount, renderHist, clearHist, renderStats,
-         toggleFav, isFav } from './ui-extras.js';
+         renderFav, updFavCount, renderHist, clearHist, renderStats } from './ui-extras.js';
 import { startDemo, stopDemo, batUI, runBatteryTest,
          runReadiness, exportPDF, shareWA } from './extras.js';
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
+import { toast } from './ui/toast.js';
 
 function init() {
   initApp();
@@ -26,7 +26,7 @@ function init() {
   bind('demo-btn', startDemo);
   bind('disconnect-btn', async () => { stopDemo(); await handleDisc(); });
   bind('clear-btn', () => {
-    if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
+    if (!app.isConnected && !app.isDemo) { toast('اتصل بالسيارة أولاً', 'warn'); return; }
     clearDTCs();
   });
   bind('btnReadDTC', readDTCs);
@@ -57,7 +57,6 @@ function init() {
   initPop();
   initFamily();
   initSevFilters();
-  renderRecent();
   updFavCount();
   batUI();
 
@@ -80,12 +79,6 @@ function init() {
 
   // تحميل قاعدة البيانات الكاملة
   loadFullDatabase().catch(e => log('WARN: ' + e.message));
-}
-
-function renderRecent() {
-  // دالة بسيطة — يمكن تحسينها لاحقاً
-  const e = document.getElementById('recentSearches');
-  if (!e) return;
 }
 
 if (document.readyState === 'loading') {
