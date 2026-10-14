@@ -9,12 +9,10 @@ import { startDemo, stopDemo, batUI, runBatteryTest,
          runReadiness, exportPDF, shareWA } from './extras.js';
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
-import { toast } from './ui/toast.js';
 
 function init() {
   initApp();
 
-  // ربط الأزرار
   const bind = (id, fn) => {
     const el = document.getElementById(id);
     if (el) el.onclick = fn;
@@ -26,7 +24,7 @@ function init() {
   bind('demo-btn', startDemo);
   bind('disconnect-btn', async () => { stopDemo(); await handleDisc(); });
   bind('clear-btn', () => {
-    if (!app.isConnected && !app.isDemo) { toast('اتصل بالسيارة أولاً', 'warn'); return; }
+    if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
     clearDTCs();
   });
   bind('btnReadDTC', readDTCs);
@@ -45,11 +43,9 @@ function init() {
   bind('btnExportPDF', exportPDF);
   bind('btnShareWA', shareWA);
 
-  // إغلاق نافذة التفاصيل عند الضغط خارجها
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
-  // تهيئة الوحدات
   initTheme();
   initTabs();
   initSearch();
@@ -60,7 +56,6 @@ function init() {
   updFavCount();
   batUI();
 
-  // شارات التنبيه
   if (app.isIOS && !app.isBluefy) {
     const b = document.getElementById('bluefyBanner');
     if (b) b.classList.remove('hidden');
@@ -70,14 +65,11 @@ function init() {
     if (b) b.classList.remove('hidden');
   }
 
-  // تحديث العدادات مبدئياً
   setTimeout(() => updAllG({ rpm: null, speed: null, coolant: null, fuelLevel: null }), 300);
 
-  // تسجيل البداية
   log('OK: ' + Object.keys(DTC_DATABASE).length + ' عطل أساسي');
   log('INFO: تحميل قاعدة البيانات...');
 
-  // تحميل قاعدة البيانات الكاملة
   loadFullDatabase().catch(e => log('WARN: ' + e.message));
 }
 
