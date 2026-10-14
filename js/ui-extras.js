@@ -111,3 +111,89 @@ function showSymp(i) {
   d.innerHTML = h;
   if (c) c.textContent = '(' + s.codes.length + ')';
 }
+
+export function initPop() {
+  const e = document.getElementById('popularCodes');
+  if (!e) return;
+  e.innerHTML = POPULAR.map(c => {
+    const i = getInfo(c);
+    return '<button class="code-card bg-gray-900 rounded-xl p-2.5 text-right" data-code="' + c + '"><div class="font-mono font-bold text-red-300 text-xs">' + c + '</div><div class="text-[10px] text-gray-500 truncate">' + escapeHtml(i.title) + '</div></button>';
+  }).join('');
+  e.querySelectorAll('[data-code]').forEach(b => {
+    b.onclick = () => showDetail(b.dataset.code);
+  });
+}
+
+export function initFamily() {
+  const e = document.getElementById('familyBrowser');
+  if (!e) return;
+  const fs = [
+    { k: 'P0', l: 'P0xxx المحرك', i: '⚙️', c: '#3b82f6' },
+    { k: 'P1', l: 'P1xxx مصنّعين', i: '🏭', c: '#8b5cf6' },
+    { k: 'P2', l: 'P2xxx محرك SAE', i: '🔧', c: '#a855f7' },
+    { k: 'P3', l: 'P3xxx صيني', i: '🇨🇳', c: '#ec4899' },
+    { k: 'B0', l: 'B0xxx الهيكل', i: '🚗', c: '#f59e0b' },
+    { k: 'C0', l: 'C0xxx الشاسيه', i: '🛑', c: '#ef4444' },
+    { k: 'U0', l: 'U0xxx الشبكة', i: '📡', c: '#10b981' },
+    { k: 'U3', l: 'U3xxx كهربائي', i: '⚡', c: '#06b6d4' }
+  ];
+  e.innerHTML = fs.map(f => '<button class="code-card bg-gray-900 rounded-xl p-3 text-right border-l-4" style="border-color:' + f.c + '" data-fam="' + f.k + '"><div class="font-bold text-xs" style="color:' + f.c + '">' + f.i + ' ' + f.l + '</div></button>').join('');
+  e.querySelectorAll('[data-fam]').forEach(b => {
+    b.onclick = () => browseFam(b.dataset.fam);
+  });
+}
+
+function browseFam(p) {
+  const d = document.getElementById('searchResults');
+  const c = document.getElementById('searchCount');
+  if (!d) return;
+  const res = [];
+  for (const k of Object.keys(DTC_DATABASE)) {
+    if (k.split('_')[0].toUpperCase().startsWith(p)) res.push(k);
+    if (res.length >= 80) break;
+  }
+  if (!res.length) {
+    d.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">لا توجد نتائج</p>';
+    return;
+  }
+  let h = '<div class="text-xs text-gray-400 mb-2">عائلة ' + p + 'xxx — ' + res.length + ' عطل</div><div class="space-y-1">';
+  res.forEach(cd => {
+    const i = getInfo(cd);
+    h += '<div class="code-card bg-gray-900 rounded-lg p-2 text-xs flex justify-between items-center" data-code="' + cd + '">';
+    h += '<span><span class="font-mono text-red-300 font-bold">' + cd + '</span> — ' + escapeHtml(i.title) + '</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  d.innerHTML = h;
+  if (c) c.textContent = '(' + res.length + ')';
+}
+
+export function initSevFilters() {
+  const e = document.getElementById('severityFilters');
+  if (!e) return;
+  e.querySelectorAll('[data-severity]').forEach(b => {
+    b.onclick = function () {
+      e.querySelectorAll('[data-severity]').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    };
+  });
+}
+
+export function initTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = function () {
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('bg-blue-600', 'text-white');
+        t.classList.add('bg-gray-800', 'text-gray-400');
+      });
+      tab.classList.remove('bg-gray-800', 'text-gray-400');
+      tab.classList.add('bg-blue-600', 'text-white');
+      document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+      const target = document.getElementById('panel-' + tab.dataset.tab);
+      if (target) target.classList.remove('hidden');
+      if (tab.dataset.tab === 'favorites') renderFav();
+      if (tab.dataset.tab === 'history') renderHist();
+      if (tab.dataset.tab === 'stats') renderStats();
+    };
+  });
+}
