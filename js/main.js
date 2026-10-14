@@ -18,6 +18,7 @@ function init() {
     if (el) el.onclick = fn;
   };
 
+  // ═══ الاتصال ═══
   bind('connect-btn', async () => {
     try { await connectOBD(false); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
@@ -39,12 +40,24 @@ function init() {
     try { await handleDisc(); } catch (_) {}
     try { const m = await import('./vin.js'); m.resetVIN(); } catch (_) {}
   });
+
+  // ═══ الفحص ═══
   bind('clear-btn', () => {
     if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
     clearDTCs();
   });
   bind('btnReadDTC', readDTCs);
   bind('btnScanAll', scanAll);
+  bind('btnScanABS', async () => {
+    try {
+      const m = await import('./abs-scan.js');
+      await m.scanABS();
+    } catch (err) {
+      alert('خطأ في فحص ABS');
+    }
+  });
+
+  // ═══ واجهات ═══
   bind('btnFavorites', () => {
     const t = document.querySelector('[data-tab="favorites"]');
     if (t) t.click();
@@ -59,9 +72,11 @@ function init() {
   bind('btnExportPDF', exportPDF);
   bind('btnShareWA', shareWA);
 
+  // إغلاق نافذة التفاصيل
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
+  // ═══ التهيئة ═══
   initTheme();
   initTabs();
   initSearch();
@@ -72,6 +87,7 @@ function init() {
   updFavCount();
   batUI();
 
+  // شارات
   if (app.isIOS && !app.isBluefy) {
     const b = document.getElementById('bluefyBanner');
     if (b) b.classList.remove('hidden');
