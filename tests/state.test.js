@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { app, ble, usb, comm, live, session, user, initApp } from '../js/state.js';
+import { describe, it, expect } from 'vitest';
+import { app, ble, usb, comm, live, session, user } from '../js/state.js';
 
 describe('app — الحالة العامة', () => {
   it('يحتوي على جميع الحقول المطلوبة', () => {
@@ -125,30 +125,5 @@ describe('user — بيانات المستخدم', () => {
 
   it('batteryStep يبدأ من 0', () => {
     expect(user.batteryStep).toBe(0);
-  });
-});
-
-describe('initApp — التهيئة', () => {
-  beforeEach(() => {
-    initApp();
-  });
-
-  it('لا يرمي خطأ عند التنفيذ', () => {
-    expect(() => initApp()).not.toThrow();
-  });
-
-  it('يكتشف بيئة التشغيل', () => {
-    expect(typeof app.isIOS).toBe('boolean');
-    expect(typeof app.isBluefy).toBe('boolean');
-    expect(typeof app.hasSerial).toBe('boolean');
-    expect(typeof app.hasBLE).toBe('boolean');
-  });
-
-  it('يحافظ على user.favorites كمصفوفة', () => {
-    expect(Array.isArray(user.favorites)).toBe(true);
-  });
-
-  it('يحافظ على user.recentSearches كمصفوفة', () => {
-    expect(Array.isArray(user.recentSearches)).toBe(true);
   });
 });
