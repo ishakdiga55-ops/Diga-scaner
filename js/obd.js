@@ -385,3 +385,152 @@ export async function handleDisc() {
   updConnUI(false);
   log('INFO: تم قطع الاتصال');
 }
+
+export function setStatus(s) {
+  const e = document.getElementById('connection-status');
+  const d = document.getElementById('statusDot');
+  if (!e || !d) return;
+  if (s === 'connected') {
+    e.textContent = 'متصل';
+    e.className = 'text-sm font-bold text-green-400';
+    d.className = 'w-3 h-3 rounded-full bg-green-500';
+  } else if (s === 'demo') {
+    e.textContent = 'وضع تجريبي';
+    e.className = 'text-sm font-bold text-amber-400';
+    d.className = 'w-3 h-3 rounded-full bg-amber-500';
+  } else {
+    e.textContent = 'غير متصل';
+    e.className = 'text-sm font-bold text-red-400';
+    d.className = 'w-3 h-3 rounded-full bg-red-500';
+  }
+}
+
+export function updConnUI(c) {
+  const cb = document.getElementById('connect-btn');
+  const ub = document.getElementById('usb-btn');
+  const db = document.getElementById('demo-btn');
+  const x = document.getElementById('disconnect-btn');
+  if (!cb || !ub || !db || !x) return;
+  if (c) {
+    cb.classList.add('hidden');
+    ub.classList.add('hidden');
+    db.classList.add('hidden');
+    x.classList.remove('hidden');
+  } else {
+    cb.classList.remove('hidden');
+    if (!app.hasSerial || app.isIOS) ub.classList.add('hidden');
+    else ub.classList.remove('hidden');
+    db.classList.remove('hidden');
+    x.classList.add('hidden');
+  }
+}
+
+export function startLive() {
+  if (live.timer || live.busy) return;
+  live.paused = false;
+  live.tick = 0;
+  const loop = async () => {
+    live.timer = null;
+    if (!app.isConnected || app.isDemo || live.paused) return;
+    if (!comm.isProcessing && comm.cmdQ.length === 0) {
+      live.busy = true;
+      try {
+        const rpm = pRPM(await sendCmd('01 0C', 800, 1));
+        const spd = pSpeed(await sendCmd('01 0D', 800, 1));
+        if (live.tick % 4 === 0) {
+          live.lastCoolant = pCool(await sendCmd('01 05', 800, 1));
+          live.lastFuel = pFuel(await sendCmd('01 2F', 800, 1));
+        }
+        updAllG({ rpm, speed: spd, coolant: live.lastCoolant, fuelLevel: live.lastFuel });
+        live.tick++;
+      } catch (_) {}
+      finally { live.busy = false; }
+    }
+    if (app.isConnected && !app.isDemo && !live.paused && !live.timer)
+      live.timer = setTimeout(loop, 1200);
+  };
+  loop();
+}
+
+export function pauseLive() {
+  live.paused = true;
+  if (live.timer) { clearTimeout(live.timer); live.timer = null; }
+}
+
+export function resumeLive() {
+  live.paused = false;
+  if (app.isConnected && !app.isDemo && !live.timer && !live.busy) startLive();
+}
+
+export async function pauseLiveWait() {
+  pauseLive();
+  for (let i = 0; i < 60 && live.busy; i++) await sleepMs(100);
+}
+
+export function pHex(txt) {
+  if (!txt) return [];
+  const cleaned = txt.replace(/[^0-9A-Fa-f]/g, ' ');
+  const parts = cleaned.trim().split(/\s+/);
+  const bytes = [];
+  for (const x of parts) {
+    if (x.length === 2) bytes.push(parseInt(x, 16));
+    else if (x.length > 2 && x.length % 2 === 0)
+      for (let j = 0; j < x.length; j += 2) bytes.push(parseInt(x.substr(j, 2), 16));
+  }
+  return bytes;
+}
+
+export function pRPM(r) {
+  const b = pHex(r);
+  for (let i = 0; i < b.length - 3; i++)
+    if (b[i] === 0x41 && b[i + 1] === 0x0C)
+      return Math.round(((b[i + 2] * 256) + b[i + 3]) / 4);
+  return null;
+}
+
+export function pSpeed(r) {
+  const b = pHex(r);
+  for (let i = 0; i < b.length - 2; i++)
+    if (b[i] === 0x41 && b[i + 1] === 0x0D) return b[i + 2];
+  return null;
+}
+
+export function pCool(r) {
+  const b = pHex(r);
+  for (let i = 0; i < b.length - 2; i++)
+    if (b[i] === 0x41 && b[i + 1] === 0x05) return b[i + 2] - 40;
+  return null;
+}
+
+export function pFuel(r) {
+  const b = pHex(r);
+  for (let i = 0; i < b.length - 2; i++)
+    if (b[i] === 0x41 && b[i + 1] === 0x2F)
+      return Math.round(b[i + 2] * 100 / 255);
+  return null;
+}
+
+export function updAllG(v) {
+  updGauge('rpmArc', 'rpmNeedle', 'gauge-rpm', v.rpm, 8000);
+  updGauge('spdArc', 'spdNeedle', 'gauge-speed', v.speed, 220);
+  updGauge('colArc', 'colNeedle', 'gauge-coolant', v.coolant, 130);
+  updGauge('fuelArc', 'fuelNeedle', 'gauge-fuel', v.fuelLevel, 100);
+}
+
+function updGauge(arcId, needleId, valId, val, max) {
+  const arc = document.getElementById(arcId);
+  const ndl = document.getElementById(needleId);
+  const ve = document.getElementById(valId);
+  if (!arc || !ndl || !ve) return;
+  if (val == null || isNaN(val)) {
+    arc.setAttribute('stroke-dashoffset', '220');
+    ndl.style.transform = 'rotate(-90deg)';
+    ve.textContent = '--';
+    return;
+  }
+  const cv = Math.max(0, Math.min(max, val));
+  const p = cv / max;
+  arc.setAttribute('stroke-dashoffset', String(220 * (1 - p)));
+  ndl.style.transform = 'rotate(' + (-90 + p * 180) + 'deg)';
+  ve.textContent = Math.round(cv);
+}
