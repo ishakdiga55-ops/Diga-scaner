@@ -66,6 +66,122 @@ function parseUDS(resp) {
   return { ok, codes };
 }
 
+// ═══════════ Freeze Frame — مدمج ═══════════
+const FF_PIDS = {
+  0x04: 'حمل المحرك',
+  0x05: 'حرارة سائل التبريد',
+  0x0B: 'ضغط المشعب',
+  0x0C: 'دورات المحرك',
+  0x0D: 'سرعة السيارة',
+  0x0F: 'حرارة هواء السحب',
+  0x10: 'تدفق الهواء MAF',
+  0x11: 'موضع الخانق',
+  0x2F: 'مستوى الوقود',
+  0x42: 'فولت الوحدة',
+  0x46: 'حرارة البيئة'
+};
+
+function ffValue(pid, a, b) {
+  if (pid === 0x0C) return Math.round((a * 256 + b) / 4) + ' RPM';
+  if (pid === 0x0D) return a + ' كم/س';
+  if (pid === 0x05) return (a - 40) + ' °C';
+  if (pid === 0x04) return Math.round(a * 100 / 255) + ' %';
+  if (pid === 0x11) return Math.round(a * 100 / 255) + ' %';
+  if (pid === 0x0B) return a + ' kPa';
+  if (pid === 0x0F) return (a - 40) + ' °C';
+  if (pid === 0x10) return Math.round((a * 256 + b) / 100) + ' g/s';
+  if (pid === 0x2F) return Math.round(a * 100 / 255) + ' %';
+  if (pid === 0x42) return ((a * 256 + b) / 1000).toFixed(2) + ' V';
+  if (pid === 0x46) return (a - 40) + ' °C';
+  return a + '';
+}
+
+function buildFFHtml(dtc, rows) {
+  let h = '<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid #374151;margin-bottom:14px;">';
+  h += '<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">ظروف السيارة لحظة تسجيل العطل</div>';
+  h += '<div style="font-size:17px;font-weight:bold;">❄️ Freeze Frame</div>';
+  if (dtc) h += '<div style="font-family:monospace;color:#f87171;font-size:19px;font-weight:bold;margin-top:6px;">' + dtc + '</div>';
+  h += '</div>';
+  if (!rows.length) {
+    h += '<div style="text-align:center;padding:30px 20px;color:#9ca3af;">';
+    h += '<div style="font-size:36px;margin-bottom:10px;">📭</div>';
+    h += '<div style="font-weight:bold;margin-bottom:6px;color:#e5e7eb;">لا توجد بيانات Freeze Frame</div>';
+    h += '<div style="font-size:12px;">السيارة لم تسجّل ظروف الأعطال</div>';
+    h += '</div>';
+    return h;
+  }
+  h += '<div style="display:flex;flex-direction:column;gap:6px;">';
+  rows.forEach(function (r) {
+    h += '<div style="display:flex;justify-content:space-between;background:#111827;padding:11px 13px;border-radius:8px;">';
+    h += '<span style="font-size:13px;color:#9ca3af;">' + r[0] + '</span>';
+    h += '<span style="font-weight:bold;font-size:14px;color:#fff;">' + r[1] + '</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+async function openFreezeFrame() {
+  let modal = document.getElementById('ffModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'ffModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;overflow-y:auto;padding:16px;';
+    modal.innerHTML =
+      '<div style="max-width:600px;margin:24px auto;background:#1f2937;border-radius:16px;padding:20px;position:relative;">' +
+        '<button id="ffClose" style="position:absolute;top:12px;left:12px;background:#dc2626;color:#fff;width:32px;height:32px;border-radius:50%;border:none;font-size:18px;font-weight:bold;cursor:pointer;">×</button>' +
+        '<div id="ffBody" style="padding-top:8px;color:#e5e7eb;font-family:Cairo,sans-serif;direction:rtl;text-align:right;"></div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    document.getElementById('ffClose').onclick = function () { modal.style.display = 'none'; };
+    modal.onclick = function (e) { if (e.target.id === 'ffModal') modal.style.display = 'none'; };
+  }
+  const body = document.getElementById('ffBody');
+  modal.style.display = 'block';
+
+  if (app.isDemo) {
+    body.innerHTML = buildFFHtml('P0301', [
+      ['دورات المحرك', '2850 RPM'],
+      ['سرعة السيارة', '45 كم/س'],
+      ['حرارة سائل التبريد', '88 °C'],
+      ['حمل المحرك', '65 %'],
+      ['موضع الخانق', '22 %'],
+      ['ضغط المشعب', '45 kPa'],
+      ['حرارة هواء السحب', '32 °C'],
+      ['مستوى الوقود', '67 %'],
+      ['فولت الوحدة', '14.20 V']
+    ]);
+    return;
+  }
+
+  if (!app.isConnected) {
+    body.innerHTML = buildFFHtml(null, []);
+    return;
+  }
+
+  body.innerHTML = '<div style="text-align:center;padding:30px;color:#9ca3af;">جاري القراءة...</div>';
+
+  const rows = [];
+  const pidList = Object.keys(FF_PIDS).map(Number);
+  for (const pid of pidList) {
+    try {
+      const hex = pid.toString(16).toUpperCase().padStart(2, '0');
+      const resp = await sendCmd('02 ' + hex, 2500, 0);
+      const bytes = pHex(resp);
+      for (let i = 0; i < bytes.length - 2; i++) {
+        if (bytes[i] === 0x42 && bytes[i + 1] === pid) {
+          const a = bytes[i + 2] || 0;
+          const b = bytes[i + 3] || 0;
+          rows.push([FF_PIDS[pid], ffValue(pid, a, b)]);
+          break;
+        }
+      }
+    } catch (_) {}
+  }
+  body.innerHTML = buildFFHtml(null, rows);
+}
+// ═══════════ نهاية Freeze Frame ═══════════
+
 export async function readDTCs() {
   const l = document.getElementById('dtcList');
   if (!l) return;
@@ -227,21 +343,16 @@ function renderFaults(faults) {
     h += '<span class="text-[9px] px-1.5 py-0.5 rounded ' + tc + ' text-white font-bold">' + tl + '</span>';
     h += '</div>';
     h += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
-    h += '<button class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-ff="1">❄️ ظروف العطل</button>';
+    h += '<button type="button" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-ff="1">❄️ ظروف العطل</button>';
     h += '</div>';
   });
   l.innerHTML = h;
 
   l.querySelectorAll('[data-ff]').forEach(b => {
-    b.onclick = async function (e) {
+    b.onclick = function (e) {
+      e.preventDefault();
       e.stopPropagation();
-      if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
-      try {
-        const m = await import('./freeze-frame.js');
-        await m.showFreezeFrameModal();
-      } catch (err) {
-        alert('لا يمكن قراءة Freeze Frame');
-      }
+      openFreezeFrame();
     };
   });
 
