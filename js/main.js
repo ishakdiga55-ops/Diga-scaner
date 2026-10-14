@@ -1,10 +1,10 @@
-import { app, initApp, user } from './state.js';
+import { app, initApp } from './state.js';
 import { log, connectOBD, connectUSB, handleDisc, updAllG } from './obd.js';
 import { readDTCs, scanAll, clearDTCs } from './obd-commands.js';
 import { initTheme } from './ui/theme.js';
 import { initSearch } from './ui/search.js';
 import { initSymp, initPop, initFamily, initSevFilters, initTabs,
-         renderFav, updFavCount, renderHist, clearHist, renderStats } from './ui-extras.js';
+         updFavCount, renderHist, clearHist, renderStats } from './ui-extras.js';
 import { startDemo, stopDemo, batUI, runBatteryTest,
          runReadiness, exportPDF, shareWA } from './extras.js';
 import { loadFullDatabase } from './data/loader.js';
@@ -18,11 +18,27 @@ function init() {
     if (el) el.onclick = fn;
   };
 
-  bind('connect-btn', () => connectOBD(false));
-  bind('btShowAll', () => connectOBD(true));
-  bind('usb-btn', connectUSB);
-  bind('demo-btn', startDemo);
-  bind('disconnect-btn', async () => { stopDemo(); await handleDisc(); });
+  bind('connect-btn', async () => {
+    try { await connectOBD(false); } catch (_) {}
+    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+  });
+  bind('btShowAll', async () => {
+    try { await connectOBD(true); } catch (_) {}
+    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+  });
+  bind('usb-btn', async () => {
+    try { await connectUSB(); } catch (_) {}
+    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+  });
+  bind('demo-btn', async () => {
+    try { startDemo(); } catch (_) {}
+    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+  });
+  bind('disconnect-btn', async () => {
+    try { stopDemo(); } catch (_) {}
+    try { await handleDisc(); } catch (_) {}
+    try { const m = await import('./vin.js'); m.resetVIN(); } catch (_) {}
+  });
   bind('clear-btn', () => {
     if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
     clearDTCs();
