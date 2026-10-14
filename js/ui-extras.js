@@ -78,3 +78,36 @@ export function renderFav() {
     };
   });
 }
+export function initSymp() {
+  const e = document.getElementById('symptomChips');
+  if (!e) return;
+  let h = '';
+  SYMPTOMS_DB.forEach((s, i) => {
+    h += '<button class="symptom-chip" data-sym="' + i + '">' + s.icon + ' ' + escapeHtml(s.label) + '</button>';
+  });
+  e.innerHTML = h;
+  e.querySelectorAll('[data-sym]').forEach(b => {
+    b.onclick = () => showSymp(parseInt(b.dataset.sym, 10));
+  });
+}
+
+function showSymp(i) {
+  const s = SYMPTOMS_DB[i];
+  if (!s) return;
+  const d = document.getElementById('searchResults');
+  const c = document.getElementById('searchCount');
+  if (!d) return;
+  let h = '<div class="bg-purple-900/30 rounded-xl p-3 mb-3 border-r-4 border-purple-500"><div class="font-bold text-sm text-purple-200">' + s.icon + ' ' + escapeHtml(s.label) + '</div></div><div class="space-y-2">';
+  s.codes.forEach(cd => {
+    const inf = getInfo(cd);
+    const cl = { critical: '#dc2626', high: '#ef4444', medium: '#f59e0b', low: '#10b981' }[inf.severity] || '#64748b';
+    h += '<div class="code-card bg-gray-900 rounded-xl p-3 flex items-center gap-3" data-code="' + cd + '">';
+    h += '<div class="w-1 self-stretch rounded-full" style="background:' + cl + '"></div>';
+    h += '<div class="flex-1"><div class="font-mono font-bold text-red-300 text-sm">' + cd + '</div>';
+    h += '<div class="text-xs text-gray-400">' + escapeHtml(inf.title) + '</div></div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  d.innerHTML = h;
+  if (c) c.textContent = '(' + s.codes.length + ')';
+}
