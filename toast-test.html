@@ -6,22 +6,68 @@
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white p-6">
-<h1 class="text-2xl mb-6">اختبار Toast</h1>
+<h1 class="text-2xl mb-6">اختبار Toast (مدمج)</h1>
 <button id="btn1" class="bg-blue-600 px-4 py-2 rounded mb-2 block">Toast Info</button>
 <button id="btn2" class="bg-emerald-600 px-4 py-2 rounded mb-2 block">Toast Success</button>
 <button id="btn3" class="bg-amber-600 px-4 py-2 rounded mb-2 block">Toast Warn</button>
 <button id="btn4" class="bg-red-600 px-4 py-2 rounded mb-2 block">Toast Error</button>
+<button id="btn5" class="bg-purple-600 px-4 py-2 rounded mb-2 block">Confirm</button>
+
+<pre id="log" class="bg-black text-green-400 p-3 rounded mt-4 text-xs"></pre>
+
 <script type="module">
-import { toast, confirmDialog } from './js/ui/toast.js';
-document.getElementById('btn1').onclick = () => toast('رسالة معلومات', 'info');
-document.getElementById('btn2').onclick = () => toast('نجح!', 'success');
-document.getElementById('btn3').onclick = () => toast('تحذير', 'warn');
-document.getElementById('btn4').onclick = () => toast('خطأ', 'error');
-window.testConfirm = async () => {
-  const r = await confirmDialog('هل أنت متأكد؟');
-  toast('اخترت: ' + (r ? 'نعم' : 'لا'), r ? 'success' : 'info');
-};
+const logEl = document.getElementById('log');
+function L(msg) { logEl.textContent += msg + '\n'; }
+
+L('بدء السكريبت...');
+
+let container = null;
+
+function getContainer() {
+  if (container) return container;
+  container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:90vw;';
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+function toast(msg, type = 'info', duration = 3000) {
+  const c = getContainer();
+  const colors = {
+    info: 'background:#2563eb',
+    success: 'background:#059669',
+    warn: 'background:#d97706',
+    error: 'background:#dc2626'
+  };
+  const icons = { info: 'ℹ️', success: '✅', warn: '⚠️', error: '❌' };
+  const el = document.createElement('div');
+  el.style.cssText = 'pointer-events:auto;padding:12px 16px;border-radius:12px;color:white;font-weight:bold;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(-20px);transition:all 250ms;' + colors[type];
+  el.textContent = (icons[type] || '') + ' ' + msg;
+  c.appendChild(el);
+  requestAnimationFrame(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  });
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-20px)';
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
+L('toast() جاهز');
+
+document.getElementById('btn1').onclick = () => { L('ضغط Info'); toast('رسالة معلومات', 'info'); };
+document.getElementById('btn2').onclick = () => { L('ضغط Success'); toast('نجح!', 'success'); };
+document.getElementById('btn3').onclick = () => { L('ضغط Warn'); toast('تحذير', 'warn'); };
+document.getElementById('btn4').onclick = () => { L('ضغط Error'); toast('خطأ', 'error'); };
+document.getElementById('btn5').onclick = () => { L('ضغط Confirm'); alert('confirm يعمل!'); };
+
+L('الأزرار جاهزة ✅');
 </script>
-<button onclick="testConfirm()" class="bg-purple-600 px-4 py-2 rounded mt-4">اختبار Confirm</button>
 </body>
 </html>
