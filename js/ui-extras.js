@@ -49,3 +49,32 @@ export function updFavCount() {
     e.classList.remove('hidden');
   } else e.classList.add('hidden');
 }
+
+export function renderFav() {
+  const l = document.getElementById('favoritesList');
+  if (!l) return;
+  if (!user.favorites.length) {
+    l.innerHTML = '<p class="text-gray-500 text-center py-6">لا توجد أكواد في المفضلة</p>';
+    return;
+  }
+  let h = '<div class="space-y-2">';
+  user.favorites.forEach(c => {
+    const i = getInfo(c);
+    h += '<div class="code-card bg-gray-900 rounded-xl p-3" data-code="' + c + '">';
+    h += '<div class="flex items-center justify-between gap-2 mb-1">';
+    h += '<span class="font-mono font-bold text-amber-400">' + c + '</span>';
+    h += '<button class="text-red-400 text-xs" data-rm-fav="' + c + '">حذف</button>';
+    h += '</div>';
+    h += '<div class="text-xs text-gray-400">' + escapeHtml(i.title) + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  l.innerHTML = h;
+  l.querySelectorAll('[data-rm-fav]').forEach(b => {
+    b.onclick = function (e) {
+      e.stopPropagation();
+      toggleFav(b.dataset.rmFav);
+      renderFav();
+    };
+  });
+}
