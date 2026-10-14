@@ -67,13 +67,27 @@ function parseUDS(resp) {
 }
 
 export async function readDTCs() {
+  const l = document.getElementById('dtcList');
+  if (!l) return;
+
+  if (app.isDemo) {
+    const demoFaults = [
+      { code: 'P0301', system: 'engine', type: 'confirmed' },
+      { code: 'P0171', system: 'engine', type: 'confirmed' },
+      { code: 'P0420', system: 'exhaust', type: 'pending' },
+      { code: 'U0100', system: 'electronics', type: 'confirmed' }
+    ];
+    renderFaults(demoFaults);
+    dispSmart(demoFaults.map(f => f.code));
+    dispHealth(demoFaults, runDiag(demoFaults.map(f => f.code)));
+    return;
+  }
+
   if (comm.isProcessing || comm.cmdQ.length > 0) {
     alert('العملية قيد التنفيذ — انتظر');
     return;
   }
-  const l = document.getElementById('dtcList');
-  if (!l) return;
-  if (!app.isConnected && !app.isDemo) {
+  if (!app.isConnected) {
     l.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>';
     return;
   }
@@ -106,13 +120,27 @@ export async function readDTCs() {
 }
 
 export async function scanAll() {
+  const l = document.getElementById('dtcList');
+  if (!l) return;
+
+  if (app.isDemo) {
+    const demoFaults = [
+      { code: 'P0300', system: 'engine', type: 'confirmed' },
+      { code: 'P0171', system: 'engine', type: 'confirmed' },
+      { code: 'P0420', system: 'exhaust', type: 'pending' },
+      { code: 'U0100', system: 'electronics', type: 'confirmed' }
+    ];
+    renderFaults(demoFaults);
+    dispSmart(demoFaults.map(f => f.code));
+    dispHealth(demoFaults, runDiag(demoFaults.map(f => f.code)));
+    return;
+  }
+
   if (comm.isProcessing || comm.cmdQ.length > 0) {
     alert('العملية قيد التنفيذ — انتظر');
     return;
   }
-  const l = document.getElementById('dtcList');
-  if (!l) return;
-  if (!app.isConnected && !app.isDemo) {
+  if (!app.isConnected) {
     l.innerHTML = '<p class="text-amber-400 text-center py-4">غير متصل</p>';
     return;
   }
@@ -153,9 +181,13 @@ export async function scanAll() {
 }
 
 export async function clearDTCs() {
-  if (!app.isConnected && !app.isDemo) { alert('غير متصل'); return; }
-  if (!confirm('مسح الأعطال سيحذف freeze frame. متابعة؟')) return;
   const l = document.getElementById('dtcList');
+  if (app.isDemo) {
+    if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال (تجريبي)</p>';
+    return;
+  }
+  if (!app.isConnected) { alert('غير متصل'); return; }
+  if (!confirm('مسح الأعطال سيحذف freeze frame. متابعة؟')) return;
   await pauseLiveWait();
   try {
     const r = await sendCmd('04', 5000, 0);
@@ -183,7 +215,7 @@ function renderFaults(faults) {
     fuel: 'الوقود', cooling: 'التبريد', brakes: 'الفرامل',
     airbag: 'الوسائد', transmission: 'الجير', abs: 'ABS'
   };
-  let h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة فعلياً من السيارة</div>';
+  let h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة</div>';
   faults.forEach(f => {
     const info = getInfo(f.code);
     const tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
