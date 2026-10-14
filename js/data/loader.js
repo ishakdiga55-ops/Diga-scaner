@@ -29,6 +29,7 @@ function log(msg) {
 
 function updateCount() {
   const tot = Object.keys(DTC_DATABASE).length;
+  if (tot < 10000) return tot;
   const fmt = tot.toLocaleString('en-US');
   const e1 = document.getElementById('heroCount');
   const e2 = document.getElementById('statCodes');
@@ -52,8 +53,8 @@ function convItem(it) {
   if (!it || !it.code) return null;
   const code = String(it.code).toUpperCase().trim();
   if (!code || code === 'P0000') return null;
-  const tAr = (it[c.title && it.title.ar) ? it.title.ar : '';
-]  const tEn = (it.title && it.title.en) ? it.title.en : (typeof it.title === 'string' ? it.title : code);
+  const tAr = (it.title && it.title.ar) ? it.title.ar : '';
+  const tEn = (it.title && it.title.en) ? it.title.en : (typeof it.title === 'string' ? it.title : code);
   let dAr = '', dEn = '';
   if (it.description) {
     if (typeof it.description === 'object') { dAr = it.description.ar || ''; dEn = it.description.en || ''; }
@@ -155,7 +156,7 @@ async function loadWal33D() {
     if (!r[0]) return 0;
     const cols = r[0].columns;
     const rows = r[0].values.map(row => {
-      const o = {}; cols.forEach((c, i) => o = row[i]); return o;
+      const o = {}; cols.forEach((c, i) => o[c] = row[i]); return o;
     });
     let added = 0;
     for (const row of rows) {
@@ -201,8 +202,8 @@ export async function loadFullDatabase() {
   }
   buildDTCIndex();
   buildSearchIndex();
-  updateCount();
-  log('OK: محلي — ' + Object.keys(DTC_DATABASE).length + ' كود');
+  const quick = updateCount();
+  log('OK: محلي — ' + quick + ' كود');
 
   if (bt) bt.textContent = 'تحميل الملفات الإقليمية...';
   for (const f of SLOW_FILES) {
@@ -214,8 +215,8 @@ export async function loadFullDatabase() {
   }
   buildDTCIndex();
   buildSearchIndex();
-  updateCount();
-  log('OK: إقليمي — ' + Object.keys(DTC_DATABASE).length + ' كود');
+  const total = updateCount();
+  log('OK: إقليمي — ' + total + ' كود');
 
   if (b) b.style.display = 'none';
 
