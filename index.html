@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CheckDiga Pro — فحص السيارات (اختبار)</title>
+<title>CheckDiga Pro — فحص السيارات</title>
 <link rel="icon" type="image/png" href="logo.png">
 <meta name="theme-color" content="#0f172a">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -112,6 +112,7 @@
 <div class="grid grid-cols-2 gap-2">
 <button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
 <button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-radar"></i> فحص الكل</button>
+<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
 </div>
 <div id="scanSummary" class="text-xs space-y-1"></div>
 <div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
@@ -374,14 +375,14 @@
 
   function injectBtn(){
     if (document.getElementById('btnAdvDiag')) return;
-    var anchor = document.getElementById('btnScanAll');
+    var anchor = document.getElementById('btnScanABS');
     if (!anchor) { setTimeout(injectBtn, 400); return; }
     var parent = anchor.closest('.bg-gray-800');
     if (!parent) { setTimeout(injectBtn, 400); return; }
     var b = document.createElement('button');
     b.id = 'btnAdvDiag';
     b.type = 'button';
-    b.className = 'w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold mt-3 flex items-center justify-center gap-2';
+    b.className = 'w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold mt-3 flex items-center justify-center gap-2 col-span-2';
     b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(30 قاعدة)</span>';
     b.onclick = function(){
       var codes = getCodes();
