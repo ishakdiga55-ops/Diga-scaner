@@ -1,0 +1,105 @@
+name: 🐛 الإبلاغ عن خطأ
+description: أبلغ عن مشكلة أو خطأ في التطبيق
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكراً لك على الإبلاغ! الرجاء ملء النموذج بدقة.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 وصف المشكلة
+      description: اشرح ما حدث بوضوح
+      placeholder: عند الضغط على زر... لاحظت أن...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔄 خطوات إعادة الإنتاج
+      description: كيف يمكننا إعادة المشكلة؟
+      placeholder: |
+        1. افتح التطبيق
+        2. اضغط على...
+        3. لاحظ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ✅ السلوك المتوقع
+      description: ماذا كان يجب أن يحدث؟
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 🌐 المتصفح
+      options:
+        - Chrome (Android)
+        - Chrome (Windows)
+        - Edge
+        - Bluefy (iPhone)
+        - Safari
+        - Firefox
+        - أخرى
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: 📱 الجهاز
+      options:
+        - هاتف Android
+        - iPhone
+        - حاسوب Windows
+        - حاسوب Mac
+        - Linux
+        - أخرى
+    validations:
+      required: true
+
+  - type: dropdown
+    id: connection
+    attributes:
+      label: 🔌 نوع الاتصال
+      options:
+        - Bluetooth (BLE 4.0)
+        - USB (Serial)
+        - وضع تجريبي (Demo)
+        - بدون اتصال
+    validations:
+      required: true
+
+  - type: input
+    id: adapter
+    attributes:
+      label: 🛠️ نوع جهاز ELM327 (إن وُجد)
+      placeholder: مثال ELM327 BLE 4.0، Vgate iCar Pro
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 لقطات الشاشة
+      description: اسحب الصور هنا (اختياري)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: ✅ التحقق
+      options:
+        - label: بحثت في Issues الموجودة ولم أجد نفس المشكلة
+          required: true
+        - label: جرّبت أحدث إصدار من التطبيق
+          required: true
