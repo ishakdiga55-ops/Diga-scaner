@@ -1,0 +1,79 @@
+name: ✨ طلب ميزة جديدة
+description: اقترح ميزة أو تحسيناً للتطبيق
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكراً على اقتراحك! ساعدنا في فهم الفكرة.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🎯 المشكلة
+      description: ما المشكلة التي تحلها هذه الميزة؟
+      placeholder: أواجه صعوبة في...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 الحل المقترح
+      description: كيف تتخيل الميزة؟
+      placeholder: أريد أن يكون هناك زر...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 بدائل جربتها
+      description: هل جربت حلولاً أخرى؟
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 الأولوية (من وجهة نظرك)
+      options:
+        - 🔴 عالية جداً (لا أستطيع الاستخدام بدونها)
+        - 🟠 عالية (تحسّن كبير)
+        - 🟡 متوسطة (تحسين جيد)
+        - 🟢 منخفضة (فكرة إضافية)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 📂 الفئة
+      options:
+        - 🔌 الاتصال (Bluetooth/USB)
+        - 📖 قراءة الأكواد
+        - 🧠 التحليل الذكي
+        - 🎨 الواجهة
+        - 📊 القياسات الحية
+        - 📄 التقارير
+        - 🌐 اللغة
+        - أخرى
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 📝 معلومات إضافية
+      description: أي تفاصيل أخرى، لقطات شاشة، أمثلة
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: ✅ التحقق
+      options:
+        - label: بحثت في Issues الموجودة ولم أجد نفس الاقتراح
+          required: true
