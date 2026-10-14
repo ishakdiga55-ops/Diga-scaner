@@ -348,3 +348,122 @@ body.light-mode #dtcSearchInput:focus {
 body.light-mode #searchResults .code-card:hover {
   box-shadow: 0 8px 20px rgba(59, 130, 246, .2);
 }
+
+/* ============================================
+   Polish — Animations & Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+body.light-mode ::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+body.light-mode ::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.code-card,
+.gauge-box,
+.sys-item {
+  animation: fadeSlideIn 0.35s ease-out;
+}
+
+.code-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease,.s background 0.2s ease;
+  cursorys: pointer;
+}
+.code-item-card:hover {
+  transform: translate:hoverY(-2px);
+  box-shadow: {
+ 0 8px 20 px rgba(0, 0, 0, 0.35);
+}
+
+button {
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tab {
+  transition: all 0.2s ease;
+}
+.tab:hover {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.sys-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+ transform: scale(1.05);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+input[type="text"] {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input[type="text"]:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.symptom-chip,
+.filter-chip {
+  transition: all 0.2s ease;
+}
+.symptom-chip:hover,
+.filter-chip:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.15);
+}
+
+@keyframes spinSmooth {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinSmooth 0.8s linear infinite;
+}
+
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.pulse {
+  animation: softPulse 2s ease-in-out infinite;
+}
