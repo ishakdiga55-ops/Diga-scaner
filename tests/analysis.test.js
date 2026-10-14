@@ -14,8 +14,8 @@ describe('runDiag — قواعد التشخيص', () => {
     expect(titles).toContain('تسرب هواء في نظام السحب');
   });
 
-  it('يكتشف اشتعال متقطع (P0300)', () => {
-    const r = runDiag(['P0300']);
+  it('يكتشف اشتعال متقطع (P0300 + P0301)', () => {
+    const r = runDiag(['P0300', 'P0301']);
     const titles = r.map(x => x.title);
     expect(titles).toContain('مشكلة في نظام الإشعال');
   });
@@ -40,7 +40,7 @@ describe('runDiag — قواعد التشخيص', () => {
   });
 
   it('يُحدّد 5 نتائج كحد أقصى', () => {
-    const r = runDiag(['P0171','P0174','P0300','P0217','U0100','P0524','P0420']);
+    const r = runDiag(['P0171','P0174','P0300','P0301','P0217','U0100','P0524','P0420']);
     expect(r.length).toBeLessThanOrEqual(5);
   });
 
