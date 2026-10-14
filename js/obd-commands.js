@@ -226,10 +226,24 @@ function renderFaults(faults) {
     h += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
     h += '<span class="text-[9px] px-1.5 py-0.5 rounded ' + tc + ' text-white font-bold">' + tl + '</span>';
     h += '</div>';
-    h += '<div class="text-xs text-gray-300">' + info.title + '</div>';
+    h += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
+    h += '<button class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-ff="1">❄️ ظروف العطل</button>';
     h += '</div>';
   });
   l.innerHTML = h;
+
+  l.querySelectorAll('[data-ff]').forEach(b => {
+    b.onclick = async function (e) {
+      e.stopPropagation();
+      if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
+      try {
+        const m = await import('./freeze-frame.js');
+        await m.showFreezeFrameModal();
+      } catch (err) {
+        alert('لا يمكن قراءة Freeze Frame');
+      }
+    };
+  });
 
   try {
     const hist = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
