@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 الأسئلة والمناقشات
+    url: https://github.com/ishakdiga55-ops/Diga-scaner/discussions
+    about: لأي سؤال عام أو نقاش، استخدم Discussions
+  - name: 🔒 الإبلاغ عن ثغرة أمنية
+    url: https://github.com/ishakdiga55-ops/Diga-scaner/security/advisories/new
+    about: لا تفتح Issue عام للثغرات الأمنية
+  - name: 📖 التوثيق
+    url: https://github.com/ishakdiga55-ops/Diga-scaner#readme
+    about: راجع README قبل فتح Issue
