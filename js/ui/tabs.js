@@ -19,7 +19,7 @@ export function initTabs() {
       if (which === 'live') {
         setTimeout(() => {
           try { initChart(); } catch (_) {}
-        }, 200);
+        }, 300);
       }
     };
   });
