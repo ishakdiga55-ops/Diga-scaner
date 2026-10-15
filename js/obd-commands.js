@@ -66,7 +66,6 @@ function parseUDS(resp) {
   return { ok, codes };
 }
 
-// ═══════════ Freeze Frame ═══════════
 const FF_PIDS = {
   0x04: 'حمل المحرك',
   0x05: 'حرارة سائل التبريد',
@@ -177,9 +176,7 @@ async function openFreezeFrame() {
   }
   body.innerHTML = ffHtml(null, rows);
 }
-// ═══════════ نهاية Freeze Frame ═══════════
 
-// ═══════════ System Grid ═══════════
 function updSysGrid(faults) {
   const items = document.querySelectorAll('.sys-item');
   items.forEach(e => e.classList.remove('good', 'bad', 'unknown'));
@@ -203,7 +200,6 @@ function updSysGrid(faults) {
     else e.classList.add('good');
   });
 }
-// ═══════════ نهاية System Grid ═══════════
 
 export async function readDTCs() {
   const l = document.getElementById('dtcList');
