@@ -1,5 +1,5 @@
 import { app, live, session } from './state.js';
-import { sendCmd, pauseLiveWait, resumeLive } from './obd.js';
+import { sendCmd, pauseLiveWait, resumeLive, updAllG } from './obd.js';
 import { runDiag, confLabel, calcHealth } from './analysis.js';
 import { getInfo, DTC_DATABASE } from './data/database.js';
 
@@ -17,8 +17,9 @@ export function startDemo() {
     const f = 40 + Math.floor(Math.random() * 50);
     live.lastCoolant = c;
     live.lastFuel = f;
-    const el = document.getElementById('gauge-rpm');
-    if (el) el.textContent = r;
+    try { updAllG({ rpm: r, speed: s, coolant: c, fuelLevel: f }); } catch (_) {}
+    try { updChart(r, s); } catch (_) {}
+    try { autoAnalyze(r, s, c); } catch (_) {}
   }, 1500);
 }
 
@@ -46,6 +47,7 @@ function updConnUIDemo() {
   if (x) x.classList.remove('hidden');
 }
 
+// ═══════════ Battery Test ═══════════
 const BAT_HINTS = [
   '① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»',
   '② شغّل المحرك على الخمول ثم اضغط «قراءة»',
@@ -173,6 +175,7 @@ export async function runBatteryTest() {
   }
 }
 
+// ═══════════ Readiness ═══════════
 function pMon(b, bit) {
   if (!(b & (1 << bit))) return 'na';
   return (b & (1 << (bit + 4))) ? 'no' : 'yes';
@@ -222,6 +225,7 @@ function renderReadiness(d) {
   c.innerHTML = h;
 }
 
+// ═══════════ Export PDF ═══════════
 export function exportPDF() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال لتصديرها'); return; }
@@ -255,6 +259,7 @@ export function exportPDF() {
   }, 600);
 }
 
+// ═══════════ WhatsApp Share ═══════════
 export function shareWA() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال'); return; }
@@ -274,8 +279,12 @@ export function shareWA() {
   window.open('https://wa.me/?text=' + encodeURIComponent(m), '_blank');
 }
 
+// ═══════════ Charts ═══════════
 export function initChart() {
-  if (session.chartInstance) return;
+  if (session.chartInstance) {
+    try { session.chartInstance.resize(); } catch (_) {}
+    return;
+  }
   const cv = document.getElementById('liveChart');
   if (!cv || !window.Chart) return;
   try {
@@ -300,7 +309,7 @@ export function initChart() {
         }
       }
     });
-  } catch (e) {}
+  } catch (_) {}
 }
 
 export function updChart(r, s) {
@@ -321,4 +330,19 @@ export function updChart(r, s) {
   session.chartInstance.data.datasets[0].data = cd.rpm.slice();
   session.chartInstance.data.datasets[1].data = cd.speed.slice();
   session.chartInstance.update('none');
+}
+
+// ═══════════ Auto Analysis ═══════════
+export function autoAnalyze(rpm, spd, coolant) {
+  const e = document.getElementById('autoAnalysis');
+  if (!e) return;
+  const f = x => x == null ? '--' : x;
+  let msg;
+  if (coolant != null && coolant >= 105) msg = '🔥 تحذير: حرارة المحرك مرتفعة جداً!';
+  else if (coolant != null && coolant >= 95) msg = '⚠️ الحرارة أعلى من الطبيعي';
+  else if (rpm != null && rpm > 6500) msg = '⚠️ RPM مرتفع جداً';
+  else if (rpm != null && rpm > 0 && rpm < 600 && spd === 0) msg = '⚠️ خمول غير مستقر';
+  else if (rpm == null && spd == null && coolant == null) msg = '⚠️ لا قراءات';
+  else msg = '✅ القراءات طبيعية';
+  e.textContent = msg + ' (RPM: ' + f(rpm) + ' | Speed: ' + f(spd) + ' | Coolant: ' + f(coolant) + (coolant != null ? '°C' : '') + ')';
 }
