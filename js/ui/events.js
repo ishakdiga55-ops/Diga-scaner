@@ -1,5 +1,4 @@
 import { toggleTheme } from './theme.js';
-import { searchDTC } from './search.js';
 
 export function bindControls() {
   const bind = (id, fn) => {
@@ -10,7 +9,7 @@ export function bindControls() {
   // زر الثيم
   bind('btnTheme', toggleTheme);
 
-  // زر المفضلة → انتقل للتبويب
+  // زر المفضلة
   bind('btnFavorites', () => {
     const t = document.querySelector('[data-tab="favorites"]');
     if (t) t.click();
@@ -25,11 +24,8 @@ export function bindControls() {
   // إغلاق النافذة عند الضغط خارجها
   const modal = document.getElementById('dtcDetailModal');
   if (modal) {
-    modal.onclick = e => {
+    modal.onclick = (e) => {
       if (e.target.id === 'dtcDetailModal') modal.classList.add('hidden');
     };
   }
-
-  // شارات التنبيه (banners)
-  // سنضيفها لاحقاً في initApp
 }
