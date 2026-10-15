@@ -1,5 +1,3 @@
-import { initChart } from '../extras.js';
-
 export function initTabs() {
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => {
@@ -15,11 +13,10 @@ export function initTabs() {
       const target = document.getElementById('panel-' + tab.dataset.tab);
       if (target) target.classList.remove('hidden');
 
-      const which = tab.dataset.tab;
-      if (which === 'live') {
+      if (tab.dataset.tab === 'live' && window.__cd_initChart) {
         setTimeout(() => {
-          try { initChart(); } catch (_) {}
-        }, 300);
+          try { window.__cd_initChart(); } catch (_) {}
+        }, 200);
       }
     };
   });
