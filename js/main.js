@@ -33,6 +33,7 @@ function init() {
   });
   bind('demo-btn', async () => {
     try { startDemo(); } catch (_) {}
+    try { readDTCs(); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
   bind('disconnect-btn', async () => {
@@ -72,7 +73,6 @@ function init() {
   bind('btnExportPDF', exportPDF);
   bind('btnShareWA', shareWA);
 
-  // إغلاق نافذة التفاصيل
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
@@ -87,7 +87,6 @@ function init() {
   updFavCount();
   batUI();
 
-  // شارات
   if (app.isIOS && !app.isBluefy) {
     const b = document.getElementById('bluefyBanner');
     if (b) b.classList.remove('hidden');
