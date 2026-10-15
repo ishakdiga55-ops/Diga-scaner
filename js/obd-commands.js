@@ -66,12 +66,19 @@ function parseUDS(resp) {
   return { ok, codes };
 }
 
-// ═══════ Freeze Frame ═══════
+// ═══════════ Freeze Frame ═══════════
 const FF_PIDS = {
-  0x04: 'حمل المحرك', 0x05: 'حرارة سائل التبريد',
-  0x0B: 'ضغط المشعب', 0x0C: 'دورات المحرك',
-  0x0D: 'سرعة السيارة', 0x0F: 'حرارة هواء السحب 'تدفق الهواء MAF', 0x11: 'موضع الخانق',
-  0x2F: 'مستوى الوقود', 0x42: 'فولت الوحدة', 0x46: 'حرارة البيئة'
+  0x04: 'حمل المحرك',
+  0x05: 'حرارة سائل التبريد',
+  0x0B: 'ضغط المشعب',
+  0x0C: 'دورات المحرك',
+  0x0D: 'سرعة السيارة',
+  0x0F: 'حرارة هواء السحب',
+  0x10: 'تدفق الهواء MAF',
+  0x11: 'موضع الخانق',
+  0x2F: 'مستوى الوقود',
+  0x42: 'فولت الوحدة',
+  0x46: 'حرارة البيئة'
 };
 
 function ffValue(pid, a, b) {
@@ -170,9 +177,9 @@ async function openFreezeFrame() {
   }
   body.innerHTML = ffHtml(null, rows);
 }
-// ═══════ نهاية Freeze Frame ═══════
+// ═══════════ نهاية Freeze Frame ═══════════
 
-// ═══════ System Grid — الأضواء ═══════
+// ═══════════ System Grid ═══════════
 function updSysGrid(faults) {
   const items = document.querySelectorAll('.sys-item');
   items.forEach(e => e.classList.remove('good', 'bad', 'unknown'));
@@ -196,7 +203,7 @@ function updSysGrid(faults) {
     else e.classList.add('good');
   });
 }
-// ═══════ نهاية System Grid ═══════
+// ═══════════ نهاية System Grid ═══════════
 
 export async function readDTCs() {
   const l = document.getElementById('dtcList');
@@ -379,7 +386,6 @@ function renderFaults(faults) {
     };
   });
 
-  // ✅ إشعال الأضواء
   updSysGrid(faults);
 
   try {
