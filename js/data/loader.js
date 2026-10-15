@@ -1,7 +1,7 @@
 import { DTC_DATABASE, buildDTCIndex, buildSearchIndex } from './database.js';
 import { app } from '../state.js';
 
-const OBDEX_BASE = "https://cdn.jsdelivr.net/gh/foerbsnavi/OBDex@main/data/generic/";
+const OBDEX_BASE = "https://raw.githack.com/foerbsnavi/OBDex/main/data/generic/";
 const OBDEX_FILES = [
   'P0xxx_enriched.yaml', 'P1xxx_enriched.yaml', 'P2xxx_enriched.yaml',
   'P3xxx_enriched.yaml', 'B0xxx_enriched.yaml', 'C0xxx_enriched.yaml',
@@ -18,11 +18,6 @@ const SLOW_FILES = [
   'dtc_chinese.json', 'dtc_chinese2.json',
   'dtc_chinese3.json', 'dtc_chinese4.json'
 ];
-
-// 💾 Cache constants
-const CACHE_KEY = 'digascaner_obdex_v1';
-const CACHE_TIME_KEY = 'digascaner_obdex_time_v1';
-const CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 أيام
 
 function log(msg) {
   const c = document.getElementById('console');
@@ -81,25 +76,6 @@ function convItem(it) {
   };
 }
 
-// ✅ الحل 2: بدون ?t= — يستفيد من كاش المتصفح
-async function fetchLocalJSON(fn) {
-  try {
-    const r = await fetch('./' + fn);
-    if (!r.ok) return [];
-    const d = await r.json();
-    if (Array.isArray(d)) return d;
-    if (d && Array.isArray(d.codes)) return d.codes;
-    if (d && Array.isArray(d.data)) return d.data;
-    if (d && typeof d === 'object') {
-      return Object.entries(d).map(([k, v]) => {
-        if (v && typeof v === 'object') return { code: k, ...v };
-        return { code: k, title: String(v) };
-      });
-    }
-    return [];
-  } catch (_) { return []; }
-}
-
 async function fetchYaml(fn) {
   try {
     const r = await fetch(OBDEX_BASE + fn);
@@ -120,6 +96,24 @@ async function fetchYaml(fn) {
   } catch (_) { return []; }
 }
 
+async function fetchLocalJSON(fn) {
+  try {
+    const r = await fetch('./' + fn);
+    if (!r.ok) return [];
+    const d = await r.json();
+    if (Array.isArray(d)) return d;
+    if (d && Array.isArray(d.codes)) return d.codes;
+    if (d && Array.isArray(d.data)) return d.data;
+    if (d && typeof d === 'object') {
+      return Object.entries(d).map(([k, v]) => {
+        if (v && typeof v === 'object') return { code: k, ...v };
+        return { code: k, title: String(v) };
+      });
+    }
+    return [];
+  } catch (_) { return []; }
+}
+
 function addItems(items, opts) {
   opts = opts || {};
   let added = 0;
@@ -130,62 +124,11 @@ function addItems(items, opts) {
     if (!lv) continue;
     if (opts.isChinese && !lv.brand) lv.brand = '🇨🇳 صيني';
     if (opts.isEuro && !lv.brand) lv.brand = '🇪🇺 أوروبي';
+    lv._local = opts.isLocal ? true : undefined;
     DTC_DATABASE[cd] = lv;
     added++;
   }
   return added;
-}
-
-// ✅ الحل 1: حفظ OBDex في localStorage
-function saveOBDexCache() {
-  try {
-    const obdexData = {};
-    let count = 0;
-    for (const k of Object.keys(DTC_DATABASE)) {
-      const info = DTC_DATABASE[k];
-      // احفظ فقط الأكواد من OBDex (التي ليس لها brand محلي)
-      if (info && !info._local) {
-        obdexData[k] = info;
-        count++;
-      }
-    }
-    if (count < 100) return; // لا داعي لحفظ قليل
-    const json = JSON.stringify(obdexData);
-    // إذا كبير جداً — تجاهل
-    if (json.length > 4.5 * 1024 * 1024) {
-      log('INFO: Cache كبير جداً — تجاهل');
-      return;
-    }
-    localStorage.setItem(CACHE_KEY, json);
-    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-    log('OK: حفظ OBDex في الكاش (' + count + ' كود)');
-  } catch (e) {
-    log('WARN: فشل حفظ Cache — ' + e.message);
-  }
-}
-
-function loadOBDexCache() {
-  try {
-    const timeStr = localStorage.getItem(CACHE_TIME_KEY);
-    if (!timeStr) return 0;
-    const time = parseInt(timeStr, 10);
-    if (Date.now() - time > CACHE_MAX_AGE) {
-      localStorage.removeItem(CACHE_KEY);
-      localStorage.removeItem(CACHE_TIME_KEY);
-      return 0;
-    }
-    const json = localStorage.getItem(CACHE_KEY);
-    if (!json) return 0;
-    const data = JSON.parse(json);
-    let count = 0;
-    for (const k of Object.keys(data)) {
-      if (!DTC_DATABASE[k]) {
-        DTC_DATABASE[k] = data[k];
-        count++;
-      }
-    }
-    return count;
-  } catch (_) { return 0; }
 }
 
 async function loadWal33D() {
@@ -251,45 +194,32 @@ export async function loadFullDatabase() {
   const bt = document.getElementById('dbStatusText');
   if (b) b.style.display = 'block';
 
+  // ⚡ المرحلة 1: الملفات المحلية السريعة (فوري)
   log('INFO: تحميل الملفات المحلية...');
   if (bt) bt.textContent = 'تحميل الملفات المحلية...';
 
-  // الملفات السريعة
   for (const f of QUICK_FILES) {
     const items = await fetchLocalJSON(f);
-    if (items.length) {
-      for (const item of items) {
-        const cd = String(item.code || '').toUpperCase().trim();
-        if (!cd || DTC_DATABASE[cd]) continue;
-        const lv = convItem(item);
-        if (!lv) continue;
-        lv._local = true;
-        DTC_DATABASE[cd] = lv;
-      }
-    }
+    if (items.length) addItems(items, { isLocal: true });
   }
   buildDTCIndex();
   buildSearchIndex();
   updateCount();
   log('OK: محلي — ' + Object.keys(DTC_DATABASE).length + ' كود');
 
-  // الملفات الإقليمية
+  // ⚡ المرحلة 2: الملفات الإقليمية (موازي)
   if (bt) bt.textContent = 'تحميل الملفات الإقليمية...';
-  for (const f of SLOW_FILES) {
-    const items = await fetchLocalJSON(f);
+  const slowResults = await Promise.all(
+    SLOW_FILES.map(async (f) => {
+      const items = await fetchLocalJSON(f);
+      return { f, items };
+    })
+  );
+  for (const { f, items } of slowResults) {
     if (!items.length) continue;
     const isEuro = f.indexOf('european') >= 0;
     const isChinese = f.indexOf('chinese') >= 0;
-    for (const item of items) {
-      const cd = String(item.code || '').toUpperCase().trim();
-      if (!cd || DTC_DATABASE[cd]) continue;
-      const lv = convItem(item);
-      if (!lv) continue;
-      if (isChinese && !lv.brand) lv.brand = '🇨🇳 صيني';
-      if (isEuro && !lv.brand) lv.brand = '🇪🇺 أوروبي';
-      lv._local = true;
-      DTC_DATABASE[cd] = lv;
-    }
+    addItems(items, { isEuro, isChinese, isLocal: true });
   }
   buildDTCIndex();
   buildSearchIndex();
@@ -298,32 +228,20 @@ export async function loadFullDatabase() {
 
   if (b) b.style.display = 'none';
 
-  // 🚀 تحميل OBDex — أولاً من الكاش
+  // 🚀 المرحلة 3: OBDex CDN — تحميل موازي
   setTimeout(async () => {
-    // جرب الكاش أولاً
-    const cachedCount = loadOBDexCache();
-    if (cachedCount > 100) {
-      log('OK: OBDex من الكاش — ' + cachedCount + ' كود');
-      buildDTCIndex();
-      buildSearchIndex();
-      updateCount();
-      // شغّل Wal33D فقط
-      log('INFO: Wal33D في الخلفية...');
-      await loadWal33D();
-      app.obdexLoaded = true;
-      buildDTCIndex();
-      buildSearchIndex();
-      const tot = updateCount();
-      log('OK: الإجمالي النهائي: ' + tot);
-      return;
-    }
-
-    // لم يوجد كاش → حمّل من CDN
-    log('INFO: OBDex CDN في الخلفية...');
+    log('INFO: OBDex CDN — تحميل موازي...');
     let obdexCount = 0;
-    for (let f = 0; f < OBDEX_FILES.length; f++) {
-      const items = await fetchYaml(OBDEX_FILES[f]);
-      if (items.length) obdexCount += addItems(items);
+
+    const results = await Promise.all(
+      OBDEX_FILES.map(async (f) => {
+        const items = await fetchYaml(f);
+        return items;
+      })
+    );
+
+    for (const items of results) {
+      if (items && items.length) obdexCount += addItems(items);
     }
     log('OK: OBDex — ' + obdexCount + ' كود');
 
@@ -335,8 +253,5 @@ export async function loadFullDatabase() {
     buildSearchIndex();
     const tot = updateCount();
     log('OK: الإجمالي النهائي: ' + tot);
-
-    // احفظ في الكاش للزيارة القادمة
-    saveOBDexCache();
   }, 500);
 }
