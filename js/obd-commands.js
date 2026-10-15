@@ -66,19 +66,18 @@ function parseUDS(resp) {
   return { ok, codes };
 }
 
-const FF_PIDS = {
-  0x04: 'حمل المحرك',
-  0x05: 'حرارة سائل التبريد',
-  0x0B: 'ضغط المشعب',
-  0x0C: 'دورات المحرك',
-  0x0D: 'سرعة السيارة',
-  0x0F: 'حرارة هواء السحب',
-  0x10: 'تدفق الهواء MAF',
-  0x11: 'موضع الخانق',
-  0x2F: 'مستوى الوقود',
-  0x42: 'فولت الوحدة',
-  0x46: 'حرارة البيئة'
-};
+var FF_PIDS = {};
+FF_PIDS[0x04] = 'حمل المحرك';
+FF_PIDS[0x05] = 'حرارة سائل التبريد';
+FF_PIDS[0x0B] = 'ضغط المشعب';
+FF_PIDS[0x0C] = 'دورات المحرك';
+FF_PIDS[0x0D] = 'سرعة السيارة';
+FF_PIDS[0x0F] = 'حرارة هواء السحب';
+FF_PIDS[0x10] = 'تدفق الهواء MAF';
+FF_PIDS[0x11] = 'موضع الخانق';
+FF_PIDS[0x2F] = 'مستوى الوقود';
+FF_PIDS[0x42] = 'فولت الوحدة';
+FF_PIDS[0x46] = 'حرارة البيئة';
 
 function ffValue(pid, a, b) {
   if (pid === 0x0C) return Math.round((a * 256 + b) / 4) + ' RPM';
@@ -96,7 +95,7 @@ function ffValue(pid, a, b) {
 }
 
 function ffHtml(dtc, rows) {
-  let h = '<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid #374151;margin-bottom:14px;">';
+  var h = '<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid #374151;margin-bottom:14px;">';
   h += '<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">ظروف السيارة لحظة تسجيل العطل</div>';
   h += '<div style="font-size:17px;font-weight:bold;">❄️ Freeze Frame</div>';
   if (dtc) h += '<div style="font-family:monospace;color:#f87171;font-size:19px;font-weight:bold;margin-top:6px;">' + dtc + '</div>';
@@ -110,7 +109,7 @@ function ffHtml(dtc, rows) {
     return h;
   }
   h += '<div style="display:flex;flex-direction:column;gap:6px;">';
-  rows.forEach(r => {
+  rows.forEach(function(r) {
     h += '<div style="display:flex;justify-content:space-between;background:#111827;padding:11px 13px;border-radius:8px;">';
     h += '<span style="font-size:13px;color:#9ca3af;">' + r[0] + '</span>';
     h += '<span style="font-weight:bold;font-size:14px;color:#fff;">' + r[1] + '</span>';
@@ -121,7 +120,7 @@ function ffHtml(dtc, rows) {
 }
 
 async function openFreezeFrame() {
-  let modal = document.getElementById('ffModal');
+  var modal = document.getElementById('ffModal');
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'ffModal';
@@ -135,7 +134,7 @@ async function openFreezeFrame() {
     document.getElementById('ffClose').onclick = function () { modal.style.display = 'none'; };
     modal.onclick = function (e) { if (e.target.id === 'ffModal') modal.style.display = 'none'; };
   }
-  const body = document.getElementById('ffBody');
+  var body = document.getElementById('ffBody');
   modal.style.display = 'block';
 
   if (app.isDemo) {
@@ -157,17 +156,18 @@ async function openFreezeFrame() {
 
   body.innerHTML = '<div style="text-align:center;padding:30px;color:#9ca3af;">جاري القراءة...</div>';
 
-  const rows = [];
-  const pidList = Object.keys(FF_PIDS).map(Number);
-  for (const pid of pidList) {
+  var rows = [];
+  var pidList = Object.keys(FF_PIDS).map(Number);
+  for (var i = 0; i < pidList.length; i++) {
+    var pid = pidList[i];
     try {
-      const hex = pid.toString(16).toUpperCase().padStart(2, '0');
-      const resp = await sendCmd('02 ' + hex, 2500, 0);
-      const bytes = pHex(resp);
-      for (let i = 0; i < bytes.length - 2; i++) {
-        if (bytes[i] === 0x42 && bytes[i + 1] === pid) {
-          const a = bytes[i + 2] || 0;
-          const b = bytes[i + 3] || 0;
+      var hex = pid.toString(16).toUpperCase().padStart(2, '0');
+      var resp = await sendCmd('02 ' + hex, 2500, 0);
+      var bytes = pHex(resp);
+      for (var j = 0; j < bytes.length - 2; j++) {
+        if (bytes[j] === 0x42 && bytes[j + 1] === pid) {
+          var a = bytes[j + 2] || 0;
+          var b = bytes[j + 3] || 0;
           rows.push([FF_PIDS[pid], ffValue(pid, a, b)]);
           break;
         }
@@ -178,43 +178,43 @@ async function openFreezeFrame() {
 }
 
 function updSysGrid(faults) {
-  const items = document.querySelectorAll('.sys-item');
-  items.forEach(e => e.classList.remove('good', 'bad', 'unknown'));
+  var items = document.querySelectorAll('.sys-item');
+  items.forEach(function(e) { e.classList.remove('good', 'bad', 'unknown'); });
 
   if (!faults || !faults.length) {
-    items.forEach(e => e.classList.add('good'));
+    items.forEach(function(e) { e.classList.add('good'); });
     return;
   }
 
-  const affected = new Set();
-  faults.forEach(f => {
+  var affected = new Set();
+  faults.forEach(function(f) {
     try {
-      const info = getInfo(f.code);
+      var info = getInfo(f.code);
       if (info && info.zone) affected.add(info.zone);
     } catch (_) {}
     if (f.system) affected.add(f.system);
   });
 
-  items.forEach(e => {
+  items.forEach(function(e) {
     if (affected.has(e.dataset.sys)) e.classList.add('bad');
     else e.classList.add('good');
   });
 }
 
 export async function readDTCs() {
-  const l = document.getElementById('dtcList');
+  var l = document.getElementById('dtcList');
   if (!l) return;
 
   if (app.isDemo) {
-    const demoFaults = [
+    var demoFaults = [
       { code: 'P0301', system: 'engine', type: 'confirmed' },
       { code: 'P0171', system: 'fuel', type: 'confirmed' },
       { code: 'P0420', system: 'exhaust', type: 'pending' },
       { code: 'U0100', system: 'electronics', type: 'confirmed' }
     ];
     renderFaults(demoFaults);
-    dispSmart(demoFaults.map(f => f.code));
-    dispHealth(demoFaults, runDiag(demoFaults.map(f => f.code)));
+    dispSmart(demoFaults.map(function(f) { return f.code; }));
+    dispHealth(demoFaults, runDiag(demoFaults.map(function(f) { return f.code; })));
     return;
   }
 
@@ -229,26 +229,26 @@ export async function readDTCs() {
   l.innerHTML = '<p class="text-blue-400 text-center py-4">قراءة الأعطال...</p>';
   await pauseLiveWait();
   try {
-    const p3 = parseDTC(await sendCmd('03', 8000), 0x43);
-    const p7 = parseDTC(await sendCmd('07', 8000), 0x47);
-    const pa = parseDTC(await sendCmd('0A', 8000), 0x4A);
+    var p3 = parseDTC(await sendCmd('03', 8000), 0x43);
+    var p7 = parseDTC(await sendCmd('07', 8000), 0x47);
+    var pa = parseDTC(await sendCmd('0A', 8000), 0x4A);
     if (!p3.ok) {
       l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد السيارة — تأكد أن المفتاح على ON</div>';
       updSysGrid([]);
       return;
     }
-    const all = [];
-    p3.codes.forEach(c => all.push({ code: c, system: 'engine', type: 'confirmed' }));
-    p7.codes.forEach(c => { if (!all.some(f => f.code === c)) all.push({ code: c, system: 'engine', type: 'pending' }); });
-    pa.codes.forEach(c => { if (!all.some(f => f.code === c)) all.push({ code: c, system: 'engine', type: 'permanent' }); });
+    var all = [];
+    p3.codes.forEach(function(c) { all.push({ code: c, system: 'engine', type: 'confirmed' }); });
+    p7.codes.forEach(function(c) { if (!all.some(function(f) { return f.code === c; })) all.push({ code: c, system: 'engine', type: 'pending' }); });
+    pa.codes.forEach(function(c) { if (!all.some(function(f) { return f.code === c; })) all.push({ code: c, system: 'engine', type: 'permanent' }); });
     if (!all.length) {
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال مسجلة</div>';
       updSysGrid([]);
       return;
     }
     renderFaults(all);
-    dispSmart(all.map(f => f.code));
-    dispHealth(all, runDiag(all.map(f => f.code)));
+    dispSmart(all.map(function(f) { return f.code; }));
+    dispHealth(all, runDiag(all.map(function(f) { return f.code; })));
   } catch (e) {
     l.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>';
   } finally {
@@ -257,19 +257,19 @@ export async function readDTCs() {
 }
 
 export async function scanAll() {
-  const l = document.getElementById('dtcList');
+  var l = document.getElementById('dtcList');
   if (!l) return;
 
   if (app.isDemo) {
-    const demoFaults = [
+    var demoFaults = [
       { code: 'P0300', system: 'engine', type: 'confirmed' },
       { code: 'P0171', system: 'fuel', type: 'confirmed' },
       { code: 'P0420', system: 'exhaust', type: 'pending' },
       { code: 'U0100', system: 'electronics', type: 'confirmed' }
     ];
     renderFaults(demoFaults);
-    dispSmart(demoFaults.map(f => f.code));
-    dispHealth(demoFaults, runDiag(demoFaults.map(f => f.code)));
+    dispSmart(demoFaults.map(function(f) { return f.code; }));
+    dispHealth(demoFaults, runDiag(demoFaults.map(function(f) { return f.code; })));
     return;
   }
 
@@ -284,18 +284,18 @@ export async function scanAll() {
   l.innerHTML = '<p class="text-blue-400 text-center py-4">جاري الفحص الشامل...</p>';
   await pauseLiveWait();
   try {
-    const all = [];
-    let answered = 0;
-    for (let n = 0; n < 8; n++) {
-      const a = '7E' + n;
-      await sendCmd('AT SH ' + a, 800, 0);
-      const p = parseUDS(await sendCmd('19 02 FF', 2500, 0));
+    var all = [];
+    var answered = 0;
+    for (var n = 0; n < 8; n++) {
+      var addr = '7E' + n;
+      await sendCmd('AT SH ' + addr, 800, 0);
+      var p = parseUDS(await sendCmd('19 02 FF', 2500, 0));
       if (!p.ok) continue;
       answered++;
-      const sys = n === 0 ? 'engine' : n === 1 ? 'transmission' : null;
-      p.codes.forEach(c => {
-        if (!all.some(f => f.code === c))
-          all.push({ code: c, system: sys || ('ECU ' + a), type: 'confirmed' });
+      var sys = n === 0 ? 'engine' : n === 1 ? 'transmission' : null;
+      p.codes.forEach(function(c) {
+        if (!all.some(function(f) { return f.code === c; }))
+          all.push({ code: c, system: sys || ('ECU ' + addr), type: 'confirmed' });
       });
     }
     try { await sendCmd('AT SH 7DF', 800, 0); } catch (_) {}
@@ -310,8 +310,8 @@ export async function scanAll() {
       return;
     }
     renderFaults(all);
-    dispSmart(all.map(f => f.code));
-    dispHealth(all, runDiag(all.map(f => f.code)));
+    dispSmart(all.map(function(f) { return f.code; }));
+    dispHealth(all, runDiag(all.map(function(f) { return f.code; })));
   } catch (e) {
     l.innerHTML = '<p class="text-red-400 text-center py-4">خطأ: ' + e.message + '</p>';
   } finally {
@@ -320,7 +320,7 @@ export async function scanAll() {
 }
 
 export async function clearDTCs() {
-  const l = document.getElementById('dtcList');
+  var l = document.getElementById('dtcList');
   if (app.isDemo) {
     if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال (تجريبي)</p>';
     updSysGrid([]);
@@ -330,8 +330,8 @@ export async function clearDTCs() {
   if (!confirm('مسح الأعطال سيحذف freeze frame. متابعة؟')) return;
   await pauseLiveWait();
   try {
-    const r = await sendCmd('04', 5000, 0);
-    if (parseMsgs(r).some(m => m[0] === 0x44)) {
+    var r = await sendCmd('04', 5000, 0);
+    if (parseMsgs(r).some(function(m) { return m[0] === 0x44; })) {
       if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال</p>';
       updSysGrid([]);
     } else {
@@ -345,23 +345,23 @@ export async function clearDTCs() {
 }
 
 function renderFaults(faults) {
-  const l = document.getElementById('dtcList');
+  var l = document.getElementById('dtcList');
   if (!l) return;
   if (!faults.length) {
     l.innerHTML = '<p class="text-gray-500 text-center py-4">لا أعطال</p>';
     updSysGrid([]);
     return;
   }
-  const sysMap = {
+  var sysMap = {
     engine: 'المحرك', exhaust: 'العوادم', electronics: 'الكهرباء',
     fuel: 'الوقود', cooling: 'التبريد', brakes: 'الفرامل',
     airbag: 'الوسائد', transmission: 'الجير', abs: 'ABS'
   };
-  let h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة</div>';
-  faults.forEach(f => {
-    const info = getInfo(f.code);
-    const tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
-    const tc = f.type === 'pending' ? 'bg-amber-600' : f.type === 'permanent' ? 'bg-purple-600' : 'bg-red-600';
+  var h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة</div>';
+  faults.forEach(function(f) {
+    var info = getInfo(f.code);
+    var tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
+    var tc = f.type === 'pending' ? 'bg-amber-600' : f.type === 'permanent' ? 'bg-purple-600' : 'bg-red-600';
     h += '<div class="code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3" data-code="' + f.code + '">';
     h += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
     h += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
@@ -374,7 +374,7 @@ function renderFaults(faults) {
   });
   l.innerHTML = h;
 
-  l.querySelectorAll('[data-ff]').forEach(b => {
+  l.querySelectorAll('[data-ff]').forEach(function(b) {
     b.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -385,8 +385,8 @@ function renderFaults(faults) {
   updSysGrid(faults);
 
   try {
-    const hist = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
-    hist.unshift({ date: new Date().toISOString(), faults: faults.map(f => ({ code: f.code, type: f.type })) });
+    var hist = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
+    hist.unshift({ date: new Date().toISOString(), faults: faults.map(function(f) { return { code: f.code, type: f.type }; }) });
     localStorage.setItem('checkdiga_hist', JSON.stringify(hist.slice(0, 20)));
   } catch (_) {}
 }
