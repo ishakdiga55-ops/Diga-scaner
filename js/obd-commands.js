@@ -1,5 +1,5 @@
 import { sendCmd, pauseLiveWait, resumeLive, pHex } from './obd.js';
-import { comm, app } from './state.js';
+import { comm, app, session } from './state.js';
 import { getInfo } from './data/database.js';
 import { runDiag, dispSmart, dispHealth } from './analysis.js';
 
@@ -201,6 +201,19 @@ function updSysGrid(faults) {
   });
 }
 
+function hideRelatedUI() {
+  try {
+    var h = document.getElementById('healthBadge');
+    var d = document.getElementById('smartDiagnosis');
+    var e = document.getElementById('proExportBar');
+    if (h) h.classList.add('hidden');
+    if (d) d.classList.add('hidden');
+    if (e) e.classList.add('hidden');
+    session.lastFaults = [];
+    session.lastDiag = [];
+  } catch (_) {}
+}
+
 export async function readDTCs() {
   var l = document.getElementById('dtcList');
   if (!l) return;
@@ -321,21 +334,26 @@ export async function scanAll() {
 
 export async function clearDTCs() {
   var l = document.getElementById('dtcList');
+
   if (app.isDemo) {
-    if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال (تجريبي)</p>';
+    if (l) l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ تم مسح الأعطال (تجريبي)</div>';
+    hideRelatedUI();
     updSysGrid([]);
     return;
   }
+
   if (!app.isConnected) { alert('غير متصل'); return; }
   if (!confirm('مسح الأعطال سيحذف freeze frame. متابعة؟')) return;
+
   await pauseLiveWait();
   try {
     var r = await sendCmd('04', 5000, 0);
     if (parseMsgs(r).some(function(m) { return m[0] === 0x44; })) {
-      if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال</p>';
+      if (l) l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">✅ تم مسح الأعطال</div>';
+      hideRelatedUI();
       updSysGrid([]);
     } else {
-      if (l) l.innerHTML = '<p class="text-amber-400 text-center py-4">لم تؤكد السيارة المسح</p>';
+      if (l) l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم تؤكد السيارة المسح</div>';
     }
   } catch (e) {
     if (l) l.innerHTML = '<p class="text-red-400 text-center py-4">' + e.message + '</p>';
