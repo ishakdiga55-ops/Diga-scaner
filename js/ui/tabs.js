@@ -13,9 +13,12 @@ export function initTabs() {
       const target = document.getElementById('panel-' + tab.dataset.tab);
       if (target) target.classList.remove('hidden');
 
-      if (tab.dataset.tab === 'live' && window.__cd_initChart) {
-        setTimeout(() => {
-          try { window.__cd_initChart(); } catch (_) {}
+      // ✅ إنشاء الرسم البياني عند فتح تبويب "حية" (بعد أن يكون ظاهراً)
+      if (tab.dataset.tab === 'live') {
+        setTimeout(function () {
+          if (window.__cd_initChart) {
+            try { window.__cd_initChart(); } catch (_) {}
+          }
         }, 200);
       }
     };
