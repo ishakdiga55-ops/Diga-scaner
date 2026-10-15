@@ -1,8 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
+   v4 — updated for modular architecture
    ============================================ */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -13,8 +14,21 @@ const APP_SHELL = [
   './logo.png',
   './css/main.css',
   './css/themes/light.css',
-  './js/app.js',
-  './js/advanced-diagnostics.js'
+  './js/main.js',
+  './js/state.js',
+  './js/obd.js',
+  './js/analysis.js',
+  './js/obd-commands.js',
+  './js/ui-extras.js',
+  './js/extras.js',
+  './js/vin.js',
+  './js/abs-scan.js',
+  './js/data/database.js',
+  './js/data/loader.js',
+  './js/ui/theme.js',
+  './js/ui/search.js',
+  './js/ui/tabs.js',
+  './js/ui/events.js'
 ];
 
 const CDN_HOSTS = [
@@ -22,16 +36,17 @@ const CDN_HOSTS = [
   'cdn.tailwindcss.com',
   'cdnjs.cloudflare.com',
   'fonts.googleapis.com',
-  'fonts.gstatic.com'
+  'fonts.gstatic.com',
+  'raw.githack.com'
 ];
 
 /* --- Install --- */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v3] Installing...');
+      console.log('[SW v4] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v3] Some files failed:', err);
+        console.warn('[SW v4] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -44,7 +59,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v3] Deleting old cache:', k);
+            console.log('[SW v4] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
