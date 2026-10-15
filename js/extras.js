@@ -9,6 +9,7 @@ export function startDemo() {
   app.transport = null;
   setStatusDemo();
   updConnUIDemo();
+  showDemoFaults();
   if (session.demoTimer) clearInterval(session.demoTimer);
   session.demoTimer = setInterval(() => {
     const r = Math.floor(900 + Math.random() * 2500);
@@ -21,6 +22,65 @@ export function startDemo() {
     try { updChart(r, s); } catch (_) {}
     try { autoAnalyze(r, s, c); } catch (_) {}
   }, 1500);
+}
+
+function showDemoFaults() {
+  const demoFaults = [
+    { code: 'P0301', system: 'engine', type: 'confirmed' },
+    { code: 'P0171', system: 'engine', type: 'confirmed' },
+    { code: 'P0420', system: 'exhaust', type: 'pending' },
+    { code: 'U0100', system: 'electronics', type: 'confirmed' }
+  ];
+  const l = document.getElementById('dtcList');
+  if (!l) return;
+  const sysMap = {
+    engine: 'المحرك', exhaust: 'العوادم', electronics: 'الكهرباء',
+    fuel: 'الوقود', cooling: 'التبريد', brakes: 'الفرامل',
+    airbag: 'الوسائد', transmission: 'الجير', abs: 'ABS'
+  };
+  let h = '<div class="bg-amber-600 text-black text-xs font-bold p-2 rounded-lg mb-2 text-center">🧪 بيانات تجريبية</div>';
+  demoFaults.forEach(f => {
+    const info = getInfo(f.code);
+    const tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
+    const tc = f.type === 'pending' ? 'bg-amber-600' : f.type === 'permanent' ? 'bg-purple-600' : 'bg-red-600';
+    h += '<div class="code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3">';
+    h += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
+    h += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
+    h += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
+    h += '<span class="text-[9px] px-1.5 py-0.5 rounded ' + tc + ' text-white font-bold">' + tl + '</span>';
+    h += '</div>';
+    h += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
+    h += '<button type="button" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-ff="1">❄️ ظروف العطل</button>';
+    h += '</div>';
+  });
+  l.innerHTML = h;
+  l.querySelectorAll('[data-ff]').forEach(b => {
+    b.onclick = async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        const m = await import('./obd-commands.js');
+        if (m.showFreezeFrame) m.showFreezeFrame();
+      } catch (_) {}
+    };
+  });
+
+  // ✅ إشعال الأضواء
+  updSysGridDemo(demoFaults);
+}
+
+function updSysGridDemo(faults) {
+  const all = document.querySelectorAll('.sys-item');
+  all.forEach(e => e.classList.remove('good', 'bad', 'unknown'));
+  const affected = new Set();
+  faults.forEach(f => {
+    const info = getInfo(f.code);
+    if (info && info.zone) affected.add(info.zone);
+  });
+  all.forEach(e => {
+    if (affected.has(e.dataset.sys)) e.classList.add('bad');
+    else e.classList.add('good');
+  });
 }
 
 export function stopDemo() {
@@ -47,7 +107,6 @@ function updConnUIDemo() {
   if (x) x.classList.remove('hidden');
 }
 
-// ═══════════ Battery Test ═══════════
 const BAT_HINTS = [
   '① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»',
   '② شغّل المحرك على الخمول ثم اضغط «قراءة»',
@@ -175,7 +234,6 @@ export async function runBatteryTest() {
   }
 }
 
-// ═══════════ Readiness ═══════════
 function pMon(b, bit) {
   if (!(b & (1 << bit))) return 'na';
   return (b & (1 << (bit + 4))) ? 'no' : 'yes';
@@ -225,7 +283,6 @@ function renderReadiness(d) {
   c.innerHTML = h;
 }
 
-// ═══════════ Export PDF ═══════════
 export function exportPDF() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال لتصديرها'); return; }
@@ -259,7 +316,6 @@ export function exportPDF() {
   }, 600);
 }
 
-// ═══════════ WhatsApp Share ═══════════
 export function shareWA() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال'); return; }
@@ -279,7 +335,6 @@ export function shareWA() {
   window.open('https://wa.me/?text=' + encodeURIComponent(m), '_blank');
 }
 
-// ═══════════ Charts ═══════════
 export function initChart() {
   if (session.chartInstance) {
     try { session.chartInstance.resize(); } catch (_) {}
@@ -313,7 +368,6 @@ export function initChart() {
 }
 
 export function updChart(r, s) {
-  if (!session.chartInstance) initChart();
   if (!session.chartInstance) return;
   if (!session.chartData) session.chartData = { labels: [], rpm: [], speed: [] };
   const cd = session.chartData;
@@ -332,7 +386,6 @@ export function updChart(r, s) {
   session.chartInstance.update('none');
 }
 
-// ═══════════ Auto Analysis ═══════════
 export function autoAnalyze(rpm, spd, coolant) {
   const e = document.getElementById('autoAnalysis');
   if (!e) return;
