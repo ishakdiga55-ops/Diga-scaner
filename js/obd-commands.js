@@ -66,19 +66,12 @@ function parseUDS(resp) {
   return { ok, codes };
 }
 
-// ═══════════ Freeze Frame — مدمج ═══════════
+// ═══════ Freeze Frame ═══════
 const FF_PIDS = {
-  0x04: 'حمل المحرك',
-  0x05: 'حرارة سائل التبريد',
-  0x0B: 'ضغط المشعب',
-  0x0C: 'دورات المحرك',
-  0x0D: 'سرعة السيارة',
-  0x0F: 'حرارة هواء السحب',
-  0x10: 'تدفق الهواء MAF',
-  0x11: 'موضع الخانق',
-  0x2F: 'مستوى الوقود',
-  0x42: 'فولت الوحدة',
-  0x46: 'حرارة البيئة'
+  0x04: 'حمل المحرك', 0x05: 'حرارة سائل التبريد',
+  0x0B: 'ضغط المشعب', 0x0C: 'دورات المحرك',
+  0x0D: 'سرعة السيارة', 0x0F: 'حرارة هواء السحب 'تدفق الهواء MAF', 0x11: 'موضع الخانق',
+  0x2F: 'مستوى الوقود', 0x42: 'فولت الوحدة', 0x46: 'حرارة البيئة'
 };
 
 function ffValue(pid, a, b) {
@@ -96,7 +89,7 @@ function ffValue(pid, a, b) {
   return a + '';
 }
 
-function buildFFHtml(dtc, rows) {
+function ffHtml(dtc, rows) {
   let h = '<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid #374151;margin-bottom:14px;">';
   h += '<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">ظروف السيارة لحظة تسجيل العطل</div>';
   h += '<div style="font-size:17px;font-weight:bold;">❄️ Freeze Frame</div>';
@@ -111,7 +104,7 @@ function buildFFHtml(dtc, rows) {
     return h;
   }
   h += '<div style="display:flex;flex-direction:column;gap:6px;">';
-  rows.forEach(function (r) {
+  rows.forEach(r => {
     h += '<div style="display:flex;justify-content:space-between;background:#111827;padding:11px 13px;border-radius:8px;">';
     h += '<span style="font-size:13px;color:#9ca3af;">' + r[0] + '</span>';
     h += '<span style="font-weight:bold;font-size:14px;color:#fff;">' + r[1] + '</span>';
@@ -140,7 +133,7 @@ async function openFreezeFrame() {
   modal.style.display = 'block';
 
   if (app.isDemo) {
-    body.innerHTML = buildFFHtml('P0301', [
+    body.innerHTML = ffHtml('P0301', [
       ['دورات المحرك', '2850 RPM'],
       ['سرعة السيارة', '45 كم/س'],
       ['حرارة سائل التبريد', '88 °C'],
@@ -154,10 +147,7 @@ async function openFreezeFrame() {
     return;
   }
 
-  if (!app.isConnected) {
-    body.innerHTML = buildFFHtml(null, []);
-    return;
-  }
+  if (!app.isConnected) { body.innerHTML = ffHtml(null, []); return; }
 
   body.innerHTML = '<div style="text-align:center;padding:30px;color:#9ca3af;">جاري القراءة...</div>';
 
@@ -178,9 +168,35 @@ async function openFreezeFrame() {
       }
     } catch (_) {}
   }
-  body.innerHTML = buildFFHtml(null, rows);
+  body.innerHTML = ffHtml(null, rows);
 }
-// ═══════════ نهاية Freeze Frame ═══════════
+// ═══════ نهاية Freeze Frame ═══════
+
+// ═══════ System Grid — الأضواء ═══════
+function updSysGrid(faults) {
+  const items = document.querySelectorAll('.sys-item');
+  items.forEach(e => e.classList.remove('good', 'bad', 'unknown'));
+
+  if (!faults || !faults.length) {
+    items.forEach(e => e.classList.add('good'));
+    return;
+  }
+
+  const affected = new Set();
+  faults.forEach(f => {
+    try {
+      const info = getInfo(f.code);
+      if (info && info.zone) affected.add(info.zone);
+    } catch (_) {}
+    if (f.system) affected.add(f.system);
+  });
+
+  items.forEach(e => {
+    if (affected.has(e.dataset.sys)) e.classList.add('bad');
+    else e.classList.add('good');
+  });
+}
+// ═══════ نهاية System Grid ═══════
 
 export async function readDTCs() {
   const l = document.getElementById('dtcList');
@@ -189,7 +205,7 @@ export async function readDTCs() {
   if (app.isDemo) {
     const demoFaults = [
       { code: 'P0301', system: 'engine', type: 'confirmed' },
-      { code: 'P0171', system: 'engine', type: 'confirmed' },
+      { code: 'P0171', system: 'fuel', type: 'confirmed' },
       { code: 'P0420', system: 'exhaust', type: 'pending' },
       { code: 'U0100', system: 'electronics', type: 'confirmed' }
     ];
@@ -215,6 +231,7 @@ export async function readDTCs() {
     const pa = parseDTC(await sendCmd('0A', 8000), 0x4A);
     if (!p3.ok) {
       l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد السيارة — تأكد أن المفتاح على ON</div>';
+      updSysGrid([]);
       return;
     }
     const all = [];
@@ -223,6 +240,7 @@ export async function readDTCs() {
     pa.codes.forEach(c => { if (!all.some(f => f.code === c)) all.push({ code: c, system: 'engine', type: 'permanent' }); });
     if (!all.length) {
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال مسجلة</div>';
+      updSysGrid([]);
       return;
     }
     renderFaults(all);
@@ -242,7 +260,7 @@ export async function scanAll() {
   if (app.isDemo) {
     const demoFaults = [
       { code: 'P0300', system: 'engine', type: 'confirmed' },
-      { code: 'P0171', system: 'engine', type: 'confirmed' },
+      { code: 'P0171', system: 'fuel', type: 'confirmed' },
       { code: 'P0420', system: 'exhaust', type: 'pending' },
       { code: 'U0100', system: 'electronics', type: 'confirmed' }
     ];
@@ -280,10 +298,12 @@ export async function scanAll() {
     try { await sendCmd('AT SH 7DF', 800, 0); } catch (_) {}
     if (!answered) {
       l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد أي وحدة</div>';
+      updSysGrid([]);
       return;
     }
     if (!all.length) {
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال</div>';
+      updSysGrid([]);
       return;
     }
     renderFaults(all);
@@ -300,6 +320,7 @@ export async function clearDTCs() {
   const l = document.getElementById('dtcList');
   if (app.isDemo) {
     if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال (تجريبي)</p>';
+    updSysGrid([]);
     return;
   }
   if (!app.isConnected) { alert('غير متصل'); return; }
@@ -309,6 +330,7 @@ export async function clearDTCs() {
     const r = await sendCmd('04', 5000, 0);
     if (parseMsgs(r).some(m => m[0] === 0x44)) {
       if (l) l.innerHTML = '<p class="text-green-400 text-center py-4">تم مسح الأعطال</p>';
+      updSysGrid([]);
     } else {
       if (l) l.innerHTML = '<p class="text-amber-400 text-center py-4">لم تؤكد السيارة المسح</p>';
     }
@@ -324,6 +346,7 @@ function renderFaults(faults) {
   if (!l) return;
   if (!faults.length) {
     l.innerHTML = '<p class="text-gray-500 text-center py-4">لا أعطال</p>';
+    updSysGrid([]);
     return;
   }
   const sysMap = {
@@ -355,6 +378,9 @@ function renderFaults(faults) {
       openFreezeFrame();
     };
   });
+
+  // ✅ إشعال الأضواء
+  updSysGrid(faults);
 
   try {
     const hist = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
