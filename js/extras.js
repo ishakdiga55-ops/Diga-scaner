@@ -296,13 +296,11 @@ export function initChart() {
   try {
     var ctx = cv.getContext('2d');
 
-    // تدرج أزرق لـ RPM
     var gradRPM = ctx.createLinearGradient(0, 0, 0, 280);
     gradRPM.addColorStop(0, 'rgba(59, 130, 246, 0.55)');
     gradRPM.addColorStop(0.5, 'rgba(59, 130, 246, 0.15)');
     gradRPM.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
-    // تدرج أخضر لـ Speed
     var gradSpeed = ctx.createLinearGradient(0, 0, 0, 280);
     gradSpeed.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
     gradSpeed.addColorStop(0.5, 'rgba(16, 185, 129, 0.12)');
@@ -349,10 +347,7 @@ export function initChart() {
         responsive: true,
         maintainAspectRatio: false,
         animation: { duration: 200 },
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
             display: true,
@@ -395,23 +390,14 @@ export function initChart() {
             beginAtZero: false,
             min: 0,
             max: 8000,
-            grid: {
-              color: 'rgba(55, 65, 81, 0.4)',
-              drawBorder: false,
-              borderDash: [4, 4]
-            },
+            grid: { color: 'rgba(55, 65, 81, 0.4)', drawBorder: false, borderDash: [4, 4] },
             ticks: {
               color: '#60a5fa',
               font: { family: 'Cairo', size: 10 },
               padding: 6,
               callback: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; }
             },
-            title: {
-              display: true,
-              text: 'RPM',
-              color: '#60a5fa',
-              font: { family: 'Cairo', size: 10, weight: '600' }
-            }
+            title: { display: true, text: 'RPM', color: '#60a5fa', font: { family: 'Cairo', size: 10, weight: '600' } }
           },
           y1: {
             type: 'linear',
@@ -420,30 +406,12 @@ export function initChart() {
             min: 0,
             max: 220,
             grid: { display: false },
-            ticks: {
-              color: '#34d399',
-              font: { family: 'Cairo', size: 10 },
-              padding: 6
-            },
-            title: {
-              display: true,
-              text: 'كم/س',
-              color: '#34d399',
-              font: { family: 'Cairo', size: 10, weight: '600' }
-            }
+            ticks: { color: '#34d399', font: { family: 'Cairo', size: 10 }, padding: 6 },
+            title: { display: true, text: 'كم/س', color: '#34d399', font: { family: 'Cairo', size: 10, weight: '600' } }
           },
           x: {
-            grid: {
-              color: 'rgba(55, 65, 81, 0.3)',
-              drawBorder: false
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: { family: 'Cairo', size: 9 },
-              maxRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: 8
-            }
+            grid: { color: 'rgba(55, 65, 81, 0.3)', drawBorder: false },
+            ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
           }
         }
       }
@@ -454,6 +422,13 @@ export function initChart() {
 }
 
 export function updChart(r, s) {
+  // ✅ إذا Chart غير موجود ولوحة "حية" ظاهرة → أنشئه
+  if (!session.chartInstance) {
+    var panel = document.getElementById('panel-live');
+    if (panel && !panel.classList.contains('hidden')) {
+      try { initChart(); } catch (_) {}
+    }
+  }
   if (!session.chartInstance) return;
   if (!session.chartData) session.chartData = { labels: [], rpm: [], speed: [] };
   var cd = session.chartData;
