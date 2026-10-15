@@ -43,9 +43,20 @@ function init() {
   });
 
   // ═══ الفحص ═══
-  bind('clear-btn', () => {
-    if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
-    clearDTCs();
+  bind('clear-btn', async () => {
+    if (!app.isConnected && !app.isDemo) {
+      alert('اتصل بالسيارة أولاً');
+      return;
+    }
+    await clearDTCs();
+    try {
+      const c = document.getElementById('console');
+      if (c) {
+        const t = new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        c.textContent += '\n[' + t + '] OK: تم مسح الأعطال';
+        c.scrollTop = c.scrollHeight;
+      }
+    } catch (_) {}
   });
   bind('btnReadDTC', readDTCs);
   bind('btnScanAll', scanAll);
