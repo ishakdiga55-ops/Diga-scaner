@@ -1,7 +1,7 @@
 import { app, live, session } from './state.js';
 import { sendCmd, pauseLiveWait, resumeLive, updAllG } from './obd.js';
 import { runDiag, confLabel, calcHealth } from './analysis.js';
-import { getInfo, DTC_DATABASE } from './data/database.js';
+import { getInfo } from './data/database.js';
 
 export function startDemo() {
   app.isDemo = true;
@@ -9,6 +9,10 @@ export function startDemo() {
   app.transport = null;
   setStatusDemo();
   updConnUIDemo();
+
+  // ✅ أنشئ الرسم البياني أولاً
+  try { initChart(); } catch (_) {}
+
   if (session.demoTimer) clearInterval(session.demoTimer);
   session.demoTimer = setInterval(() => {
     const r = Math.floor(900 + Math.random() * 2500);
@@ -47,6 +51,7 @@ function updConnUIDemo() {
   if (x) x.classList.remove('hidden');
 }
 
+// ═══════ Battery ═══════
 const BAT_HINTS = [
   '① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»',
   '② شغّل المحرك على الخمول ثم اضغط «قراءة»',
@@ -174,6 +179,7 @@ export async function runBatteryTest() {
   }
 }
 
+// ═══════ Readiness ═══════
 function pMon(b, bit) {
   if (!(b & (1 << bit))) return 'na';
   return (b & (1 << (bit + 4))) ? 'no' : 'yes';
@@ -223,19 +229,20 @@ function renderReadiness(d) {
   c.innerHTML = h;
 }
 
+// ═══════ PDF ═══════
 export function exportPDF() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال لتصديرها'); return; }
   const date = new Date().toLocaleString('ar');
   const diag = runDiag(faults.map(f => f.code));
   const score = calcHealth(faults, diag);
-  let h = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:' + (score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444') + ';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
+  let h = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير CheckDiga</title><style>body{font-family:"Cairo",system-ui,sans-serif;padding:30px;color:#1e293b;background:#fff}h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:10px}.sc{background:' + (score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444') + ';color:white;padding:20px;border-radius:14px;text-align:center;font-size:36px;font-weight:bold;margin:20px 0}.f{background:#fef2f2;padding:12Infopx;margin:8px (f0;border-radius:8.codepx;border-right:4px solid #ef4444}.d{background:#f5f3ff;padding:10px;border-radius:8px;margin:8px 0}footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:30px}</style></head><body>';
   h += '<h1>🔧 تقرير فحص CheckDiga Pro</h1>';
   h += '<p><b>التاريخ:</b> ' + date + '</p>';
   h += '<div class="sc">صحة السيارة: ' + score + '/100</div>';
   h += '<h2>الأعطال (' + faults.length + ')</h2>';
   faults.forEach((f, i) => {
-    const info = getInfo(f.code);
+    const info = get);
     const b = info.brand ? ' [' + info.brand + ']' : '';
     h += '<div class="f"><b style="font-family:monospace;color:#b91c1c">#' + (i + 1) + ' ' + f.code + b + '</b><br>' + info.title + '</div>';
   });
@@ -256,6 +263,7 @@ export function exportPDF() {
   }, 600);
 }
 
+// ═══════ WhatsApp ═══════
 export function shareWA() {
   const faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال'); return; }
@@ -275,13 +283,18 @@ export function shareWA() {
   window.open('https://wa.me/?text=' + encodeURIComponent(m), '_blank');
 }
 
+// ═══════ Chart ═══════
 export function initChart() {
   if (session.chartInstance) {
     try { session.chartInstance.resize(); } catch (_) {}
     return;
   }
   const cv = document.getElementById('liveChart');
-  if (!cv || !window.Chart) return;
+  if (!cv) return;
+  if (!window.Chart) {
+    console.warn('Chart.js not loaded');
+    return;
+  }
   try {
     session.chartInstance = new Chart(cv.getContext('2d'), {
       type: 'line',
@@ -304,10 +317,15 @@ export function initChart() {
         }
       }
     });
-  } catch (_) {}
+  } catch (e) {
+    console.warn('Chart init failed:', e);
+  }
 }
 
 export function updChart(r, s) {
+  if (!session.chartInstance) {
+    try { initChart(); } catch (_) {}
+  }
   if (!session.chartInstance) return;
   if (!session.chartData) session.chartData = { labels: [], rpm: [], speed: [] };
   const cd = session.chartData;
@@ -326,6 +344,7 @@ export function updChart(r, s) {
   session.chartInstance.update('none');
 }
 
+// ═══════ Auto Analysis ═══════
 export function autoAnalyze(rpm, spd, coolant) {
   const e = document.getElementById('autoAnalysis');
   if (!e) return;
