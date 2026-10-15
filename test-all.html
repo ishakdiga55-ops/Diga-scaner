@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تشخيص CheckDiga</title>
+<style>
+body{font-family:Arial;background:#111827;color:#fff;padding:16px;margin:0;font-size:14px}
+h1{font-size:18px}
+.row{background:#1f2937;padding:10px;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between}
+.ok{color:#22c55e}
+.fail{color:#ef4444}
+pre{background:#000;color:#22c55e;padding:10px;border-radius:8px;font-size:11px;overflow-x:auto;max-height:250px}
+</style>
+</head>
+<body>
+<h1>🔍 تشخيص الملفات</h1>
+<div id="results"></div>
+<pre id="errors"></pre>
+
+<script type="module">
+const r = document.getElementById('results');
+const e = document.getElementById('errors');
+const files = [
+  ['state.js', './js/state.js'],
+  ['database.js', './js/data/database.js'],
+  ['obd.js', './js/obd.js'],
+  ['analysis.js', './js/analysis.js'],
+  ['obd-commands.js', './js/obd-commands.js'],
+  ['ui-extras.js', './js/ui-extras.js'],
+  ['extras.js', './js/extras.js'],
+  ['loader.js', './js/data/loader.js'],
+  ['theme.js', './js/ui/theme.js'],
+  ['search.js', './js/ui/search.js'],
+  ['tabs.js', './js/ui/tabs.js'],
+  ['events.js', './js/ui/events.js'],
+  ['vin.js', './js/vin.js'],
+  ['abs-scan.js', './js/abs-scan.js'],
+  ['main.js', './js/main.js']
+];
+
+async function test() {
+  let failCount = 0;
+  for (const [name, path] of files) {
+    const d = document.createElement('div');
+    d.className = 'row';
+    try {
+      await import(path);
+      d.innerHTML = '<span>' + name + '</span><span class="ok">✅ يعمل</span>';
+    } catch (err) {
+      d.innerHTML = '<span>' + name + '</span><span class="fail">❌ فشل</span>';
+      e.textContent += name + ': ' + (err.message || err) + '\n\n';
+      failCount++;
+    }
+    r.appendChild(d);
+  }
+  const summary = document.createElement('div');
+  summary.style.cssText = 'background:' + (failCount === 0 ? '#065f46' : '#991b1b') + ';padding:12px;border-radius:8px;text-align:center;font-weight:bold;margin-top:10px;font-size:16px';
+  summary.textContent = failCount === 0 ? '✅ كل الملفات تعمل' : '❌ ' + failCount + ' ملف فشل';
+  r.appendChild(summary);
+}
+
+window.addEventListener('error', (ev) => {
+  e.textContent += 'GLOBAL: ' + ev.message + '\n';
+});
+
+test();
+</script>
+</body>
+</html>
