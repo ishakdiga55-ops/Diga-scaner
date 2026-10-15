@@ -1,3 +1,5 @@
+import { initChart } from '../extras.js';
+
 export function initTabs() {
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => {
@@ -12,6 +14,13 @@ export function initTabs() {
       document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
       const target = document.getElementById('panel-' + tab.dataset.tab);
       if (target) target.classList.remove('hidden');
+
+      const which = tab.dataset.tab;
+      if (which === 'live') {
+        setTimeout(() => {
+          try { initChart(); } catch (_) {}
+        }, 200);
+      }
     };
   });
 }
