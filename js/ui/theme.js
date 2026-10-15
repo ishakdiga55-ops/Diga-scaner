@@ -16,7 +16,7 @@ function applyTheme() {
   }
 }
 
-function toggleTheme() {
+export function toggleTheme() {
   const cur = localStorage.getItem('checkdiga_theme') || 'dark';
   localStorage.setItem('checkdiga_theme', cur === 'dark' ? 'light' : 'dark');
   applyTheme();
