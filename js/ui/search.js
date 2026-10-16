@@ -1,4 +1,5 @@
 import { DTC_DATABASE, SEARCH_INDEX, BY_PREFIX, getInfo } from '../data/database.js';
+import { getAIDIagnosis } from '../ai-service.js';
 
 let sTimer = null;
 
@@ -62,8 +63,22 @@ export function searchDTC(q) {
   }
 
   if (!m.length) {
-    d.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';
-    if (cEl) cEl.textContent = '';
+    if (looksLikeCode && qq.length >= 3) {
+      d.innerHTML = '<div class="p-4 bg-gray-900 rounded-xl text-center space-y-2"><p class="text-xs text-yellow-400">⚡ الكود غير موجود محلياً، يتم فحصه عبر الذكاء الاصطناعي...</p></div>';
+      if (cEl) cEl.textContent = '(جاري التحليل...)';
+
+      getAIDIagnosis(qq, "كود فحص غير معروف").then(aiText => {
+        let resHtml = '<div class="p-4 bg-gray-900 rounded-xl space-y-3 text-right" dir="rtl">';
+        resHtml += '<div class="font-mono text-red-400 font-bold text-sm">🤖 تحليل الذكاء الاصطناعي للكود: ' + qq + '</div>';
+        resHtml += '<div class="text-xs text-gray-300 whitespace-pre-line leading-relaxed">' + aiText + '</div>';
+        resHtml += '</div>';
+        d.innerHTML = resHtml;
+        if (cEl) cEl.textContent = '(تحليل ذكي)';
+      });
+    } else {
+      d.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">لا توجد نتائج</p>';
+      if (cEl) cEl.textContent = '';
+    }
     return;
   }
 
