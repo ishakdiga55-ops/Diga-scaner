@@ -1,4 +1,4 @@
-import { getAIDIagnosis } from '../ai-service.js'; // تأكد من ضبط مسار الاستيراد حسب مكان الملف
+import { getAIDIagnosis } from './ai-service.js';
 
 export const RULES = [
   { req: ['P0171', 'P0174'], title: 'تسرب هواء في نظام السحب', conf: 90, sev: 'high', desc: 'خليط فقير في البنكين', acts: ['افحص خراطيم الفاكيوم', 'افحص حشوة مشعب السحب'] },
@@ -49,7 +49,7 @@ export function calcHealth(f, d) {
   return Math.round(Math.max(25, Math.min(100, sc)));
 }
 
-// 🧠 التحليل الذكي المدمج (محلي + ذكاء اصطناعي عند الحاجة)
+// 🧠 التحليل الذكي الهجين (محلي + ذكاء اصطناعي عند الحاجة)
 export async function dispSmart(codes) {
   const lastDiag = runDiag(codes);
   const c = document.getElementById('smartDiagnosis');
@@ -74,12 +74,10 @@ export async function dispSmart(codes) {
     h += '<p class="text-xs text-amber-400 mb-2 animate-pulse"><i class="fa-solid fa-robot"></i> لا توجد قواعد محلية مطابقة. جاري استنتاج التحليل بالذكاء الاصطناعي...</p>';
   }
 
-  // حاوية خاصة لنتائج الذكاء الاصطناعي إن لم توجد قواعد محلية
   h += '<div id="ai-smart-fallback"></div>';
   h += '</div>';
   c.innerHTML = h;
 
-  // إذا لم تطابق أي قاعدة محلية، نستدعي الذكاء الاصطناعي لتحليل الأكواد المكتشفة مباشرة
   if (lastDiag.length === 0) {
     const codeListStr = codes.map(f => f.code || f).join(', ');
     const aiText = await getAIDIagnosis(codeListStr, "فحص شامل لأكواد أعطال متعددة");
