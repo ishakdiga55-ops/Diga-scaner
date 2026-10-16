@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet
+   CheckDiga Pro — Main Stylesheet (Luxury Gauges)
    ============================================ */
 
 /* --- Variables --- */
@@ -56,6 +56,7 @@ body {
 .gauge-needle {
   transform-origin: 100px 100px;
   transition: transform .6s cubic-bezier(.4, 0, .2, 1);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6)); /* توهج للإبرة */
 }
 .gauge-arc {
   transition: stroke-dashoffset .6s cubic-bezier(.4, 0, .2, 1);
@@ -295,46 +296,85 @@ body.light-mode #statSource::before {
 }
 
 /* ============================================
-   CheckDiga Pro — Luxury Watch Gauges Style
+   CheckDiga Pro — Luxury Watch Gauges Style (التحديث الجديد)
    ============================================ */
 
 .gauge-box {
-  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 70%, #020617 100%) !important;
-  border: 4px solid #334155 !important;
-  border-radius: 24px !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.1), inset 0 -4px 8px rgba(0, 0, 0, 0.8) !important;
+  /* 1. جعله دائرياً تماماً مثل الساعة */
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1; /* لضمان دائرة مثالية */
+  
+  /* 2. خلفية داكنة مع إضاءة خافتة في المنتصف */
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 60%, #020617 100%) !important;
+  
+  /* 3. الإطار المعدني السميك (تأثير 3D) */
+  border: 5px solid #475569 !important;
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.8),       /* ظل خارجي عميق */
+    inset 0 0 20px rgba(0, 0, 0, 0.9),    /* ظل داخلي غامق */
+    inset 0 0 10px rgba(255, 255, 255, 0.1), /* لمعة زجاجية داخلية */
+    0 0 0 2px #94a3b8 !important;         /* حلقة معدنية رفيعة خارجية */
+  
+  /* 4. ضبط المحتوى في المنتصف */
   position: relative;
   overflow: hidden;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* حلقة معدنية دقيقة داخل العداد تشبه إطارات الساعات الراقية */
+/* تأثير عند مرور الماوس على العداد */
+.gauge-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.9), 
+    inset 0 0 25px rgba(0, 0, 0, 1), 
+    0 0 0 2px #cbd5e1 !important;
+}
+
+/* 5. إضافة صورة تروس ميكانيكية في الخلفية (تستبدل الخط المتقطع القديم) */
 .gauge-box::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  border: 1px dashed rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%; height: 85%;
+  /* صورة تروس شفافة */
+  background-image: url('https://cdn-icons-png.flaticon.com/512/2092/2092662.png'); 
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.1; /* شفافية عالية جداً لتكون خلفية خافتة */
   pointer-events: none;
+  z-index: 0;
+  border: none !important; /* إلغاء أي حدود قديمة */
 }
 
-/* تحسين مظهر عناوين العدادات لتشبه نقش الساعات الفاخرة */
-.gauge-box h3, .gauge-box .gauge-title {
-  font-family: 'Courier New', Courier, monospace;
+/* 6. تحسين مظهر العناوين (RPM, SPEED, etc.) */
+.gauge-box h3, .gauge-box .gauge-title, .gauge-box .text-\[11px\] {
+  font-family: 'Courier New', Courier, monospace !important;
   letter-spacing: 2px;
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
   font-weight: 700;
   text-transform: uppercase;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  z-index: 1;
 }
 
-/* تحسين مظهر الأرقام داخل العداد */
-.gauge-box .gauge-value, .gauge-box .value-display, #gauge-rpm, #gauge-speed, #gauge-coolant, #gauge-fuel {
+/* 7. تحسين مظهر الأرقام لتكون متوهجة وفاخرة */
+.gauge-box .gauge-value, 
+.gauge-box .value-display, 
+.gauge-box #gauge-rpm, 
+.gauge-box #gauge-speed, 
+.gauge-box #gauge-coolant, 
+.gauge-box #gauge-fuel,
+.gauge-box .text-center.font-bold.text-xl {
   font-family: 'Times New Roman', Times, serif !important;
   font-weight: bold !important;
   color: #f8fafc !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  z-index: 1; /* لضمان ظهور الأرقام فوق التروس */
 }
