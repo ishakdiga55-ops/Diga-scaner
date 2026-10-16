@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Luxury Final Version)
+   CheckDiga Pro — Main Stylesheet (Ultimate Luxury Final)
    ============================================ */
 
 /* --- Variables --- */
@@ -45,12 +45,12 @@ body {
   border-top-color: var(--pri);
   border-radius: 50%;
   width: 20px;
-  height: 20px;
+  height: 020px;
   animation: spin .8s linear infinite;
-  display: inline-block;
-  vertical-align: middle;
+   display: inline-block;
+0  vertical-align: middle;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes  spin { to { transform: rotate(360deg);20 } }
 
 /* --- Gauges --- */
 .gauge-needle {
@@ -188,7 +188,7 @@ body {
 
 @keyframes pulseGlow {
   0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(139, 92, 246, .4)); }
-  50% { opacity: .9; filter: drop-shadow(0 0 20px rgba(139, 92, 246, .8)); }
+  50% { opacity: .9; filter: drop-shadow(px rgba(139, 92, 246, .8)); }
 }
 
 .hero-number { animation: pulseGlow 3s ease-in-out infinite; }
@@ -280,9 +280,9 @@ body.light-mode #statSource::before {
   border-radius: 50% !important;
   aspect-ratio: 1 / 1; /* لضمان دائرة مثالية */
   
-  /* خلفية داكنة مع إضاءة خافتة + طبقة زجاجية لامعة من الأعلى */
+  /* خلفية داكنة + لمعة زجاجية من الأعلى (Glass Effect) */
   background: 
-    linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 40%),
+    linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 40%),
     radial-gradient(circle at center, #1e293b 0%, #0f172a 60%, #020617 100%) !important;
   
   /* الإطار المعدني السميك (تأثير 3D) */
@@ -374,29 +374,27 @@ body.light-mode #statSource::before {
 }
 
 /* ============================================
-   CheckDiga Pro — Luxury Dashboard Warning Lights (أضواء الطابلون)
+   CheckDiga Pro — Luxury Dashboard Floating Lights (أضواء الطابلون)
    ============================================ */
 
 .sys-item {
-  /* إزالة الخلفية والإطار لتصبح مجرد أيقونة مضيئة */
+  /* إزالة الخلفية والإطار لتصبح مجرد أيقونة مضيئة (Floating) */
   background: transparent !important;
   border: none !important;
-  padding: 12px 0;
+  padding: 15px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  position: relative;
 }
 
 /* الأيقونة الأساسية (مطفأة) */
 .sys-item i {
-  font-size: 1.6rem;
+  font-size: 1.8rem; /* تكبير الأيقونة قليلاً */
   color: #334155; /* رمادي داكن جداً */
   transition: all 0.4s ease;
-  filter: drop-shadow(0 0 0px transparent);
 }
 
 /* النص أسفل الأيقونة */
@@ -408,10 +406,10 @@ body.light-mode #statSource::before {
   transition: all 0.4s ease;
 }
 
-/* --- حالة "سليم" (توهج أخضر زمردي) --- */
+/* --- حالة "سليم" (توهج أخضر زمردي هادئ) --- */
 .sys-item.good i {
   color: #10b981;
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.9));
 }
 .sys-item.good span {
   color: #34d399;
@@ -421,29 +419,19 @@ body.light-mode #statSource::before {
 /* --- حالة "عطل" (توهج أحمر ناري + وميض) --- */
 .sys-item.bad i {
   color: #ef4444;
-  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1));
-  animation: pulseRed 1.5s infinite;
+  filter: drop-shadow(0 0 12px rgba(239, 68, 68, 1));
+  animation: pulseRed 1.2s infinite;
 }
 .sys-item.bad span {
   color: #f87171;
-  text-shadow: 0 0 5px rgba(248, 113, 113, 0.8);
+  text-shadow: 0 0 8px rgba(248, 113, 113, 0.8);
 }
 
-/* --- حالة "غير معروف" (خافت) --- */
-.sys-item.unknown {
-  opacity: 0.3;
-}
-
-/* تأثير نبض للعطل (مثل السيارات الحقيقية) */
 @keyframes pulseRed {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1)); }
-  50% { opacity: 0.6; filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5)); }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.95); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5)); }
 }
 
-/* تأثير عند اللمس/المرور */
 .sys-item:hover {
-  transform: scale(1.1);
-}
-.sys-item:hover i {
-  filter: drop-shadow(0 0 12px currentColor);
+  transform: scale(1.15);
 }
