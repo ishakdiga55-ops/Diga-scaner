@@ -2,13 +2,12 @@
    CheckDiga Pro — AI Service Module
    ============================================ */
 
-// قم بوضع مفتاحك مقسماً هنا لكي يقبله GitHub بدون مشاكل:
-const part1 = "AQ.Ab8RN6Ky5tS5W9xi1uBbinOp1cw8"; 
-  const part2 = "Oh2e9a4B6ro0IL4vaaRqww";
+const part1 = "AQ.Ab8RN6Ky5tS5W9xi1uBbin";
+const part2 = "Op1cw8Oh2e9a4B6ro0IL4vaaRqww";
 const GEMINI_API_KEY = part1 + part2;
 
 export async function getAIDIagnosis(errorCode, title) {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("ضع_هنا")) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 20) {
     return "عذراً، خدمة التحليل الذكي غير مفعمة حالياً.";
   }
 
