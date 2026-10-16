@@ -1,3 +1,7 @@
+/* ============================================
+   CheckDiga Pro — Smart Loader with IndexedDB Cache
+   ============================================ */
+
 import { DTC_DATABASE, buildDTCIndex, buildSearchIndex } from './database.js';
 import { app } from '../state.js';
 
@@ -19,6 +23,50 @@ const SLOW_FILES = [
   'dtc_chinese3.json', 'dtc_chinese4.json'
 ];
 
+/* --- IndexedDB Cache Helpers --- */
+const DB_NAME = 'CheckDigaCacheDB';
+const STORE_NAME = 'codesStore';
+
+function openCacheDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+  });
+}
+
+async function getCachedDB() {
+  try {
+    const db = await openCacheDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get('full_database');
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (_) {
+    return null;
+  }
+}
+
+async function saveCachedDB(dataObj) {
+  try {
+    const db = await openCacheDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(dataObj, 'full_database');
+  } catch (e) {
+    console.warn('Cache save failed:', e);
+  }
+}
+
 function log(msg) {
   const c = document.getElementById('console');
   if (!c) return;
@@ -29,7 +77,7 @@ function log(msg) {
 
 function updateCount() {
   const tot = Object.keys(DTC_DATABASE).length;
-  if (tot < 10000) return tot;
+  if (tot < 1000) return tot;
   const fmt = tot.toLocaleString('en-US');
   const e1 = document.getElementById('heroCount');
   const e2 = document.getElementById('statCodes');
@@ -135,7 +183,6 @@ async function loadWal33D() {
   let db = null;
   try {
     if (typeof initSqlJs !== 'function') return 0;
-    log('INFO: Wal33D...');
     const SQL = await initSqlJs({ locateFile: f => 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/' + f });
     const resp = await fetch('./dtc_codes_v0.1.0.db');
     if (!resp.ok) return 0;
@@ -177,10 +224,8 @@ async function loadWal33D() {
       };
       added++;
     }
-    log('OK: Wal33D — ' + added + ' كود');
     return added;
-  } catch (e) {
-    log('ERR: Wal33D — ' + e.message);
+  } catch (_) {
     return 0;
   } finally {
     if (db) try { db.close(); } catch (_) {}
@@ -194,7 +239,20 @@ export async function loadFullDatabase() {
   const bt = document.getElementById('dbStatusText');
   if (b) b.style.display = 'block';
 
-  // ⚡ المرحلة 1: الملفات المحلية السريعة (فوري)
+  // ⚡ الخطوة 0: فحص التخزين المؤقت المحلي (IndexedDB Cache) للفتح الفوري
+  const cachedData = await getCachedDB();
+  if (cachedData && typeof cachedData === 'object' && Object.keys(cachedData).length > 100) {
+    Object.assign(DTC_DATABASE, cachedData);
+    buildDTCIndex();
+    buildSearchIndex();
+    updateCount();
+    app.obdexLoaded = true;
+    if (b) b.style.display = 'none';
+    log('⚡ تم التحميل الفوري من الكاش المحلي!');
+    return;
+  }
+
+  // ⚡ المرحلة 1: الملفات المحلية السريعة
   log('INFO: تحميل الملفات المحلية...');
   if (bt) bt.textContent = 'تحميل الملفات المحلية...';
 
@@ -205,9 +263,8 @@ export async function loadFullDatabase() {
   buildDTCIndex();
   buildSearchIndex();
   updateCount();
-  log('OK: محلي — ' + Object.keys(DTC_DATABASE).length + ' كود');
 
-  // ⚡ المرحلة 2: الملفات الإقليمية (موازي)
+  // ⚡ المرحلة 2: الملفات الإقليمية
   if (bt) bt.textContent = 'تحميل الملفات الإقليمية...';
   const slowResults = await Promise.all(
     SLOW_FILES.map(async (f) => {
@@ -224,34 +281,30 @@ export async function loadFullDatabase() {
   buildDTCIndex();
   buildSearchIndex();
   updateCount();
-  log('OK: إقليمي — ' + Object.keys(DTC_DATABASE).length + ' كود');
 
   if (b) b.style.display = 'none';
 
-  // 🚀 المرحلة 3: OBDex CDN — تحميل موازي
+  // حفظ النسخة الأولية في الكاش لفتحها بسرعة في المرة القادمة
+  saveCachedDB(DTC_DATABASE);
+
+  // 🚀 المرحلة 3: OBDex CDN و Wal33D في الخلفية
   setTimeout(async () => {
-    log('INFO: OBDex CDN — تحميل موازي...');
     let obdexCount = 0;
-
     const results = await Promise.all(
-      OBDEX_FILES.map(async (f) => {
-        const items = await fetchYaml(f);
-        return items;
-      })
+      OBDEX_FILES.map(async (f) => await fetchYaml(f))
     );
-
     for (const items of results) {
       if (items && items.length) obdexCount += addItems(items);
     }
-    log('OK: OBDex — ' + obdexCount + ' كود');
-
-    log('INFO: Wal33D في الخلفية...');
     await loadWal33D();
 
     app.obdexLoaded = true;
     buildDTCIndex();
     buildSearchIndex();
-    const tot = updateCount();
-    log('OK: الإجمالي النهائي: ' + tot);
+    updateCount();
+    
+    // تحديث الكاش بالبيانات الكاملة الجديدة
+    saveCachedDB(DTC_DATABASE);
+    log('OK: اكتمل تحميل قاعدة البيانات بالكامل وحفظها محلياً.');
   }, 500);
 }
