@@ -1,3 +1,5 @@
+import { getAIDIagnosis } from '../ai-service.js'; // تأكد من ضبط مسار الاستيراد حسب مكان الملف
+
 export const RULES = [
   { req: ['P0171', 'P0174'], title: 'تسرب هواء في نظام السحب', conf: 90, sev: 'high', desc: 'خليط فقير في البنكين', acts: ['افحص خراطيم الفاكيوم', 'افحص حشوة مشعب السحب'] },
   { req: ['P0300'], anyOf: ['P0301', 'P0302', 'P0303', 'P0304'], title: 'مشكلة في نظام الإشعال', conf: 75, sev: 'medium', desc: 'اشتعال متقطع', acts: ['بدل البواجي', 'افحص الكويلات'] },
@@ -6,6 +8,7 @@ export const RULES = [
   { req: ['U0100'], title: 'فقدان الاتصال بـ ECU', conf: 90, sev: 'critical', desc: 'لا يوجد تواصل مع كمبيوتر المحرك', acts: ['افحص فيوز ECU', 'افحص كابل OBD'] },
   { req: ['P0524'], title: 'ضغط زيت منخفض', conf: 95, sev: 'critical', desc: 'خطر تلف المحرك', acts: ['أوقف فوراً', 'افحص مستوى الزيت'] }
 ];
+
 export function runDiag(codes) {
   if (!codes || !codes.length) return [];
   const s = new Set(codes.map(c => String(c).toUpperCase()));
@@ -25,6 +28,7 @@ export function runDiag(codes) {
 export function confLabel(c) {
   return c >= 90 ? 'احتمال مرتفع' : c >= 70 ? 'احتمال متوسط' : 'احتمال وارد';
 }
+
 export function calcHealth(f, d) {
   if (!f || !f.length) return 100;
   let sc = 100;
@@ -45,20 +49,50 @@ export function calcHealth(f, d) {
   return Math.round(Math.max(25, Math.min(100, sc)));
 }
 
-export function dispSmart(codes) {
+// 🧠 التحليل الذكي المدمج (محلي + ذكاء اصطناعي عند الحاجة)
+export async function dispSmart(codes) {
   const lastDiag = runDiag(codes);
   const c = document.getElementById('smartDiagnosis');
   if (!c) return;
-  if (!lastDiag.length) { c.classList.add('hidden'); c.innerHTML = ''; return; }
+  if (!codes || !codes.length) { 
+    c.classList.add('hidden'); 
+    c.innerHTML = ''; 
+    return; 
+  }
+  
   c.classList.remove('hidden');
-  let h = '<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4"><h3 class="font-bold text-purple-200 mb-3"><i class="fa-solid fa-brain"></i> تحليل مبدئي</h3>';
-  lastDiag.forEach(d => {
-    const cl = d.sev === 'critical' ? '#dc2626' : d.sev === 'high' ? '#ef4444' : '#f59e0b';
-    h += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid ' + cl + '"><div class="flex justify-between mb-2 gap-2"><div class="font-bold text-sm">' + d.title + '</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold whitespace-nowrap" style="background:' + cl + '">' + confLabel(d.conf) + '</span></div><p class="text-xs text-gray-300 mb-2">' + d.desc + '</p><ul class="text-xs space-y-1">';
-    (d.acts || []).forEach(a => { h += '<li class="bg-gray-800/60 rounded p-1.5">• ' + a + '</li>'; });
-    h += '</ul></div>';
-  });
-  c.innerHTML = h + '</div>';
+  let h = '<div class="bg-purple-900/30 border-r-4 border-purple-500 rounded-2xl p-4"><h3 class="font-bold text-purple-200 mb-3"><i class="fa-solid fa-brain"></i> تحليل ذكي</h3>';
+  
+  if (lastDiag.length > 0) {
+    lastDiag.forEach(d => {
+      const cl = d.sev === 'critical' ? '#dc2626' : d.sev === 'high' ? '#ef4444' : '#f59e0b';
+      h += '<div class="bg-gray-900/60 rounded-xl p-3 mb-2" style="border-right:4px solid ' + cl + '"><div class="flex justify-between mb-2 gap-2"><div class="font-bold text-sm">' + d.title + '</div><span class="text-xs px-2 py-1 rounded-full text-white font-bold whitespace-nowrap" style="background:' + cl + '">' + confLabel(d.conf) + '</span></div><p class="text-xs text-gray-300 mb-2">' + d.desc + '</p><ul class="text-xs space-y-1">';
+      (d.acts || []).forEach(a => { h += '<li class="bg-gray-800/60 rounded p-1.5">• ' + a + '</li>'; });
+      h += '</ul></div>';
+    });
+  } else {
+    h += '<p class="text-xs text-amber-400 mb-2 animate-pulse"><i class="fa-solid fa-robot"></i> لا توجد قواعد محلية مطابقة. جاري استنتاج التحليل بالذكاء الاصطناعي...</p>';
+  }
+
+  // حاوية خاصة لنتائج الذكاء الاصطناعي إن لم توجد قواعد محلية
+  h += '<div id="ai-smart-fallback"></div>';
+  h += '</div>';
+  c.innerHTML = h;
+
+  // إذا لم تطابق أي قاعدة محلية، نستدعي الذكاء الاصطناعي لتحليل الأكواد المكتشفة مباشرة
+  if (lastDiag.length === 0) {
+    const codeListStr = codes.map(f => f.code || f).join(', ');
+    const aiText = await getAIDIagnosis(codeListStr, "فحص شامل لأكواد أعطال متعددة");
+    const fallbackBox = document.getElementById('ai-smart-fallback');
+    if (fallbackBox) {
+      fallbackBox.innerHTML = `
+        <div class="bg-gray-900/90 rounded-xl p-3 border border-purple-500/50 mt-2">
+          <strong class="text-blue-400 text-xs block mb-1">💡 تحليل الخبير الذكي (AI):</strong>
+          <p class="text-xs text-gray-200 leading-relaxed whitespace-pre-line">${aiText}</p>
+        </div>
+      `;
+    }
+  }
 }
 
 export function dispHealth(f, d) {
