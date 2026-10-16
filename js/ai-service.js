@@ -2,8 +2,8 @@
    CheckDiga Pro — AI Service Module
    ============================================ */
 
-const part1 = "AQ.Ab8RN6Ky5tS5W9xi1uBbin";
-const part2 = "Op1cw8Oh2e9a4B6ro0IL4vaaRqww";
+const part1 = "AQ.Ab8RN6IumjHTLo-gfLvN";
+const part2 = "lcGjccJ0u0sQNQhznv2wY09sbHHb3w";
 const GEMINI_API_KEY = part1 + part2;
 
 export async function getAIDIagnosis(errorCode, title) {
