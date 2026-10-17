@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
 <link rel="icon" type="image/png" href="logo.png">
+<!-- تثبيت التطبيق (PWA) -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -12,7 +18,6 @@
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- ربط ملف التصميم هنا -->
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/themes/light.css">
 </head>
@@ -72,7 +77,7 @@
 
 <div id="app" class="max-w-6xl mx-auto p-3 space-y-4 pt-6">
 <div class="flex justify-between items-center flex-wrap gap-2">
-  <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h1>
+  <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h2>
   <div class="flex gap-2">
     <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
     <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
@@ -89,12 +94,12 @@
 </div>
 <div class="grid grid-cols-3 gap-2 mb-2">
 <button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
-<button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-usb"></i> USB</button>
+<button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-usb"></i> USB</button>
 <button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
 </div>
 <button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
 <button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
-<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
+<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" rel="noopener" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 <button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
 <details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>❌ Wi-Fi: غير مدعوم من المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
@@ -134,7 +139,7 @@
   </svg>
   <div class="gauge-value-box">
     <div class="gauge-value" id="gauge-rpm">0</div>
-    <div class="gauge-unit">x1000</div>
+    <div class="gauge-unit">RPM</div>
   </div>
 </div>
 
@@ -215,7 +220,7 @@
 <h3 class="text-base font-bold"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
 <div class="grid grid-cols-2 gap-2">
 <button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
-<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-radar"></i> فحص الكل</button>
+<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
 <button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
 </div>
 <div id="scanSummary" class="text-xs space-y-1"></div>
@@ -337,6 +342,15 @@
 
 <script type="module" src="js/main.js"></script>
 
+<!-- تسجيل Service Worker للعمل بدون إنترنت -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+
 <script>
 /* ═══════════ الفيديو ═══════════ */
 (function(){
@@ -399,7 +413,7 @@
     {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
     {id:'ABS_FL',pr:'high',sys:['abs','brakes'],req:['C0035'],opt:['C0040','C0045','C0050'],t:'حساس عجلة ABS',cs:[{c:'الحساس',p:0.55},{c:'أسلاك',p:0.30},{c:'حلقة ABS',p:0.15}],ac:['افحص الأسلاك','افحص الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:false},
     {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
-    {id:'BRAKE_FLUID',pr:'critical',sys:['brakes'],req:['C0265'],opt:[],t:'مشكلة نظام الفرامل',cs:[{c:'تسرب سائل',p:0.45},{c:'مستوى منخفض',p:0.30},{c:'حساس',p:0.15},{c:'master',p:0.10}],ac:['أوقف السيارة','افحص سائل الفرامل','راجع مختص'],cost:{min:100,max:2000},time:4,diy:false,urg:true},
+    {id:'ABS_RELAY',pr:'high',sys:['abs','brakes'],req:['C0265'],opt:[],t:'دائرة ريلاي موتور ABS',cs:[{c:'فيوز أو ريلاي ABS',p:0.40},{c:'أسلاك وقوابس',p:0.30},{c:'موتور المضخة',p:0.20},{c:'وحدة ABS',p:0.10}],ac:['افحص فيوز وريلاي ABS','افحص الأسلاك والقوابس','راجع مختص'],cost:{min:50,max:1500},time:3,diy:false,urg:false},
     {id:'AIRBAG',pr:'critical',sys:['airbag'],req:['B0001'],opt:['B0010','B1000'],t:'عطل الوسائد الهوائية',cs:[{c:'قابس مفصول',p:0.40},{c:'clock spring',p:0.30},{c:'أسلاك',p:0.20},{c:'الوسادة',p:0.10}],ac:['افحص القابس','افحص clock spring','راجع مختص'],cost:{min:200,max:2000},time:4,diy:false,urg:true},
     {id:'CHARGING',pr:'high',sys:['battery'],req:['P0562'],opt:[],t:'مشكلة في الشحن',cs:[{c:'دينامو',p:0.50},{c:'بطارية',p:0.30},{c:'حزام',p:0.15},{c:'أسلاك',p:0.05}],ac:['افحص فولت البطارية','افحص الدينامو','افحص الحزام'],cost:{min:100,max:1500},time:3,diy:true,urg:false},
     {id:'TRANSM',pr:'high',sys:['transmission'],req:['P0700'],opt:[],t:'عطل ناقل الحركة',cs:[{c:'كود فرعي TCM',p:0.70},{c:'TCM',p:0.15},{c:'أسلاك',p:0.15}],ac:['اقرأ أكواد TCM','افحص زيت الجير','راجع مختص'],cost:{min:100,max:5000},time:8,diy:false,urg:false},
@@ -410,9 +424,8 @@
 
   function getCodes(){
     try {
-      var hist = JSON.parse(localStorage.getItem('checkdiga_hist') || '[]');
-      if (!hist.length) return [];
-      return (hist[0].faults || []).map(function(f){return f.code;}).filter(Boolean);
+      var last = JSON.parse(localStorage.getItem('checkdiga_last') || '[]');
+      return last.map(function(f){ return f.code; }).filter(Boolean);
     } catch(e) { return []; }
   }
 
@@ -515,7 +528,7 @@
     b.id = 'btnAdvDiag';
     b.type = 'button';
     b.className = 'w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold mt-3 flex items-center justify-center gap-2 col-span-2';
-    b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(30 قاعدة)</span>';
+    b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(' + RULES.length + ' قاعدة)</span>';
     b.onclick = function(){
       var codes = getCodes();
       if (!codes.length) {
