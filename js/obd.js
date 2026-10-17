@@ -24,7 +24,7 @@ function isBad(r) {
   if (!r) return true;
   const t = String(r).trim();
   if (t === '' || t === '>') return true;
-  if (/NO DATA|UNABLE TO CONNECT|ERROR|BUS INIT/i.test(r)) return true;
+  if (/NO DATA|UNABLE TO CONNECT|ERROR/i.test(r)) return true;
   return false;
 }
 
@@ -118,6 +118,16 @@ async function bleWrite(d) {
     await ble.txChar.writeValue(d);
 }
 
+async function probe(timeout) {
+  try {
+    const t = await sendCmd('0100', timeout, 0);
+    return String(t).replace(/[^0-9A-F]/gi, '').toUpperCase().indexOf('4100') >= 0;
+  } catch (_) {
+    await sleepMs(500);
+    return false;
+  }
+}
+
 export async function initELM() {
   log('INFO: تهيئة ELM327...');
   await sendCmd('AT Z', 6000);
@@ -128,24 +138,25 @@ export async function initELM() {
   await sendCmd('AT H0', 1000);
   await sendCmd('AT SP 0', 1500);
   await sleepMs(300);
-  let t = await sendCmd('0100', 4500);
-  if (String(t).replace(/[^0-9A-F]/gi, '').toUpperCase().indexOf('4100') >= 0) {
+
+  if (await probe(12000)) {
     log('OK: بروتوكول Auto (SP 0)');
     await detectCAN();
     return true;
   }
+
+  log('WARN: البحث التلقائي لم ينجح — تجربة بروتوكولات محددة...');
   const protocols = ['AT SP 6','AT SP 7','AT SP 8','AT SP 9','AT SP 5','AT SP 4','AT SP 3','AT SP 2','AT SP 1'];
   for (const p of protocols) {
-    await sendCmd(p, 1500);
+    try { await sendCmd(p, 1500); } catch (_) { continue; }
     await sleepMs(150);
-    t = await sendCmd('0100', 3500);
-    if (String(t).replace(/[^0-9A-F]/gi, '').toUpperCase().indexOf('4100') >= 0) {
+    if (await probe(5000)) {
       log('OK: بروتوكول ' + p);
       await detectCAN();
       return true;
     }
   }
-  log('ERR: لم يتم التعرف على بروتوكول');
+  log('ERR: لم يتم التعرف على بروتوكول — تأكد أن المفتاح على ON');
   return false;
 }
 
@@ -164,8 +175,12 @@ async function detectCAN() {
 export async function connectOBD(showAll) {
   if (!app.hasBLE) {
     alert(window.isSecureContext === false ? 'Web Bluetooth يحتاج HTTPS.' : 'المتصفح لا يدعم Web Bluetooth.');
-    return;
+    return false;
   }
+
+  // [إصلاح] تصفير الوضع التجريبي عند الاتصال الحقيقي
+  app.isDemo = false;
+
   const btn = document.getElementById('connect-btn');
   const orig = btn.innerHTML;
   btn.disabled = true;
@@ -187,7 +202,7 @@ export async function connectOBD(showAll) {
     try {
       ble.device = await navigator.bluetooth.requestDevice(opts);
     } catch (e) {
-      if (e.name === 'NotFoundError') { log('INFO: لم يتم اختيار جهاز'); return; }
+      if (e.name === 'NotFoundError') { log('INFO: لم يتم اختيار جهاز'); return false; }
       throw e;
     }
     log('INFO: جهاز: ' + (ble.device.name || 'بدون اسم'));
@@ -202,9 +217,11 @@ export async function connectOBD(showAll) {
     if (!await initELM()) throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
+    return true;
   } catch (e) {
     log('ERR: ' + e.message);
     await handleDisc();
+    return false;
   } finally {
     btn.disabled = false;
     btn.innerHTML = orig;
@@ -248,7 +265,11 @@ function onNotif(e) {
 }
 
 export async function connectUSB() {
-  if (!navigator.serial) { alert('Web Serial غير مدعوم'); return; }
+  if (!navigator.serial) { alert('Web Serial غير مدعوم'); return false; }
+
+  // [إصلاح] تصفير الوضع التجريبي عند الاتصال الحقيقي
+  app.isDemo = false;
+
   const btn = document.getElementById('usb-btn');
   const orig = btn.innerHTML;
   btn.disabled = true;
@@ -256,7 +277,13 @@ export async function connectUSB() {
   comm.userDisc = false;
 
   try {
-    const port = await navigator.serial.requestPort();
+    let port;
+    try {
+      port = await navigator.serial.requestPort();
+    } catch (e) {
+      if (e.name === 'NotFoundError') { log('INFO: لم يتم اختيار جهاز'); return false; }
+      throw e;
+    }
     let ok = false;
     for (const b of [38400, 115200, 9600, 57600, 230400]) {
       usb.port = port;
@@ -283,9 +310,11 @@ export async function connectUSB() {
     if (!await initELM()) throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
+    return true;
   } catch (e) {
     log('ERR: ' + e.message);
     await handleDisc();
+    return false;
   } finally {
     btn.disabled = false;
     btn.innerHTML = orig;
@@ -435,11 +464,11 @@ export function startLive() {
     if (!comm.isProcessing && comm.cmdQ.length === 0) {
       live.busy = true;
       try {
-        const rpm = pRPM(await sendCmd('01 0C', 800, 1));
-        const spd = pSpeed(await sendCmd('01 0D', 800, 1));
+        const rpm = pRPM(await sendCmd('01 0C', 1500, 1));
+        const spd = pSpeed(await sendCmd('01 0D', 1500, 1));
         if (live.tick % 4 === 0) {
-          live.lastCoolant = pCool(await sendCmd('01 05', 800, 1));
-          live.lastFuel = pFuel(await sendCmd('01 2F', 800, 1));
+          live.lastCoolant = pCool(await sendCmd('01 05', 1500, 1));
+          live.lastFuel = pFuel(await sendCmd('01 2F', 1500, 1));
         }
         updAllG({ rpm, speed: spd, coolant: live.lastCoolant, fuelLevel: live.lastFuel });
         live.tick++;
