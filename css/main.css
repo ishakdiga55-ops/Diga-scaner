@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Clean 3D Luxury Look)
+   CheckDiga Pro — Main Stylesheet (Fixed Gauges)
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
@@ -83,19 +83,13 @@ button:active:not(:disabled) { transform: translateY(0); }
 body.light-mode #statSource::before { color: #7c3aed; }
 
 /* ============================================
-   CheckDiga Pro — 3D Luxury Gauges (العدادات النظيفة)
+   CheckDiga Pro — 3D Luxury Gauges (العدادات النظيفة والمصححة)
    ============================================ */
 
 .gauge-box {
   border-radius: 50% !important;
   aspect-ratio: 1 / 1;
-  
-  /* خلفية معدنية عميقة مع لمعة زجاجية (بدون صور خارجية) */
-  background: 
-    linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 30%),
-    radial-gradient(circle at 50% 120%, #1e293b 0%, #0d141e 70%, #000000 100%) !important;
-  
-  /* إطار معدني متعدد الطبقات (Chrome Bezel) */
+  background: radial-gradient(circle at 50% 120%, #1e293b 0%, #0d141e 70%, #000000 100%) !important;
   border: 2px solid #1e293b !important;
   box-shadow: 
     0 15px 35px rgba(0, 0, 0, 0.9),          
@@ -103,17 +97,14 @@ body.light-mode #statSource::before { color: #7c3aed; }
     inset 0 5px 15px rgba(255, 255, 255, 0.05), 
     0 0 0 4px #334155,                         
     0 0 0 5px #64748b !important;              
-  
-  position: relative;
+  position: relative; /* مهم جداً لتثبيت الأرقام */
   overflow: hidden;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 10px;
+  align-items: center; /* توسيط الـ SVG */
 }
 
-/* إضاءة داخلية ناعمة (بديل التروس) */
+/* إضاءة داخلية ناعمة */
 .gauge-box::before {
   content: '';
   position: absolute;
@@ -130,11 +121,7 @@ body.light-mode #statSource::before { color: #7c3aed; }
   position: absolute;
   inset: 8px;
   border-radius: 50%;
-  background: repeating-conic-gradient(
-    from 0deg,
-    #64748b 0deg 1.5deg,
-    transparent 1.5deg 12deg
-  );
+  background: repeating-conic-gradient(from 0deg, #64748b 0deg 1.5deg, transparent 1.5deg 12deg);
   -webkit-mask: radial-gradient(transparent 70%, #000 72%);
   mask: radial-gradient(transparent 70%, #000 72%);
   opacity: 0.3;
@@ -142,8 +129,10 @@ body.light-mode #statSource::before { color: #7c3aed; }
   z-index: 1;
 }
 
-/* العناوين (RPM, SPEED, etc.) */
-.gauge-box h3, .gauge-box .gauge-title, .gauge-box .text-\[11px\] {
+/* العناوين (RPM, SPEED, etc.) - تثبيت في الأعلى */
+.gauge-box .gauge-title {
+  position: absolute;
+  top: 15%;
   font-family: 'Orbitron', sans-serif !important;
   letter-spacing: 3px;
   color: #94a3b8 !important;
@@ -151,10 +140,21 @@ body.light-mode #statSource::before { color: #7c3aed; }
   text-transform: uppercase;
   text-shadow: 0 0 10px rgba(148, 163, 184, 0.5);
   z-index: 2;
-  margin-bottom: 5px;
 }
 
-/* الأرقام (LCD Style - واضحة وحادة) */
+/* تثبيت الأرقام ووحدات القياس داخل الدائرة (في الأسفل) */
+.gauge-value-box {
+  position: absolute;
+  bottom: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+/* الأرقام */
 .gauge-box .gauge-value, 
 .gauge-box #gauge-rpm, 
 .gauge-box #gauge-speed, 
@@ -163,64 +163,29 @@ body.light-mode #statSource::before { color: #7c3aed; }
   font-family: 'Orbitron', sans-serif !important;
   font-weight: 900 !important;
   color: #f8fafc !important;
-  /* توهج خفيف جداً + ظل أسود لضمان الوضوح */
+  font-size: 1.5rem; /* حجم مناسب */
+  line-height: 1;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.9) !important;
-  z-index: 2;
   letter-spacing: 1px;
 }
 
 /* وحدات القياس */
-.gauge-box .text-\[9px\] {
+.gauge-box .gauge-unit {
   font-family: 'Orbitron', sans-serif !important;
   color: #64748b !important;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 2px;
-  z-index: 2;
+  margin-top: 2px;
 }
 
-/* ============================================
-   أضواء الطابلون العائمة (Luxury Floating Lights)
-   ============================================ */
-
-.sys-item {
-  background: transparent !important;
-  border: none !important;
-  padding: 12px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-
-.sys-item i {
-  font-size: 1.6rem;
-  color: #1e293b; /* مطفأ */
-  transition: all 0.4s ease;
-  text-shadow: 0 0 0px transparent;
-}
-
-.sys-item span {
-  font-size: 9px;
-  font-weight: 700;
-  color: #334155;
-  letter-spacing: 1px;
-  font-family: 'Cairo', sans-serif;
-  transition: all 0.4s ease;
-}
-
-/* توهج أخضر فاخر */
+/* --- الأضواء العائمة --- */
+.sys-item { background: transparent !important; border: none !important; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.4s; cursor: pointer; }
+.sys-item i { font-size: 1.6rem; color: #1e293b; transition: all 0.4s ease; }
+.sys-item span { font-size: 9px; font-weight: 700; color: #334155; letter-spacing: 1px; transition: all 0.4s ease; }
 .sys-item.good i { color: #10b981; text-shadow: 0 0 15px #10b981, 0 0 30px rgba(16, 185, 129, 0.5); }
 .sys-item.good span { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
-
-/* توهج أحمر نابض */
 .sys-item.bad i { color: #ef4444; text-shadow: 0 0 15px #ef4444, 0 0 30px rgba(239, 68, 68, 0.5); animation: pulseRed 1.5s infinite; }
 .sys-item.bad span { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.5); }
-
-@keyframes pulseRed { 
-  0%, 100% { opacity: 1; transform: scale(1); } 
-  50% { opacity: 0.6; transform: scale(0.95); } 
-}
-
+@keyframes pulseRed { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
 .sys-item:hover { transform: scale(1.1); }
