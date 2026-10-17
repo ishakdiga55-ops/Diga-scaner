@@ -17,6 +17,26 @@
 </head>
 <body class="bg-gray-900 text-gray-100">
 
+<!-- مكتبة الألوان والتدرجات للعدادات (SVG Defs) -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <!-- تدرج فضي للمسار الخلفي -->
+    <linearGradient id="metalTrack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <!-- توهج أحمر (RPM) -->
+    <filter id="glowRed"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <!-- توهج أزرق (SPEED) -->
+    <filter id="glowBlue"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <!-- توهج أخضر (FUEL) -->
+    <filter id="glowGreen"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <!-- توهج برتقالي (TEMP) -->
+    <filter id="glowOrange"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
@@ -106,25 +126,25 @@
 <div id="smartDiagnosis" class="hidden"></div>
 <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
-<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/></g></svg>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="98,105 102,105 100,40" fill="#ef4444" filter="url(#glowRed)"/><polygon points="100,40 99,45 101,45" fill="#fff" opacity="0.8"/><circle cx="100" cy="100" r="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#fff"/></g></svg>
 <div class="text-center">
   <div class="font-bold text-xl text-white leading-none" id="gauge-rpm">0</div>
   <div class="text-[9px] text-gray-400 font-mono mt-1">x1000</div>
 </div>
 </div>
-<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#3b82f6" stroke="#fff" stroke-width="2"/></g></svg>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="98,105 102,105 100,40" fill="#3b82f6" filter="url(#glowBlue)"/><polygon points="100,40 99,45 101,45" fill="#fff" opacity="0.8"/><circle cx="100" cy="100" r="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#fff"/></g></svg>
 <div class="text-center">
   <div class="font-bold text-xl text-white leading-none" id="gauge-speed">0</div>
   <div class="text-[9px] text-gray-400 font-mono mt-1">km/h</div>
 </div>
 </div>
-<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">TEMP</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/></g></svg>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">TEMP</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><polygon points="98,105 102,105 100,40" fill="#f59e0b" filter="url(#glowOrange)"/><polygon points="100,40 99,45 101,45" fill="#fff" opacity="0.8"/><circle cx="100" cy="100" r="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#fff"/></g></svg>
 <div class="text-center">
   <div class="font-bold text-xl text-white leading-none" id="gauge-coolant">0</div>
   <div class="text-[9px] text-gray-400 font-mono mt-1">°C</div>
 </div>
 </div>
-<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">FUEL</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><line x1="100" y1="100" x2="100" y2="45" stroke="#fff" stroke-width="2.5"/><circle cx="100" cy="100" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/></g></svg>
+<div class="gauge-box"><div class="text-[11px] text-gray-400 text-center mb-1">FUEL</div><svg viewBox="0 0 200 200" class="w-full h-full max-h-[160px]"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><polygon points="98,105 102,105 100,40" fill="#10b981" filter="url(#glowGreen)"/><polygon points="100,40 99,45 101,45" fill="#fff" opacity="0.8"/><circle cx="100" cy="100" r="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#fff"/></g></svg>
 <div class="text-center">
   <div class="font-bold text-xl text-white leading-none" id="gauge-fuel">0</div>
   <div class="text-[9px] text-gray-400 font-mono mt-1">%</div>
@@ -132,7 +152,6 @@
 </div>
 </div>
 
-<!-- أضواء الطابلون (تم إضافة خط الفصل pt-4 border-t) -->
 <div class="grid grid-cols-5 gap-2 pt-4 border-t border-gray-700/50 mt-4">
 <div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear text-lg"></i><span class="text-[9px] font-bold">المحرك</span></div>
 <div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs text-lg"></i><span class="text-[9px] font-bold">الجير</span></div>
