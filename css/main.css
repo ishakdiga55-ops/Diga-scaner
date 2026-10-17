@@ -1,8 +1,9 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Ultimate Luxury Final)
+   CheckDiga Pro — Main Stylesheet (Ultimate 3D Luxury Look)
    ============================================ */
 
-/* --- Variables --- */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+
 :root {
   --bg: #0f172a;
   --bg-2: #1e293b;
@@ -16,11 +17,7 @@
   --err: #ef4444;
 }
 
-/* --- Reset --- */
-* {
-  -webkit-tap-highlight-color: transparent;
-  box-sizing: border-box;
-}
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
 body {
@@ -29,271 +26,84 @@ body {
   color: var(--txt);
   min-height: 100vh;
   padding-bottom: 60px;
-  transition: background .3s, color .3s;
 }
 
-/* --- Scrollbar --- */
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--brd-2);
-  border-radius: 3px;
-}
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--brd-2); border-radius: 3px; }
 
-/* --- Spinner --- */
-.spinner {
-  border: 3px solid var(--brd);
-  border-top-color: var(--pri);
-  border-radius: 50%;
-  width: 20px;
-  height: 020px;
-  animation: spin .8s linear infinite;
-   display: inline-block;
-0  vertical-align: middle;
-}
-@keyframes  spin { to { transform: rotate(360deg);20 } }
-
-/* --- Gauges --- */
-.gauge-needle {
-  transform-origin: 100px 100px;
-  transition: transform .6s cubic-bezier(.4, 0, .2, 1);
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
-}
-.gauge-arc {
-  transition: stroke-dashoffset .6s cubic-bezier(.4, 0, .2, 1);
-}
+.spinner { border: 3px solid var(--brd); border-top-color: var(--pri); border-radius: 50%; width: 20px; height: 20px; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* --- Badges --- */
-.pro-badge {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #000;
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-weight: 900;
-}
-.cache-badge {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #fff;
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-weight: 800;
-}
+.pro-badge { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 900; }
+.cache-badge { background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 800; }
 
 /* --- Chips --- */
-.symptom-chip {
-  background: var(--bg-2);
-  border: 1px solid var(--brd);
-  color: var(--txt-2);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all .2s;
-}
-.symptom-chip:hover {
-  border-color: var(--pri);
-  color: var(--pri);
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, .25);
-}
+.symptom-chip { background: var(--bg-2); border: 1px solid var(--brd); color: var(--txt-2); padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; }
+.symptom-chip:hover { border-color: var(--pri); color: var(--pri); transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 12px rgba(139, 92, 246, .25); }
+.filter-chip { background: rgba(51, 65, 85, .6); color: var(--txt-2); border: 1px solid var(--brd-2); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.filter-chip.active { background: linear-gradient(135deg, var(--pri), #8b5cf6); color: #fff; border-color: transparent; }
+.filter-chip:hover { transform: translateY(-2px); }
 
-.filter-chip {
-  background: rgba(51, 65, 85, .6);
-  color: var(--txt-2);
-  border: 1px solid var(--brd-2);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .2s;
-}
-.filter-chip.active {
-  background: linear-gradient(135deg, var(--pri), #8b5cf6);
-  color: #fff;
-  border-color: transparent;
-}
-.filter-chip:hover {
-  transform: translateY(-2px);
-}
-
-/* --- Cards --- */
-.code-card {
-  cursor: pointer;
-  transition: all .25s;
-}
-.code-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-}
+/* --- Cards & Modals --- */
+.code-card { cursor: pointer; transition: all .25s; }
+.code-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
 .fav-btn.active { color: #fbbf24; }
+.recent-item { background: rgba(30, 41, 59, .6); border: 1px solid var(--brd); color: var(--txt-2); padding: 6px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: all .2s; }
+.recent-item:hover { border-color: var(--pri); color: var(--pri); transform: translateY(-1px); }
 
-.recent-item {
-  background: rgba(30, 41, 59, .6);
-  border: 1px solid var(--brd);
-  color: var(--txt-2);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all .2s;
-}
-.recent-item:hover {
-  border-color: var(--pri);
-  color: var(--pri);
-  transform: translateY(-1px);
-}
+#dbStatus { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: linear-gradient(90deg, #1e40af, #7c3aed); color: #fff; font-size: 11px; padding: 6px 12px; text-align: center; font-weight: 700; display: none; }
 
-/* --- DB Status Bar --- */
-#dbStatus {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 60;
-  background: linear-gradient(90deg, #1e40af, #7c3aed);
-  color: #fff;
-  font-size: 11px;
-  padding: 6px 12px;
-  text-align: center;
-  font-weight: 700;
-  display: none;
-}
-
-/* --- Animations --- */
 .tab { transition: all .2s ease; }
-.tab:hover {
-  background: #374151;
-  color: #e5e7eb;
-}
+.tab:hover { background: #374151; color: #e5e7eb; }
 .panel { animation: fadeIn .25s ease; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .modal-backdrop { animation: fadeIn .2s ease; }
 .modal-content { animation: slideUp .3s cubic-bezier(.4, 0, .2, 1); }
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px) scale(.97); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(139, 92, 246, .4)); }
-  50% { opacity: .9; filter: drop-shadow(px rgba(139, 92, 246, .8)); }
-}
-
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes pulseGlow { 0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(139, 92, 246, .4)); } 50% { opacity: .9; filter: drop-shadow(0 0 20px rgba(139, 92, 246, .8)); } }
 .hero-number { animation: pulseGlow 3s ease-in-out infinite; }
 
-/* --- Forms --- */
 input, select, textarea { font-family: inherit; }
-input[type="text"] {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-input[type="text"]:focus {
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-}
+input[type="text"] { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+input[type="text"]:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+button { transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease; }
+button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+button:active:not(:disabled) { transform: translateY(0); }
 
-button {
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
-}
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* --- Source Badges --- */
-.src-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-weight: 800;
-  z-index: 1;
-}
+.src-badge { position: absolute; top: 8px; left: 8px; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 800; z-index: 1; }
 .src-real { background: #10b981; color: #fff; }
 .src-demo { background: #f59e0b; color: #000; }
-
-/* --- Brand Badges --- */
-.brand-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-  color: #fff;
-}
+.brand-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
 .brand-cn { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
 .brand-eu { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; }
 
-/* --- Stat Source Fix --- */
-#statSource {
-  text-indent: -9999px !important;
-  overflow: hidden !important;
-  position: relative;
-  white-space: nowrap;
-  display: block;
-  height: 1.4em;
-}
-
-#statSource::before {
-  content: "3 مصادر" !important;
-  text-indent: 0;
-  font-size: 12px !important;
-  font-weight: 800 !important;
-  color: #c084fc;
-  display: block;
-  line-height: 1.4;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  text-align: center;
-}
-
-body.light-mode #statSource::before {
-  color: #7c3aed;
-}
+#statSource { text-indent: -9999px !important; overflow: hidden !important; position: relative; white-space: nowrap; display: block; height: 1.4em; }
+#statSource::before { content: "3 مصادر" !important; text-indent: 0; font-size: 12px !important; font-weight: 800 !important; color: #c084fc; display: block; line-height: 1.4; position: absolute; top: 0; right: 0; left: 0; text-align: center; }
+body.light-mode #statSource::before { color: #7c3aed; }
 
 /* ============================================
-   CheckDiga Pro — Luxury Watch Gauges (العدادات الفاخرة)
+   CheckDiga Pro — 3D Luxury Gauges (العدادات الفاخرة)
    ============================================ */
 
 .gauge-box {
-  /* جعله دائرياً تماماً مثل الساعة */
   border-radius: 50% !important;
-  aspect-ratio: 1 / 1; /* لضمان دائرة مثالية */
+  aspect-ratio: 1 / 1;
   
-  /* خلفية داكنة + لمعة زجاجية من الأعلى (Glass Effect) */
+  /* خلفية معدنية عميقة مع لمعة زجاجية (محاكاة 3D) */
   background: 
-    linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 40%),
-    radial-gradient(circle at center, #1e293b 0%, #0f172a 60%, #020617 100%) !important;
+    linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 30%),
+    radial-gradient(circle at 50% 120%, #2a3b4c 0%, #0d141e 60%, #000000 100%) !important;
   
-  /* الإطار المعدني السميك (تأثير 3D) */
-  border: 5px solid #334155 !important;
+  /* إطار معدني متعدد الطبقات (Chrome Bezel) */
+  border: 2px solid #1e293b !important;
   box-shadow: 
-    0 15px 30px rgba(0, 0, 0, 0.8),       /* ظل خارجي عميق */
-    inset 0 0 20px rgba(0, 0, 0, 0.9),    /* ظل داخلي غامق */
-    inset 0 0 10px rgba(255, 255, 255, 0.1), /* لمعة زجاجية داخلية */
-    0 0 0 2px #64748b !important;         /* حلقة معدنية رفيعة خارجية */
+    0 15px 35px rgba(0, 0, 0, 0.9),          /* ظل خارجي عميق */
+    inset 0 0 15px rgba(0, 0, 0, 1),         /* ظل داخلي أسود */
+    inset 0 5px 15px rgba(255, 255, 255, 0.1), /* لمعة علوية */
+    0 0 0 4px #334155,                         /* الحلقة المعدنية الوسطى */
+    0 0 0 5px #64748b !important;              /* الحلقة المعدنية الخارجية */
   
-  /* ضبط المحتوى في المنتصف */
   position: relative;
   overflow: hidden;
   display: flex;
@@ -301,137 +111,121 @@ body.light-mode #statSource::before {
   justify-content: center;
   align-items: center;
   padding: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* تأثير عند مرور الماوس على العداد */
-.gauge-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.9), 
-    inset 0 0 25px rgba(0, 0, 0, 1), 
-    0 0 0 2px #cbd5e1 !important;
-}
-
-/* صورة تروس ميكانيكية في الخلفية */
+/* صورة التروس في الخلفية */
 .gauge-box::before {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 85%; height: 85%;
+  width: 90%; height: 90%;
   background-image: url('https://cdn-icons-png.flaticon.com/512/2092/2092662.png'); 
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.15; /* وضوح خفيف للتروس */
+  opacity: 0.15;
+  filter: invert(1) sepia(1) hue-rotate(180deg) brightness(1.5);
   pointer-events: none;
   z-index: 0;
 }
 
-/* علامات القياس (Tick Marks) حول العداد */
+/* علامات القياس (Tick Marks) */
 .gauge-box::after {
   content: '';
   position: absolute;
-  inset: 10px;
+  inset: 8px;
   border-radius: 50%;
   background: repeating-conic-gradient(
     from 0deg,
-    #94a3b8 0deg 1deg,
-    transparent 1deg 10deg
+    #64748b 0deg 1.5deg,
+    transparent 1.5deg 12deg
   );
-  -webkit-mask: radial-gradient(transparent 65%, #000 67%);
-  mask: radial-gradient(transparent 65%, #000 67%);
-  opacity: 0.3;
+  -webkit-mask: radial-gradient(transparent 70%, #000 72%);
+  mask: radial-gradient(transparent 70%, #000 72%);
+  opacity: 0.4;
   pointer-events: none;
   z-index: 1;
 }
 
-/* تحسين مظهر العناوين (RPM, SPEED, etc.) */
+/* العناوين */
 .gauge-box h3, .gauge-box .gauge-title, .gauge-box .text-\[11px\] {
-  font-family: 'Courier New', Courier, monospace !important;
-  letter-spacing: 2px;
-  color: #cbd5e1 !important;
+  font-family: 'Orbitron', sans-serif !important;
+  letter-spacing: 3px;
+  color: #94a3b8 !important;
   font-weight: 700;
   text-transform: uppercase;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  text-shadow: 0 0 10px rgba(148, 163, 184, 0.5);
   z-index: 2;
+  margin-bottom: 5px;
 }
 
-/* تحسين مظهر الأرقام لتكون متوهجة وفاخرة */
+/* الأرقام (LCD Style) */
 .gauge-box .gauge-value, 
-.gauge-box .value-display, 
 .gauge-box #gauge-rpm, 
 .gauge-box #gauge-speed, 
 .gauge-box #gauge-coolant, 
-.gauge-box #gauge-fuel,
-.gauge-box .text-center.font-bold.text-xl {
-  font-family: 'Times New Roman', Times, serif !important;
-  font-weight: bold !important;
+.gauge-box #gauge-fuel {
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 900 !important;
   color: #f8fafc !important;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 5px currentColor !important;
+  z-index: 2;
+  letter-spacing: 1px;
+}
+
+/* وحدات القياس */
+.gauge-box .text-\[9px\] {
+  font-family: 'Orbitron', sans-serif !important;
+  color: #64748b !important;
+  font-weight: 700;
+  letter-spacing: 2px;
   z-index: 2;
 }
 
 /* ============================================
-   CheckDiga Pro — Luxury Dashboard Floating Lights (أضواء الطابلون)
+   أضواء الطابلون العائمة (Luxury Floating Lights)
    ============================================ */
 
 .sys-item {
-  /* إزالة الخلفية والإطار لتصبح مجرد أيقونة مضيئة (Floating) */
   background: transparent !important;
   border: none !important;
-  padding: 15px 0;
+  padding: 12px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
-/* الأيقونة الأساسية (مطفأة) */
 .sys-item i {
-  font-size: 1.8rem; /* تكبير الأيقونة قليلاً */
-  color: #334155; /* رمادي داكن جداً */
+  font-size: 1.6rem;
+  color: #1e293b; /* مطفأ */
   transition: all 0.4s ease;
+  text-shadow: 0 0 0px transparent;
 }
 
-/* النص أسفل الأيقونة */
 .sys-item span {
   font-size: 9px;
   font-weight: 700;
-  color: #475569;
-  letter-spacing: 0.5px;
+  color: #334155;
+  letter-spacing: 1px;
+  font-family: 'Cairo', sans-serif;
   transition: all 0.4s ease;
 }
 
-/* --- حالة "سليم" (توهج أخضر زمردي هادئ) --- */
-.sys-item.good i {
-  color: #10b981;
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.9));
-}
-.sys-item.good span {
-  color: #34d399;
-  text-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+/* توهج أخضر فاخر */
+.sys-item.good i { color: #10b981; text-shadow: 0 0 15px #10b981, 0 0 30px rgba(16, 185, 129, 0.5); }
+.sys-item.good span { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
+
+/* توهج أحمر نابض */
+.sys-item.bad i { color: #ef4444; text-shadow: 0 0 15px #ef4444, 0 0 30px rgba(239, 68, 68, 0.5); animation: pulseRed 1.5s infinite; }
+.sys-item.bad span { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.5); }
+
+@keyframes pulseRed { 
+  0%, 100% { opacity: 1; transform: scale(1); } 
+  50% { opacity: 0.6; transform: scale(0.95); } 
 }
 
-/* --- حالة "عطل" (توهج أحمر ناري + وميض) --- */
-.sys-item.bad i {
-  color: #ef4444;
-  filter: drop-shadow(0 0 12px rgba(239, 68, 68, 1));
-  animation: pulseRed 1.2s infinite;
-}
-.sys-item.bad span {
-  color: #f87171;
-  text-shadow: 0 0 8px rgba(248, 113, 113, 0.8);
-}
-
-@keyframes pulseRed {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.95); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5)); }
-}
-
-.sys-item:hover {
-  transform: scale(1.15);
-}
+.sys-item:hover { transform: scale(1.1); }
