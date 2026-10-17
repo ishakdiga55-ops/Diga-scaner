@@ -20,19 +20,14 @@
 <!-- مكتبة الألوان والتدرجات للعدادات (SVG Defs) -->
 <svg width="0" height="0" style="position:absolute;">
   <defs>
-    <!-- تدرج فضي للمسار الخلفي -->
     <linearGradient id="metalTrack" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#334155" />
       <stop offset="50%" stop-color="#1e293b" />
       <stop offset="100%" stop-color="#0f172a" />
     </linearGradient>
-    <!-- توهج أحمر (RPM) -->
     <filter id="glowRed"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <!-- توهج أزرق (SPEED) -->
     <filter id="glowBlue"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <!-- توهج أخضر (FUEL) -->
     <filter id="glowGreen"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <!-- توهج برتقالي (TEMP) -->
     <filter id="glowOrange"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
 </svg>
