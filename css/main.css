@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Ultimate 3D Luxury Look)
+   CheckDiga Pro — Main Stylesheet (Clean 3D Luxury Look)
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
@@ -83,26 +83,26 @@ button:active:not(:disabled) { transform: translateY(0); }
 body.light-mode #statSource::before { color: #7c3aed; }
 
 /* ============================================
-   CheckDiga Pro — 3D Luxury Gauges (العدادات الفاخرة)
+   CheckDiga Pro — 3D Luxury Gauges (العدادات النظيفة)
    ============================================ */
 
 .gauge-box {
   border-radius: 50% !important;
   aspect-ratio: 1 / 1;
   
-  /* خلفية معدنية عميقة مع لمعة زجاجية (محاكاة 3D) */
+  /* خلفية معدنية عميقة مع لمعة زجاجية (بدون صور خارجية) */
   background: 
-    linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 30%),
-    radial-gradient(circle at 50% 120%, #2a3b4c 0%, #0d141e 60%, #000000 100%) !important;
+    linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 30%),
+    radial-gradient(circle at 50% 120%, #1e293b 0%, #0d141e 70%, #000000 100%) !important;
   
   /* إطار معدني متعدد الطبقات (Chrome Bezel) */
   border: 2px solid #1e293b !important;
   box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.9),          /* ظل خارجي عميق */
-    inset 0 0 15px rgba(0, 0, 0, 1),         /* ظل داخلي أسود */
-    inset 0 5px 15px rgba(255, 255, 255, 0.1), /* لمعة علوية */
-    0 0 0 4px #334155,                         /* الحلقة المعدنية الوسطى */
-    0 0 0 5px #64748b !important;              /* الحلقة المعدنية الخارجية */
+    0 15px 35px rgba(0, 0, 0, 0.9),          
+    inset 0 0 20px rgba(0, 0, 0, 1),         
+    inset 0 5px 15px rgba(255, 255, 255, 0.05), 
+    0 0 0 4px #334155,                         
+    0 0 0 5px #64748b !important;              
   
   position: relative;
   overflow: hidden;
@@ -113,19 +113,13 @@ body.light-mode #statSource::before { color: #7c3aed; }
   padding: 10px;
 }
 
-/* صورة التروس في الخلفية */
+/* إضاءة داخلية ناعمة (بديل التروس) */
 .gauge-box::before {
   content: '';
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%; height: 90%;
-  background-image: url('https://cdn-icons-png.flaticon.com/512/2092/2092662.png'); 
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.15;
-  filter: invert(1) sepia(1) hue-rotate(180deg) brightness(1.5);
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.08) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
@@ -143,12 +137,12 @@ body.light-mode #statSource::before { color: #7c3aed; }
   );
   -webkit-mask: radial-gradient(transparent 70%, #000 72%);
   mask: radial-gradient(transparent 70%, #000 72%);
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
   z-index: 1;
 }
 
-/* العناوين */
+/* العناوين (RPM, SPEED, etc.) */
 .gauge-box h3, .gauge-box .gauge-title, .gauge-box .text-\[11px\] {
   font-family: 'Orbitron', sans-serif !important;
   letter-spacing: 3px;
@@ -160,7 +154,7 @@ body.light-mode #statSource::before { color: #7c3aed; }
   margin-bottom: 5px;
 }
 
-/* الأرقام (LCD Style) */
+/* الأرقام (LCD Style - واضحة وحادة) */
 .gauge-box .gauge-value, 
 .gauge-box #gauge-rpm, 
 .gauge-box #gauge-speed, 
@@ -169,7 +163,8 @@ body.light-mode #statSource::before { color: #7c3aed; }
   font-family: 'Orbitron', sans-serif !important;
   font-weight: 900 !important;
   color: #f8fafc !important;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 5px currentColor !important;
+  /* توهج خفيف جداً + ظل أسود لضمان الوضوح */
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.9) !important;
   z-index: 2;
   letter-spacing: 1px;
 }
