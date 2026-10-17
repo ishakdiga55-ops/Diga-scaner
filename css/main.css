@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Ultimate Final)
+   CheckDiga Pro — Main Stylesheet (Clean & Fixed)
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
@@ -80,15 +80,17 @@ button:active:not(:disabled) { transform: translateY(0); }
 
 #statSource { text-indent: -9999px !important; overflow: hidden !important; position: relative; white-space: nowrap; display: block; height: 1.4em; }
 #statSource::before { content: "3 مصادر" !important; text-indent: 0; font-size: 12px !important; font-weight: 800 !important; color: #c084fc; display: block; line-height: 1.4; position: absolute; top: 0; right: 0; left: 0; text-align: center; }
-body.light-mode #statoldSource::before { color: #7c3aed; }
+body.light-mode #statSource::before { color: #7c3aed; }
 
- text/* ============================================
-   CheckDiga-blue Pro — 3D Luxury Gauges (العدادات النهائية)
+/* ============================================
+   CheckDiga Pro — 3D Luxury Gauges (العدادات النهائية)
    ============================================ */
 
 .gauge-box {
-  border-radius: 50% !important;
+  position: relative;
+  width: 100%;
   aspect-ratio: 1 / 1;
+  border-radius: 50% !important;
   background: radial-gradient(circle at 50% 120%, #1e293b 0%, #0d141e 70%, #000000 100%) !important;
   border: 2px solid #1e293b !important;
   box-shadow: 
@@ -97,7 +99,6 @@ body.light-mode #statoldSource::before { color: #7c3aed; }
     inset 0 5px 15px rgba(255, 255, 255, 0.05), 
     0 0 0 4px #334155,                         
     0 0 0 5px #64748b !important;              
-  position: relative; 
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -135,7 +136,7 @@ body.light-mode #statoldSource::before { color: #7c3aed; }
 }
 
 /* العناوين */
-.gauge-box .gauge-title {
+.gauge-title {
   position: absolute;
   top: 15%;
   font-family: 'Orbitron', sans-serif !important;
@@ -160,11 +161,7 @@ body.light-mode #statoldSource::before { color: #7c3aed; }
 }
 
 /* الأرقام */
-.gauge-box .gauge-value, 
-.gauge-box #gauge-rpm, 
-.gauge-box #gauge-speed, 
-.gauge-box #gauge-coolant, 
-.gauge-box #gauge-fuel {
+.gauge-value {
   font-family: 'Orbitron', sans-serif !important;
   font-weight: 900 !important;
   color: #f8fafc !important;
@@ -175,7 +172,7 @@ body.light-mode #statoldSource::before { color: #7c3aed; }
 }
 
 /* وحدات القياس */
-.gauge-box .gauge-unit {
+.gauge-unit {
   font-family: 'Orbitron', sans-serif !important;
   color: #64748b !important;
   font-size: 0.6rem;
