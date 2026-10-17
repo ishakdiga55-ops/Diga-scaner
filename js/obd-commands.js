@@ -119,7 +119,7 @@ function ffHtml(dtc, rows) {
   return h;
 }
 
-async function openFreezeFrame() {
+window.openFreezeFrame = async function() {
   var modal = document.getElementById('ffModal');
   if (!modal) {
     modal = document.createElement('div');
@@ -175,7 +175,7 @@ async function openFreezeFrame() {
     } catch (_) {}
   }
   body.innerHTML = ffHtml(null, rows);
-}
+};
 
 function updSysGrid(faults) {
   var items = document.querySelectorAll('.sys-item');
@@ -245,15 +245,33 @@ export async function readDTCs() {
     var p3 = parseDTC(await sendCmd('03', 8000), 0x43);
     var p7 = parseDTC(await sendCmd('07', 8000), 0x47);
     var pa = parseDTC(await sendCmd('0A', 8000), 0x4A);
+    
     if (!p3.ok) {
       l.innerHTML = '<div class="bg-amber-900/30 text-amber-300 p-4 rounded-xl text-center font-bold">لم ترد السيارة — تأكد أن المفتاح على ON</div>';
       updSysGrid([]);
       return;
     }
+
     var all = [];
-    p3.codes.forEach(function(c) { all.push({ code: c, system: 'engine', type: 'confirmed' }); });
-    p7.codes.forEach(function(c) { if (!all.some(function(f) { return f.code === c; })) all.push({ code: c, system: 'engine', type: 'pending' }); });
-    pa.codes.forEach(function(c) { if (!all.some(function(f) { return f.code === c; })) all.push({ code: c, system: 'engine', type: 'permanent' }); });
+    
+    // سحب النظام تلقائياً من قاعدة البيانات لضمان دقة الأضواء
+    p3.codes.forEach(function(c) { 
+      var info = getInfo(c);
+      all.push({ code: c, system: info.zone || 'engine', type: 'confirmed' }); 
+    });
+    p7.codes.forEach(function(c) { 
+      if (!all.some(function(f) { return f.code === c; })) {
+        var info = getInfo(c);
+        all.push({ code: c, system: info.zone || 'engine', type: 'pending' }); 
+      }
+    });
+    pa.codes.forEach(function(c) { 
+      if (!all.some(function(f) { return f.code === c; })) {
+        var info = getInfo(c);
+        all.push({ code: c, system: info.zone || 'engine', type: 'permanent' }); 
+      }
+    });
+
     if (!all.length) {
       l.innerHTML = '<div class="bg-green-900/30 text-green-400 p-4 rounded-xl text-center font-bold">لا أعطال مسجلة</div>';
       updSysGrid([]);
@@ -305,10 +323,14 @@ export async function scanAll() {
       var p = parseUDS(await sendCmd('19 02 FF', 2500, 0));
       if (!p.ok) continue;
       answered++;
-      var sys = n === 0 ? 'engine' : n === 1 ? 'transmission' : null;
+      
       p.codes.forEach(function(c) {
-        if (!all.some(function(f) { return f.code === c; }))
-          all.push({ code: c, system: sys || ('ECU ' + addr), type: 'confirmed' });
+        if (!all.some(function(f) { return f.code === c; })) {
+          var info = getInfo(c);
+          // استخدام النظام من قاعدة البيانات، وإلا استخدام رقم الوحدة
+          var sysName = info.zone !== 'engine' ? info.zone : (n === 0 ? 'engine' : n === 1 ? 'transmission' : ('ECU ' + addr));
+          all.push({ code: c, system: sysName, type: 'confirmed' });
+        }
       });
     }
     try { await sendCmd('AT SH 7DF', 800, 0); } catch (_) {}
@@ -362,43 +384,56 @@ export async function clearDTCs() {
   }
 }
 
+// ═══════════════════════════════════════════════
+// التصميم الجديد لعرض الأعطال (DTC Cards)
+// ═══════════════════════════════════════════════
 function renderFaults(faults) {
   var l = document.getElementById('dtcList');
   if (!l) return;
+  
   if (!faults.length) {
-    l.innerHTML = '<p class="text-gray-500 text-center py-4">لا أعطال</p>';
+    l.innerHTML = `
+      <div class="text-center py-6 bg-emerald-900/20 rounded-xl border border-emerald-500/30">
+        <i class="fa-solid fa-check-circle text-4xl text-emerald-500 mb-2"></i>
+        <p class="text-emerald-400 font-bold">لا توجد أعطال مسجلة</p>
+        <p class="text-xs text-gray-400 mt-1">النظام سليم تماماً</p>
+      </div>`;
     updSysGrid([]);
     return;
   }
-  var sysMap = {
-    engine: 'المحرك', exhaust: 'العوادم', electronics: 'الكهرباء',
-    fuel: 'الوقود', cooling: 'التبريد', brakes: 'الفرامل',
-    airbag: 'الوسائد', transmission: 'الجير', abs: 'ABS'
-  };
-  var h = '<div class="bg-emerald-700 text-white text-xs font-bold p-2 rounded-lg mb-2 text-center">بيانات مقروءة</div>';
+
+  var h = '';
   faults.forEach(function(f) {
     var info = getInfo(f.code);
-    var tl = f.type === 'pending' ? 'مؤقت' : f.type === 'permanent' ? 'دائم' : 'مؤكد';
-    var tc = f.type === 'pending' ? 'bg-amber-600' : f.type === 'permanent' ? 'bg-purple-600' : 'bg-red-600';
-    h += '<div class="code-card bg-red-900/30 border-r-4 border-red-500 rounded-xl p-3" data-code="' + f.code + '">';
-    h += '<div class="flex items-center gap-2 mb-1 flex-wrap">';
-    h += '<span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">' + (sysMap[f.system] || f.system) + '</span>';
-    h += '<span class="font-mono font-bold text-red-300">' + f.code + '</span>';
-    h += '<span class="text-[9px] px-1.5 py-0.5 rounded ' + tc + ' text-white font-bold">' + tl + '</span>';
-    h += '</div>';
-    h += '<div class="text-xs text-gray-300 mb-2">' + info.title + '</div>';
-    h += '<button type="button" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold" data-ff="1">❄️ ظروف العطل</button>';
-    h += '</div>';
-  });
-  l.innerHTML = h;
+    var severity = info.severity || 'medium'; 
+    
+    let icon = 'fa-triangle-exclamation';
+    if (severity === 'critical') icon = 'fa-radiation';
+    if (severity === 'high') icon = 'fa-engine';
 
-  l.querySelectorAll('[data-ff]').forEach(function(b) {
-    b.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      openFreezeFrame();
-    };
+    h += `
+      <div class="dtc-card sev-${severity}" data-code="${f.code}" onclick="openDtcDetail('${f.code}')">
+        <div class="flex items-center gap-3">
+          <div class="dtc-icon">
+            <i class="fa-solid ${icon}"></i>
+          </div>
+          <div>
+            <span class="dtc-code">${f.code}</span>
+            <span class="dtc-desc">${info.title || 'عطل غير معروف'}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded font-bold" data-ff="1" onclick="event.stopPropagation(); if(window.openFreezeFrame) window.openFreezeFrame();">❄️</button>
+            <i class="fa-solid fa-chevron-left text-gray-500"></i>
+        </div>
+      </div>
+    `;
   });
+  
+  l.innerHTML = h;
+  
+  var exportBar = document.getElementById('proExportBar');
+  if (exportBar) exportBar.classList.remove('hidden');
 
   updSysGrid(faults);
 
@@ -408,3 +443,50 @@ function renderFaults(faults) {
     localStorage.setItem('checkdiga_hist', JSON.stringify(hist.slice(0, 20)));
   } catch (_) {}
 }
+
+// دالة فتح التفاصيل (Modal)
+window.openDtcDetail = function(code) {
+  const modal = document.getElementById('dtcDetailModal');
+  const content = document.getElementById('dtcDetailContent');
+  if (!modal || !content) return;
+
+  const info = getInfo(code);
+  
+  let html = `
+    <div class="text-center mb-4 border-b border-gray-700 pb-3">
+      <div class="text-3xl font-black font-mono text-blue-400 mb-1">${code}</div>
+      <div class="text-sm font-bold text-gray-300">${info.title || 'عطل غير معروف'}</div>
+      <div class="text-[10px] text-gray-500 mt-1">${info.title_en || ''}</div>
+    </div>
+  `;
+
+  if (info.causes && info.causes.length > 0) {
+    html += `<div class="bg-gray-900 rounded-xl p-3 mb-3 border border-gray-700">
+      <h4 class="text-xs font-bold text-amber-400 mb-2"><i class="fa-solid fa-magnifying-glass"></i> الأسباب المحتملة:</h4>
+      <ul class="text-sm text-gray-300 space-y-1">`;
+    info.causes.forEach(c => {
+      if (typeof c === 'string') html += `<li>• ${c}</li>`;
+      else if (c.c) html += `<li>• ${c.c} <span class="text-gray-500 text-xs">(${Math.round((c.p || 0)*100)}%)</span></li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  if (info.steps && info.steps.length > 0) {
+    html += `<div class="bg-blue-900/20 rounded-xl p-3 mb-3 border border-blue-800">
+      <h4 class="text-xs font-bold text-blue-400 mb-2"><i class="fa-solid fa-wrench"></i> خطوات الفحص:</h4>
+      <ul class="text-sm text-blue-200 space-y-1">`;
+    info.steps.forEach(s => { html += `<li>• ${s}</li>`; });
+    html += `</ul></div>`;
+  }
+  
+  if (info.symptoms && info.symptoms.length > 0) {
+    html += `<div class="bg-rose-900/20 rounded-xl p-3 mb-3 border border-rose-800">
+      <h4 class="text-xs font-bold text-rose-400 mb-2"><i class="fa-solid fa-car-burst"></i> الأعراض:</h4>
+      <ul class="text-sm text-rose-200 space-y-1">`;
+    info.symptoms.forEach(s => { html += `<li>• ${s}</li>`; });
+    html += `</ul></div>`;
+  }
+
+  content.innerHTML = html;
+  modal.classList.remove('hidden');
+};
