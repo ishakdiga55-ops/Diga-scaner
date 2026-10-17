@@ -14,10 +14,18 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/themes/light.css">
+
+<!-- كود اكتشاف الأخطاء (سيظهر لك نافذة تنبيه إذا كان هناك ملف ناقص) -->
+<script>
+  window.onerror = function(msg, url, line) {
+    alert("⚠️ حدث خطأ برمجي!\nالرسالة: " + msg + "\nالملف: " + url + "\nالسطر: " + line);
+    return false;
+  };
+</script>
 </head>
 <body class="bg-gray-900 text-gray-100">
 
-<!-- مكتبة الألوان والتدرجات للعدادات (SVG Defs) -->
+<!-- مكتبة الألوان والتدرجات للعدادات -->
 <svg width="0" height="0" style="position:absolute;">
   <defs>
     <linearGradient id="metalTrack" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -31,48 +39,20 @@
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
-  <img src="logo.png" alt="Diga Scanner" class="w-48 mx-auto mb-4"/>
   <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
     <span class="pro-badge">PRO</span>
     <span>CheckDiga</span>
-    <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
   <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
-  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
   <div class="my-6">
     <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
     <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
   </div>
-
-  <div class="flex gap-3 justify-center flex-wrap">
-    <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
-    <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition"><i class="fa-solid fa-play"></i> شاهد العرض</button>
-  </div>
-
-  <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500">عطل</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">3 مصادر</div><div class="text-[10px] text-gray-500">المصدر</div></div>
-  </div>
 </section>
-
-<div id="videoModal" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
-  <div class="relative max-w-3xl w-full">
-    <button id="closeVideoBtn" class="absolute -top-12 left-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl">×</button>
-    <video id="demoVideo" controls playsinline preload="none" class="w-full rounded-2xl shadow-2xl bg-black" style="max-height:75vh">
-      <source src="demo.MP4" type="video/mp4">
-      متصفحك لا يدعم الفيديو.
-    </video>
-  </div>
-</div>
 
 <div id="app" class="max-w-6xl mx-auto p-3 space-y-4 pt-6">
 <div class="flex justify-between items-center flex-wrap gap-2">
   <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h1>
-  <div class="flex gap-2">
-    <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
-    <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
-  </div>
 </div>
 
 <header class="bg-gray-800 p-4 rounded-2xl">
@@ -90,108 +70,28 @@
 </div>
 <button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
 <button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
-<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
-<div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
-<button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
 </header>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
-<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites"><i class="fa-solid fa-star"></i> المفضلة</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live"><i class="fa-solid fa-chart-line"></i> حية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
+<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults">الأعطال</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search">بحث</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites">المفضلة</button>
 </div>
 
 <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left">&gt; جاهز!</div>
 
+<!-- قسم الأعطال -->
 <div id="panel-faults" class="panel space-y-4">
-<div id="healthBadge" class="hidden"></div>
-<div id="smartDiagnosis" class="hidden"></div>
 <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
-
-<!-- عداد RPM -->
-<div class="gauge-box">
-  <div class="gauge-title">RPM</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="rpmNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#ef4444"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-rpm">0</div>
-    <div class="gauge-unit">x1000</div>
-  </div>
+<!-- العدادات -->
+<div class="gauge-box"><div class="gauge-title">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#ef4444"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-rpm">0</div><div class="gauge-unit">x1000</div></div></div>
+<div class="gauge-box"><div class="gauge-title">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#3b82f6"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-speed">0</div><div class="gauge-unit">km/h</div></div></div>
+<div class="gauge-box"><div class="gauge-title">TEMP</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#f59e0b"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-coolant">0</div><div class="gauge-unit">°C</div></div></div>
+<div class="gauge-box"><div class="gauge-title">FUEL</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#10b981"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-fuel">0</div><div class="gauge-unit">%</div></div></div>
 </div>
 
-<!-- عداد SPEED -->
-<div class="gauge-box">
-  <div class="gauge-title">SPEED</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="spdNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#3b82f6"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-speed">0</div>
-    <div class="gauge-unit">km/h</div>
-  </div>
-</div>
-
-<!-- عداد TEMP -->
-<div class="gauge-box">
-  <div class="gauge-title">TEMP</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="colNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#f59e0b"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-coolant">0</div>
-    <div class="gauge-unit">°C</div>
-  </div>
-</div>
-
-<!-- عداد FUEL -->
-<div class="gauge-box">
-  <div class="gauge-title">FUEL</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="fuelNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#10b981"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-fuel">0</div>
-    <div class="gauge-unit">%</div>
-  </div>
-</div>
-
-</div>
-
+<!-- أضواء الطابلون -->
 <div class="grid grid-cols-5 gap-2 pt-4 border-t border-gray-700/50 mt-4">
 <div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear text-lg"></i><span class="text-[9px] font-bold">المحرك</span></div>
 <div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs text-lg"></i><span class="text-[9px] font-bold">الجير</span></div>
@@ -209,32 +109,31 @@
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
 <div class="grid grid-cols-2 gap-2">
-<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
-<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-radar"></i> فحص الكل</button>
-<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
+<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold">فحص المحرك</button>
+<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold">فحص الكل</button>
+<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2">فحص ABS / Airbag / BCM</button>
 </div>
-<div id="scanSummary" class="text-xs space-y-1"></div>
 <div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
-</div>
-<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden">
-<div class="flex items-center justify-between gap-3 flex-wrap">
-<div class="font-bold text-emerald-300 text-sm">شارك النتائج</div>
-<div class="flex gap-2">
-<button id="btnExportPDF" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-<button id="btnShareWA" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
-</div>
-</div>
 </div>
 </div>
 
-<!-- باقي الأقسام (البحث، المفضلة، إلخ) -->
-<div id="panel-search" class="panel hidden space-y-4">...</div>
-<div id="panel-favorites" class="panel hidden space-y-4">...</div>
-<div id="panel-live" class="panel hidden space-y-4">...</div>
-<div id="panel-readiness" class="panel hidden space-y-4">...</div>
-<div id="panel-battery" class="panel hidden space-y-4">...</div>
-<div id="panel-history" class="panel hidden space-y-4">...</div>
-<div id="panel-stats" class="panel hidden space-y-4">...</div>
+<!-- قسم البحث -->
+<div id="panel-search" class="panel hidden space-y-4">
+  <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+    <h3 class="font-bold">البحث</h3>
+    <input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود...">
+    <div id="searchResults"></div>
+  </div>
+</div>
+
+<!-- قسم المفضلة -->
+<div id="panel-favorites" class="panel hidden space-y-4">
+  <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+    <h3 class="font-bold">المفضلة</h3>
+    <div id="favoritesList"></div>
+  </div>
+</div>
+
 </div>
 
 <!-- نافذة تفاصيل العطل -->
@@ -245,41 +144,6 @@
 </div>
 </div>
 
-<footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
-<div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
-<p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
-<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية</p>
-<p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
-</footer>
-
 <script type="module" src="js/main.js"></script>
-
-<script>
-/* ═══════════ الفيديو ═══════════ */
-(function(){
-  var btn = document.getElementById('watchDemoBtn');
-  var modal = document.getElementById('videoModal');
-  var closeBtn = document.getElementById('closeVideoBtn');
-  var video = document.getElementById('demoVideo');
-  if (!btn || !modal) return;
-
-  btn.onclick = function () {
-    modal.classList.remove('hidden');
-    try { video.currentTime = 0; video.play(); } catch (_) {}
-  };
-
-  function close() {
-    modal.classList.add('hidden');
-    try { video.pause(); video.currentTime = 0; } catch (_) {}
-  }
-
-  closeBtn.onclick = close;
-  modal.onclick = function (e) { if (e.target.id === 'videoModal') close(); };
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) close();
-  });
-})();
-</script>
 </body>
 </html>
