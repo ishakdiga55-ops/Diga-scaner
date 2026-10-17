@@ -1,5 +1,5 @@
 /* ============================================
-   CheckDiga Pro — Main Stylesheet (Final Perfect)
+   CheckDiga Pro — Main Stylesheet (Ultimate Final)
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
@@ -80,10 +80,10 @@ button:active:not(:disabled) { transform: translateY(0); }
 
 #statSource { text-indent: -9999px !important; overflow: hidden !important; position: relative; white-space: nowrap; display: block; height: 1.4em; }
 #statSource::before { content: "3 مصادر" !important; text-indent: 0; font-size: 12px !important; font-weight: 800 !important; color: #c084fc; display: block; line-height: 1.4; position: absolute; top: 0; right: 0; left: 0; text-align: center; }
-body.light-mode #statSource::before { color: #7c3aed; }
+body.light-mode #statoldSource::before { color: #7c3aed; }
 
-/* ============================================
-   CheckDiga Pro — 3D Luxury Gauges (العدادات الفاخرة)
+ text/* ============================================
+   CheckDiga-blue Pro — 3D Luxury Gauges (العدادات النهائية)
    ============================================ */
 
 .gauge-box {
@@ -104,27 +104,32 @@ body.light-mode #statSource::before { color: #7c3aed; }
   align-items: center; 
 }
 
-/* إضاءة داخلية ناعمة */
+/* انعكاس زجاجي علوي + عمق داخلي */
 .gauge-box::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.08) 0%, transparent 60%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 30%, transparent 50%);
   pointer-events: none;
-  z-index: 0;
+  z-index: 1; 
+  box-shadow: inset 0 10px 20px rgba(0,0,0,0.5); 
 }
 
-/* علامات القياس (Tick Marks) */
+/* علامات القياس الدقيقة (Tick Marks) */
 .gauge-box::after {
   content: '';
   position: absolute;
-  inset: 8px;
+  inset: 6px;
   border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, #64748b 0deg 1.5deg, transparent 1.5deg 12deg);
-  -webkit-mask: radial-gradient(transparent 70%, #000 72%);
-  mask: radial-gradient(transparent 70%, #000 72%);
-  opacity: 0.3;
+  background: repeating-conic-gradient(
+    from 0deg,
+    #64748b 0deg 1deg, 
+    transparent 1deg 10deg
+  );
+  -webkit-mask: radial-gradient(transparent 72%, #000 74%);
+  mask: radial-gradient(transparent 72%, #000 74%);
+  opacity: 0.4;
   pointer-events: none;
   z-index: 1;
 }
@@ -179,10 +184,11 @@ body.light-mode #statSource::before { color: #7c3aed; }
   margin-top: 2px;
 }
 
-/* --- الإبرة (مهم جداً لضمان دورانها) --- */
+/* الإبرة */
 .gauge-needle {
-  transform-origin: 100px 100px !important; /* نقطة الدوران في منتصف الدائرة */
+  transform-origin: 100px 100px !important;
   transition: transform .6s cubic-bezier(.4, 0, .2, 1);
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
 }
 
 /* --- الأضواء العائمة --- */
