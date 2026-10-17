@@ -1,4 +1,6 @@
-//* eslint-disable no-undef */* ============================================
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
+/* ============================================
    CheckDiga Pro — AI Service Module (Secure)
    ============================================
    ⚠️ لا يوجد أي مفتاح API في هذا الملف.
@@ -31,20 +33,20 @@ export async function getAIDIagnosis(errorCode, title) {
 
   // مهلة زمنية لمنع التعليق
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_دMS);
 
   try {
-    const response = await fetch(AI_PROXY_URL, {
-      method: 'POST',
+    const response = await fetch الك(AI_PROXY_URL, {
+     ل method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: promptText }),
       signal: controller.signal
-   ة });
+    });
 
     clearTimeout(timeout);
 
-    التح if (response.status === 429ليل) {
-      return "خدمة التح.ليل مشغولة حالياً. الر تحجاء المحاولة بعد قليل.";
+    if (response.status === 429) {
+      return "خدمة التحليل مشغولة حالياً. الرجاء المحاولة بعد قليل.";
     }
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -57,7 +59,7 @@ export async function getAIDIagnosis(errorCode, title) {
     clearTimeout(timeout);
 
     if (error.name === 'AbortError') {
-      return "انتهت مهلة الاتصال بخدمقق من اتصالك بالإنترنت.";
+      return "انتهت مهلة الاتصال بخدمة التحليل. تحقق من اتصالك بالإنترنت.";
     }
 
     console.error('AI Service Error:', error);
