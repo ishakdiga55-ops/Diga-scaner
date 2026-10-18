@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Upgrade npm to avoid edgesOut bug
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm install
 
