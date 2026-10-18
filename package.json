@@ -26,22 +26,11 @@
   "type": "module",
   "scripts": {
     "start": "npx serve .",
-    "dev": "npx serve .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "lint": "eslint js/",
-    "lint:fix": "eslint js/ --fix",
-    "format": "prettier --write \"**/*.{js,json,md,css,html}\"",
-    "format:check": "prettier --check \"**/*.{js,json,md,css,html}\""
+    "dev": "npx serve ."
   },
   "dependencies": {
     "@capacitor/android": "^5.0.0",
-    "@capacitor/core": "^5.0.0",
-    "@capacitor-community/bluetooth-le": "^3.0.0",
-    "cordova-plugin-bluetooth-serial": "^0.4.7",
-    "cordova-plugin-usbserial": "^0.1.7"
+    "@capacitor/core": "^5.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.0.0",
