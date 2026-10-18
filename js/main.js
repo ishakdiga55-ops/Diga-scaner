@@ -18,22 +18,44 @@ function init() {
     if (el) el.onclick = fn;
   };
 
-  // ═══ الاتصال ═══
+  // ═══ إدارة نافذة الاتصال ═══
+  const connectModal = document.getElementById('connectModal');
+  
+  bind('open-connect-modal', () => {
+    if (connectModal) connectModal.classList.remove('hidden');
+  });
+  
+  bind('close-connect-modal', () => {
+    if (connectModal) connectModal.classList.add('hidden');
+  });
+  
+  if (connectModal) {
+    connectModal.onclick = (e) => {
+      if (e.target.id === 'connectModal') connectModal.classList.add('hidden');
+    };
+  }
+
+  // ═══ أزرار الاتصال (داخل النافذة) ═══
   bind('connect-btn', async () => {
+    if (connectModal) connectModal.classList.add('hidden');
     try { await connectOBD(false); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
+
   bind('btShowAll', async () => {
+    if (connectModal) connectModal.classList.add('hidden');
     try { await connectOBD(true); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
+
   bind('usb-btn', async () => {
+    if (connectModal) connectModal.classList.add('hidden');
     try { await connectUSB(); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
   
-  // ═══ Wi-Fi ═══
   bind('wifi-btn', async () => {
+    if (connectModal) connectModal.classList.add('hidden');
     const ip = prompt('أدخل عنوان IP لجهاز Wi-Fi (مثال: 192.168.0.10)', '192.168.0.10');
     if (!ip) return;
     try { await connectWiFi(ip); } catch (_) {}
@@ -41,10 +63,12 @@ function init() {
   });
 
   bind('demo-btn', async () => {
+    if (connectModal) connectModal.classList.add('hidden');
     try { startDemo(); } catch (_) {}
     try { readDTCs(); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
+
   bind('disconnect-btn', async () => {
     try { stopDemo(); } catch (_) {}
     try { await handleDisc(); } catch (_) {}
