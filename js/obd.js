@@ -284,6 +284,16 @@ export async function connectOBD(showAll) {
     log('OK: جاهز');
     startLive();
     startHeartbeat();
+
+    // قراءة العداد الحقيقي وإظهاره
+    readOdometer().then(odo => {
+      const odoEl = document.getElementById('odometer-display');
+      if (odoEl) {
+        odoEl.textContent = odo ? ('العداد: ' + odo + ' كم') : 'العداد: غير مدعوم';
+        odoEl.classList.remove('hidden');
+      }
+    });
+
     return true;
   } catch (e) {
     log('ERR: ' + e.message);
@@ -385,6 +395,16 @@ export async function connectUSB() {
     log('OK: جاهز');
     startLive();
     startHeartbeat();
+
+    // قراءة العداد الحقيقي وإظهاره
+    readOdometer().then(odo => {
+      const odoEl = document.getElementById('odometer-display');
+      if (odoEl) {
+        odoEl.textContent = odo ? ('العداد: ' + odo + ' كم') : 'العداد: غير مدعوم';
+        odoEl.classList.remove('hidden');
+      }
+    });
+
     return true;
   } catch (e) {
     log('ERR: ' + e.message);
@@ -465,6 +485,16 @@ export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
         log('OK: جاهز');
         startLive();
         startHeartbeat();
+
+        // قراءة العداد الحقيقي وإظهاره
+        readOdometer().then(odo => {
+          const odoEl = document.getElementById('odometer-display');
+          if (odoEl) {
+            odoEl.textContent = odo ? ('العداد: ' + odo + ' كم') : 'العداد: غير مدعوم';
+            odoEl.classList.remove('hidden');
+          }
+        });
+
       } catch (err) {
         log('ERR: ' + err.message);
         handleDisc();
@@ -537,6 +567,9 @@ async function onGattDisc() {
 export async function handleDisc() {
   const pEl = document.getElementById('protocol-display');
   if (pEl) pEl.classList.add('hidden');
+
+  const odoEl = document.getElementById('odometer-display');
+  if (odoEl) odoEl.classList.add('hidden');
 
   comm.userDisc = true;
   app.isConnected = false;
@@ -726,4 +759,23 @@ function updGauge(arcId, needleId, valId, val, max) {
   arc.setAttribute('stroke-dashoffset', String(220 * (1 - p)));
   ndl.style.transform = 'rotate(' + (-90 + p * 180) + 'deg)';
   ve.textContent = Math.round(cv);
+}
+
+// دالة قراءة عداد المسافة الحقيقي (Odometer)
+export async function readOdometer() {
+  try {
+    const res = await sendCmd('01 A6', 2000, 0);
+    const hex = res.replace(/[^0-9A-Fa-f]/g, ' ').trim().split(/\s+/).map(x => parseInt(x, 16));
+    for (let i = 0; i < hex.length - 4; i++) {
+      if (hex[i] === 0x41 && hex[i + 1] === 0xA6) {
+        const km = (hex[i+2] * 16777216) + (hex[i+3] * 65536) + (hex[i+4] * 256) + hex[i+5];
+        if (km > 0 && km < 2000000) { // فلترة القيم الغريبة
+          return km.toLocaleString('en-US');
+        }
+      }
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
 }
