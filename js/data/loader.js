@@ -26,6 +26,7 @@ const SLOW_FILES = [
 /* --- IndexedDB Cache Helpers --- */
 const DB_NAME = 'CheckDigaCacheDB';
 const STORE_NAME = 'codesStore';
+const CACHE_KEY = 'full_database_v3'; // تم تغيير الاسم لمسح الكاش القديم
 
 function openCacheDB() {
   return new Promise((resolve, reject) => {
@@ -47,7 +48,7 @@ async function getCachedDB() {
     return new Promise((resolve) => {
       const tx = db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
-      const req = store.get('full_database');
+      const req = store.get(CACHE_KEY);
       req.onsuccess = () => resolve(req.result || null);
       req.onerror = () => resolve(null);
     });
@@ -61,7 +62,7 @@ async function saveCachedDB(dataObj) {
     const db = await openCacheDB();
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
-    store.put(dataObj, 'full_database');
+    store.put(dataObj, CACHE_KEY);
   } catch (e) {
     console.warn('Cache save failed:', e);
   }
@@ -127,9 +128,9 @@ function convItem(it) {
 async function fetchYaml(fn) {
   try {
     const r = await fetch(OBDEX_BASE + fn);
-    if (!r.ok) return [];
+    if (!r.ok) { console.warn('OBDex fetch failed:', fn); return []; }
     const t = await r.text();
-    if (!window.jsyaml) return [];
+    if (!window.jsyaml) { log('ERR: مكتبة jsyaml غير محملة!'); return []; }
     let d = window.jsyaml.load(t);
     if (!d) return [];
     if (!Array.isArray(d)) {
@@ -141,7 +142,10 @@ async function fetchYaml(fn) {
       d = arr;
     }
     return d;
-  } catch (_) { return []; }
+  } catch (e) { 
+    console.warn('YAML Error:', e);
+    return []; 
+  }
 }
 
 async function fetchLocalJSON(fn) {
@@ -182,10 +186,10 @@ function addItems(items, opts) {
 async function loadWal33D() {
   let db = null;
   try {
-    if (typeof initSqlJs !== 'function') return 0;
+    if (typeof initSqlJs !== 'function') { log('ERR: مكتبة sql.js غير محملة!'); return 0; }
     const SQL = await initSqlJs({ locateFile: f => 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/' + f });
     const resp = await fetch('./dtc_codes_v0.1.0.db');
-    if (!resp.ok) return 0;
+    if (!resp.ok) { log('ERR: ملف Wal33D غير موجود'); return 0; }
     const buf = await resp.arrayBuffer();
     db = new SQL.Database(new Uint8Array(buf));
     const tRes = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
@@ -225,7 +229,8 @@ async function loadWal33D() {
       added++;
     }
     return added;
-  } catch (_) {
+  } catch (e) {
+    log('ERR Wal33D: ' + e.message);
     return 0;
   } finally {
     if (db) try { db.close(); } catch (_) {}
@@ -284,11 +289,12 @@ export async function loadFullDatabase() {
 
   if (b) b.style.display = 'none';
 
-  // حفظ النسخة الأولية في الكاش لفتحها بسرعة في المرة القادمة
+  // حفظ النسخة الأولية في الكاش
   saveCachedDB(DTC_DATABASE);
 
   // 🚀 المرحلة 3: OBDex CDN و Wal33D في الخلفية
   setTimeout(async () => {
+    log('INFO: تحميل OBDex...');
     let obdexCount = 0;
     const results = await Promise.all(
       OBDEX_FILES.map(async (f) => await fetchYaml(f))
@@ -296,7 +302,11 @@ export async function loadFullDatabase() {
     for (const items of results) {
       if (items && items.length) obdexCount += addItems(items);
     }
-    await loadWal33D();
+    log('OK: OBDex أضاف ' + obdexCount + ' كود');
+
+    log('INFO: تحميل Wal33D...');
+    let walCount = await loadWal33D();
+    log('OK: Wal33D أضاف ' + walCount + ' كود');
 
     app.obdexLoaded = true;
     buildDTCIndex();
