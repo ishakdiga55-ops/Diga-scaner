@@ -84,17 +84,37 @@ function init() {
     try { const m = await import('./vin.js'); m.resetVIN(); } catch (_) {}
   });
 
-  // ... (باقي الكود الخاص بالفحص والتهيئة كما هو في ملفك الأصلي)
+  // أزرار الفحص
   bind('clear-btn', async () => {
     if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
     await clearDTCs();
   });
+  
   bind('btnReadDTC', readDTCs);
   bind('btnScanAll', scanAll);
   bind('btnScanABS', async () => {
     try { const m = await import('./abs-scan.js'); await m.scanABS(); } catch (err) { alert('خطأ في فحص ABS'); }
   });
 
+  // أزرار الواجهات
+  bind('btnFavorites', () => {
+    const t = document.querySelector('[data-tab="favorites"]');
+    if (t) t.click();
+  });
+  bind('btnCloseDetail', () => {
+    const m = document.getElementById('dtcDetailModal');
+    if (m) m.classList.add('hidden');
+  });
+  bind('btnReadReadiness', runReadiness);
+  bind('btnBatteryTest', runBatteryTest);
+  bind('btnClearHistory', clearHist);
+  bind('btnExportPDF', exportPDF);
+  bind('btnShareWA', shareWA);
+
+  const dd = document.getElementById('dtcDetailModal');
+  if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
+
+  // التهيئة
   initTheme();
   initTabs();
   initSearch();
@@ -105,7 +125,20 @@ function init() {
   updFavCount();
   batUI();
 
+  if (app.isIOS && !app.isBluefy) {
+    const b = document.getElementById('bluefyBanner');
+    if (b) b.classList.remove('hidden');
+  }
+  if (!app.hasSerial && !app.isIOS) {
+    const b = document.getElementById('serialBanner');
+    if (b) b.classList.remove('hidden');
+  }
+
   setTimeout(() => updAllG({ rpm: null, speed: null, coolant: null, fuelLevel: null }), 300);
+
+  log('OK: ' + Object.keys(DTC_DATABASE).length + ' عطل أساسي');
+  log('INFO: تحميل قاعدة البيانات...');
+
   loadFullDatabase().catch(e => log('WARN: ' + e.message));
 }
 
