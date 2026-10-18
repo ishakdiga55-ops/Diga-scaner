@@ -9,7 +9,6 @@ import { startDemo, stopDemo, batUI, runBatteryTest,
          runReadiness, exportPDF, shareWA } from './extras.js';
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
-import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
 
 function init() {
   initApp();
@@ -20,7 +19,9 @@ function init() {
   };
 
   const connectModal = document.getElementById('connectModal');
-  
+  const isNative = typeof window.cordova !== 'undefined' || typeof window.Capacitor !== 'undefined';
+
+  // إدارة نافذة الاتصال
   bind('open-connect-modal', () => {
     if (connectModal) connectModal.classList.remove('hidden');
   });
@@ -35,17 +36,22 @@ function init() {
     };
   }
 
-  // التبديل بين أزرار الويب والأندرويد
-  if (isNativeApp) {
+  // إظهار زر البلوتوث الأصلي إذا كنا في التطبيق فقط
+  if (isNative) {
     const btnWebBle = document.getElementById('connect-btn');
     if (btnWebBle) btnWebBle.style.display = 'none';
     
     const btnNativeClassic = document.getElementById('connect-native-classic');
     if (btnNativeClassic) {
       btnNativeClassic.classList.remove('hidden');
-      btnNativeClassic.onclick = () => {
+      btnNativeClassic.onclick = async () => {
         connectModal.classList.add('hidden');
-        connectNativeBluetooth();
+        try {
+          const m = await import('./obd-native.js');
+          m.connectNativeBluetooth();
+        } catch(err) {
+          alert('خطأ في تحميل نظام البلوتوث: ' + err.message);
+        }
       };
     }
   }
