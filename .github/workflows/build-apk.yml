@@ -35,6 +35,12 @@ jobs:
         with:
           packages: 'platform-tools'
 
+      - name: Prepare Web Assets
+        run: |
+          mkdir -p www
+          cp index.html manifest.json logo.png sw.js *.json *.db www/ 2>/dev/null || true
+          cp -r js css www/
+
       - name: Init Capacitor
         run: |
           npx cap add android
