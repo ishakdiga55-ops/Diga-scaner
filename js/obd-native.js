@@ -1,7 +1,6 @@
 import { app } from './state.js';
 import { handleIncoming, initELM, startLive, setStatus, updConnUI, log } from './obd.js';
 
-// التحقق مما إذا كنا نعمل داخل تطبيق أندرويد
 export const isNativeApp = typeof window.cordova !== 'undefined' || typeof window.Capacitor !== 'undefined';
 
 export function connectNativeBluetooth() {
@@ -12,12 +11,12 @@ export function connectNativeBluetooth() {
 
   log('INFO: البحث عن أجهزة Bluetooth Classic...');
   window.bluetoothSerial.discoverUnpaired(function(devices) {
-    if (!devices.length) {
+    if (!devices || devices.length === 0) {
       alert('لم يتم العثور على أجهزة. يرجى إقران المحول من إعدادات الهاتف أولاً.');
       return;
     }
     
-    let device = devices[0];
+    var device = devices[0];
     alert('محاولة الاتصال بـ: ' + device.name);
 
     window.bluetoothSerial.connect(device.address, async function() {
