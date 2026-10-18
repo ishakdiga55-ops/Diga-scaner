@@ -1,4 +1,4 @@
-import { app, ble, usb, comm, live } from './state.js';
+import { app, ble, usb, wifi, comm, live } from './state.js';
 
 const KNOWN_SVC = [
   '0000ffe0-0000-1000-8000-00805f9b34fb',
@@ -78,17 +78,24 @@ export async function sendCmd(cmd, timeout, retries) {
 
 async function procQ() {
   if (comm.isProcessing || !comm.cmdQ.length) return;
-  const ch = (app.transport === 'usb' && usb.writer) ||
-             (app.transport === 'ble' && ble.txChar);
-  if (!ch) { comm.isProcessing = false; return; }
+  
+  const isWifi = app.transport === 'wifi' && wifi.socket && wifi.socket.readyState === WebSocket.OPEN;
+  const isUsb = app.transport === 'usb' && usb.writer;
+  const isBle = app.transport === 'ble' && ble.txChar;
+
+  if (!isWifi && !isUsb && !isBle) { comm.isProcessing = false; return; }
+  
   comm.isProcessing = true;
   const it = comm.cmdQ.shift();
   comm.curResolve = it.resolve;
   comm.recvBuf = '';
+  
   try {
     const d = new TextEncoder().encode(it.cmd + '\r');
-    if (app.transport === 'usb') await usb.writer.write(d);
-    else await bleWrite(d);
+    if (isWifi) wifi.socket.send(it.cmd + '\r');
+    else if (isUsb) await usb.writer.write(d);
+    else if (isBle) await bleWrite(d);
+
     comm.curTimeout = setTimeout(() => {
       if (comm.curResolve) {
         const r = comm.recvBuf;
@@ -172,15 +179,41 @@ async function detectCAN() {
   }
 }
 
+// ═══════════ Heartbeat (نبضات القلب) ═══════════
+export function startHeartbeat() {
+  stopHeartbeat();
+  comm.heartbeatFails = 0;
+  comm.heartbeatTimer = setInterval(async () => {
+    if (!app.isConnected || app.isDemo || comm.isProcessing || comm.cmdQ.length > 0) return;
+    try {
+      const res = await sendCmd('AT', 1000, 0);
+      if (isBad(res)) throw new Error('bad');
+      comm.heartbeatFails = 0;
+    } catch (_) {
+      comm.heartbeatFails++;
+      if (comm.heartbeatFails >= 3) {
+        log('ERR: انقطع الاتصال (Heartbeat)');
+        handleDisc();
+      }
+    }
+  }, 5000);
+}
+
+export function stopHeartbeat() {
+  if (comm.heartbeatTimer) {
+    clearInterval(comm.heartbeatTimer);
+    comm.heartbeatTimer = null;
+  }
+}
+
+// ═══════════ Bluetooth BLE ═══════════
 export async function connectOBD(showAll) {
   if (!app.hasBLE) {
     alert(window.isSecureContext === false ? 'Web Bluetooth يحتاج HTTPS.' : 'المتصفح لا يدعم Web Bluetooth.');
     return false;
   }
 
-  // [إصلاح] تصفير الوضع التجريبي عند الاتصال الحقيقي
   app.isDemo = false;
-
   const btn = document.getElementById('connect-btn');
   const orig = btn.innerHTML;
   btn.disabled = true;
@@ -217,6 +250,7 @@ export async function connectOBD(showAll) {
     if (!await initELM()) throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
+    startHeartbeat();
     return true;
   } catch (e) {
     log('ERR: ' + e.message);
@@ -264,12 +298,11 @@ function onNotif(e) {
   handleIncoming(decoder.decode(e.target.value));
 }
 
+// ═══════════ USB Serial ═══════════
 export async function connectUSB() {
   if (!navigator.serial) { alert('Web Serial غير مدعوم'); return false; }
 
-  // [إصلاح] تصفير الوضع التجريبي عند الاتصال الحقيقي
   app.isDemo = false;
-
   const btn = document.getElementById('usb-btn');
   const orig = btn.innerHTML;
   btn.disabled = true;
@@ -279,7 +312,8 @@ export async function connectUSB() {
   try {
     let port;
     try {
-      port = await navigator.serial.requestPort();
+      const ports = await navigator.serial.getPorts();
+      port = ports.length > 0 ? ports[0] : await navigator.serial.requestPort();
     } catch (e) {
       if (e.name === 'NotFoundError') { log('INFO: لم يتم اختيار جهاز'); return false; }
       throw e;
@@ -304,12 +338,22 @@ export async function connectUSB() {
       await cleanupUSB();
     }
     if (!ok) throw new Error('لم يردّ على أي سرعة');
+    
+    // مراقبة الفصل المفاجئ لـ USB
+    navigator.serial.addEventListener('disconnect', (e) => {
+      if (app.transport === 'usb' && e.target === usb.port) {
+        log('WARN: انقطع كابل USB جسدياً');
+        handleDisc();
+      }
+    });
+
     app.isConnected = true;
     setStatus('connected');
     updConnUI(true);
     if (!await initELM()) throw new Error('فشل تهيئة ELM327');
     log('OK: جاهز');
     startLive();
+    startHeartbeat();
     return true;
   } catch (e) {
     log('ERR: ' + e.message);
@@ -360,10 +404,84 @@ async function cleanupUSB() {
   if (comm.curTimeout) { clearTimeout(comm.curTimeout); comm.curTimeout = null; }
 }
 
+// ═══════════ Wi-Fi (WebSockets) ═══════════
+export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
+  if (!app.hasWiFi) { alert('المتصفح لا يدعم WebSockets'); return false; }
+
+  app.isDemo = false;
+  const btn = document.getElementById('wifi-btn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  comm.userDisc = false;
+  wifi.isConnecting = true;
+
+  try {
+    log(`INFO: جاري الاتصال بـ Wi-Fi (${ip}:${port})...`);
+    
+    // إغلاق أي اتصال سابق
+    if (wifi.socket) { try { wifi.socket.close(); } catch(_) {} }
+    
+    wifi.socket = new WebSocket(`ws://${ip}:${port}`);
+
+    wifi.socket.onopen = async () => {
+      log('OK: متصل بـ Wi-Fi');
+      app.transport = 'wifi';
+      app.isConnected = true;
+      setStatus('connected');
+      updConnUI(true);
+      
+      try {
+        if (!await initELM()) throw new Error('فشل تهيئة ELM327');
+        log('OK: جاهز');
+        startLive();
+        startHeartbeat();
+      } catch (err) {
+        log('ERR: ' + err.message);
+        handleDisc();
+      } finally {
+        wifi.isConnecting = false;
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    };
+
+    wifi.socket.onmessage = (event) => {
+      handleIncoming(event.data);
+    };
+
+    wifi.socket.onerror = (e) => {
+      log('ERR: خطأ في اتصال Wi-Fi');
+      if (wifi.isConnecting) {
+        wifi.isConnecting = false;
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    };
+
+    wifi.socket.onclose = () => {
+      log('WARN: انقطع اتصال Wi-Fi');
+      if (app.transport === 'wifi' && app.isConnected) {
+        handleDisc();
+      }
+    };
+
+  } catch (e) {
+    log('ERR: ' + e.message);
+    wifi.isConnecting = false;
+    btn.disabled = false;
+    btn.innerHTML = orig;
+    await handleDisc();
+    return false;
+  }
+}
+
+// ═══════════ Disconnect & Reconnect ═══════════
 async function onGattDisc() {
   if (comm.userDisc || comm.reconnecting || app.transport !== 'ble' || !app.isConnected) return;
   comm.reconnecting = true;
   pauseLive();
+  stopHeartbeat();
   comm.cmdQ = [];
   comm.isProcessing = false;
   comm.curResolve = null;
@@ -379,6 +497,7 @@ async function onGattDisc() {
         setStatus('connected');
         comm.reconnecting = false;
         startLive();
+        startHeartbeat();
         return;
       }
     } catch (_) {}
@@ -392,8 +511,17 @@ export async function handleDisc() {
   app.isConnected = false;
   app.isDemo = false;
   live.paused = false;
+  stopHeartbeat();
+  
   if (live.timer) { clearTimeout(live.timer); live.timer = null; }
+  
   if (app.transport === 'usb' || usb.port) await cleanupUSB();
+  
+  if (wifi.socket) {
+    try { wifi.socket.close(); } catch (_) {}
+    wifi.socket = null;
+  }
+  
   if (ble.rxChar) {
     try { ble.rxChar.removeEventListener('characteristicvaluechanged', onNotif); } catch (_) {}
     try { await ble.rxChar.stopNotifications(); } catch (_) {}
@@ -403,6 +531,7 @@ export async function handleDisc() {
   if (ble.device && ble.device.gatt && ble.device.gatt.connected) {
     try { ble.device.gatt.disconnect(); } catch (_) {}
   }
+  
   app.transport = null;
   comm.isCAN = null;
   comm.isCAN11 = null;
@@ -410,6 +539,7 @@ export async function handleDisc() {
   comm.isProcessing = false;
   comm.curResolve = null;
   if (comm.curTimeout) { clearTimeout(comm.curTimeout); comm.curTimeout = null; }
+  
   setStatus('disconnected');
   updConnUI(false);
   log('INFO: تم قطع الاتصال');
@@ -437,18 +567,23 @@ export function setStatus(s) {
 export function updConnUI(c) {
   const cb = document.getElementById('connect-btn');
   const ub = document.getElementById('usb-btn');
+  const wb = document.getElementById('wifi-btn');
   const db = document.getElementById('demo-btn');
   const x = document.getElementById('disconnect-btn');
+  
   if (!cb || !ub || !db || !x) return;
+  
   if (c) {
     cb.classList.add('hidden');
     ub.classList.add('hidden');
+    if (wb) wb.classList.add('hidden');
     db.classList.add('hidden');
     x.classList.remove('hidden');
   } else {
     cb.classList.remove('hidden');
     if (!app.hasSerial || app.isIOS) ub.classList.add('hidden');
     else ub.classList.remove('hidden');
+    if (wb && app.hasWiFi) wb.classList.remove('hidden');
     db.classList.remove('hidden');
     x.classList.add('hidden');
   }
