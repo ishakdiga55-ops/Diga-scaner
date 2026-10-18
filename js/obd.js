@@ -168,18 +168,46 @@ export async function initELM() {
 }
 
 async function detectCAN() {
+  const el = document.getElementById('protocol-display');
+  if (el) el.classList.remove('hidden');
+
   try {
-    const d = String(await sendCmd('AT DPN', 1500)).replace(/[^0-9A-F]/gi, '').toUpperCase();
+    const raw = String(await sendCmd('AT DPN', 1500));
+    const d = raw.replace(/[^0-9A-F]/gi, '').toUpperCase();
     const n = d.replace(/^A/, '').slice(0, 1);
+    
     comm.isCAN = /[6-9A-C]/.test(n);
     comm.isCAN11 = /[68B]/.test(n);
+
+    let protoName = 'غير معروف';
+    if (n === '1') protoName = 'SAE J1850 PWM';
+    else if (n === '2') protoName = 'SAE J1850 VPW';
+    else if (n === '3') protoName = 'ISO 9141-2';
+    else if (n === '4') protoName = 'KWP2000 (5-baud)';
+    else if (n === '5') protoName = 'KWP2000 (Fast)';
+    else if (n === '6') protoName = 'ISO 15765-4 CAN (11-bit/500k)';
+    else if (n === '7') protoName = 'ISO 15765-4 CAN (29-bit/500k)';
+    else if (n === '8') protoName = 'ISO 15765-4 CAN (11-bit/250k)';
+    else if (n === '9') protoName = 'ISO 15765-4 CAN (29-bit/250k)';
+    else if (n === 'A') protoName = 'ISO 15765-4 CAN (11-bit/500k)';
+    else if (n === 'B') protoName = 'ISO 15765-4 CAN (29-bit/500k)';
+    else if (n === 'C') protoName = 'ISO 15765-4 CAN (11-bit/250k)';
+
+    if (el) {
+      el.textContent = 'البروتوكول: ' + protoName;
+      el.className = 'text-[10px] text-cyan-400 font-mono mt-1';
+    }
+    
   } catch (_) {
     comm.isCAN = null;
     comm.isCAN11 = null;
+    if (el) {
+      el.textContent = 'البروتوكول: خطأ في القراءة';
+      el.className = 'text-[10px] text-red-400 font-mono mt-1';
+    }
   }
 }
 
-// ═══════════ Heartbeat (نبضات القلب) ═══════════
 export function startHeartbeat() {
   stopHeartbeat();
   comm.heartbeatFails = 0;
@@ -206,7 +234,6 @@ export function stopHeartbeat() {
   }
 }
 
-// ═══════════ Bluetooth BLE ═══════════
 export async function connectOBD(showAll) {
   if (!app.hasBLE) {
     alert(window.isSecureContext === false ? 'Web Bluetooth يحتاج HTTPS.' : 'المتصفح لا يدعم Web Bluetooth.');
@@ -298,7 +325,6 @@ function onNotif(e) {
   handleIncoming(decoder.decode(e.target.value));
 }
 
-// ═══════════ USB Serial ═══════════
 export async function connectUSB() {
   if (!navigator.serial) { alert('Web Serial غير مدعوم'); return false; }
 
@@ -339,7 +365,6 @@ export async function connectUSB() {
     }
     if (!ok) throw new Error('لم يردّ على أي سرعة');
     
-    // مراقبة الفصل المفاجئ لـ USB
     navigator.serial.addEventListener('disconnect', (e) => {
       if (app.transport === 'usb' && e.target === usb.port) {
         log('WARN: انقطع كابل USB جسدياً');
@@ -404,7 +429,6 @@ async function cleanupUSB() {
   if (comm.curTimeout) { clearTimeout(comm.curTimeout); comm.curTimeout = null; }
 }
 
-// ═══════════ Wi-Fi (WebSockets) ═══════════
 export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
   if (!app.hasWiFi) { alert('المتصفح لا يدعم WebSockets'); return false; }
 
@@ -419,7 +443,6 @@ export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
   try {
     log(`INFO: جاري الاتصال بـ Wi-Fi (${ip}:${port})...`);
     
-    // إغلاق أي اتصال سابق
     if (wifi.socket) { try { wifi.socket.close(); } catch(_) {} }
     
     wifi.socket = new WebSocket(`ws://${ip}:${port}`);
@@ -476,7 +499,6 @@ export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
   }
 }
 
-// ═══════════ Disconnect & Reconnect ═══════════
 async function onGattDisc() {
   if (comm.userDisc || comm.reconnecting || app.transport !== 'ble' || !app.isConnected) return;
   comm.reconnecting = true;
@@ -507,6 +529,9 @@ async function onGattDisc() {
 }
 
 export async function handleDisc() {
+  const pEl = document.getElementById('protocol-display');
+  if (pEl) pEl.classList.add('hidden');
+
   comm.userDisc = true;
   app.isConnected = false;
   app.isDemo = false;
@@ -565,27 +590,18 @@ export function setStatus(s) {
 }
 
 export function updConnUI(c) {
-  const cb = document.getElementById('connect-btn');
-  const ub = document.getElementById('usb-btn');
-  const wb = document.getElementById('wifi-btn');
-  const db = document.getElementById('demo-btn');
+  const openBtn = document.getElementById('open-connect-modal');
   const x = document.getElementById('disconnect-btn');
-  
-  if (!cb || !ub || !db || !x) return;
+  const clearBtn = document.getElementById('clear-btn');
   
   if (c) {
-    cb.classList.add('hidden');
-    ub.classList.add('hidden');
-    if (wb) wb.classList.add('hidden');
-    db.classList.add('hidden');
-    x.classList.remove('hidden');
+    if (openBtn) openBtn.classList.add('hidden');
+    if (x) x.classList.remove('hidden');
+    if (clearBtn) clearBtn.classList.remove('mb-2');
   } else {
-    cb.classList.remove('hidden');
-    if (!app.hasSerial || app.isIOS) ub.classList.add('hidden');
-    else ub.classList.remove('hidden');
-    if (wb && app.hasWiFi) wb.classList.remove('hidden');
-    db.classList.remove('hidden');
-    x.classList.add('hidden');
+    if (openBtn) openBtn.classList.remove('hidden');
+    if (x) x.classList.add('hidden');
+    if (clearBtn) clearBtn.classList.add('mb-2');
   }
 }
 
