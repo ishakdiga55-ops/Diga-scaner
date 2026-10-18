@@ -92,17 +92,21 @@
 <p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
 </div>
 </div>
-<div class="grid grid-cols-3 gap-2 mb-2">
-<button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
-<button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-usb"></i> USB</button>
-<button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
+
+<!-- شبكة الأزرار المحدثة (2x2) -->
+<div class="grid grid-cols-2 gap-2 mb-2">
+  <button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
+  <button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-usb"></i> USB</button>
+  <button id="wifi-btn" class="bg-cyan-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-wifi"></i> Wi-Fi</button>
+  <button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
 </div>
+
 <button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
 <button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
 <div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" rel="noopener" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 <button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
-<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>❌ Wi-Fi: غير مدعوم من المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
+<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>✅ Wi-Fi: متاح عبر المتصفح (يتطلب عنوان IP لجهاز ELM327 Wi-Fi)</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
 </header>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
