@@ -98,13 +98,10 @@
 </div>
 </div>
 
-<!-- شبكة الأزرار (2x2) -->
-<div class="grid grid-cols-2 gap-2 mb-2">
-  <button id="connect-btn" class="bg-blue-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-bluetooth-b"></i> Bluetooth</button>
-  <button id="usb-btn" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-usb"></i> USB</button>
-  <button id="wifi-btn" class="bg-cyan-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-wifi"></i> Wi-Fi</button>
-  <button id="demo-btn" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-flask"></i> تجريبي</button>
-</div>
+<!-- الزر الموحد للاتصال -->
+<button id="open-connect-modal" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-2 shadow-lg shadow-blue-500/20">
+  <i class="fa-solid fa-plug"></i> الاتصال بالجهاز
+</button>
 
 <button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
 <button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
@@ -342,6 +339,42 @@
 </div>
 </div>
 
+<!-- ═══════════ نافذة اختيار نوع الاتصال (Modal) ═══════════ -->
+<div id="connectModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+  <div class="bg-gray-800 border border-gray-700 rounded-3xl p-6 w-full max-w-sm relative shadow-2xl">
+    <button id="close-connect-modal" class="absolute top-4 left-4 text-gray-400 hover:text-white bg-gray-700/50 w-8 h-8 rounded-full flex items-center justify-center transition">×</button>
+    
+    <h3 class="text-xl font-bold text-center mb-1">اختر طريقة الاتصال</h3>
+    <p class="text-xs text-gray-400 text-center mb-6">حدد نوع الجهاز المتصل بسيارتك</p>
+
+    <div class="space-y-3">
+      <!-- Bluetooth -->
+      <button id="connect-btn" class="w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth-b text-lg"></i></div>
+        <div><div class="text-white">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal">يدعم أندرويد و iPhone (Bluefy)</div></div>
+      </button>
+
+      <!-- USB -->
+      <button id="usb-btn" class="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-emerald-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-usb text-lg"></i></div>
+        <div><div class="text-white">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal">للحاسوب أو أندرويد</div></div>
+      </button>
+
+      <!-- Wi-Fi -->
+      <button id="wifi-btn" class="w-full bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-cyan-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-wifi text-lg"></i></div>
+        <div><div class="text-white">Wi-Fi (WebSocket)</div><div class="text-[10px] text-cyan-400 font-normal">يتطلب IP لجهاز ELM327</div></div>
+      </button>
+
+      <!-- Demo -->
+      <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
+        <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
+        <div><div class="text-white">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal">تجربة الموقع بدون جهاز</div></div>
+      </button>
+    </div>
+  </div>
+</div>
+
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
@@ -400,11 +433,11 @@ if ('serviceWorker' in navigator) {
     {id:'LEAN1',pr:'high',sys:['engine','fuel'],req:['P0171'],opt:['P0174'],t:'خليط فقير Bank 1',cs:[{c:'تسرب هواء مشعب',p:0.45},{c:'خرطوم فاكيوم',p:0.25},{c:'MAF متسخ',p:0.15},{c:'مضخة وقود',p:0.10},{c:'حاقن مسدود',p:0.05}],ac:['افحص خراطيم الفاكيوم','رش ماء على حشوات المشعب','نظّف MAF','افحص PCV'],cost:{min:0,max:300},time:2,diy:true,urg:false},
     {id:'MISFIRE',pr:'high',sys:['engine','exhaust'],req:['P0300'],opt:['P0301','P0302','P0303','P0304'],t:'اشتعال متقطع متعدد',cs:[{c:'بواجي',p:0.40},{c:'كويلات',p:0.25},{c:'حاقنات',p:0.15},{c:'ضغط',p:0.10},{c:'توقيت',p:0.10}],ac:['استبدل البواجي','افحص الكويلات','افحص الحاقنات'],cost:{min:50,max:1500},time:4,diy:true,urg:false},
     {id:'MISFIRE1',pr:'high',sys:['engine'],req:['P0301'],opt:[],t:'اشتعال أسطوانة 1',cs:[{c:'بوجي 1',p:0.45},{c:'كويل 1',p:0.35},{c:'حاقن 1',p:0.15}],ac:['بدّل البوجي 1↔2','بدّل الكويل 1↔2','قِس الضغط'],cost:{min:20,max:500},time:2,diy:true,urg:false},
-    {id:'MISFIRE2',pr:'high',sys:['engine'],req.:['P0302'],opt:[],t:'10اشتعال أسطوانة 2}',cs:[{c:'],بوجي 2',p:0ac.45},{c:'كويل: 2',p:0.35},{c:'حاقن 2',p:0.15}],ac:['بدّل البوجي 2↔1','بدّل الكويل 2↔1'],cost:{min:20,max:500},time:2,diy:true,urg:false},
+    {id:'MISFIRE2',pr:'high',sys:['engine'],req:['P0302'],opt:[],t:'اشتعال أسطوانة 2',cs:[{c:'بوجي 2',p:0.45},{c:'كويل 2',p:0.35},{c:'حاقن 2',p:0.15}],ac:['بدّل البوجي 2↔1','بدّل الكويل 2↔1'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'MISFIRE3',pr:'high',sys:['engine'],req:['P0303'],opt:[],t:'اشتعال أسطوانة 3',cs:[{c:'بوجي 3',p:0.45},{c:'كويل 3',p:0.35}],ac:['بدّل البوجي 3↔4','بدّل الكويل 3↔4'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'MISFIRE4',pr:'high',sys:['engine'],req:['P0304'],opt:[],t:'اشتعال أسطوانة 4',cs:[{c:'بوجي 4',p:0.45},{c:'كويل 4',p:0.35}],ac:['بدّل البوجي 4↔3','بدّل الكويل 4↔3'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
-    {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
+    {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
     {id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
     {id:'CAM',pr:'high',sys:['engine'],req:['P0340'],opt:[],t:'حساس الكام',cs:[{c:'الحساس',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الأسلاك','استبدل الحساس'],cost:{min:60,max:500},time:2,diy:true,urg:false},
     {id:'EGR',pr:'medium',sys:['engine','exhaust'],req:['P0401'],opt:[],t:'تدفق EGR غير كافٍ',cs:[{c:'EGR متسخ',p:0.55},{c:'قناة مسدودة',p:0.30},{c:'حساس',p:0.15}],ac:['نظّف EGR','افحص القناة'],cost:{min:0,max:400},time:2,diy:true,urg:false},
