@@ -6,6 +6,7 @@ export const app = {
   isBluefy: false,
   hasSerial: false,
   hasBLE: false,
+  hasWiFi: 'WebSocket' in window,
   obdexLoaded: false
 };
 
@@ -26,6 +27,11 @@ export const usb = {
   generation: 0
 };
 
+export const wifi = {
+  socket: null,
+  isConnecting: false
+};
+
 export const comm = {
   recvBuf: '',
   cmdQ: [],
@@ -35,7 +41,9 @@ export const comm = {
   userDisc: false,
   reconnecting: false,
   isCAN: null,
-  isCAN11: null
+  isCAN11: null,
+  heartbeatTimer: null,
+  heartbeatFails: 0
 };
 
 export const live = {
