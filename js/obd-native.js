@@ -1,4 +1,4 @@
-import { app, comm } from './state.js';
+import { app } from './state.js';
 import { handleIncoming, initELM, startLive, setStatus, updConnUI, log } from './obd.js';
 
 // التحقق مما إذا كنا نعمل داخل تطبيق أندرويد
