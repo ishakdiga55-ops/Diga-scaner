@@ -1,0 +1,8 @@
+{
+  "appId": "com.checkdiga.pro",
+  "appName": "CheckDiga Pro",
+  "webDir": "./",
+  "server": {
+    "androidScheme": "https"
+  }
+}
