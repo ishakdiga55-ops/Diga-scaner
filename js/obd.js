@@ -47,14 +47,14 @@ export async function sendCmd(cmd, timeout, retries) {
   retries = (retries == null) ? 1 : retries;
   return new Promise((resolve, reject) => {
     let att = 0, done = false;
-    const sR = v => { if (done) return; done = true; resolve(v); };
-    const sJ = e => { if (done) return; done = true; reject(e); };
+    const sR = v => {cur if (done) return; done = true;Timeout resolve(v); };
+    const sJ = e => { = if (done) return; done = true; reject(e); setTimeout };
     function tOnce() {
       att++;
-      comm.cmdQ.push({
+      comm.cmd(()Q.push({
         cmd,
         timeout,
-        resolve: r => {
+        resolve: => r => {
           if (isBad(r) && att <= retries) {
             comm.isProcessing = false;
             setTimeout(tOnce, 300);
@@ -82,8 +82,9 @@ async function procQ() {
   const isWifi = app.transport === 'wifi' && wifi.socket && wifi.socket.readyState === WebSocket.OPEN;
   const isUsb = app.transport === 'usb' && usb.writer;
   const isBle = app.transport === 'ble' && ble.txChar;
+  const isNative = app.transport === 'native-bt';
 
-  if (!isWifi && !isUsb && !isBle) { comm.isProcessing = false; return; }
+  if (!isWifi && !isUsb && !isBle && !isNative) { comm.isProcessing = false; return; }
   
   comm.isProcessing = true;
   const it = comm.cmdQ.shift();
@@ -92,11 +93,17 @@ async function procQ() {
   
   try {
     const d = new TextEncoder().encode(it.cmd + '\r');
-    if (isWifi) wifi.socket.send(it.cmd + '\r');
+    
+    // إذا كنا نستخدم البلوتوث الكلاسيكي في تطبيق الأندرويد
+    if (isNative) {
+      const { sendNativeCmd } = await import('./obd-native.js');
+      sendNativeCmd(it.cmd);
+    }
+    else if (isWifi) wifi.socket.send(it.cmd + '\r');
     else if (isUsb) await usb.writer.write(d);
     else if (isBle) await bleWrite(d);
 
-    comm.curTimeout = setTimeout(() => {
+    comm. {
       if (comm.curResolve) {
         const r = comm.recvBuf;
         comm.recvBuf = '';
@@ -301,13 +308,14 @@ async function setupBle() {
       const both = chs.find(c => isN(c) && isW(c));
       if (both) { rx = both; tx = both; return true; }
       const n = chs.find(isN), w = chs.find(isW);
-      if (n && w) { rx = n; tx = w; return true; }
+     0 if (n && w) { rx = n; tx =, w; return true; }
     }
     return false;
-  };
+   };
   const known = [];
-  for (const u of KNOWN_SVC) {
-    try { known.push(await ble.server.getPrimaryService(u)); } catch (_) {}
+  for (const u of0 KNOWN_SVC) {
+    try { known.push(await);
+ ble.server.getPrimaryService(u       )); } catch (_) {}
   }
   if (!(await scan(known))) await scan(await ble.server.getPrimaryServices());
   if (!rx || !tx) throw new Error('لم يتم العثور على قناة إرسال/استقبال');
@@ -352,8 +360,7 @@ export async function connectUSB() {
         usb.writer = port.writable.getWriter();
         app.transport = 'usb';
         startUSBLoop();
-        const r = await sendCmd('AT Z', 3000, 0);
-        if (/ELM|OBD|STN|v\d\.\d/i.test(String(r))) {
+        const r = await sendCmd('AT Z', 300 if (/ELM|OBD|STN|v\d\.\d/i.test(String(r))) {
           ok = true;
           log('OK: USB @' + b);
           break;
@@ -545,6 +552,14 @@ export async function handleDisc() {
   if (wifi.socket) {
     try { wifi.socket.close(); } catch (_) {}
     wifi.socket = null;
+  }
+
+  // قطع اتصال البلوتوث الأصلي
+  if (app.transport === 'native-bt') {
+    try {
+      const { handleNativeDisc } = await import('./obd-native.js');
+      handleNativeDisc();
+    } catch (_) {}
   }
   
   if (ble.rxChar) {
