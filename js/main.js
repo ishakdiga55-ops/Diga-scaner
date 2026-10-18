@@ -1,5 +1,5 @@
 import { app, initApp } from './state.js';
-import { log, connectOBD, connectUSB, handleDisc, updAllG } from './obd.js';
+import { log, connectOBD, connectUSB, connectWiFi, handleDisc, updAllG } from './obd.js';
 import { readDTCs, scanAll, clearDTCs } from './obd-commands.js';
 import { initTheme } from './ui/theme.js';
 import { initSearch } from './ui/search.js';
@@ -31,6 +31,15 @@ function init() {
     try { await connectUSB(); } catch (_) {}
     try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
   });
+  
+  // ═══ Wi-Fi ═══
+  bind('wifi-btn', async () => {
+    const ip = prompt('أدخل عنوان IP لجهاز Wi-Fi (مثال: 192.168.0.10)', '192.168.0.10');
+    if (!ip) return;
+    try { await connectWiFi(ip); } catch (_) {}
+    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+  });
+
   bind('demo-btn', async () => {
     try { startDemo(); } catch (_) {}
     try { readDTCs(); } catch (_) {}
