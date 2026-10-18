@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v12 — updated for Android Native support
+   v13 — updated for Android Native support
    ============================================ */
 
-const CACHE_VERSION = 'v12';
+const CACHE_VERSION = 'v13';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -41,26 +41,24 @@ const CDN_HOSTS = [
   'raw.githack.com'
 ];
 
-/* --- Install --- */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v12] Installing...');
+      console.log('[SW v13] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v12] Some files failed:', err);
+        console.warn('[SW v13] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
 });
 
-/* --- Activate: حذف كل النسخ القديمة --- */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v12] Deleting old cache:', k);
+            console.log('[SW v13] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
@@ -68,14 +66,12 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* --- Fetch --- */
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
   if (req.method !== 'GET') return;
 
-  /* CDN */
   if (CDN_HOSTS.some(host => url.hostname.includes(host))) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -92,7 +88,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  /* JSON / DB */
   if (url.pathname.endsWith('.json') || url.pathname.endsWith('.db')) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -109,7 +104,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  /* App shell */
   event.respondWith(
     fetch(req).then(res => {
       if (res && res.status === 200 && url.origin === location.origin) {
@@ -127,7 +121,6 @@ self.addEventListener('fetch', event => {
   );
 });
 
-/* --- Message --- */
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
