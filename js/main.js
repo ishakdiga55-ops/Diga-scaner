@@ -11,7 +11,7 @@ import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
 import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
 import { runPrePurchaseScan } from './inspector.js';
-import { initLang } from './i18n.js'; // ✅ استيراد اللغة
+import { initLang } from './i18n.js';
 
 function init() {
   initApp();
@@ -50,7 +50,6 @@ function init() {
       };
     }
   } else {
-    // ✅ إخفاء زر Wi-Fi في المتصفح
     const btnWifi = document.getElementById('wifi-btn');
     if (btnWifi) btnWifi.style.display = 'none';
   }
@@ -60,7 +59,6 @@ function init() {
     let success = false;
     try { success = await connectOBD(false); } catch (_) {}
     if (success) {
-      // ✅ تم إصلاح السطر هنا
       try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
     }
   });
@@ -128,7 +126,6 @@ function init() {
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
-  // ✅ تفعيل اللغة
   initLang();
 
   initTheme();
