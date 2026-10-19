@@ -11,6 +11,7 @@ const KNOWN_SVC = [
 
 const sleepMs = ms => new Promise(r => setTimeout(r, ms));
 let decoder = null;
+let serialListenerAttached = false; // ✅ إصلاح: متغير لمنع تكرار مستمع USB
 
 export function log(msg) {
   const c = document.getElementById('console');
@@ -218,7 +219,8 @@ export function startHeartbeat() {
   stopHeartbeat();
   comm.heartbeatFails = 0;
   comm.heartbeatTimer = setInterval(async () => {
-    if (!app.isConnected || app.isDemo || comm.isProcessing || comm.cmdQ.length > 0) return;
+    // ✅ إصلاح: تمت إضافة live.paused
+    if (!app.isConnected || app.isDemo || live.paused || comm.isProcessing || comm.cmdQ.length > 0) return;
     try {
       const res = await sendCmd('AT', 1000, 0);
       if (isBad(res)) throw new Error('bad');
@@ -238,6 +240,18 @@ export function stopHeartbeat() {
     clearInterval(comm.heartbeatTimer);
     comm.heartbeatTimer = null;
   }
+}
+
+// ✅ إصلاح: دالة إعداد مستمع USB مرة واحدة فقط
+function setupSerialListener() {
+  if (serialListenerAttached || !navigator.serial) return;
+  navigator.serial.addEventListener('disconnect', (e) => {
+    if (app.transport === 'usb' && e.target === usb.port) {
+      log('WARN: انقطع كابل USB جسدياً');
+      handleDisc();
+    }
+  });
+  serialListenerAttached = true;
 }
 
 export async function connectOBD(showAll) {
@@ -381,12 +395,8 @@ export async function connectUSB() {
     }
     if (!ok) throw new Error('لم يردّ على أي سرعة');
     
-    navigator.serial.addEventListener('disconnect', (e) => {
-      if (app.transport === 'usb' && e.target === usb.port) {
-        log('WARN: انقطع كابل USB جسدياً');
-        handleDisc();
-      }
-    });
+    // ✅ إصلاح: استدعاء الدالة بدلاً من إضافة المستمع هنا
+    setupSerialListener();
 
     app.isConnected = true;
     setStatus('connected');
@@ -765,16 +775,17 @@ function updGauge(arcId, needleId, valId, val, max) {
   ve.textContent = Math.round(cv);
 }
 
-// دالة قراءة عداد المسافة الحقيقي (Odometer)
+// ✅ إصلاح: دالة قراءة العداد تستخدم pHex وتقسم على 10
 export async function readOdometer() {
   try {
     const res = await sendCmd('01 A6', 2000, 0);
-    const hex = res.replace(/[^0-9A-Fa-f]/g, ' ').trim().split(/\s+/).map(x => parseInt(x, 16));
-    for (let i = 0; i < hex.length - 4; i++) {
-      if (hex[i] === 0x41 && hex[i + 1] === 0xA6) {
-        const km = (hex[i+2] * 16777216) + (hex[i+3] * 65536) + (hex[i+4] * 256) + hex[i+5];
+    const b = pHex(res);
+    for (let i = 0; i < b.length - 4; i++) {
+      if (b[i] === 0x41 && b[i + 1] === 0xA6) {
+        // PID A6 بوحدة 0.1 كم، لذا نقسم على 10
+        const km = ((b[i+2] * 16777216) + (b[i+3] * 65536) + (b[i+4] * 256) + b[i+5]) / 10;
         if (km > 0 && km < 2000000) { // فلترة القيم الغريبة
-          const formatted = km.toLocaleString('en-US');
+          const formatted = Math.round(km).toLocaleString('en-US');
           
           // تحديث بطاقة الـ Hero
           const heroCard = document.getElementById('hero-car-card');
