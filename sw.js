@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v27 — Fixed main.js syntax error & Language support
+   v28 — Fixed index.html syntax errors
    ============================================ */
 
-const CACHE_VERSION = 'v27';
+const CACHE_VERSION = 'v28';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -47,9 +47,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v27] Installing...');
+      console.log('[SW v28] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v27] Some files failed:', err);
+        console.warn('[SW v28] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -61,7 +61,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v27] Deleting old cache:', k);
+            console.log('[SW v28] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
