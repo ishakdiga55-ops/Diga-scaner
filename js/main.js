@@ -10,7 +10,8 @@ import { startDemo, stopDemo, batUI, runBatteryTest,
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
 import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
-import { runPrePurchaseScan } from './inspector.js'; 
+import { runPrePurchaseScan } from './inspector.js';
+import { initLang } from './i18n.js'; // ✅ استيراد اللغة
 
 function init() {
   initApp();
@@ -49,12 +50,12 @@ function init() {
       };
     }
   } else {
-    // ✅ إصلاح 4: إخفاء زر Wi-Fi في المتصفح (لأنه لا يعمل)
+    // ✅ إخفاء زر Wi-Fi في المتصفح
     const btnWifi = document.getElementById('wifi-btn');
     if (btnWifi) btnWifi.style.display = 'none';
   }
 
-  // ✅ إصلاح 5: التحقق من نجاح الاتصال قبل قراءة VIN
+  // ✅ التحقق من نجاح الاتصال قبل قراءة VIN
   bind('connect-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
     let success = false;
@@ -108,7 +109,6 @@ function init() {
     try { const m = await import('./abs-scan.js'); await m.scanABS(); } catch (err) { alert('خطأ في فحص ABS'); }
   });
 
-  // ✅ ربط زر المفتش
   bind('btnPrePurchase', runPrePurchaseScan);
 
   bind('btnFavorites', () => {
@@ -127,6 +127,9 @@ function init() {
 
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
+
+  // ✅ تفعيل نظام اللغة
+  initLang();
 
   initTheme();
   initTabs();
