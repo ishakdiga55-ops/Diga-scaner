@@ -11,6 +11,16 @@ export function startDemo() {
   setStatusDemo();
   updConnUIDemo();
 
+  // إظهار بطاقة العداد في الـ Hero (بيانات وهمية)
+  const heroCard = document.getElementById('hero-car-card');
+  if (heroCard) {
+    heroCard.classList.remove('hidden');
+    const hv = document.getElementById('hero-vin');
+    if (hv) hv.textContent = 'VIN: 1HGCG5655WA123456';
+    const ho = document.getElementById('hero-odo');
+    if (ho) ho.textContent = '145,300';
+  }
+
   if (session.demoTimer) clearInterval(session.demoTimer);
   session.demoTimer = setInterval(function () {
     var r = Math.floor(900 + Math.random() * 2500);
@@ -29,6 +39,10 @@ export function stopDemo() {
   if (session.demoTimer) clearInterval(session.demoTimer);
   session.demoTimer = null;
   app.isDemo = false;
+
+  // إخفاء البطاقة عند إيقاف الوضع التجريبي
+  const heroCard = document.getElementById('hero-car-card');
+  if (heroCard) heroCard.classList.add('hidden');
 }
 
 function setStatusDemo() {
@@ -39,14 +53,12 @@ function setStatusDemo() {
 }
 
 function updConnUIDemo() {
-  var cb = document.getElementById('connect-btn');
-  var ub = document.getElementById('usb-btn');
-  var db = document.getElementById('demo-btn');
+  var cb = document.getElementById('open-connect-modal');
   var x = document.getElementById('disconnect-btn');
+  var clearBtn = document.getElementById('clear-btn');
   if (cb) cb.classList.add('hidden');
-  if (ub) ub.classList.add('hidden');
-  if (db) db.classList.add('hidden');
   if (x) x.classList.remove('hidden');
+  if (clearBtn) clearBtn.classList.remove('mb-2');
 }
 
 // ═══════════ Battery Test ═══════════
@@ -422,7 +434,6 @@ export function initChart() {
 }
 
 export function updChart(r, s) {
-  // ✅ إذا Chart غير موجود ولوحة "حية" ظاهرة → أنشئه
   if (!session.chartInstance) {
     var panel = document.getElementById('panel-live');
     if (panel && !panel.classList.contains('hidden')) {
