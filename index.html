@@ -320,7 +320,7 @@
       </button>
 
       <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
-        <div class="w-10 h- {10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
+        <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
         <div><div class="text-white" data-i18n="optDemo">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal" data-i18n="optDemoDesc">تجربة الموقع بدون جهاز</div></div>
       </button>
     </div>
@@ -389,13 +389,13 @@ if ('serviceWorker' in navigator) {
     {id:'MISFIRE4',pr:'high',sys:['engine'],req:['P0304'],opt:[],t:'اشتعال أسطوانة 4',cs:[{c:'بوجي 4',p:0.45},{c:'كويل 4',p:0.35}],ac:['بدّل البوجي 4↔3','بدّل الكويل 4↔3'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
     {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
-   id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
+    {id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
     {id:'CAM',pr:'high',sys:['engine'],req:['P0340'],opt:[],t:'حساس الكام',cs:[{c:'الحساس',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الأسلاك','استبدل الحساس'],cost:{min:60,max:500},time:2,diy:true,urg:false},
     {id:'EGR',pr:'medium',sys:['engine','exhaust'],req:['P0401'],opt:[],t:'تدفق EGR غير كافٍ',cs:[{c:'EGR متسخ',p:0.55},{c:'قناة مسدودة',p:0.30},{c:'حساس',p:0.15}],ac:['نظّف EGR','افحص القناة'],cost:{min:0,max:400},time:2,diy:true,urg:false},
     {id:'CAT1',pr:'medium',sys:['exhaust'],req:['P0420'],opt:[],t:'كتلايزر ضعيف B1',cs:[{c:'كتلايزر تالف',p:0.50},{c:'حساس O2',p:0.30},{c:'تسرب عادم',p:0.15}],ac:['افحص حساسات O2','افحص التسرب','استبدل الكتلايزر'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
     {id:'CAT2',pr:'medium',sys:['exhaust'],req:['P0430'],opt:[],t:'كتلايزر ضعيف B2',cs:[{c:'كتلايزر',p:0.55},{c:'حساس O2',p:0.30}],ac:['افحص O2','افحص التسرب'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
     {id:'EVAP',pr:'low',sys:['exhaust'],req:['P0442'],opt:['P0455'],t:'تسرب EVAP',cs:[{c:'غطاء وقود',p:0.55},{c:'خرطوم',p:0.25},{c:'purge',p:0.15}],ac:['أحكم غطاء الوقود','امسح وقُد 100 كم'],cost:{min:0,max:200},time:1,diy:true,urg:false},
-    {iyid:'IDLE',pr:'medium',sys:['engine:'],req:['P0505'],opt:[],t:'falseنظام الخمول',cs:[{c:'I,AC متسخ',p:0.55},{c:'تurgسرب هواء',p:0.25},{c:'TPS:',p:0.20}],ac:['نظّف IAC','افحص التسرب','افحص TPS'],cost:{min:0,max:300},time:2,diy:true,urg:false},
+    {id:'IDLE',pr:'medium',sys:['engine'],req:['P0505'],opt:[],t:'نظام الخمول',cs:[{c:'IAC متسخ',p:0.55},{c:'تسرب هواء',p:0.25},{c:'TPS',p:0.20}],ac:['نظّف IAC','افحص التسرب','افحص TPS'],cost:{min:0,max:300},time:2,diy:true,urg:false},
     {id:'MAF',pr:'medium',sys:['engine','fuel'],req:['P0100'],opt:['P0101','P0102','P0103'],t:'دائرة MAF',cs:[{c:'MAF متسخ',p:0.55},{c:'تسرب',p:0.25},{c:'أسلاك',p:0.15}],ac:['نظّف MAF','افحص الأسلاك'],cost:{min:0,max:150},time:1,diy:true,urg:false},
     {id:'ECT',pr:'medium',sys:['cooling'],req:['P0115'],opt:['P0117','P0118'],t:'حساس حرارة المحرك',cs:[{c:'الحساس',p:0.50},{c:'أسلاك',p:0.30},{c:'قابس',p:0.20}],ac:['افحص الأسلاك','قِس المقاومة','استبدل'],cost:{min:20,max:100},time:1,diy:true,urg:false},
     {id:'THERMO',pr:'medium',sys:['cooling'],req:['P0128'],opt:[],t:'ترموستات عاطل',cs:[{c:'ترموستات',p:0.80},{c:'حساس ECT',p:0.20}],ac:['استبدل الترموستات','افحص السائل'],cost:{min:30,max:150},time:2,diy:true,urg:false},
@@ -403,7 +403,7 @@ if ('serviceWorker' in navigator) {
     {id:'LOST_ECU',pr:'critical',sys:['electronics','engine'],req:['U0100'],opt:[],t:'فقدان الاتصال بـ ECU',cs:[{c:'أسلاك CAN',p:0.40},{c:'فيوز ECU',p:0.25},{c:'ECU',p:0.20},{c:'أرضية',p:0.15}],ac:['توقف فورًا','افحص فيوز ECU','افحص CAN'],cost:{min:200,max:4000},time:8,diy:false,urg:true},
     {id:'LOST_TCM',pr:'critical',sys:['transmission','electronics'],req:['U0101'],opt:[],t:'فقدان الاتصال بـ TCM',cs:[{c:'أسلاك CAN',p:0.45},{c:'فيوز',p:0.30},{c:'TCM',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:200,max:3000},time:6,diy:false,urg:true},
     {id:'LOST_ABS',pr:'high',sys:['abs','electronics'],req:['U0121'],opt:[],t:'فقدان الاتصال بـ ABS',cs:[{c:'CAN',p:0.40},{c:'فيوز',p:0.35},{c:'وحدة ABS',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:100,max:2000},time:4,diy:false,urg:false},
-    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,dtrue},
+    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
     {id:'ABS_FL',pr:'high',sys:['abs','brakes'],req:['C0035'],opt:['C0040','C0045','C0050'],t:'حساس عجلة ABS',cs:[{c:'الحساس',p:0.55},{c:'أسلاك',p:0.30},{c:'حلقة ABS',p:0.15}],ac:['افحص الأسلاك','افحص الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:false},
     {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
     {id:'ABS_RELAY',pr:'high',sys:['abs','brakes'],req:['C0265'],opt:[],t:'دائرة ريلاي موتور ABS',cs:[{c:'فيوز أو ريلاي ABS',p:0.40},{c:'أسلاك وقوابس',p:0.30},{c:'موتور المضخة',p:0.20},{c:'وحدة ABS',p:0.10}],ac:['افحص فيوز وريلاي ABS','افحص الأسلاك والقوابس','راجع مختص'],cost:{min:50,max:1500},time:3,diy:false,urg:false},
