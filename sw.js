@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v18 — updated for Inspector Mode
+   v24 — Stable & Cleaned (Reviewer Fixes Applied)
    ============================================ */
 
-const CACHE_VERSION = 'v18';
+const CACHE_VERSION = 'v24';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -18,7 +18,8 @@ const APP_SHELL = [
   './js/state.js',
   './js/obd.js',
   './js/obd-native.js',
-  './js/inspector.js', /* ✅ تمت إضافة ملف المفتش هنا */
+  './js/inspector.js',
+  './js/ai-service.js',
   './js/analysis.js',
   './js/obd-commands.js',
   './js/ui-extras.js',
@@ -42,26 +43,24 @@ const CDN_HOSTS = [
   'raw.githack.com'
 ];
 
-/* --- Install --- */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v18] Installing...');
+      console.log('[SW v24] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v18] Some files failed:', err);
+        console.warn('[SW v24] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
 });
 
-/* --- Activate: حذف كل النسخ القديمة --- */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v18] Deleting old cache:', k);
+            console.log('[SW v24] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
@@ -69,14 +68,12 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* --- Fetch --- */
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
   if (req.method !== 'GET') return;
 
-  /* CDN */
   if (CDN_HOSTS.some(host => url.hostname.includes(host))) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -93,7 +90,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  /* JSON / DB */
   if (url.pathname.endsWith('.json') || url.pathname.endsWith('.db')) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -110,7 +106,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  /* App shell */
   event.respondWith(
     fetch(req).then(res => {
       if (res && res.status === 200 && url.origin === location.origin) {
@@ -128,7 +123,6 @@ self.addEventListener('fetch', event => {
   );
 });
 
-/* --- Message --- */
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
