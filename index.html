@@ -334,7 +334,11 @@
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3" data-i18n="footerMade">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
-<script type="module" src="js/main.js"></script>
+<script type="module">
+  import('./js/main.js').catch(err => {
+    document.body.innerHTML = '<div style="color:red; font-size:18px; background:white; padding:20px; z-index:99999; position:relative; direction:ltr; text-align:left; word-break:break-all;"><b>Error Detected:</b><br>' + err.message + '</div>';
+  });
+</script>
 
 <script>
 if ('serviceWorker' in navigator) {
