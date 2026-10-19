@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v24 — Stable & Cleaned (Reviewer Fixes Applied)
+   v25 — Added French Language Support
    ============================================ */
 
-const CACHE_VERSION = 'v24';
+const CACHE_VERSION = 'v25';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -19,6 +19,7 @@ const APP_SHELL = [
   './js/obd.js',
   './js/obd-native.js',
   './js/inspector.js',
+  './js/i18n.js', /* ✅ إضافة ملف اللغة */
   './js/ai-service.js',
   './js/analysis.js',
   './js/obd-commands.js',
@@ -46,9 +47,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v24] Installing...');
+      console.log('[SW v25] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v24] Some files failed:', err);
+        console.warn('[SW v25] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -60,7 +61,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v24] Deleting old cache:', k);
+            console.log('[SW v25] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
