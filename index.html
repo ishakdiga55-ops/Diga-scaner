@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CheckDiga Pro — فحص السيارات</title>
+<title data-i18n="title">CheckDiga Pro — فحص السيارات</title>
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.png">
@@ -45,8 +45,8 @@
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
-  <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
-  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك من هاتفك</span><span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
   
   <div class="my-6">
     <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
@@ -56,12 +56,12 @@
   <div id="hero-car-card" class="hidden max-w-md mx-auto mt-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl relative overflow-hidden text-right">
     <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
     <div class="flex justify-between items-center border-b border-gray-700/50 pb-2 mb-3">
-      <span class="text-xs font-bold text-gray-400"><i class="fa-solid fa-car-side text-blue-400"></i> بيانات السيارة</span>
+      <span class="text-xs font-bold text-gray-400" data-i18n="vehData"><i class="fa-solid fa-car-side text-blue-400"></i> بيانات السيارة</span>
       <span class="text-[11px] text-cyan-400 font-mono tracking-wider" id="hero-vin">VIN: --</span>
     </div>
     <div class="flex justify-between items-end">
       <div>
-        <span class="text-xs text-gray-400 block mb-1">عداد المسافة (Odometer)</span>
+        <span class="text-xs text-gray-400 block mb-1" data-i18n="odometer">عداد المسافة (Odometer)</span>
         <div class="flex items-baseline gap-1">
             <span class="text-3xl font-black text-white" id="hero-odo">--</span>
             <span class="text-xs text-gray-500 font-bold">كم</span>
@@ -102,6 +102,7 @@
 <div class="flex justify-between items-center flex-wrap gap-2">
   <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h2>
   <div class="flex gap-2">
+    <button id="langBtn" class="bg-gray-800 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold">FR</button>
     <button id="btnFavorites" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
     <button id="btnTheme" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
   </div>
@@ -118,12 +119,12 @@
 </div>
 </div>
 
-<button id="open-connect-modal" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-2 shadow-lg shadow-blue-500/20">
+<button id="open-connect-modal" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-2 shadow-lg shadow-blue-500/20" data-i18n="connectBtn">
   <i class="fa-solid fa-plug"></i> الاتصال بالجهاز
 </button>
 
-<button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
-<button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
+<button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="disconnectBtn"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
+<button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="clearBtn"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
 <div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" rel="noopener" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
 <button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
@@ -131,14 +132,14 @@
 </header>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
-<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites"><i class="fa-solid fa-star"></i> المفضلة</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live"><i class="fa-solid fa-chart-line"></i> حية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
-<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
+<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults" data-i18n="tabFaults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search" data-i18n="tabSearch"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites" data-i18n="tabFavorites"><i class="fa-solid fa-star"></i> المفضلة</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live" data-i18n="tabLive"><i class="fa-solid fa-chart-line"></i> حية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness" data-i18n="tabReadiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery" data-i18n="tabBattery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history" data-i18n="tabHistory"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats" data-i18n="tabStats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
 </div>
 
 <div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left">&gt; جاهز!</div>
@@ -240,11 +241,10 @@
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <h3 class="text-base font-bold"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
 <div class="grid grid-cols-2 gap-2">
-<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
-<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
-<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
-<!-- الزر الجديد لوضع المفتش -->
-<button id="btnPrePurchase" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold col-span-2 mt-2 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanEngine"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
+<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanAll"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
+<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2" data-i18n="scanABS"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
+<button id="btnPrePurchase" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold col-span-2 mt-2 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2" data-i18n="prePurchase">
   <i class="fa-solid fa-user-secret"></i> 🕵️‍♂️ فحص ما قبل الشراء (تقرير PDF)
 </button>
 </div>
@@ -363,8 +363,8 @@
   <div class="bg-gray-800 border border-gray-700 rounded-3xl p-6 w-full max-w-sm relative shadow-2xl">
     <button id="close-connect-modal" class="absolute top-4 left-4 text-gray-400 hover:text-white bg-gray-700/50 w-8 h-8 rounded-full flex items-center justify-center transition">×</button>
     
-    <h3 class="text-xl font-bold text-center mb-1">اختر طريقة الاتصال</h3>
-    <p class="text-xs text-gray-400 text-center mb-6">حدد نوع الجهاز المتصل بسيارتك</p>
+    <h3 class="text-xl font-bold text-center mb-1" data-i18n="modalTitle">اختر طريقة الاتصال</h3>
+    <p class="text-xs text-gray-400 text-center mb-6" data-i18n="modalDesc">حدد نوع الجهاز المتصل بسيارتك</p>
 
     <div class="space-y-3">
       <button id="connect-native-classic" class="hidden w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mb-3">
@@ -374,22 +374,22 @@
 
       <button id="connect-btn" class="w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth-b text-lg"></i></div>
-        <div><div class="text-white">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal">يدعم أندرويد و iPhone (Bluefy)</div></div>
+        <div><div class="text-white" data-i18n="optBLE">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal">يدعم أندرويد و iPhone (Bluefy)</div></div>
       </button>
 
       <button id="usb-btn" class="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-emerald-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-usb text-lg"></i></div>
-        <div><div class="text-white">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal">للحاسوب أو أندرويد</div></div>
+        <div><div class="text-white" data-i18n="optUSB">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal">للحاسوب أو أندرويد</div></div>
       </button>
 
       <button id="wifi-btn" class="w-full bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-cyan-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-wifi text-lg"></i></div>
-        <div><div class="text-white">Wi-Fi (WebSocket)</div><div class="text-[10px] text-cyan-400 font-normal">يتطلب IP لجهاز ELM327</div></div>
+        <div><div class="text-white" data-i18n="optWifi">Wi-Fi (WebSocket)</div><div class="text-[10px] text-cyan-400 font-normal">يتطلب IP لجهاز ELM327</div></div>
       </button>
 
       <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
         <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
-        <div><div class="text-white">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal">تجربة الموقع بدون جهاز</div></div>
+        <div><div class="text-white" data-i18n="optDemo">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal" data-i18n="optDemoDesc">تجربة الموقع بدون جهاز</div></div>
       </button>
     </div>
   </div>
