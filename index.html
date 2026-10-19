@@ -50,7 +50,7 @@
   
   <div class="my-6">
     <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
-    <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
+    <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider" data-i18n="dbCodes">كود عطل في القاعدة</div>
   </div>
 
   <div id="hero-car-card" class="hidden max-w-md mx-auto mt-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl relative overflow-hidden text-right">
@@ -64,7 +64,7 @@
         <span class="text-xs text-gray-400 block mb-1" data-i18n="odometer">عداد المسافة (Odometer)</span>
         <div class="flex items-baseline gap-1">
             <span class="text-3xl font-black text-white" id="hero-odo">--</span>
-            <span class="text-xs text-gray-500 font-bold">كم</span>
+            <span class="text-xs text-gray-500 font-bold" data-i18n="km">كم</span>
         </div>
       </div>
       <div class="bg-amber-500/20 p-3 rounded-xl border border-amber-500/30">
@@ -74,14 +74,14 @@
   </div>
 
   <div class="flex gap-3 justify-center flex-wrap mt-6">
-    <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
-    <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition"><i class="fa-solid fa-play"></i> شاهد العرض</button>
+    <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2" data-i18n="startNow"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
+    <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition" data-i18n="watchDemo"><i class="fa-solid fa-play"></i> شاهد العرض</button>
   </div>
 
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500">عطل</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500">حقيقي</div></div>
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">3 مصادر</div><div class="text-[10px] text-gray-500">المصدر</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500" data-i18n="faultsLabel">عطل</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500" data-i18n="realLabel">حقيقي</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">3 مصادر</div><div class="text-[10px] text-gray-500" data-i18n="sourceLabel">المصدر</div></div>
   </div>
 </section>
 
@@ -112,7 +112,7 @@
 <div class="flex items-center gap-3 mb-3">
 <div id="statusDot" class="w-3 h-3 rounded-full bg-red-500"></div>
 <div class="flex-1">
-<p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
+<p id="connection-status" class="text-sm font-bold text-red-400" data-i18n="notConnected">غير متصل</p>
 <p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
 <p id="protocol-display" class="text-[10px] text-cyan-400 font-mono mt-1 hidden">البروتوكول: --</p>
 <p id="odometer-display" class="text-[11px] text-amber-400 font-bold mt-1 hidden">العداد: -- كم</p>
@@ -125,10 +125,10 @@
 
 <button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="disconnectBtn"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
 <button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="clearBtn"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
-<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2">📱 iPhone: استخدم <a href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055" target="_blank" rel="noopener" class="underline font-bold">Bluefy</a> لتشغيل Bluetooth.</div>
+<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2" data-i18n="iphoneNote">📱 iPhone: استخدم Bluefy لتشغيل Bluetooth.</div>
 <div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
-<button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
-<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>✅ Wi-Fi: متاح عبر المتصفح (يتطلب عنوان IP لجهاز ELM327 Wi-Fi)</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
+<button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1" data-i18n="notShowing">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
+<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold" data-i18n="whichElm">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>✅ Wi-Fi: متاح عبر المتصفح (يتطلب عنوان IP لجهاز ELM327 Wi-Fi)</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
 </header>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
@@ -149,79 +149,11 @@
 <div id="smartDiagnosis" class="hidden"></div>
 <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
-
-<div class="gauge-box">
-  <div class="gauge-title">RPM</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="rpmNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#ef4444"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-rpm">0</div>
-    <div class="gauge-unit">RPM</div>
-  </div>
-</div>
-
-<div class="gauge-box">
-  <div class="gauge-title">SPEED</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="spdNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#3b82f6"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-speed">0</div>
-    <div class="gauge-unit">km/h</div>
-  </div>
-</div>
-
-<div class="gauge-box">
-  <div class="gauge-title">TEMP</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="colNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#f59e0b"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-coolant">0</div>
-    <div class="gauge-unit">°C</div>
-  </div>
-</div>
-
-<div class="gauge-box">
-  <div class="gauge-title">FUEL</div>
-  <svg viewBox="0 0 200 200" class="w-full h-full">
-    <path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/>
-    <path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
-    <g class="gauge-needle" id="fuelNeedle">
-      <polygon points="96,100 104,100 100,115" fill="#1e293b"/>
-      <polygon points="97,100 103,100 100,25" fill="#10b981"/>
-      <circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
-      <circle cx="100" cy="100" r="3" fill="#cbd5e1"/>
-    </g>
-  </svg>
-  <div class="gauge-value-box">
-    <div class="gauge-value" id="gauge-fuel">0</div>
-    <div class="gauge-unit">%</div>
-  </div>
-</div>
-
+<!-- العدادات لا تحتاج ترجمة -->
+<div class="gauge-box"><div class="gauge-title">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#ef4444"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-rpm">0</div><div class="gauge-unit">RPM</div></div></div>
+<div class="gauge-box"><div class="gauge-title">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#3b82f6"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-speed">0</div><div class="gauge-unit">km/h</div></div></div>
+<div class="gauge-box"><div class="gauge-title">TEMP</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#f59e0b"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-coolant">0</div><div class="gauge-unit">°C</div></div></div>
+<div class="gauge-box"><div class="gauge-title">FUEL</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#10b981"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-fuel">0</div><div class="gauge-unit">%</div></div></div>
 </div>
 
 <div class="grid grid-cols-5 gap-2 pt-4 border-t border-gray-700/50 mt-4">
@@ -239,7 +171,7 @@
 </div>
 
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="text-base font-bold"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
+<h3 class="text-base font-bold" data-i18n="dtcTitle"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
 <div class="grid grid-cols-2 gap-2">
 <button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanEngine"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
 <button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanAll"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
@@ -249,7 +181,7 @@
 </button>
 </div>
 <div id="scanSummary" class="text-xs space-y-1"></div>
-<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
+<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4" data-i18n="notScanned">لم يتم الفحص بعد.</p></div>
 </div>
 <div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden">
 <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -264,62 +196,62 @@
 
 <div id="panel-search" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
-<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود أو عطل أو مصنّع (Peugeot, BMW, BYD...)">
+<h3 class="font-bold" data-i18n="searchTitle"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
+<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focus:border-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود..." data-i18n="searchPlaceholder">
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> النتائج <span id="searchCount" class="text-xs text-gray-500"></span></h3>
+<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> <span data-i18n="searchResults">النتائج</span> <span id="searchCount" class="text-xs text-gray-500"></span></h3>
 <div id="searchResults"></div>
 </div>
 <div class="bg-gradient-to-br from-purple-900/40 to-gray-900/60 border border-purple-700/50 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold text-purple-300"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
+<h3 class="font-bold text-purple-300" data-i18n="searchSymptoms"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
 <div class="flex flex-wrap gap-2" id="symptomChips"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-2">
-<h3 class="font-bold"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
+<h3 class="font-bold" data-i18n="filterSeverity"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
 <div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="severityFilters">
-<button class="filter-chip active" data-severity="all">الكل</button>
-<button class="filter-chip" data-severity="critical">🔴 حرج</button>
-<button class="filter-chip" data-severity="high">🟠 خطير</button>
-<button class="filter-chip" data-severity="medium">🟡 متوسط</button>
-<button class="filter-chip" data-severity="low">🟢 منخفض</button>
+<button class="filter-chip active" data-severity="all" data-i18n="all">الكل</button>
+<button class="filter-chip" data-severity="critical" data-i18n="critical">🔴 حرج</button>
+<button class="filter-chip" data-severity="high" data-i18n="high">🟠 خطير</button>
+<button class="filter-chip" data-severity="medium" data-i18n="medium">🟡 متوسط</button>
+<button class="filter-chip" data-severity="low" data-i18n="low">🟢 منخفض</button>
 </div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
+<h3 class="font-bold" data-i18n="popularCodes"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
 <div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
+<h3 class="font-bold" data-i18n="browseFamily"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
 <div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
 </div>
 </div>
 
 <div id="panel-favorites" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-star text-amber-400"></i> الأكواد المفضلة</h3>
+<h3 class="font-bold" data-i18n="favTitle"><i class="fa-solid fa-star text-amber-400"></i> الأكواد المفضلة</h3>
 <div id="favoritesList"></div>
 </div>
 </div>
 
 <div id="panel-live" class="panel hidden space-y-4">
-<div class="bg-gray-800 p-4 rounded-2xl"><h3 class="font-bold mb-3"><i class="fa-solid fa-chart-line text-blue-400"></i> الرسوم البيانية المباشرة</h3><div class="h-56"><canvas id="liveChart"></canvas></div></div>
-<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm">في انتظار البيانات...</div></div>
+<div class="bg-gray-800 p-4 rounded-2xl"><h3 class="font-bold mb-3" data-i18n="liveTitle"><i class="fa-solid fa-chart-line text-blue-400"></i> الرسوم البيانية المباشرة</h3><div class="h-56"><canvas id="liveChart"></canvas></div></div>
+<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2" data-i18n="autoAnalysis">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm" data-i18n="waitingData">في انتظار البيانات...</div></div>
 </div>
 
 <div id="panel-readiness" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات (Mode 01 PID 01)</h3>
-<button id="btnReadReadiness" class="w-full bg-green-700 text-white px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
-<div id="readinessContent"><p class="text-gray-500 text-center py-4">اضغط الزر</p></div>
+<h3 class="font-bold" data-i18n="readinessTitle"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات</h3>
+<button id="btnReadReadiness" class="w-full bg-green-700 text-white px-4 py-3 rounded-xl text-sm font-bold" data-i18n="readinessBtn"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
+<div id="readinessContent"><p class="text-gray-500 text-center py-4" data-i18n="pressBtn">اضغط الزر</p></div>
 </div>
 </div>
 
 <div id="panel-battery" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>
-<button id="btnBatteryTest" class="w-full bg-yellow-600 text-white px-4 py-3 rounded-xl text-sm font-bold"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>
+<h3 class="font-bold" data-i18n="batteryTitle"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>
+<button id="btnBatteryTest" class="w-full bg-yellow-600 text-white px-4 py-3 rounded-xl text-sm font-bold" data-i18n="startTest"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>
 <p id="batHint" class="text-xs text-amber-300 text-center mt-2"></p>
 <div class="grid grid-cols-3 gap-2 mb-3 mt-3">
 <div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat1"><div class="text-2xl">🔋</div><div class="text-[10px] text-gray-500">مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>
@@ -333,8 +265,8 @@
 <div id="panel-history" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
 <div class="flex justify-between">
-<h3 class="font-bold"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>
-<button id="btnClearHistory" class="text-xs text-red-400 font-bold"><i class="fa-solid fa-trash"></i> مسح</button>
+<h3 class="font-bold" data-i18n="historyTitle"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>
+<button id="btnClearHistory" class="text-xs text-red-400 font-bold" data-i18n="clearHistory"><i class="fa-solid fa-trash"></i> مسح</button>
 </div>
 <div id="historyContent"></div>
 </div>
@@ -342,7 +274,7 @@
 
 <div id="panel-stats" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
+<h3 class="font-bold" data-i18n="statsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
 <div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
 <div class="h-56 mt-3"><canvas id="statsChart"></canvas></div>
 </div>
@@ -374,21 +306,21 @@
 
       <button id="connect-btn" class="w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth-b text-lg"></i></div>
-        <div><div class="text-white" data-i18n="optBLE">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal">يدعم أندرويد و iPhone (Bluefy)</div></div>
+        <div><div class="text-white" data-i18n="optBLE">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal" data-i18n="optBLEdesc">يدعم أندرويد و iPhone (Bluefy)</div></div>
       </button>
 
       <button id="usb-btn" class="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-emerald-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-usb text-lg"></i></div>
-        <div><div class="text-white" data-i18n="optUSB">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal">للحاسوب أو أندرويد</div></div>
+        <div><div class="text-white" data-i18n="optUSB">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal" data-i18n="optUSBdesc">للحاسوب أو أندرويد</div></div>
       </button>
 
       <button id="wifi-btn" class="w-full bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-cyan-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-wifi text-lg"></i></div>
-        <div><div class="text-white" data-i18n="optWifi">Wi-Fi (WebSocket)</div><div class="text-[10px] text-cyan-400 font-normal">يتطلب IP لجهاز ELM327</div></div>
+        <div><div class="text-white" data-i18n="optWifi">Wi-Fi</div><div class="text-[10px] text-cyan-400 font-normal" data-i18n="optWifidesc">يتطلب IP لجهاز ELM327</div></div>
       </button>
 
       <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
-        <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
+        <div class="w-10 h- {10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
         <div><div class="text-white" data-i18n="optDemo">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal" data-i18n="optDemoDesc">تجربة الموقع بدون جهاز</div></div>
       </button>
     </div>
@@ -397,9 +329,9 @@
 
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
-<p class="text-xs text-gray-500">أداة فحص سيارات احترافية</p>
-<p class="text-[10px] text-gray-600 mt-1">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
-<p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3">2026 — صُنع في الجزائر 🇩🇿</p>
+<p class="text-xs text-gray-500" data-i18n="footerDesc">أداة فحص سيارات احترافية</p>
+<p class="text-[10px] text-gray-600 mt-1" data-i18n="footerData">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
+<p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3" data-i18n="footerMade">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
 <script type="module" src="js/main.js"></script>
@@ -457,13 +389,13 @@ if ('serviceWorker' in navigator) {
     {id:'MISFIRE4',pr:'high',sys:['engine'],req:['P0304'],opt:[],t:'اشتعال أسطوانة 4',cs:[{c:'بوجي 4',p:0.45},{c:'كويل 4',p:0.35}],ac:['بدّل البوجي 4↔3','بدّل الكويل 4↔3'],cost:{min:20,max:500},time:2,diy:true,urg:false},
     {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
     {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
-    {id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
+   id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
     {id:'CAM',pr:'high',sys:['engine'],req:['P0340'],opt:[],t:'حساس الكام',cs:[{c:'الحساس',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الأسلاك','استبدل الحساس'],cost:{min:60,max:500},time:2,diy:true,urg:false},
     {id:'EGR',pr:'medium',sys:['engine','exhaust'],req:['P0401'],opt:[],t:'تدفق EGR غير كافٍ',cs:[{c:'EGR متسخ',p:0.55},{c:'قناة مسدودة',p:0.30},{c:'حساس',p:0.15}],ac:['نظّف EGR','افحص القناة'],cost:{min:0,max:400},time:2,diy:true,urg:false},
     {id:'CAT1',pr:'medium',sys:['exhaust'],req:['P0420'],opt:[],t:'كتلايزر ضعيف B1',cs:[{c:'كتلايزر تالف',p:0.50},{c:'حساس O2',p:0.30},{c:'تسرب عادم',p:0.15}],ac:['افحص حساسات O2','افحص التسرب','استبدل الكتلايزر'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
     {id:'CAT2',pr:'medium',sys:['exhaust'],req:['P0430'],opt:[],t:'كتلايزر ضعيف B2',cs:[{c:'كتلايزر',p:0.55},{c:'حساس O2',p:0.30}],ac:['افحص O2','افحص التسرب'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
     {id:'EVAP',pr:'low',sys:['exhaust'],req:['P0442'],opt:['P0455'],t:'تسرب EVAP',cs:[{c:'غطاء وقود',p:0.55},{c:'خرطوم',p:0.25},{c:'purge',p:0.15}],ac:['أحكم غطاء الوقود','امسح وقُد 100 كم'],cost:{min:0,max:200},time:1,diy:true,urg:false},
-    {id:'IDLE',pr:'medium',sys:['engine'],req:['P0505'],opt:[],t:'نظام الخمول',cs:[{c:'IAC متسخ',p:0.55},{c:'تسرب هواء',p:0.25},{c:'TPS',p:0.20}],ac:['نظّف IAC','افحص التسرب','افحص TPS'],cost:{min:0,max:300},time:2,diy:true,urg:false},
+    {iyid:'IDLE',pr:'medium',sys:['engine:'],req:['P0505'],opt:[],t:'falseنظام الخمول',cs:[{c:'I,AC متسخ',p:0.55},{c:'تurgسرب هواء',p:0.25},{c:'TPS:',p:0.20}],ac:['نظّف IAC','افحص التسرب','افحص TPS'],cost:{min:0,max:300},time:2,diy:true,urg:false},
     {id:'MAF',pr:'medium',sys:['engine','fuel'],req:['P0100'],opt:['P0101','P0102','P0103'],t:'دائرة MAF',cs:[{c:'MAF متسخ',p:0.55},{c:'تسرب',p:0.25},{c:'أسلاك',p:0.15}],ac:['نظّف MAF','افحص الأسلاك'],cost:{min:0,max:150},time:1,diy:true,urg:false},
     {id:'ECT',pr:'medium',sys:['cooling'],req:['P0115'],opt:['P0117','P0118'],t:'حساس حرارة المحرك',cs:[{c:'الحساس',p:0.50},{c:'أسلاك',p:0.30},{c:'قابس',p:0.20}],ac:['افحص الأسلاك','قِس المقاومة','استبدل'],cost:{min:20,max:100},time:1,diy:true,urg:false},
     {id:'THERMO',pr:'medium',sys:['cooling'],req:['P0128'],opt:[],t:'ترموستات عاطل',cs:[{c:'ترموستات',p:0.80},{c:'حساس ECT',p:0.20}],ac:['استبدل الترموستات','افحص السائل'],cost:{min:30,max:150},time:2,diy:true,urg:false},
@@ -471,7 +403,7 @@ if ('serviceWorker' in navigator) {
     {id:'LOST_ECU',pr:'critical',sys:['electronics','engine'],req:['U0100'],opt:[],t:'فقدان الاتصال بـ ECU',cs:[{c:'أسلاك CAN',p:0.40},{c:'فيوز ECU',p:0.25},{c:'ECU',p:0.20},{c:'أرضية',p:0.15}],ac:['توقف فورًا','افحص فيوز ECU','افحص CAN'],cost:{min:200,max:4000},time:8,diy:false,urg:true},
     {id:'LOST_TCM',pr:'critical',sys:['transmission','electronics'],req:['U0101'],opt:[],t:'فقدان الاتصال بـ TCM',cs:[{c:'أسلاك CAN',p:0.45},{c:'فيوز',p:0.30},{c:'TCM',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:200,max:3000},time:6,diy:false,urg:true},
     {id:'LOST_ABS',pr:'high',sys:['abs','electronics'],req:['U0121'],opt:[],t:'فقدان الاتصال بـ ABS',cs:[{c:'CAN',p:0.40},{c:'فيوز',p:0.35},{c:'وحدة ABS',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:100,max:2000},time:4,diy:false,urg:false},
-    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
+    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,dtrue},
     {id:'ABS_FL',pr:'high',sys:['abs','brakes'],req:['C0035'],opt:['C0040','C0045','C0050'],t:'حساس عجلة ABS',cs:[{c:'الحساس',p:0.55},{c:'أسلاك',p:0.30},{c:'حلقة ABS',p:0.15}],ac:['افحص الأسلاك','افحص الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:false},
     {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
     {id:'ABS_RELAY',pr:'high',sys:['abs','brakes'],req:['C0265'],opt:[],t:'دائرة ريلاي موتور ABS',cs:[{c:'فيوز أو ريلاي ABS',p:0.40},{c:'أسلاك وقوابس',p:0.30},{c:'موتور المضخة',p:0.20},{c:'وحدة ABS',p:0.10}],ac:['افحص فيوز وريلاي ABS','افحص الأسلاك والقوابس','راجع مختص'],cost:{min:50,max:1500},time:3,diy:false,urg:false},
