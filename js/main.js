@@ -9,6 +9,8 @@ import { startDemo, stopDemo, batUI, runBatteryTest,
          runReadiness, exportPDF, shareWA } from './extras.js';
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
+import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
+import { runPrePurchaseScan } from './inspector.js'; // ✅ استيراد المفتش
 
 function init() {
   initApp();
@@ -19,9 +21,7 @@ function init() {
   };
 
   const connectModal = document.getElementById('connectModal');
-  const isNative = typeof window.cordova !== 'undefined' || typeof window.Capacitor !== 'undefined';
-
-  // إدارة نافذة الاتصال
+  
   bind('open-connect-modal', () => {
     if (connectModal) connectModal.classList.remove('hidden');
   });
@@ -36,27 +36,20 @@ function init() {
     };
   }
 
-  // إظهار زر البلوتوث الأصلي إذا كنا في التطبيق فقط
-  if (isNative) {
+  if (isNativeApp) {
     const btnWebBle = document.getElementById('connect-btn');
     if (btnWebBle) btnWebBle.style.display = 'none';
     
     const btnNativeClassic = document.getElementById('connect-native-classic');
     if (btnNativeClassic) {
       btnNativeClassic.classList.remove('hidden');
-      btnNativeClassic.onclick = async () => {
+      btnNativeClassic.onclick = () => {
         connectModal.classList.add('hidden');
-        try {
-          const m = await import('./obd-native.js');
-          m.connectNativeBluetooth();
-        } catch(err) {
-          alert('خطأ في تحميل نظام البلوتوث: ' + err.message);
-        }
+        connectNativeBluetooth();
       };
     }
   }
 
-  // أزرار الويب الأساسية
   bind('connect-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
     try { await connectOBD(false); } catch (_) {}
@@ -90,7 +83,6 @@ function init() {
     try { const m = await import('./vin.js'); m.resetVIN(); } catch (_) {}
   });
 
-  // أزرار الفحص
   bind('clear-btn', async () => {
     if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
     await clearDTCs();
@@ -102,7 +94,9 @@ function init() {
     try { const m = await import('./abs-scan.js'); await m.scanABS(); } catch (err) { alert('خطأ في فحص ABS'); }
   });
 
-  // أزرار الواجهات
+  // ✅ ربط زر المفتش
+  bind('btnPrePurchase', runPrePurchaseScan);
+
   bind('btnFavorites', () => {
     const t = document.querySelector('[data-tab="favorites"]');
     if (t) t.click();
@@ -120,7 +114,6 @@ function init() {
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
-  // التهيئة
   initTheme();
   initTabs();
   initSearch();
