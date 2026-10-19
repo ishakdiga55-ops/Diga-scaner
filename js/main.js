@@ -55,13 +55,12 @@ function init() {
     if (btnWifi) btnWifi.style.display = 'none';
   }
 
-  // ✅ التحقق من نجاح الاتصال قبل قراءة VIN
   bind('connect-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
     let success = false;
     try { success = await connectOBD(false); } catch (_) {}
     if (success) {
-      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+      try { const m = await import m.readVIN(); } catch (_) {}
     }
   });
 
@@ -128,7 +127,7 @@ function init() {
   const dd = document.getElementById('dtcDetailModal');
   if (dd) dd.onclick = e => { if (e.target.id === 'dtcDetailModal') dd.classList.add('hidden'); };
 
-  // ✅ تفعيل نظام اللغة
+  // ✅ تفعيل اللغة
   initLang();
 
   initTheme();
