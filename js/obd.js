@@ -571,6 +571,10 @@ export async function handleDisc() {
   const odoEl = document.getElementById('odometer-display');
   if (odoEl) odoEl.classList.add('hidden');
 
+  // إخفاء بطاقة العداد في الـ Hero
+  const heroCard = document.getElementById('hero-car-card');
+  if (heroCard) heroCard.classList.add('hidden');
+
   comm.userDisc = true;
   app.isConnected = false;
   app.isDemo = false;
@@ -770,7 +774,17 @@ export async function readOdometer() {
       if (hex[i] === 0x41 && hex[i + 1] === 0xA6) {
         const km = (hex[i+2] * 16777216) + (hex[i+3] * 65536) + (hex[i+4] * 256) + hex[i+5];
         if (km > 0 && km < 2000000) { // فلترة القيم الغريبة
-          return km.toLocaleString('en-US');
+          const formatted = km.toLocaleString('en-US');
+          
+          // تحديث بطاقة الـ Hero
+          const heroCard = document.getElementById('hero-car-card');
+          const heroOdo = document.getElementById('hero-odo');
+          if (heroCard && heroOdo) {
+            heroCard.classList.remove('hidden');
+            heroOdo.textContent = formatted;
+          }
+
+          return formatted;
         }
       }
     }
