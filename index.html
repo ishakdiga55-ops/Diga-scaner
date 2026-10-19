@@ -12,7 +12,6 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- سياسات الأمان المتقدمة (CSP) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -54,7 +53,6 @@
     <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
   </div>
 
-  <!-- ✅ بطاقة العداد الجديدة في الـ Hero -->
   <div id="hero-car-card" class="hidden max-w-md mx-auto mt-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl relative overflow-hidden text-right">
     <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
     <div class="flex justify-between items-center border-b border-gray-700/50 pb-2 mb-3">
@@ -245,6 +243,10 @@
 <button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
 <button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
 <button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
+<!-- الزر الجديد لوضع المفتش -->
+<button id="btnPrePurchase" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold col-span-2 mt-2 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+  <i class="fa-solid fa-user-secret"></i> 🕵️‍♂️ فحص ما قبل الشراء (تقرير PDF)
+</button>
 </div>
 <div id="scanSummary" class="text-xs space-y-1"></div>
 <div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4">لم يتم الفحص بعد.</p></div>
