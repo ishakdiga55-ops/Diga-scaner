@@ -1,7 +1,6 @@
 import { app } from './state.js';
-import { sendCmd, pauseLiveWait, resumeLive, log } from './obd.js';
+import { sendCmd, pauseLiveWait, resumeLive, log, readOdometer, pHex } from './obd.js';
 import { getInfo } from './data/database.js';
-import { runDiag } from './analysis.js';
 
 export async function runPrePurchaseScan() {
   if (!app.isConnected && !app.isDemo) {
@@ -23,27 +22,44 @@ export async function runPrePurchaseScan() {
     if (app.isDemo) {
       odo = '145,300 كم';
     } else {
-      try {
-        const res = await sendCmd('01 A6', 2000, 0);
-        const hex = res.replace(/[^0-9A-Fa-f]/g, ' ').trim().split(/\s+/).map(x => parseInt(x, 16));
-        for (let i = 0; i < hex.length - 4; i++) {
-          if (hex[i] === 0x41 && hex[i + 1] === 0xA6) {
-            const km = (hex[i+2] * 16777216) + (hex[i+3] * 65536) + (hex[i+4] * 256) + hex[i+5];
-            if (km > 0 && km < 2000000) odo = km.toLocaleString('en-US') + ' كم';
-            break;
-          }
-        }
-      } catch (_) {}
+      // ✅ إصلاح: استخدام دالة قراءة العداد الأصلية بدلاً من تكرارها
+      const odoVal = await readOdometer();
+      if (odoVal) odo = odoVal + ' كم';
     }
 
     let faults = [];
+    let scanFailed = false;
+    
     if (app.isDemo) {
       faults = [{ code: 'P0301', type: 'confirmed' }, { code: 'P0171', type: 'pending' }];
     } else {
-      faults = JSON.parse(localStorage.getItem('checkdiga_last') || '[]');
+      // ✅ إصلاح: قراءة الأعطال الحقيقية من السيارة بدلاً من الذاكرة
+      try {
+        const res = await sendCmd('03', 5000, 1);
+        const b = pHex(res);
+        let rawCodes = [];
+        
+        for (let i = 0; i < b.length; i++) {
+          if (b[i] === 0x43) {
+            let j = i + 2; // تخطي 0x43 (Mode 03 Response) وبايت عدد الأكواد
+            while (j + 1 < b.length) {
+              const a = b[j], c = b[j+1];
+              if (a === 0 && c === 0) break; // نهاية القائمة
+              
+              const code = ['P','C','B','U'][a >> 6] + ((a >> 4) & 3).toString(16) + (a & 15).toString(16) + (c >> 4).toString(16) + (c & 15).toString(16);
+              rawCodes.push(code.toUpperCase());
+              j += 2;
+            }
+          }
+        }
+        faults = [...new Set(rawCodes)].map(code => ({ code, type: 'confirmed' }));
+      } catch (e) {
+        scanFailed = true;
+        log('ERR: فشل قراءة الأعطال أثناء التقرير');
+      }
     }
 
-    generateReportPDF(vin, odo, faults);
+    generateReportPDF(vin, odo, faults, scanFailed);
 
   } catch (e) {
     alert('خطأ أثناء الفحص: ' + e.message);
@@ -53,19 +69,29 @@ export async function runPrePurchaseScan() {
   }
 }
 
-function generateReportPDF(vin, odo, faults) {
+function generateReportPDF(vin, odo, faults, scanFailed) {
   const date = new Date().toLocaleString('ar');
   
-  // ✅ حساب صحة صارم لتقرير ما قبل الشراء
+  // ✅ حساب صحة صارم
   let score = 100;
   faults.forEach(f => {
     const c = (f.code || '').toUpperCase();
-    if (c.startsWith('U')) score -= 25; // فقدان اتصال حرج
-    else if (c.startsWith('B')) score -= 20; // وسائد هوائية
-    else if (c.startsWith('C')) score -= 15; // فرامل/ABS
-    else if (c.startsWith('P')) score -= 10; // أعطال محرك
+    if (c.startsWith('U')) score -= 25;
+    else if (c.startsWith('B')) score -= 20;
+    else if (c.startsWith('C')) score -= 15;
+    else if (c.startsWith('P')) score -= 10;
   });
-  score = Math.max(0, score); // لا ينزل عن 0
+  score = Math.max(0, score);
+
+  // ✅ إصلاح: عرض تحذير حقيقي إذا فشل الفحص
+  let warningHtml = '';
+  if (scanFailed) {
+    warningHtml = '<div class="warning" style="background: #fef3c7; color: #d97706; border-color: #fde68a;">⚠️ لم يتمكن الماسح من قراءة الأعطال. يرجى التأكد من الاتصال بالسيارة وتشغيل المفتاح على ON.</div>';
+  } else if (faults.length > 0) {
+    warningHtml = '<div class="warning">⚠️ تحذير: تم العثور على أعطال مسجلة في كمبيوتر السيارة!</div>';
+  } else {
+    warningHtml = '<div style="background: #ecfdf5; color: #047857; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;">✅ لا توجد أعطال مسجلة في كمبيوتر السيارة.</div>';
+  }
 
   let h = `
   <html dir="rtl" lang="ar">
@@ -81,7 +107,7 @@ function generateReportPDF(vin, odo, faults) {
       .box { background: #f8fafc; padding: 15px; border-radius: 8px; border-right: 4px solid #3b82f6; }
       .label { font-size: 12px; color: #64748b; margin-bottom: 5px; }
       .value { font-size: 20px; font-weight: bold; color: #0f172a; }
-      .score { text-align: center; padding: 20px; border-radius: 12px; color: white; background: ${score >= 90 ? '#10b981' : score >= 70 ? '#f59e0b' : '#ef4444'}; margin-bottom: 20px; }
+      .score { text-align: center; padding: 20px; border-radius: 12px; color: white; background: ${scanFailed ? '#64748b' : (score >= 90 ? '#10b981' : score >= 70 ? '#f59e0b' : '#ef4444')}; margin-bottom: 20px; }
       .score h1 { margin: 0; font-size: 48px; }
       .score p { margin: 5px 0 0 0; font-size: 14px; }
       .fault-list { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
@@ -98,12 +124,12 @@ function generateReportPDF(vin, odo, faults) {
       <div style="font-size: 12px; color: #64748b; margin-top: 10px;">التاريخ: ${date}</div>
     </div>
 
-    ${faults.length > 0 ? '<div class="warning">⚠️ تحذير: تم العثور على أعطال مسجلة في كمبيوتر السيارة!</div>' : '<div style="background: #ecfdf5; color: #047857; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;">✅ لا توجد أعطال مسجلة في كمبيوتر السيارة.</div>'}
+    ${warningHtml}
 
     <div class="score">
       <h2>مؤشر صحة السيارة</h2>
-      <h1>${score}/100</h1>
-      <p>${score >= 90 ? 'حالة ممتازة' : score >= 70 ? 'تحتاج صيانة' : 'حالة خطيرة (لا تشترِ)'}</p>
+      <h1>${scanFailed ? '--' : score + '/100'}</h1>
+      <p>${scanFailed ? 'تعذر الفحص' : (score >= 90 ? 'حالة ممتازة' : score >= 70 ? 'تحتاج صيانة' : 'حالة خطيرة (لا تشترِ)')}</p>
     </div>
 
     <div class="grid">
@@ -118,9 +144,10 @@ function generateReportPDF(vin, odo, faults) {
     </div>
 
     <div class="fault-list">
-      <h3 style="margin-top: 0; color: #0f172a;">الأعطال المكتشفة (${faults.length})</h3>
-      ${faults.length === 0 ? '<div style="color: #10b981; font-weight: bold;">لا توجد أعطال</div>' : ''}
-      ${faults.map(f => `<div class="fault-item">🚨 ${f.code} - ${getInfo(f.code).title || 'غير معروف'}</div>`).join('')}
+      <h3 style="margin-top: 0; color: #0f172a;">الأعطال المكتشفة (${scanFailed ? '؟' : faults.length})</h3>
+      ${scanFailed ? '<div style="color: #d97706; font-weight: bold;">لم يتم قراءة الأعطال بنجاح.</div>' : ''}
+      ${!scanFailed && faults.length === 0 ? '<div style="color: #10b981; font-weight: bold;">لا توجد أعطال</div>' : ''}
+      ${!scanFailed ? faults.map(f => `<div class="fault-item">🚨 ${f.code} - ${getInfo(f.code).title || 'غير معروف'}</div>`).join('') : ''}
     </div>
 
     <div class="footer">
