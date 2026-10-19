@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.png" alt="Diga Scanner" width="320"/>
+<img src="logo.png" alt="Diga Scanner" width="4320"/>
 
 # CheckDiga Pro
 
