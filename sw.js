@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v26 — Added French Language Support
+   v27 — Fixed main.js syntax error & Language support
    ============================================ */
 
-const CACHE_VERSION = 'v26';
+const CACHE_VERSION = 'v27';
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -19,7 +19,7 @@ const APP_SHELL = [
   './js/obd.js',
   './js/obd-native.js',
   './js/inspector.js',
-  './js/i18n.js', /* ✅ إضافة ملف اللغة */
+  './js/i18n.js',
   './js/ai-service.js',
   './js/analysis.js',
   './js/obd-commands.js',
@@ -47,9 +47,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v26] Installing...');
+      console.log('[SW v27] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v26] Some files failed:', err);
+        console.warn('[SW v27] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -61,7 +61,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v26] Deleting old cache:', k);
+            console.log('[SW v27] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
