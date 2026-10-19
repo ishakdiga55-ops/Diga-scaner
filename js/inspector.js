@@ -1,7 +1,7 @@
 import { app } from './state.js';
 import { sendCmd, pauseLiveWait, resumeLive, log } from './obd.js';
 import { getInfo } from './data/database.js';
-import { runDiag, calcHealth } from './analysis.js';
+import { runDiag } from './analysis.js';
 
 export async function runPrePurchaseScan() {
   if (!app.isConnected && !app.isDemo) {
@@ -16,11 +16,9 @@ export async function runPrePurchaseScan() {
   await pauseLiveWait();
 
   try {
-    // 1. جلب رقم الهيكل من الواجهة
     const vinText = document.getElementById('vin-display').textContent;
     const vin = vinText.replace('VIN: ', '').trim() || 'غير متوفر';
 
-    // 2. جلب عداد المسافة
     let odo = 'غير مدعوم';
     if (app.isDemo) {
       odo = '145,300 كم';
@@ -38,7 +36,6 @@ export async function runPrePurchaseScan() {
       } catch (_) {}
     }
 
-    // 3. جلب الأعطال
     let faults = [];
     if (app.isDemo) {
       faults = [{ code: 'P0301', type: 'confirmed' }, { code: 'P0171', type: 'pending' }];
@@ -46,7 +43,6 @@ export async function runPrePurchaseScan() {
       faults = JSON.parse(localStorage.getItem('checkdiga_last') || '[]');
     }
 
-    // 4. توليد التقرير
     generateReportPDF(vin, odo, faults);
 
   } catch (e) {
@@ -59,8 +55,17 @@ export async function runPrePurchaseScan() {
 
 function generateReportPDF(vin, odo, faults) {
   const date = new Date().toLocaleString('ar');
-  const diag = runDiag(faults.map(f => f.code));
-  const score = calcHealth(faults, diag);
+  
+  // ✅ حساب صحة صارم لتقرير ما قبل الشراء
+  let score = 100;
+  faults.forEach(f => {
+    const c = (f.code || '').toUpperCase();
+    if (c.startsWith('U')) score -= 25; // فقدان اتصال حرج
+    else if (c.startsWith('B')) score -= 20; // وسائد هوائية
+    else if (c.startsWith('C')) score -= 15; // فرامل/ABS
+    else if (c.startsWith('P')) score -= 10; // أعطال محرك
+  });
+  score = Math.max(0, score); // لا ينزل عن 0
 
   let h = `
   <html dir="rtl" lang="ar">
@@ -76,7 +81,7 @@ function generateReportPDF(vin, odo, faults) {
       .box { background: #f8fafc; padding: 15px; border-radius: 8px; border-right: 4px solid #3b82f6; }
       .label { font-size: 12px; color: #64748b; margin-bottom: 5px; }
       .value { font-size: 20px; font-weight: bold; color: #0f172a; }
-      .score { text-align: center; padding: 20px; border-radius: 12px; color: white; background: ${score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444'}; margin-bottom: 20px; }
+      .score { text-align: center; padding: 20px; border-radius: 12px; color: white; background: ${score >= 90 ? '#10b981' : score >= 70 ? '#f59e0b' : '#ef4444'}; margin-bottom: 20px; }
       .score h1 { margin: 0; font-size: 48px; }
       .score p { margin: 5px 0 0 0; font-size: 14px; }
       .fault-list { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
@@ -98,7 +103,7 @@ function generateReportPDF(vin, odo, faults) {
     <div class="score">
       <h2>مؤشر صحة السيارة</h2>
       <h1>${score}/100</h1>
-      <p>${score >= 75 ? 'حالة ممتازة' : score >= 50 ? 'تحتاج صيانة' : 'حالة خطيرة'}</p>
+      <p>${score >= 90 ? 'حالة ممتازة' : score >= 70 ? 'تحتاج صيانة' : 'حالة خطيرة (لا تشترِ)'}</p>
     </div>
 
     <div class="grid">
