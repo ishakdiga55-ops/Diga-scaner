@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CheckDiga Pro — فحص السيارات</title>
 <link rel="icon" type="image/png" href="logo.png">
-<!-- تثبيت التطبيق (PWA) -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -13,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- ═══════════ سياسات الأمان المتقدمة (CSP) ═══════════ -->
+<!-- سياسات الأمان المتقدمة (CSP) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -28,7 +27,6 @@
 </head>
 <body class="bg-gray-900 text-gray-100">
 
-<!-- مكتبة الألوان والتدرجات للعدادات (SVG Defs) -->
 <svg width="0" height="0" style="position:absolute;">
   <defs>
     <linearGradient id="metalTrack" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -50,12 +48,34 @@
   </div>
   <h1 class="text-3xl font-extrabold mb-3">افحص سيارتك من هاتفك<span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">الآن</span></h1>
   <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  
   <div class="my-6">
     <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
     <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider">كود عطل في القاعدة</div>
   </div>
 
-  <div class="flex gap-3 justify-center flex-wrap">
+  <!-- ✅ بطاقة العداد الجديدة في الـ Hero -->
+  <div id="hero-car-card" class="hidden max-w-md mx-auto mt-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl relative overflow-hidden text-right">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+    <div class="flex justify-between items-center border-b border-gray-700/50 pb-2 mb-3">
+      <span class="text-xs font-bold text-gray-400"><i class="fa-solid fa-car-side text-blue-400"></i> بيانات السيارة</span>
+      <span class="text-[11px] text-cyan-400 font-mono tracking-wider" id="hero-vin">VIN: --</span>
+    </div>
+    <div class="flex justify-between items-end">
+      <div>
+        <span class="text-xs text-gray-400 block mb-1">عداد المسافة (Odometer)</span>
+        <div class="flex items-baseline gap-1">
+            <span class="text-3xl font-black text-white" id="hero-odo">--</span>
+            <span class="text-xs text-gray-500 font-bold">كم</span>
+        </div>
+      </div>
+      <div class="bg-amber-500/20 p-3 rounded-xl border border-amber-500/30">
+        <i class="fa-solid fa-road text-amber-400 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-3 justify-center flex-wrap mt-6">
     <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
     <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition"><i class="fa-solid fa-play"></i> شاهد العرض</button>
   </div>
@@ -95,14 +115,11 @@
 <div class="flex-1">
 <p id="connection-status" class="text-sm font-bold text-red-400">غير متصل</p>
 <p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
-<!-- سطر عرض البروتوكول -->
 <p id="protocol-display" class="text-[10px] text-cyan-400 font-mono mt-1 hidden">البروتوكول: --</p>
-<!-- ✅ سطر عرض عداد المسافة (تمت إضافته الآن) -->
 <p id="odometer-display" class="text-[11px] text-amber-400 font-bold mt-1 hidden">العداد: -- كم</p>
 </div>
 </div>
 
-<!-- الزر الموحد للاتصال -->
 <button id="open-connect-modal" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-2 shadow-lg shadow-blue-500/20">
   <i class="fa-solid fa-plug"></i> الاتصال بالجهاز
 </button>
@@ -134,7 +151,6 @@
 <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
 
-<!-- عداد RPM -->
 <div class="gauge-box">
   <div class="gauge-title">RPM</div>
   <svg viewBox="0 0 200 200" class="w-full h-full">
@@ -153,7 +169,6 @@
   </div>
 </div>
 
-<!-- عداد SPEED -->
 <div class="gauge-box">
   <div class="gauge-title">SPEED</div>
   <svg viewBox="0 0 200 200" class="w-full h-full">
@@ -172,7 +187,6 @@
   </div>
 </div>
 
-<!-- عداد TEMP -->
 <div class="gauge-box">
   <div class="gauge-title">TEMP</div>
   <svg viewBox="0 0 200 200" class="w-full h-full">
@@ -191,7 +205,6 @@
   </div>
 </div>
 
-<!-- عداد FUEL -->
 <div class="gauge-box">
   <div class="gauge-title">FUEL</div>
   <svg viewBox="0 0 200 200" class="w-full h-full">
@@ -343,7 +356,7 @@
 </div>
 </div>
 
-<!-- ═══════════ نافذة اختيار نوع الاتصال (Modal) ═══════════ -->
+<!-- نافذة اختيار نوع الاتصال -->
 <div id="connectModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
   <div class="bg-gray-800 border border-gray-700 rounded-3xl p-6 w-full max-w-sm relative shadow-2xl">
     <button id="close-connect-modal" class="absolute top-4 left-4 text-gray-400 hover:text-white bg-gray-700/50 w-8 h-8 rounded-full flex items-center justify-center transition">×</button>
@@ -352,32 +365,26 @@
     <p class="text-xs text-gray-400 text-center mb-6">حدد نوع الجهاز المتصل بسيارتك</p>
 
     <div class="space-y-3">
-      
-      <!-- زر التطبيق الأصلي (Bluetooth Classic) - يظهر فقط في الأندرويد -->
       <button id="connect-native-classic" class="hidden w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mb-3">
         <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth text-lg"></i></div>
         <div><div class="text-white">Bluetooth Classic (أصلي)</div><div class="text-[10px] text-blue-400 font-normal">يدعم المحولات الرخيصة</div></div>
       </button>
 
-      <!-- Bluetooth (Web) -->
       <button id="connect-btn" class="w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth-b text-lg"></i></div>
         <div><div class="text-white">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal">يدعم أندرويد و iPhone (Bluefy)</div></div>
       </button>
 
-      <!-- USB (Web) -->
       <button id="usb-btn" class="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-emerald-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-usb text-lg"></i></div>
         <div><div class="text-white">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal">للحاسوب أو أندرويد</div></div>
       </button>
 
-      <!-- Wi-Fi -->
       <button id="wifi-btn" class="w-full bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
         <div class="w-10 h-10 rounded-lg bg-cyan-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-wifi text-lg"></i></div>
         <div><div class="text-white">Wi-Fi (WebSocket)</div><div class="text-[10px] text-cyan-400 font-normal">يتطلب IP لجهاز ELM327</div></div>
       </button>
 
-      <!-- Demo -->
       <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
         <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
         <div><div class="text-white">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal">تجربة الموقع بدون جهاز</div></div>
@@ -395,7 +402,6 @@
 
 <script type="module" src="js/main.js"></script>
 
-<!-- تسجيل Service Worker للعمل بدون إنترنت -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
