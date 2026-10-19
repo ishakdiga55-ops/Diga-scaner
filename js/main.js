@@ -10,7 +10,7 @@ import { startDemo, stopDemo, batUI, runBatteryTest,
 import { loadFullDatabase } from './data/loader.js';
 import { DTC_DATABASE } from './data/database.js';
 import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
-import { runPrePurchaseScan } from './inspector.js'; // ✅ استيراد المفتش
+import { runPrePurchaseScan } from './inspector.js'; 
 
 function init() {
   initApp();
@@ -48,26 +48,40 @@ function init() {
         connectNativeBluetooth();
       };
     }
+  } else {
+    // ✅ إصلاح 4: إخفاء زر Wi-Fi في المتصفح (لأنه لا يعمل)
+    const btnWifi = document.getElementById('wifi-btn');
+    if (btnWifi) btnWifi.style.display = 'none';
   }
 
+  // ✅ إصلاح 5: التحقق من نجاح الاتصال قبل قراءة VIN
   bind('connect-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    try { await connectOBD(false); } catch (_) {}
-    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    let success = false;
+    try { success = await connectOBD(false); } catch (_) {}
+    if (success) {
+      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    }
   });
 
   bind('usb-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    try { await connectUSB(); } catch (_) {}
-    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    let success = false;
+    try { success = await connectUSB(); } catch (_) {}
+    if (success) {
+      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    }
   });
   
   bind('wifi-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
     const ip = prompt('أدخل عنوان IP لجهاز Wi-Fi', '192.168.0.10');
     if (!ip) return;
-    try { await connectWiFi(ip); } catch (_) {}
-    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    let success = false;
+    try { success = await connectWiFi(ip); } catch (_) {}
+    if (success) {
+      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    }
   });
 
   bind('demo-btn', async () => {
