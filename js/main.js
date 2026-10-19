@@ -60,7 +60,8 @@ function init() {
     let success = false;
     try { success = await connectOBD(false); } catch (_) {}
     if (success) {
-      try { const m = await import m.readVIN(); } catch (_) {}
+      // ✅ تم إصلاح السطر هنا
+      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
     }
   });
 
