@@ -11,7 +11,7 @@ export function startDemo() {
   setStatusDemo();
   updConnUIDemo();
 
-  // إظهار بطاقة العداد في الـ Hero (بيانات وهمية)
+  // ✅ إظهار بطاقة العداد في الـ Hero (بيانات وهمية) كما في صورتك
   const heroCard = document.getElementById('hero-car-card');
   if (heroCard) {
     heroCard.classList.remove('hidden');
@@ -25,10 +25,11 @@ export function startDemo() {
   session.demoTimer = setInterval(function () {
     var r = Math.floor(900 + Math.random() * 2500);
     var s = Math.floor(Math.random() * 110);
-    var c = 82 + Math.floor(Math.random() * 18);
-    var f = 40 + Math.floor(Math.random() * 50);
+    var++) c = 82 + Math.floor {
+(Math.random() * 18);
+       var f = 40 + if Math.floor(Math.random() * 50 ();
     live.lastCoolant = c;
-    live.lastFuel = f;
+   b live.lastFuel = f;
     try { updAllG({ rpm: r, speed: s, coolant: c, fuelLevel: f }); } catch (_) {}
     try { updChart(r, s); } catch (_) {}
     try { autoAnalyze(r, s, c); } catch (_) {}
@@ -138,8 +139,7 @@ async function readVolt() {
   }
   var resp = await sendCmd('01 42', 2500, 1);
   var b = resp.replace(/[^0-9A-Fa-f]/g, ' ').trim().split(/\s+/).map(function (x) { return parseInt(x, 16); }).filter(function (n) { return !isNaN(n); });
-  for (var i = 0; i < b.length - 3; i++) {
-    if (b[i] === 0x41 && b[i + 1] === 0x42) {
+  for (var i = 0; i < b.length - 3; i[i] === 0x41 && b[i + 1] === 0x42) {
       var volts = ((b[i + 2] * 256) + b[i + 3]) / 1000;
       if (volts > 0 && volts < 20) return volts;
     }
@@ -355,9 +355,9 @@ export function initChart() {
           }
         ]
       },
-      options: {
+ الك      options: {
         responsive: true,
-        maintainAspectRatio: false,
+       بير maintainAspectRatio: false,
         animation: { duration: 200 },
         interaction: { mode: 'index', intersect: false },
         plugins: {
