@@ -11,7 +11,7 @@ const KNOWN_SVC = [
 
 const sleepMs = ms => new Promise(r => setTimeout(r, ms));
 let decoder = null;
-let serialListenerAttached = false; // ✅ إصلاح: متغير لمنع تكرار مستمع USB
+let serialListenerAttached = false;
 
 export function log(msg) {
   const c = document.getElementById('console');
@@ -219,7 +219,6 @@ export function startHeartbeat() {
   stopHeartbeat();
   comm.heartbeatFails = 0;
   comm.heartbeatTimer = setInterval(async () => {
-    // ✅ إصلاح: تمت إضافة live.paused
     if (!app.isConnected || app.isDemo || live.paused || comm.isProcessing || comm.cmdQ.length > 0) return;
     try {
       const res = await sendCmd('AT', 1000, 0);
@@ -242,7 +241,6 @@ export function stopHeartbeat() {
   }
 }
 
-// ✅ إصلاح: دالة إعداد مستمع USB مرة واحدة فقط
 function setupSerialListener() {
   if (serialListenerAttached || !navigator.serial) return;
   navigator.serial.addEventListener('disconnect', (e) => {
@@ -261,10 +259,6 @@ export async function connectOBD(showAll) {
   }
 
   app.isDemo = false;
-  const btn = document.getElementById('connect-btn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
   comm.userDisc = false;
 
   try {
@@ -299,7 +293,6 @@ export async function connectOBD(showAll) {
     startLive();
     startHeartbeat();
 
-    // قراءة العداد الحقيقي وإظهاره
     readOdometer().then(odo => {
       const odoEl = document.getElementById('odometer-display');
       if (odoEl) {
@@ -313,9 +306,6 @@ export async function connectOBD(showAll) {
     log('ERR: ' + e.message);
     await handleDisc();
     return false;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = orig;
   }
 }
 
@@ -359,10 +349,6 @@ export async function connectUSB() {
   if (!navigator.serial) { alert('Web Serial غير مدعوم'); return false; }
 
   app.isDemo = false;
-  const btn = document.getElementById('usb-btn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
   comm.userDisc = false;
 
   try {
@@ -395,7 +381,6 @@ export async function connectUSB() {
     }
     if (!ok) throw new Error('لم يردّ على أي سرعة');
     
-    // ✅ إصلاح: استدعاء الدالة بدلاً من إضافة المستمع هنا
     setupSerialListener();
 
     app.isConnected = true;
@@ -406,7 +391,6 @@ export async function connectUSB() {
     startLive();
     startHeartbeat();
 
-    // قراءة العداد الحقيقي وإظهاره
     readOdometer().then(odo => {
       const odoEl = document.getElementById('odometer-display');
       if (odoEl) {
@@ -420,9 +404,6 @@ export async function connectUSB() {
     log('ERR: ' + e.message);
     await handleDisc();
     return false;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = orig;
   }
 }
 
@@ -465,84 +446,80 @@ async function cleanupUSB() {
   if (comm.curTimeout) { clearTimeout(comm.curTimeout); comm.curTimeout = null; }
 }
 
+// ✅ إعادة كتابة دالة Wi-Fi لتعمل بنظام Promise (لإصلاح خطأ الانتظار)
 export async function connectWiFi(ip = '192.168.0.10', port = 35000) {
   if (!app.hasWiFi) { alert('المتصفح لا يدعم WebSockets'); return false; }
 
   app.isDemo = false;
-  const btn = document.getElementById('wifi-btn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
   comm.userDisc = false;
   wifi.isConnecting = true;
 
-  try {
-    log(`INFO: جاري الاتصال بـ Wi-Fi (${ip}:${port})...`);
-    
-    if (wifi.socket) { try { wifi.socket.close(); } catch(_) {} }
-    
-    wifi.socket = new WebSocket(`ws://${ip}:${port}`);
-
-    wifi.socket.onopen = async () => {
-      log('OK: متصل بـ Wi-Fi');
-      app.transport = 'wifi';
-      app.isConnected = true;
-      setStatus('connected');
-      updConnUI(true);
+  return new Promise((resolve) => {
+    try {
+      log(`INFO: جاري الاتصال بـ Wi-Fi (${ip}:${port})...`);
       
-      try {
-        if (!await initELM()) throw new Error('فشل تهيئة ELM327');
-        log('OK: جاهز');
-        startLive();
-        startHeartbeat();
+      if (wifi.socket) { try { wifi.socket.close(); } catch(_) {} }
+      
+      wifi.socket = new WebSocket(`ws://${ip}:${port}`);
 
-        // قراءة العداد الحقيقي وإظهاره
-        readOdometer().then(odo => {
-          const odoEl = document.getElementById('odometer-display');
-          if (odoEl) {
-            odoEl.textContent = odo ? ('العداد: ' + odo + ' كم') : 'العداد: غير مدعوم';
-            odoEl.classList.remove('hidden');
-          }
-        });
+      wifi.socket.onopen = async () => {
+        log('OK: متصل بـ Wi-Fi');
+        app.transport = 'wifi';
+        app.isConnected = true;
+        setStatus('connected');
+        updConnUI(true);
+        
+        try {
+          if (!await initELM()) throw new Error('فشل تهيئة ELM327');
+          log('OK: جاهز');
+          startLive();
+          startHeartbeat();
 
-      } catch (err) {
-        log('ERR: ' + err.message);
-        handleDisc();
-      } finally {
-        wifi.isConnecting = false;
-        btn.disabled = false;
-        btn.innerHTML = orig;
-      }
-    };
+          readOdometer().then(odo => {
+            const odoEl = document.getElementById('odometer-display');
+            if (odoEl) {
+              odoEl.textContent = odo ? ('العداد: ' + odo + ' كم') : 'العداد: غير مدعوم';
+              odoEl.classList.remove('hidden');
+            }
+          });
 
-    wifi.socket.onmessage = (event) => {
-      handleIncoming(event.data);
-    };
+          resolve(true);
 
-    wifi.socket.onerror = (e) => {
-      log('ERR: خطأ في اتصال Wi-Fi');
-      if (wifi.isConnecting) {
-        wifi.isConnecting = false;
-        btn.disabled = false;
-        btn.innerHTML = orig;
-      }
-    };
+        } catch (err) {
+          log('ERR: ' + err.message);
+          await handleDisc();
+          resolve(false);
+        } finally {
+          wifi.isConnecting = false;
+        }
+      };
 
-    wifi.socket.onclose = () => {
-      log('WARN: انقطع اتصال Wi-Fi');
-      if (app.transport === 'wifi' && app.isConnected) {
-        handleDisc();
-      }
-    };
+      wifi.socket.onmessage = (event) => {
+        handleIncoming(event.data);
+      };
 
-  } catch (e) {
-    log('ERR: ' + e.message);
-    wifi.isConnecting = false;
-    btn.disabled = false;
-    btn.innerHTML = orig;
-    await handleDisc();
-    return false;
-  }
+      wifi.socket.onerror = (e) => {
+        log('ERR: خطأ في اتصال Wi-Fi');
+        if (wifi.isConnecting) {
+          wifi.isConnecting = false;
+          resolve(false);
+        }
+      };
+
+      wifi.socket.onclose = () => {
+        log('WARN: انقطع اتصال Wi-Fi');
+        if (app.transport === 'wifi' && app.isConnected) {
+          handleDisc();
+        }
+      };
+
+    } catch (e) {
+      log('ERR: ' + e.message);
+      wifi.isConnecting = false;
+      handleDisc();
+      resolve(false);
+    }
+  });
 }
 
 async function onGattDisc() {
@@ -581,7 +558,6 @@ export async function handleDisc() {
   const odoEl = document.getElementById('odometer-display');
   if (odoEl) odoEl.classList.add('hidden');
 
-  // إخفاء بطاقة العداد في الـ Hero
   const heroCard = document.getElementById('hero-car-card');
   if (heroCard) heroCard.classList.add('hidden');
 
@@ -775,19 +751,16 @@ function updGauge(arcId, needleId, valId, val, max) {
   ve.textContent = Math.round(cv);
 }
 
-// ✅ إصلاح: دالة قراءة العداد تستخدم pHex وتقسم على 10
 export async function readOdometer() {
   try {
     const res = await sendCmd('01 A6', 2000, 0);
     const b = pHex(res);
     for (let i = 0; i < b.length - 4; i++) {
       if (b[i] === 0x41 && b[i + 1] === 0xA6) {
-        // PID A6 بوحدة 0.1 كم، لذا نقسم على 10
         const km = ((b[i+2] * 16777216) + (b[i+3] * 65536) + (b[i+4] * 256) + b[i+5]) / 10;
-        if (km > 0 && km < 2000000) { // فلترة القيم الغريبة
+        if (km > 0 && km < 2000000) {
           const formatted = Math.round(km).toLocaleString('en-US');
           
-          // تحديث بطاقة الـ Hero
           const heroCard = document.getElementById('hero-car-card');
           const heroOdo = document.getElementById('hero-odo');
           if (heroCard && heroOdo) {
