@@ -1,4 +1,46 @@
-<!-- 🦅 عين الصقر - أداة اصطياد الأخطاء (Debug Tool) -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="title">CheckDiga Pro — فحص السيارات</title>
+
+<meta name="description" content="CheckDiga Pro - أداة متطورة لفحص وتشخيص أعطال السيارات عبر تقنية OBD2. احصل على تقارير دقيقة وحلول فورية من هاتفك.">
+<meta property="og:title" content="CheckDiga Pro - ماسح أعطال السيارات الذكي">
+<meta property="og:description" content="افحص سيارتك بنفسك باستخدام هاتفك وتقنية OBD2.">
+<meta property="og:image" content="https://ishakdiga55-ops.github.io/Diga-scaner/logo.png">
+<meta property="og:type" content="website">
+
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CheckDiga">
+<meta name="theme-color" content="#0f172a">
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/themes/light.css">
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+<!-- 🦅 عين الصقر (أداة تصيد الأخطاء) -->
 <div id="eagleEye" style="display:none; position:fixed; top:0; left:0; right:0; max-height:40vh; overflow-y:auto; background:#dc2626; color:#fff; z-index:999999; font-family:monospace; font-size:12px; padding:10px; direction:ltr; text-align:left; border-bottom:3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
   <div style="font-weight:bold; margin-bottom:5px; font-size:14px; color:#fef08a;">🦅 Eagle Eye Debugger:</div>
   <div id="eagleEyeContent"></div>
@@ -8,10 +50,7 @@
 (function() {
   var box = document.getElementById('eagleEye');
   var content = document.getElementById('eagleEyeContent');
-  var hasErrors = false;
-
   function logError(msg) {
-    hasErrors = true;
     box.style.display = 'block';
     var div = document.createElement('div');
     div.style.borderBottom = '1px solid rgba(255,255,255,0.3)';
@@ -19,37 +58,547 @@
     div.textContent = '❌ ' + msg;
     content.appendChild(div);
   }
-
-  // 1. اصطياد أخطاء الجافاسكريبت (JavaScript Errors)
   window.onerror = function(msg, url, line, col, error) {
     logError('JS Error: ' + msg + ' | Line: ' + line + ' | File: ' + url.split('/').pop());
     return false;
   };
-
-  // 2. اصطياد الوعود المرفوضة (Unhandled Promises)
   window.addEventListener('unhandledrejection', function(e) {
     logError('Promise Error: ' + (e.reason ? (e.reason.message || e.reason) : 'Unknown'));
   });
-
-  // 3. فحص تحميل ملفات CSS والصور (Resource Errors)
   window.addEventListener('error', function(e) {
     if (e.target && (e.target.tagName === 'LINK' || e.target.tagName === 'SCRIPT' || e.target.tagName === 'IMG')) {
-      logError('Failed to load: ' + e.target.tagName + ' -> ' + e.target.src || e.target.href);
+      logError('Failed to load: ' + e.target.tagName + ' -> ' + (e.target.src || e.target.href));
     }
-  }, true); // استخدام true ضروري لاصطياد أخطاء تحميل الملفات
-
-  // 4. فحص خاص لملفات CSS بعد تحميل الصفحة
+  }, true);
   window.addEventListener('load', function() {
     setTimeout(function() {
       document.querySelectorAll('link[rel="stylesheet"]').forEach(function(link) {
-        if (!link.sheet) {
-          logError('CSS Failed: ' + link.href.split('/').pop());
-        }
+        if (!link.sheet) logError('CSS Failed: ' + link.href.split('/').pop());
       });
     }, 1000);
   });
-
-  console.log("🦅 Eagle Eye is watching...");
 })();
 </script>
 <!-- 🦅 نهاية عين الصقر -->
+
+<div id="globalLoader" class="hidden fixed inset-0 bg-black/80 z-[9999] flex flex-col justify-center items-center backdrop-blur-sm">
+  <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+  <div class="text-white font-bold text-lg" id="loaderText">جاري المعالجة...</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <linearGradient id="metalTrack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
+
+<section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
+  <img src="logo.png" alt="شعار CheckDiga Pro - ماسح أعطال السيارات" class="w-48 mx-auto mb-4"/>
+  <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
+    <span class="pro-badge">PRO</span>
+    <span>CheckDiga</span>
+    <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
+  </div>
+  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك من هاتفك</span><span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  
+  <div class="my-6">
+    <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
+    <div class="text-sm text-gray-400 font-bold mt-2 tracking-wider" data-i18n="dbCodes">كود عطل في القاعدة</div>
+  </div>
+
+  <div id="hero-car-card" class="hidden max-w-md mx-auto mt-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl relative overflow-hidden text-right">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+    <div class="flex justify-between items-center border-b border-gray-700/50 pb-2 mb-3">
+      <span class="text-xs font-bold text-gray-400" data-i18n="vehData"><i class="fa-solid fa-car-side text-blue-400"></i> بيانات السيارة</span>
+      <span class="text-[11px] text-cyan-400 font-mono tracking-wider" id="hero-vin">VIN: --</span>
+    </div>
+    <div class="flex justify-between items-end">
+      <div>
+        <span class="text-xs text-gray-400 block mb-1" data-i18n="odometer">عداد المسافة (Odometer)</span>
+        <div class="flex items-baseline gap-1">
+            <span class="text-3xl font-black text-white" id="hero-odo">--</span>
+            <span class="text-xs text-gray-500 font-bold" data-i18n="km">كم</span>
+        </div>
+      </div>
+      <div class="bg-amber-500/20 p-3 rounded-xl border border-amber-500/30">
+        <i class="fa-solid fa-road text-amber-400 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-3 justify-center flex-wrap mt-6">
+    <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2" data-i18n="startNow"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
+    <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition" data-i18n="watchDemo"><i class="fa-solid fa-play"></i> شاهد العرض</button>
+  </div>
+
+  <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-blue-400" id="statCodes">10,098</div><div class="text-[10px] text-gray-500" data-i18n="faultsLabel">عطل</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-emerald-400">OBD2</div><div class="text-[10px] text-gray-500" data-i18n="realLabel">حقيقي</div></div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3"><div class="text-xl font-extrabold text-purple-400" id="statSource">3 مصادر</div><div class="text-[10px] text-gray-500" data-i18n="sourceLabel">المصدر</div></div>
+  </div>
+</section>
+
+<div id="videoModal" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
+  <div class="relative max-w-3xl w-full">
+    <button id="closeVideoBtn" class="absolute -top-12 left-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl">×</button>
+    <video id="demoVideo" controls playsinline preload="none" class="w-full rounded-2xl shadow-2xl bg-black" style="max-height:75vh">
+      <source src="demo.MP4" type="video/mp4">
+      متصفحك لا يدعم الفيديو.
+    </video>
+    <div class="text-center text-xs text-gray-400 mt-3">
+      <i class="fa-solid fa-circle-info"></i> عرض سريع للتطبيق (10 ثوان)
+    </div>
+  </div>
+</div>
+
+<div id="app" class="max-w-6xl mx-auto p-3 space-y-4 pt-6">
+<div class="flex justify-between items-center flex-wrap gap-2">
+  <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> CheckDiga <span class="pro-badge">PRO</span></h2>
+  <div class="flex gap-2">
+    <button id="langBtn" aria-label="تغيير اللغة" class="bg-gray-800 border-2 border-blue-500 text-blue-400 px-3 py-2 rounded-xl text-sm font-bold">FR</button>
+    <button id="btnFavorites" aria-label="الأكواد المفضلة" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold relative"><i class="fa-solid fa-star"></i><span id="favCount" class="absolute -top-1 -right-1 bg-amber-500 text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span></button>
+    <button id="btnTheme" aria-label="تغيير المظهر" class="bg-gray-800 border-2 border-amber-500 text-amber-400 px-3 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-sun text-lg" id="themeIcon"></i></button>
+  </div>
+</div>
+
+<header class="bg-gray-800 p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-3">
+<div id="statusDot" class="w-3 h-3 rounded-full bg-red-500"></div>
+<div class="flex-1">
+<p id="connection-status" class="text-sm font-bold text-red-400" data-i18n="notConnected">غير متصل</p>
+<p id="vin-display" class="text-xs text-gray-500">VIN: --</p>
+<p id="protocol-display" class="text-[10px] text-cyan-400 font-mono mt-1 hidden">البروتوكول: --</p>
+<p id="odometer-display" class="text-[11px] text-amber-400 font-bold mt-1 hidden">العداد: -- كم</p>
+</div>
+</div>
+
+<button id="open-connect-modal" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-2 shadow-lg shadow-blue-500/20" data-i18n="connectBtn">
+  <i class="fa-solid fa-plug"></i> الاتصال بالجهاز
+</button>
+
+<button id="disconnect-btn" class="hidden w-full bg-red-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="disconnectBtn"><i class="fa-solid fa-plug-circle-xmark"></i> قطع الاتصال</button>
+<button id="clear-btn" class="w-full bg-red-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold mb-2" data-i18n="clearBtn"><i class="fa-solid fa-trash"></i> مسح الأعطال</button>
+<div id="bluefyBanner" class="hidden bg-blue-900/40 border-2 border-blue-500 rounded-xl p-3 text-xs text-blue-300 mt-2" data-i18n="iphoneNote">📱 iPhone: استخدم Bluefy لتشغيل Bluetooth.</div>
+<div id="serialBanner" class="hidden bg-emerald-900/30 border-2 border-emerald-600 rounded-xl p-3 text-xs text-emerald-200 mt-2">🔌 USB يعمل فقط على Chrome للحاسوب أو أندرويد.</div>
+<button id="btShowAll" class="w-full text-[11px] text-blue-400 underline py-1" data-i18n="notShowing">لا يظهر جهازك؟ عرض كل أجهزة Bluetooth</button>
+<details class="text-[11px] text-gray-400 mt-1"><summary class="cursor-pointer text-gray-300 font-bold" data-i18n="whichElm">أي جهاز ELM327 يعمل؟</summary><ul class="mt-1 space-y-1 pr-4"><li>✅ Bluetooth LE (4.0): أندرويد Chrome أو iPhone Bluefy</li><li>✅ USB: Chrome/Edge للحاسوب أو أندرويد</li><li>✅ Wi-Fi: متاح عبر المتصفح (يتطلب عنوان IP لجهاز ELM327 Wi-Fi)</li><li>❌ Bluetooth Classic (معظم الأجهزة الرخيصة): لا يظهر في المتصفح</li><li>⚠️ يجب فتح الموقع عبر HTTPS</li></ul></details>
+</header>
+
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1">
+<button class="tab bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="faults" data-i18n="tabFaults"><i class="fa-solid fa-screwdriver-wrench"></i> الأعطال</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="search" data-i18n="tabSearch"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="favorites" data-i18n="tabFavorites"><i class="fa-solid fa-star"></i> المفضلة</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="live" data-i18n="tabLive"><i class="fa-solid fa-chart-line"></i> حية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="readiness" data-i18n="tabReadiness"><i class="fa-solid fa-leaf"></i> الجاهزية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="battery" data-i18n="tabBattery"><i class="fa-solid fa-car-battery"></i> البطارية</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="history" data-i18n="tabHistory"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+<button class="tab bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap" data-tab="stats" data-i18n="tabStats"><i class="fa-solid fa-chart-pie"></i> إحصائيات</button>
+</div>
+
+<div id="console" class="bg-black text-green-400 p-3 rounded-xl font-mono text-xs max-h-32 overflow-y-auto scrollbar-thin" style="direction:ltr;text-align:left">&gt; جاهز!</div>
+
+<div id="panel-faults" class="panel space-y-4">
+<div id="healthBadge" class="hidden"></div>
+<div id="smartDiagnosis" class="hidden"></div>
+<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
+<div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
+<div class="gauge-box"><div class="gauge-title">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#ef4444"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-rpm">0</div><div class="gauge-unit">RPM</div></div></div>
+<div class="gauge-box"><div class="gauge-title">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#3b82f6"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-speed">0</div><div class="gauge-unit">km/h</div></div></div>
+<div class="gauge-box"><div class="gauge-title">TEMP</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="colArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="colNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#f59e0b"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-coolant">0</div><div class="gauge-unit">°C</div></div></div>
+<div class="gauge-box"><div class="gauge-title">FUEL</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="fuelArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="fuelNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#10b981"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-fuel">0</div><div class="gauge-unit">%</div></div></div>
+</div>
+
+<div class="grid grid-cols-5 gap-2 pt-4 border-t border-gray-700/50 mt-4">
+<div class="sys-item" data-sys="engine"><i class="fa-solid fa-gear text-lg"></i><span class="text-[9px] font-bold">المحرك</span></div>
+<div class="sys-item" data-sys="transmission"><i class="fa-solid fa-cogs text-lg"></i><span class="text-[9px] font-bold">الجير</span></div>
+<div class="sys-item" data-sys="abs"><i class="fa-solid fa-circle-exclamation text-lg"></i><span class="text-[9px] font-bold">ABS</span></div>
+<div class="sys-item" data-sys="brakes"><i class="fa-solid fa-hand text-lg"></i><span class="text-[9px] font-bold">فرامل</span></div>
+<div class="sys-item" data-sys="airbag"><i class="fa-solid fa-shield-halved text-lg"></i><span class="text-[9px] font-bold">وسائد</span></div>
+<div class="sys-item" data-sys="fuel"><i class="fa-solid fa-gas-pump text-lg"></i><span class="text-[9px] font-bold">وقود</span></div>
+<div class="sys-item" data-sys="exhaust"><i class="fa-solid fa-smog text-lg"></i><span class="text-[9px] font-bold">عوادم</span></div>
+<div class="sys-item" data-sys="cooling"><i class="fa-solid fa-temperature-half text-lg"></i><span class="text-[9px] font-bold">تبريد</span></div>
+<div class="sys-item" data-sys="battery"><i class="fa-solid fa-car-battery text-lg"></i><span class="text-[9px] font-bold">بطارية</span></div>
+<div class="sys-item" data-sys="electronics"><i class="fa-solid fa-bolt text-lg"></i><span class="text-[9px] font-bold">كهرباء</span></div>
+</div>
+</div>
+
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="text-base font-bold" data-i18n="dtcTitle"><i class="fa-solid fa-triangle-exclamation text-red-400"></i> أكواد الأعطال</h3>
+<div class="grid grid-cols-2 gap-2">
+<button id="btnReadDTC" class="bg-amber-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanEngine"><i class="fa-solid fa-clipboard-list"></i> فحص المحرك</button>
+<button id="btnScanAll" class="bg-emerald-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold" data-i18n="scanAll"><i class="fa-solid fa-tower-broadcast"></i> فحص الكل</button>
+<button id="btnScanABS" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-sm font-bold col-span-2" data-i18n="scanABS"><i class="fa-solid fa-car-burst"></i> فحص ABS / Airbag / BCM</button>
+<button id="btnPrePurchase" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-3.5 rounded-xl text-sm font-bold col-span-2 mt-2 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2" data-i18n="prePurchase">
+  <i class="fa-solid fa-user-secret"></i> 🕵️‍♂️ فحص ما قبل الشراء (تقرير PDF)
+</button>
+</div>
+<div id="scanSummary" class="text-xs space-y-1"></div>
+<div id="dtcList" class="space-y-2 text-sm"><p class="text-gray-500 text-center py-4" data-i18n="notScanned">لم يتم الفحص بعد.</p></div>
+</div>
+<div id="proExportBar" class="bg-emerald-900/30 border-r-4 border-emerald-500 rounded-2xl p-3 hidden">
+<div class="flex items-center justify-between gap-3 flex-wrap">
+<div class="font-bold text-emerald-300 text-sm">شارك النتائج</div>
+<div class="flex gap-2">
+<button id="btnExportPDF" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+<button id="btnShareWA" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="panel-search" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="searchTitle"><i class="fa-solid fa-magnifying-glass text-blue-400"></i> البحث الذكي</h3>
+<input type="text" id="dtcSearchInput" class="w-full bg-gray-900 border-2 border-gray-700 focusborder-blue-500 rounded-xl px-3 py-3 text-sm outline-none" placeholder="ابحث عن كود..." data-i18n="searchPlaceholder">
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="recentSearches"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold"><i class="fa-solid fa-list text-blue-400"></i> <span data-i18n="searchResults">النتائج</span> <span id="searchCount" class="text-xs text-gray-500"></span></h3>
+<div id="searchResults"></div>
+</div>
+<div class="bg-gradient-to-br from-purple-900/40 to-gray-900/60 border border-purple-700/50 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold text-purple-300" data-i18n="searchSymptoms"><i class="fa-solid fa-notes-medical"></i> ابحث بالأعراض</h3>
+<div class="flex flex-wrap gap-2" id="symptomChips"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-2">
+<h3 class="font-bold" data-i18n="filterSeverity"><i class="fa-solid fa-filter text-blue-400"></i> تصفية حسب الخطورة</h3>
+<div class="flex gap-2 overflow-x-auto scrollbar-thin pb-1" id="severityFilters">
+<button class="filter-chip active" data-severity="all" data-i18n="all">الكل</button>
+<button class="filter-chip" data-severity="critical" data-i18n="critical">🔴 حرج</button>
+<button class="filter-chip" data-severity="high" data-i18n="high">🟠 خطير</button>
+<button class="filter-chip" data-severity="medium" data-i18n="medium">🟡 متوسط</button>
+<button class="filter-chip" data-severity="low" data-i18n="low">🟢 منخفض</button>
+</div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="popularCodes"><i class="fa-solid fa-fire text-orange-400"></i> الأكواد الشائعة</h3>
+<div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
+</div>
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="browseFamily"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
+<div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
+</div>
+</div>
+
+<div id="panel-favorites" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="favTitle"><i class="fa-solid fa-star text-amber-400"></i> الأكواد المفضلة</h3>
+<div id="favoritesList"></div>
+</div>
+</div>
+
+<div id="panel-live" class="panel hidden space-y-4">
+<div class="bg-gray-800 p-4 rounded-2xl"><h3 class="font-bold mb-3" data-i18n="liveTitle"><i class="fa-solid fa-chart-line text-blue-400"></i> الرسوم البيانية المباشرة</h3><div class="h-56"><canvas id="liveChart"></canvas></div></div>
+<div class="bg-amber-900/30 border-r-4 border-amber-500 rounded-2xl p-4"><h3 class="text-amber-200 font-bold text-sm mb-2" data-i18n="autoAnalysis">التحليل التلقائي</h3><div id="autoAnalysis" class="text-amber-100 text-sm" data-i18n="waitingData">في انتظار البيانات...</div></div>
+</div>
+
+<div id="panel-readiness" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="readinessTitle"><i class="fa-solid fa-leaf text-green-400"></i> جاهزية الانبعاثات</h3>
+<button id="btnReadReadiness" class="w-full bg-green-700 text-white px-4 py-3 rounded-xl text-sm font-bold" data-i18n="readinessBtn"><i class="fa-solid fa-clipboard-check"></i> فحص الجاهزية</button>
+<div id="readinessContent"><p class="text-gray-500 text-center py-4" data-i18n="pressBtn">اضغط الزر</p></div>
+</div>
+</div>
+
+<div id="panel-battery" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="batteryTitle"><i class="fa-solid fa-car-battery text-yellow-400"></i> اختبار البطارية والدينامو</h3>
+<button id="btnBatteryTest" class="w-full bg-yellow-600 text-white px-4 py-3 rounded-xl text-sm font-bold" data-i18n="startTest"><i class="fa-solid fa-bolt"></i> بدء الاختبار</button>
+<p id="batHint" class="text-xs text-amber-300 text-center mt-2"></p>
+<div class="grid grid-cols-3 gap-2 mb-3 mt-3">
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat1"><div class="text-2xl">🔋</div><div class="text-[10px] text-gray-500">مطفأ</div><div class="text-lg font-bold" id="batVal1">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat2"><div class="text-2xl">⚡</div><div class="text-[10px] text-gray-500">يعمل</div><div class="text-lg font-bold" id="batVal2">--</div></div>
+<div class="bg-gray-900 rounded-xl p-3 text-center border-2 border-gray-700" id="bat3"><div class="text-2xl">💡</div><div class="text-[10px] text-gray-500">تحت الحمل</div><div class="text-lg font-bold" id="batVal3">--</div></div>
+</div>
+<div id="batteryVerdict" class="hidden"></div>
+</div>
+</div>
+
+<div id="panel-history" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<div class="flex justify-between">
+<h3 class="font-bold" data-i18n="historyTitle"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> سجل الفحوصات</h3>
+<button id="btnClearHistory" class="text-xs text-red-400 font-bold" data-i18n="clearHistory"><i class="fa-solid fa-trash"></i> مسح</button>
+</div>
+<div id="historyContent"></div>
+</div>
+</div>
+
+<div id="panel-stats" class="panel hidden space-y-4">
+<div class="bg-gray-800 rounded-2xl p-4 space-y-3">
+<h3 class="font-bold" data-i18n="statsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
+<div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
+<div class="h-56 mt-3"><canvas id="statsChart"></canvas></div>
+</div>
+</div>
+
+</div>
+
+<div id="dtcDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto modal-backdrop">
+<div class="max-w-2xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative modal-content">
+<button id="btnCloseDetail" class="absolute top-3 right-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold">×</button>
+<button id="btnFavDetail" class="absolute top-3 right-14 bg-amber-600 text-white w-8 h-8 rounded-full text-sm font-bold fav-btn"><i class="fa-solid fa-star"></i></button>
+<div id="dtcDetailContent" class="pt-2"></div>
+</div>
+</div>
+
+<!-- نافذة اختيار نوع الاتصال -->
+<div id="connectModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+  <div class="bg-gray-800 border border-gray-700 rounded-3xl p-6 w-full max-w-sm relative shadow-2xl">
+    <button id="close-connect-modal" class="absolute top-4 left-4 text-gray-400 hover:text-white bg-gray-700/50 w-8 h-8 rounded-full flex items-center justify-center transition">×</button>
+    
+    <h3 class="text-xl font-bold text-center mb-1" data-i18n="modalTitle">اختر طريقة الاتصال</h3>
+    <p class="text-xs text-gray-400 text-center mb-6" data-i18n="modalDesc">حدد نوع الجهاز المتصل بسيارتك</p>
+
+    <div class="space-y-3">
+      <button id="connect-native-classic" class="hidden w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mb-3">
+        <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth text-lg"></i></div>
+        <div><div class="text-white">Bluetooth Classic (أصلي)</div><div class="text-[10px] text-blue-400 font-normal">يدعم المحولات الرخيصة</div></div>
+      </button>
+
+      <button id="connect-btn" class="w-full bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-bluetooth-b text-lg"></i></div>
+        <div><div class="text-white" data-i18n="optBLE">Bluetooth LE</div><div class="text-[10px] text-blue-400 font-normal" data-i18n="optBLEdesc">يدعم أندرويد و iPhone (Bluefy)</div></div>
+      </button>
+
+      <button id="usb-btn" class="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-emerald-600/30 flex items-center justify-center shrink-0"><i class="fa-brands fa-usb text-lg"></i></div>
+        <div><div class="text-white" data-i18n="optUSB">USB Serial</div><div class="text-[10px] text-emerald-400 font-normal" data-i18n="optUSBdesc">للحاسوب أو أندرويد</div></div>
+      </button>
+
+      <button id="wifi-btn" class="w-full bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right">
+        <div class="w-10 h-10 rounded-lg bg-cyan-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-wifi text-lg"></i></div>
+        <div><div class="text-white" data-i18n="optWifi">Wi-Fi</div><div class="text-[10px] text-cyan-400 font-normal" data-i18n="optWifidesc">يتطلب IP لجهاز ELM327</div></div>
+      </button>
+
+      <button id="demo-btn" class="w-full bg-amber-600/20 border border-amber-500/50 hover:bg-amber-600/40 text-amber-300 px-4 py-3.5 rounded-xl text-sm font-bold flex items-center gap-3 transition text-right mt-4">
+        <div class="w-10 h-10 rounded-lg bg-amber-600/30 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask text-lg"></i></div>
+        <div><div class="text-white" data-i18n="optDemo">الوضع التجريبي</div><div class="text-[10px] text-amber-400 font-normal" data-i18n="optDemoDesc">تجربة الموقع بدون جهاز</div></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
+<div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
+<p class="text-xs text-gray-500" data-i18n="footerDesc">أداة فحص سيارات احترافية</p>
+<p class="text-[10px] text-gray-600 mt-1" data-i18n="footerData">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
+<p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3" data-i18n="footerMade">2026 — صُنع في الجزائر 🇩🇿</p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+
+<script>
+/* ═══════════ الفيديو ═══════════ */
+(function(){
+  var btn = document.getElementById('watchDemoBtn');
+  var modal = document.getElementById('videoModal');
+  var closeBtn = document.getElementById('closeVideoBtn');
+  var video = document.getElementById('demoVideo');
+  if (!btn || !modal) return;
+
+  btn.onclick = function () {
+    modal.classList.remove('hidden');
+    try { video.currentTime = 0; video.play(); } catch (_) {}
+  };
+
+  function close() {
+    modal.classList.add('hidden');
+    try { video.pause(); video.currentTime = 0; } catch (_) {}
+  }
+
+  closeBtn.onclick = close;
+  modal.onclick = function (e) { if (e.target.id === 'videoModal') close(); };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) close();
+  });
+})();
+</script>
+
+<script>
+/* ============================================
+   Advanced Diagnostics — Inline Module
+   ============================================ */
+(function(){
+  if (window.__advLoaded) return;
+  window.__advLoaded = true;
+
+  var RULES = [
+    {id:'LEAN1',pr:'high',sys:['engine','fuel'],req:['P0171'],opt:['P0174'],t:'خليط فقير Bank 1',cs:[{c:'تسرب هواء مشعب',p:0.45},{c:'خرطوم فاكيوم',p:0.25},{c:'MAF متسخ',p:0.15},{c:'مضخة وقود',p:0.10},{c:'حاقن مسدود',p:0.05}],ac:['افحص خراطيم الفاكيوم','رش ماء على حشوات المشعب','نظّف MAF','افحص PCV'],cost:{min:0,max:300},time:2,diy:true,urg:false},
+    {id:'MISFIRE',pr:'high',sys:['engine','exhaust'],req:['P0300'],opt:['P0301','P0302','P0303','P0304'],t:'اشتعال متقطع متعدد',cs:[{c:'بواجي',p:0.40},{c:'كويلات',p:0.25},{c:'حاقنات',p:0.15},{c:'ضغط',p:0.10},{c:'توقيت',p:0.10}],ac:['استبدل البواجي','افحص الكويلات','افحص الحاقنات'],cost:{min:50,max:1500},time:4,diy:true,urg:false},
+    {id:'MISFIRE1',pr:'high',sys:['engine'],req:['P0301'],opt:[],t:'اشتعال أسطوانة 1',cs:[{c:'بوجي 1',p:0.45},{c:'كويل 1',p:0.35},{c:'حاقن 1',p:0.15}],ac:['بدّل البوجي 1↔2','بدّل الكويل 1↔2','قِس الضغط'],cost:{min:20,max:500},time:2,diy:true,urg:false},
+    {id:'MISFIRE2',pr:'high',sys:['engine'],req:['P0302'],opt:[],t:'اشتعال أسطوانة 2',cs:[{c:'بوجي 2',p:0.45},{c:'كويل 2',p:0.35},{c:'حاقن 2',p:0.15}],ac:['بدّل البوجي 2↔1','بدّل الكويل 2↔1'],cost:{min:20,max:500},time:2,diy:true,urg:false},
+    {id:'MISFIRE3',pr:'high',sys:['engine'],req:['P0303'],opt:[],t:'اشتعال أسطوانة 3',cs:[{c:'بوجي 3',p:0.45},{c:'كويل 3',p:0.35}],ac:['بدّل البوجي 3↔4','بدّل الكويل 3↔4'],cost:{min:20,max:500},time:2,diy:true,urg:false},
+    {id:'MISFIRE4',pr:'high',sys:['engine'],req:['P0304'],opt:[],t:'اشتعال أسطوانة 4',cs:[{c:'بوجي 4',p:0.45},{c:'كويل 4',p:0.35}],ac:['بدّل البوجي 4↔3','بدّل الكويل 4↔3'],cost:{min:20,max:500},time:2,diy:true,urg:false},
+    {id:'OVERHEAT',pr:'critical',sys:['cooling','engine'],req:['P0217'],opt:[],t:'ارتفاع حرارة المحرك',cs:[{c:'نقص سائل',p:0.40},{c:'مراوح لا تعمل',p:0.25},{c:'ترموستات',p:0.20},{c:'مضخة ماء',p:0.15}],ac:['أوقف فورًا','انتظر 30 دقيقة','افحص سائل التبريد','افحص المراوح'],cost:{min:0,max:2000},time:4,diy:false,urg:true},
+    {id:'OIL_PRESS',pr:'critical',sys:['engine'],req:['P0524'],opt:[],t:'ضغط الزيت منخفض',cs:[{c:'نقص زيت',p:0.50},{c:'مضخة زيت',p:0.25},{c:'حساس',p:0.15},{c:'تسرب داخلي',p:0.10}],ac:['أوقف المحرك فورًا','افحص مستوى الزيت','افحص التسرب'],cost:{min:0,max:3000},time:6,diy:false,urg:true},
+    {id:'CRANK',pr:'critical',sys:['engine'],req:['P0335'],opt:[],t:'حساس الكرنك',cs:[{c:'الحساس',p:0.65},{c:'أسلاك',p:0.25},{c:'عجلة أسنان',p:0.10}],ac:['افحص الأسلاك','افحص المقاومة','استبدل الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:true},
+    {id:'CAM',pr:'high',sys:['engine'],req:['P0340'],opt:[],t:'حساس الكام',cs:[{c:'الحساس',p:0.60},{c:'أسلاك',p:0.25},{c:'VVT',p:0.15}],ac:['افحص الأسلاك','استبدل الحساس'],cost:{min:60,max:500},time:2,diy:true,urg:false},
+    {id:'EGR',pr:'medium',sys:['engine','exhaust'],req:['P0401'],opt:[],t:'تدفق EGR غير كافٍ',cs:[{c:'EGR متسخ',p:0.55},{c:'قناة مسدودة',p:0.30},{c:'حساس',p:0.15}],ac:['نظّف EGR','افحص القناة'],cost:{min:0,max:400},time:2,diy:true,urg:false},
+    {id:'CAT1',pr:'medium',sys:['exhaust'],req:['P0420'],opt:[],t:'كتلايزر ضعيف B1',cs:[{c:'كتلايزر تالف',p:0.50},{c:'حساس O2',p:0.30},{c:'تسرب عادم',p:0.15}],ac:['افحص حساسات O2','افحص التسرب','استبدل الكتلايزر'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
+    {id:'CAT2',pr:'medium',sys:['exhaust'],req:['P0430'],opt:[],t:'كتلايزر ضعيف B2',cs:[{c:'كتلايزر',p:0.55},{c:'حساس O2',p:0.30}],ac:['افحص O2','افحص التسرب'],cost:{min:200,max:2000},time:4,diy:false,urg:false},
+    {id:'EVAP',pr:'low',sys:['exhaust'],req:['P0442'],opt:['P0455'],t:'تسرب EVAP',cs:[{c:'غطاء وقود',p:0.55},{c:'خرطوم',p:0.25},{c:'purge',p:0.15}],ac:['أحكم غطاء الوقود','امسح وقُد 100 كم'],cost:{min:0,max:200},time:1,diy:true,urg:false},
+    {id:'IDLE',pr:'medium',sys:['engine'],req:['P0505'],opt:[],t:'نظام الخمول',cs:[{c:'IAC متسخ',p:0.55},{c:'تسرب هواء',p:0.25},{c:'TPS',p:0.20}],ac:['نظّف IAC','افحص التسرب','افحص TPS'],cost:{min:0,max:300},time:2,diy:true,urg:false},
+    {id:'MAF',pr:'medium',sys:['engine','fuel'],req:['P0100'],opt:['P0101','P0102','P0103'],t:'دائرة MAF',cs:[{c:'MAF متسخ',p:0.55},{c:'تسرب',p:0.25},{c:'أسلاك',p:0.15}],ac:['نظّف MAF','افحص الأسلاك'],cost:{min:0,max:150},time:1,diy:true,urg:false},
+    {id:'ECT',pr:'medium',sys:['cooling'],req:['P0115'],opt:['P0117','P0118'],t:'حساس حرارة المحرك',cs:[{c:'الحساس',p:0.50},{c:'أسلاك',p:0.30},{c:'قابس',p:0.20}],ac:['افحص الأسلاك','قِس المقاومة','استبدل'],cost:{min:20,max:100},time:1,diy:true,urg:false},
+    {id:'THERMO',pr:'medium',sys:['cooling'],req:['P0128'],opt:[],t:'ترموستات عاطل',cs:[{c:'ترموستات',p:0.80},{c:'حساس ECT',p:0.20}],ac:['استبدل الترموستات','افحص السائل'],cost:{min:30,max:150},time:2,diy:true,urg:false},
+    {id:'TIMING',pr:'critical',sys:['engine'],req:['P0016'],opt:[],t:'عدم توافق التوقيت',cs:[{c:'حزام/سلسلة',p:0.55},{c:'حساسات',p:0.30},{c:'VVT',p:0.15}],ac:['أوقف السيارة','افحص التوقيت'],cost:{min:500,max:5000},time:12,diy:false,urg:true},
+    {id:'LOST_ECU',pr:'critical',sys:['electronics','engine'],req:['U0100'],opt:[],t:'فقدان الاتصال بـ ECU',cs:[{c:'أسلاك CAN',p:0.40},{c:'فيوز ECU',p:0.25},{c:'ECU',p:0.20},{c:'أرضية',p:0.15}],ac:['توقف فورًا','افحص فيوز ECU','افحص CAN'],cost:{min:200,max:4000},time:8,diy:false,urg:true},
+    {id:'LOST_TCM',pr:'critical',sys:['transmission','electronics'],req:['U0101'],opt:[],t:'فقدان الاتصال بـ TCM',cs:[{c:'أسلاك CAN',p:0.45},{c:'فيوز',p:0.30},{c:'TCM',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:200,max:3000},time:6,diy:false,urg:true},
+    {id:'LOST_ABS',pr:'high',sys:['abs','electronics'],req:['U0121'],opt:[],t:'فقدان الاتصال بـ ABS',cs:[{c:'CAN',p:0.40},{c:'فيوز',p:0.35},{c:'وحدة ABS',p:0.25}],ac:['افحص الفيوز','افحص CAN'],cost:{min:100,max:2000},time:4,diy:false,urg:false},
+    {id:'CAN_BUS',pr:'critical',sys:['electronics'],req:['U0001'],opt:['U0002'],t:'CAN Bus معطل',cs:[{c:'قصر CAN',p:0.50},{c:'مقاومة CAN',p:0.30},{c:'وحدة',p:0.20}],ac:['لا تشغّل السيارة','افحص CAN'],cost:{min:300,max:3000},time:8,diy:false,urg:true},
+    {id:'ABS_FL',pr:'high',sys:['abs','brakes'],req:['C0035'],opt:['C0040','C0045','C0050'],t:'حساس عجلة ABS',cs:[{c:'الحساس',p:0.55},{c:'أسلاك',p:0.30},{c:'حلقة ABS',p:0.15}],ac:['افحص الأسلاك','افحص الحساس'],cost:{min:50,max:400},time:2,diy:true,urg:false},
+    {id:'ABS_PUMP',pr:'critical',sys:['abs','brakes'],req:['C0110'],opt:[],t:'مضخة ABS',cs:[{c:'المضخة',p:0.50},{c:'فيوز',p:0.25},{c:'ريلاي',p:0.15},{c:'أسلاك',p:0.10}],ac:['توقف','افحص الفيوز','راجع مختص'],cost:{min:200,max:2500},time:6,diy:false,urg:true},
+    {id:'ABS_RELAY',pr:'high',sys:['abs','brakes'],req:['C0265'],opt:[],t:'دائرة ريلاي موتور ABS',cs:[{c:'فيوز أو ريلاي ABS',p:0.40},{c:'أسلاك وقوابس',p:0.30},{c:'موتور المضخة',p:0.20},{c:'وحدة ABS',p:0.10}],ac:['افحص فيوز وريلاي ABS','افحص الأسلاك والقوابس','راجع مختص'],cost:{min:50,max:1500},time:3,diy:false,urg:false},
+    {id:'AIRBAG',pr:'critical',sys:['airbag'],req:['B0001'],opt:['B0010','B1000'],t:'عطل الوسائد الهوائية',cs:[{c:'قابس مفصول',p:0.40},{c:'clock spring',p:0.30},{c:'أسلاك',p:0.20},{c:'الوسادة',p:0.10}],ac:['افحص القابس','افحص clock spring','راجع مختص'],cost:{min:200,max:2000},time:4,diy:false,urg:true},
+    {id:'CHARGING',pr:'high',sys:['battery'],req:['P0562'],opt:[],t:'مشكلة في الشحن',cs:[{c:'دينامو',p:0.50},{c:'بطارية',p:0.30},{c:'حزام',p:0.15},{c:'أسلاك',p:0.05}],ac:['افحص فولت البطارية','افحص الدينامو','افحص الحزام'],cost:{min:100,max:1500},time:3,diy:true,urg:false},
+    {id:'TRANSM',pr:'high',sys:['transmission'],req:['P0700'],opt:[],t:'عطل ناقل الحركة',cs:[{c:'كود فرعي TCM',p:0.70},{c:'TCM',p:0.15},{c:'أسلاك',p:0.15}],ac:['اقرأ أكواد TCM','افحص زيت الجير','راجع مختص'],cost:{min:100,max:5000},time:8,diy:false,urg:false},
+    {id:'GEAR_R',pr:'critical',sys:['transmission'],req:['P0730'],opt:[],t:'نسبة التروس غير صحيحة',cs:[{c:'زيت منخفض',p:0.35},{c:'حساس سرعة',p:0.25},{c:'قابض تالف',p:0.25},{c:'هيدروليكي',p:0.15}],ac:['توقف','افحص زيت الجير','راجع مختص'],cost:{min:500,max:8000},time:12,diy:false,urg:true}
+  ];
+
+  var SYS_NAME = {engine:'المحرك',transmission:'الجير',abs:'ABS',brakes:'الفرامل',airbag:'الوسائد',fuel:'الوقود',cooling:'التبريد',exhaust:'العادم',battery:'البطارية',electronics:'الكهرباء'};
+
+  function getCodes(){
+    try {
+      var last = JSON.parse(localStorage.getItem('checkdiga_last') || '[]');
+      return last.map(function(f){ return f.code; }).filter(Boolean);
+    } catch(e) { return []; }
+  }
+
+  function analyze(codes){
+    var set = {};
+    codes.forEach(function(c){ set[String(c).toUpperCase()] = true; });
+    var matches = [];
+    RULES.forEach(function(r){
+      var ok = r.req.every(function(c){ return set[c]; });
+      if (!ok) return;
+      var score = r.req.filter(function(c){return set[c];}).length * 10 + r.opt.filter(function(c){return set[c];}).length * 3;
+      matches.push({r:r, score:score});
+    });
+    var prOrd = {critical:0, high:1, medium:2, low:3};
+    matches.sort(function(a,b){ return (prOrd[a.r.pr]||9) - (prOrd[b.r.pr]||9) || b.score - a.score; });
+    var seen = {}, result = [];
+    matches.forEach(function(m){ if(!seen[m.r.id]){ seen[m.r.id]=true; result.push(m); }});
+    var penalty = 0;
+    result.forEach(function(m){ penalty += {critical:25,high:15,medium:8,low:3}[m.r.pr]||5; });
+    var score = Math.max(5, Math.min(100, 100 - penalty));
+    var level = score<30?'critical':score<50?'poor':score<70?'fair':score<85?'good':'excellent';
+    var warns = result.filter(function(m){return m.r.urg;}).map(function(m){return {t:m.r.t, ac:m.r.ac[0]||'راجع مختص'};});
+    var cMin=0, cMax=0, hrs=0;
+    result.forEach(function(m){ if(m.r.cost){cMin+=m.r.cost.min;cMax+=m.r.cost.max;} hrs+=m.r.time||0; });
+    var sysCnt = {};
+    result.forEach(function(m){ m.r.sys.forEach(function(s){ sysCnt[s]=(sysCnt[s]||0)+1; }); });
+    var rootSys=null, maxC=0;
+    for(var k in sysCnt){ if(sysCnt[k]>maxC){ maxC=sysCnt[k]; rootSys=k; }}
+    return {
+      codes:codes, n:result.length,
+      health:{score:score, level:level},
+      warnings:warns,
+      cost:{min:cMin, max:cMax},
+      time:hrs,
+      root: rootSys ? {name:SYS_NAME[rootSys]||rootSys, count:maxC} : null,
+      diagnoses: result.map(function(m){
+        return {
+          t:m.r.t, pr:m.r.pr,
+          mc:m.r.req.concat(m.r.opt.filter(function(c){return set[c];})),
+          cs:m.r.cs, ac:m.r.ac, diy:m.r.diy,
+          time:m.r.time, cost:m.r.cost
+        };
+      })
+    };
+  }
+
+  function showReport(rep){
+    var prColor = {critical:'#dc2626', high:'#ef4444', medium:'#f59e0b', low:'#10b981'};
+    var hlColor = {excellent:'from-green-500 to-emerald-600', good:'from-emerald-500 to-green-600', fair:'from-amber-500 to-orange-600', poor:'from-red-500 to-rose-600', critical:'from-red-600 to-rose-700'};
+    var h = '<div class="text-center mb-5 pb-4 border-b border-gray-700"><div class="text-xs text-gray-400 mb-1">تقرير التحليل المتقدم</div><div class="text-lg font-bold">CheckDiga Pro 🔬</div></div>';
+    if (rep.warnings.length) {
+      h += '<div class="bg-red-600 text-white p-4 rounded-2xl mb-4"><div class="font-bold text-sm mb-2">🛑 تحذيرات حرجة ('+rep.warnings.length+')</div>';
+      rep.warnings.slice(0,3).forEach(function(w){ h += '<div class="bg-black/20 rounded-lg p-2 mt-2"><div class="text-xs font-bold">'+w.t+'</div><div class="text-[11px] mt-1">→ '+w.ac+'</div></div>'; });
+      h += '</div>';
+    }
+    h += '<div class="bg-gradient-to-l '+(hlColor[rep.health.level]||'from-gray-500 to-gray-600')+' rounded-2xl p-4 text-white mb-4"><div class="flex justify-between items-center"><div><div class="text-xs opacity-90">مؤشر صحة السيارة</div><div class="text-2xl font-bold mt-1">'+rep.health.score+'<span class="text-sm opacity-80">/100</span></div></div><div class="text-4xl font-bold">'+(rep.health.level==='excellent'?'✓':rep.health.level==='good'?'👍':'⚠️')+'</div></div></div>';
+    if (rep.root) { h += '<div class="bg-purple-900/30 border border-purple-700/50 rounded-2xl p-4 mb-4"><div class="font-bold text-purple-300 text-sm mb-2">🎯 السبب الجذري المحتمل</div><div class="text-sm mb-1">النظام: <b>'+rep.root.name+'</b></div><div class="text-xs text-gray-400">'+rep.root.count+' قاعدة مرتبطة</div></div>'; }
+    if (rep.cost.max > 0 || rep.time > 0) { h += '<div class="grid grid-cols-2 gap-2 mb-4"><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">💰 التكلفة التقديرية</div><div class="font-bold text-sm">$'+rep.cost.min+' - $'+rep.cost.max+'</div></div><div class="bg-gray-900 rounded-xl p-3 text-center"><div class="text-xs text-gray-400 mb-1">⏱️ الوقت المتوقع</div><div class="font-bold text-sm">'+rep.time+' ساعات</div></div></div>'; }
+    if (rep.diagnoses.length) {
+      h += '<div class="mb-3"><div class="font-bold text-sm mb-3">🔍 التشخيصات ('+rep.diagnoses.length+')</div>';
+      rep.diagnoses.forEach(function(d,i){
+        var pc = prColor[d.pr] || '#64748b';
+        h += '<div class="bg-gray-900 rounded-xl p-4 mb-3" style="border-right:4px solid '+pc+'">';
+        h += '<div class="flex justify-between items-start mb-2 gap-2"><div class="font-bold text-sm">#'+(i+1)+' '+d.t+'</div><span class="text-[10px] px-2 py-1 rounded-full text-white font-bold" style="background:'+pc+'">'+d.pr+'</span></div>';
+        if (d.mc && d.mc.length) { h += '<div class="flex flex-wrap gap-1 mb-2">'; d.mc.forEach(function(c){ h += '<span class="text-[10px] font-mono bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded">'+c+'</span>'; }); h += '</div>'; }
+        if (d.cs && d.cs.length) { h += '<div class="text-xs text-gray-300 mb-2"><div class="font-bold text-[11px] mb-1">الأسباب المحتملة:</div><ul class="space-y-0.5">'; d.cs.slice(0,3).forEach(function(c){ h += '<li>• '+c.c+' <span class="text-gray-500">('+Math.round(c.p*100)+'%)</span></li>'; }); h += '</ul></div>'; }
+        if (d.ac && d.ac.length) { h += '<div class="text-xs text-blue-300 bg-blue-900/20 rounded p-2"><div class="font-bold text-[11px] mb-1">خطوات الفحص:</div><ul class="space-y-0.5">'; d.ac.slice(0,3).forEach(function(a){ h += '<li>• '+a+'</li>'; }); h += '</ul></div>'; }
+        h += '<div class="flex justify-between text-[10px] text-gray-500 mt-2 pt-2 border-t border-gray-800"><span>'+(d.diy?'✅ يمكن DIY':'👨‍🔧 يحتاج مختص')+'</span><span>'+(d.time||'?')+' ساعات</span></div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    h += '<div class="text-center text-[10px] text-gray-500 mt-4 pt-3 border-t border-gray-700">تم تحليل '+rep.codes.length+' كود بناءً على '+rep.n+' قاعدة</div>';
+    openModal(h);
+  }
+
+  function openModal(html){
+    var m = document.getElementById('advReportModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'advReportModal';
+      m.className = 'hidden fixed inset-0 bg-black/80 z-50 p-4 overflow-y-auto';
+      m.innerHTML = '<div class="max-w-3xl mx-auto mt-6 bg-gray-800 rounded-2xl p-5 relative"><button id="advClose" class="absolute top-3 right-3 bg-red-600 text-white w-8 h-8 rounded-full text-sm font-bold z-10">×</button><div id="advContent" class="pt-2"></div></div>';
+      document.body.appendChild(m);
+      document.getElementById('advClose').onclick = function(){ m.classList.add('hidden'); };
+      m.onclick = function(e){ if (e.target.id === 'advReportModal') m.classList.add('hidden'); };
+    }
+    document.getElementById('advContent').innerHTML = html;
+    m.classList.remove('hidden');
+    m.scrollTop = 0;
+  }
+
+  function injectBtn(){
+    if (document.getElementById('btnAdvDiag')) return;
+    var anchor = document.getElementById('btnScanABS');
+    if (!anchor) { setTimeout(injectBtn, 400); return; }
+    var parent = anchor.closest('.bg-gray-800');
+    if (!parent) { setTimeout(injectBtn, 400); return; }
+    var b = document.createElement('button');
+    b.id = 'btnAdvDiag';
+    b.type = 'button';
+    b.className = 'w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-xl text-sm font-bold mt-3 flex items-center justify-center gap-2 col-span-2';
+    b.innerHTML = '🔬 تحليل متقدم <span class="text-[10px] opacity-80">(' + RULES.length + ' قاعدة)</span>';
+    b.onclick = function(){
+      var codes = getCodes();
+      if (!codes.length) {
+        openModal('<div class="text-center py-8"><div class="text-5xl mb-3">📋</div><div class="font-bold text-lg mb-2">لا توجد نتائج بعد</div><p class="text-gray-400 text-sm">اضغط "تجريبي" أو "فحص المحرك" أولاً</p></div>');
+        return;
+      }
+      try { showReport(analyze(codes)); }
+      catch(e) { openModal('<div class="text-center py-8"><div class="text-5xl mb-3">❌</div><div class="font-bold text-lg mb-2">خطأ في التحليل</div><p class="text-red-400 text-sm">'+e.message+'</p></div>'); }
+    };
+    parent.appendChild(b);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(injectBtn, 400); });
+  else setTimeout(injectBtn, 400);
+  setTimeout(injectBtn, 1500);
+  setTimeout(injectBtn, 3000);
+  setTimeout(injectBtn, 6000);
+})();
+</script>
+</body>
+</html>
