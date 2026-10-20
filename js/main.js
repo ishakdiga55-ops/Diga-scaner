@@ -91,7 +91,7 @@ function init() {
   // ✅ تحسين الاتصال عبر USB
   bind('usb-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    showLoader('جاري الاتDOMصال عبر USB...');
+    showLoader('جاري الاتصال عبر USB...');
     try { 
       const success = await connectUSB(); 
       if (success) {
@@ -241,7 +241,8 @@ function init() {
   loadFullDatabase().catch(e => log('WARN: ' + e.message));
 }
 
-if (document.readyState === 'loading')ContentLoaded', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
 }
