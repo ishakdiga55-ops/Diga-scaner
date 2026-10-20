@@ -13,6 +13,22 @@ import { isNativeApp, connectNativeBluetooth } from './obd-native.js';
 import { runPrePurchaseScan } from './inspector.js';
 import { initLang } from './i18n.js';
 
+// ✅ دوال مساعدة لإظهار وإخفاء شاشة التحميل
+function showLoader(text = 'جاري المعالجة...') {
+  const loader = document.getElementById('globalLoader');
+  const loaderText = document.getElementById('loaderText');
+  if (loader && loaderText) {
+    loaderText.innerText = text;
+    loader.classList.remove('hidden');
+  }
+}
+
+function hideLoader() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
+}
+// ==========================================
+
 function init() {
   initApp();
 
@@ -46,7 +62,8 @@ function init() {
       btnNativeClassic.classList.remove('hidden');
       btnNativeClassic.onclick = () => {
         connectModal.classList.add('hidden');
-        connectNativeBluetooth();
+        showLoader('جاري الاتصال...');
+        connectNativeBluetooth().finally(hideLoader);
       };
     }
   } else {
@@ -54,57 +71,126 @@ function init() {
     if (btnWifi) btnWifi.style.display = 'none';
   }
 
+  // ✅ تحسين الاتصال عبر BLE
   bind('connect-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    let success = false;
-    try { success = await connectOBD(false); } catch (_) {}
-    if (success) {
-      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    showLoader('جاري الاتصال بـ Bluetooth LE...');
+    try { 
+      const success = await connectOBD(false); 
+      if (success) {
+        try { const m = await import('./vin.js'); await m.readVIN(); } catch (e) { console.warn('VIN error:', e); }
+      }
+    } catch (err) { 
+      console.error(err);
+      alert('فشل الاتصال. تأكد من تشغيل السيارة وتفعيل البلوتوث.'); 
+    } finally {
+      hideLoader();
     }
   });
 
+  // ✅ تحسين الاتصال عبر USB
   bind('usb-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    let success = false;
-    try { success = await connectUSB(); } catch (_) {}
-    if (success) {
-      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    showLoader('جاري الاتDOMصال عبر USB...');
+    try { 
+      const success = await connectUSB(); 
+      if (success) {
+        try { const m = await import('./vin.js'); await m.readVIN(); } catch (e) { console.warn('VIN error:', e); }
+      }
+    } catch (err) { 
+      console.error(err);
+      alert('فشل الاتصال عبر USB.'); 
+    } finally {
+      hideLoader();
     }
   });
   
+  // ✅ تحسين الاتصال عبر Wi-Fi
   bind('wifi-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
     const ip = prompt('أدخل عنوان IP لجهاز Wi-Fi', '192.168.0.10');
     if (!ip) return;
-    let success = false;
-    try { success = await connectWiFi(ip); } catch (_) {}
-    if (success) {
-      try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    showLoader('جاري الاتصال عبر Wi-Fi...');
+    try { 
+      const success = await connectWiFi(ip); 
+      if (success) {
+        try { const m = await import('./vin.js'); await m.readVIN(); } catch (e) { console.warn('VIN error:', e); }
+      }
+    } catch (err) { 
+      console.error(err);
+      alert('فشل الاتصال عبر Wi-Fi. تأكد من عنوان IP.'); 
+    } finally {
+      hideLoader();
     }
   });
 
+  // ✅ تحسين وضع التجربة
   bind('demo-btn', async () => {
     if (connectModal) connectModal.classList.add('hidden');
-    try { startDemo(); } catch (_) {}
-    try { readDTCs(); } catch (_) {}
-    try { const m = await import('./vin.js'); await m.readVIN(); } catch (_) {}
+    showLoader('جاري تفعيل الوضع التجريبي...');
+    try { 
+      startDemo(); 
+      await readDTCs(); 
+      const m = await import('./vin.js'); await m.readVIN(); 
+    } catch (e) {
+      console.error('Demo error:', e);
+    } finally {
+      hideLoader();
+    }
   });
 
+  // ✅ تحسين قطع الاتصال
   bind('disconnect-btn', async () => {
-    try { stopDemo(); } catch (_) {}
-    try { await handleDisc(); } catch (_) {}
-    try { const m = await import('./vin.js'); m.resetVIN(); } catch (_) {}
+    showLoader('جاري قطع الاتصال...');
+    try { 
+      stopDemo(); 
+      await handleDisc(); 
+      const m = await import('./vin.js'); m.resetVIN(); 
+    } catch (e) {
+      console.warn('Disconnect error:', e);
+    } finally {
+      hideLoader();
+    }
   });
 
+  // ✅ تحسين مسح الأعطال
   bind('clear-btn', async () => {
     if (!app.isConnected && !app.isDemo) { alert('اتصل بالسيارة أولاً'); return; }
-    await clearDTCs();
+    showLoader('جاري مسح الأعطال...');
+    try {
+      await clearDTCs();
+    } catch (e) {
+      console.error(e);
+      alert('حدث خطأ أثناء مسح الأعطال.');
+    } finally {
+      hideLoader();
+    }
   });
   
-  bind('btnReadDTC', readDTCs);
-  bind('btnScanAll', scanAll);
+  // ✅ إضافة مؤشر تحميل لفحص الأعطال
+  bind('btnReadDTC', async () => {
+    showLoader('جاري قراءة أكواد الأعطال...');
+    try { await readDTCs(); } catch(e) { console.error(e); } finally { hideLoader(); }
+  });
+  
+  // ✅ إضافة مؤشر تحميل لفحص الكل
+  bind('btnScanAll', async () => {
+    showLoader('جاري فحص جميع الأنظمة...');
+    try { await scanAll(); } catch(e) { console.error(e); } finally { hideLoader(); }
+  });
+  
+  // ✅ تحسين فحص ABS
   bind('btnScanABS', async () => {
-    try { const m = await import('./abs-scan.js'); await m.scanABS(); } catch (err) { alert('خطأ في فحص ABS'); }
+    showLoader('جاري فحص ABS / Airbag / BCM...');
+    try { 
+      const m = await import('./abs-scan.js'); 
+      await m.scanABS(); 
+    } catch (err) { 
+      console.error(err);
+      alert('خطأ في فحص ABS'); 
+    } finally {
+      hideLoader();
+    }
   });
 
   bind('btnPrePurchase', runPrePurchaseScan);
@@ -155,8 +241,7 @@ function init() {
   loadFullDatabase().catch(e => log('WARN: ' + e.message));
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading')ContentLoaded', init);
 } else {
   init();
 }
