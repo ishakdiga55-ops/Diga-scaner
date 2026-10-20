@@ -3,7 +3,6 @@ import { sendCmd, pauseLiveWait, resumeLive, updAllG } from './obd.js';
 import { runDiag, confLabel, calcHealth } from './analysis.js';
 import { getInfo } from './data/database.js';
 
-// ═══════════ Demo Mode ═══════════
 export function startDemo() {
   app.isDemo = true;
   app.isConnected = true;
@@ -11,7 +10,6 @@ export function startDemo() {
   setStatusDemo();
   updConnUIDemo();
 
-  // ✅ إظهار بطاقة العداد في الـ Hero (بيانات وهمية) كما في صورتك
   const heroCard = document.getElementById('hero-car-card');
   if (heroCard) {
     heroCard.classList.remove('hidden');
@@ -25,11 +23,10 @@ export function startDemo() {
   session.demoTimer = setInterval(function () {
     var r = Math.floor(900 + Math.random() * 2500);
     var s = Math.floor(Math.random() * 110);
-    var++) c = 82 + Math.floor {
-(Math.random() * 18);
-       var f = 40 + if Math.floor(Math.random() * 50 ();
+    var c = 82 + Math.floor(Math.random() * 18);
+    var f = 40 + Math.floor(Math.random() * 50);
     live.lastCoolant = c;
-   b live.lastFuel = f;
+    live.lastFuel = f;
     try { updAllG({ rpm: r, speed: s, coolant: c, fuelLevel: f }); } catch (_) {}
     try { updChart(r, s); } catch (_) {}
     try { autoAnalyze(r, s, c); } catch (_) {}
@@ -40,8 +37,6 @@ export function stopDemo() {
   if (session.demoTimer) clearInterval(session.demoTimer);
   session.demoTimer = null;
   app.isDemo = false;
-
-  // إخفاء البطاقة عند إيقاف الوضع التجريبي
   const heroCard = document.getElementById('hero-car-card');
   if (heroCard) heroCard.classList.add('hidden');
 }
@@ -62,7 +57,6 @@ function updConnUIDemo() {
   if (clearBtn) clearBtn.classList.remove('mb-2');
 }
 
-// ═══════════ Battery Test ═══════════
 var BAT_HINTS = [
   '① المفتاح على ON والمحرك مطفأ ثم اضغط «قراءة»',
   '② شغّل المحرك على الخمول ثم اضغط «قراءة»',
@@ -139,7 +133,8 @@ async function readVolt() {
   }
   var resp = await sendCmd('01 42', 2500, 1);
   var b = resp.replace(/[^0-9A-Fa-f]/g, ' ').trim().split(/\s+/).map(function (x) { return parseInt(x, 16); }).filter(function (n) { return !isNaN(n); });
-  for (var i = 0; i < b.length - 3; i[i] === 0x41 && b[i + 1] === 0x42) {
+  for (var i = 0; i < b.length - 3; i++) {
+    if (b[i] === 0x41 && b[i + 1] === 0x42) {
       var volts = ((b[i + 2] * 256) + b[i + 3]) / 1000;
       if (volts > 0 && volts < 20) return volts;
     }
@@ -189,7 +184,6 @@ export async function runBatteryTest() {
   }
 }
 
-// ═══════════ Readiness ═══════════
 function pMon(b, bit) {
   if (!(b & (1 << bit))) return 'na';
   return (b & (1 << (bit + 4))) ? 'no' : 'yes';
@@ -239,7 +233,6 @@ function renderReadiness(d) {
   c.innerHTML = h;
 }
 
-// ═══════════ PDF Export ═══════════
 export function exportPDF() {
   var faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال لتصديرها'); return; }
@@ -273,7 +266,6 @@ export function exportPDF() {
   }, 600);
 }
 
-// ═══════════ WhatsApp Share ═══════════
 export function shareWA() {
   var faults = session.lastFaults || [];
   if (!faults.length) { alert('لا توجد أعطال'); return; }
@@ -293,26 +285,20 @@ export function shareWA() {
   window.open('https://wa.me/?text=' + encodeURIComponent(m), '_blank');
 }
 
-// ═══════════ Charts ═══════════
 export function initChart() {
   var cv = document.getElementById('liveChart');
   if (!cv) return;
-  if (!window.Chart) {
-    console.warn('Chart.js not loaded');
-    return;
-  }
+  if (!window.Chart) return;
   if (session.chartInstance) {
     try { session.chartInstance.resize(); } catch (_) {}
     return;
   }
   try {
     var ctx = cv.getContext('2d');
-
     var gradRPM = ctx.createLinearGradient(0, 0, 0, 280);
     gradRPM.addColorStop(0, 'rgba(59, 130, 246, 0.55)');
     gradRPM.addColorStop(0.5, 'rgba(59, 130, 246, 0.15)');
     gradRPM.addColorStop(1, 'rgba(59, 130, 246, 0)');
-
     var gradSpeed = ctx.createLinearGradient(0, 0, 0, 280);
     gradSpeed.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
     gradSpeed.addColorStop(0.5, 'rgba(16, 185, 129, 0.12)');
@@ -323,114 +309,27 @@ export function initChart() {
       data: {
         labels: [],
         datasets: [
-          {
-            label: 'RPM',
-            data: [],
-            borderColor: '#60a5fa',
-            backgroundColor: gradRPM,
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: '#60a5fa',
-            pointHoverBorderColor: '#fff',
-            pointHoverBorderWidth: 2,
-            yAxisID: 'y'
-          },
-          {
-            label: 'Speed',
-            data: [],
-            borderColor: '#34d399',
-            backgroundColor: gradSpeed,
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: '#34d399',
-            pointHoverBorderColor: '#fff',
-            pointHoverBorderWidth: 2,
-            yAxisID: 'y1'
-          }
+          { label: 'RPM', data: [], borderColor: '#60a5fa', backgroundColor: gradRPM, borderWidth: 3, fill: true, tension: 0.4, pointRadius: 0, yAxisID: 'y' },
+          { label: 'Speed', data: [], borderColor: '#34d399', backgroundColor: gradSpeed, borderWidth: 3, fill: true, tension: 0.4, pointRadius: 0, yAxisID: 'y1' }
         ]
       },
- الك      options: {
+      options: {
         responsive: true,
-       بير maintainAspectRatio: false,
+        maintainAspectRatio: false,
         animation: { duration: 200 },
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              color: '#cbd5e1',
-              font: { family: 'Cairo', size: 12, weight: '600' },
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 14,
-              boxWidth: 8,
-              boxHeight: 8
-            }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            titleColor: '#f1f5f9',
-            bodyColor: '#cbd5e1',
-            borderColor: '#334155',
-            borderWidth: 1,
-            padding: 10,
-            titleFont: { family: 'Cairo', size: 12 },
-            bodyFont: { family: 'Cairo', size: 12 },
-            displayColors: true,
-            callbacks: {
-              label: function (context) {
-                var label = context.dataset.label || '';
-                var val = context.parsed.y;
-                if (label === 'RPM') return '  ' + label + ': ' + Math.round(val) + ' دورة';
-                if (label === 'Speed') return '  ' + label + ': ' + Math.round(val) + ' كم/س';
-                return '  ' + label + ': ' + val;
-              }
-            }
-          }
+          legend: { display: true, position: 'top', labels: { color: '#cbd5e1', font: { family: 'Cairo', size: 12, weight: '600' }, usePointStyle: true, padding: 14 } },
+          tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#f1f5f9', bodyColor: '#cbd5e1', borderColor: '#334155', borderWidth: 1, padding: 10 }
         },
         scales: {
-          y: {
-            type: 'linear',
-            position: 'left',
-            beginAtZero: false,
-            min: 0,
-            max: 8000,
-            grid: { color: 'rgba(55, 65, 81, 0.4)', drawBorder: false, borderDash: [4, 4] },
-            ticks: {
-              color: '#60a5fa',
-              font: { family: 'Cairo', size: 10 },
-              padding: 6,
-              callback: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; }
-            },
-            title: { display: true, text: 'RPM', color: '#60a5fa', font: { family: 'Cairo', size: 10, weight: '600' } }
-          },
-          y1: {
-            type: 'linear',
-            position: 'right',
-            beginAtZero: true,
-            min: 0,
-            max: 220,
-            grid: { display: false },
-            ticks: { color: '#34d399', font: { family: 'Cairo', size: 10 }, padding: 6 },
-            title: { display: true, text: 'كم/س', color: '#34d399', font: { family: 'Cairo', size: 10, weight: '600' } }
-          },
-          x: {
-            grid: { color: 'rgba(55, 65, 81, 0.3)', drawBorder: false },
-            ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
-          }
+          y: { type: 'linear', position: 'left', min: 0, max: 8000, grid: { color: 'rgba(55, 65, 81, 0.4)' }, ticks: { color: '#60a5fa' } },
+          y1: { type: 'linear', position: 'right', min: 0, max: 220, grid: { display: false }, ticks: { color: '#34d399' } },
+          x: { grid: { color: 'rgba(55, 65, 81, 0.3)' }, ticks: { color: '#94a3b8', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }
         }
       }
     });
-  } catch (e) {
-    console.warn('Chart init failed:', e);
-  }
+  } catch (e) { console.warn('Chart init failed:', e); }
 }
 
 export function updChart(r, s) {
@@ -458,7 +357,6 @@ export function updChart(r, s) {
   session.chartInstance.update('none');
 }
 
-// ═══════════ Auto Analysis ═══════════
 export function autoAnalyze(rpm, spd, coolant) {
   var e = document.getElementById('autoAnalysis');
   if (!e) return;
@@ -473,5 +371,4 @@ export function autoAnalyze(rpm, spd, coolant) {
   e.textContent = msg + ' (RPM: ' + f(rpm) + ' | Speed: ' + f(spd) + ' | Coolant: ' + f(coolant) + (coolant != null ? '°C' : '') + ')';
 }
 
-// ═══════════ Expose for tabs.js ═══════════
 window.__cd_initChart = initChart;
