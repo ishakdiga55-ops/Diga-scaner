@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v31 — Forced Cache Clear for Updates
+   v32 — Forced Cache Clear for Updates
    ============================================ */
 
-const CACHE_VERSION = 'v31'; // ✅ تم تحديث الإصدار هنا
+const CACHE_VERSION = 'v32'; // ✅ تم تحديث الإصدار
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -47,9 +47,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v31] Installing...');
+      console.log('[SW v32] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v31] Some files failed:', err);
+        console.warn('[SW v32] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -61,7 +61,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v31] Deleting old cache:', k);
+            console.log('[SW v32] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
