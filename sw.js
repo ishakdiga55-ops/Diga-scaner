@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v29 — Fixed EOF error & Forced Cache Clear
+   v30 — Forced Cache Clear for Updates
    ============================================ */
 
-const CACHE_VERSION = 'v29';
+const CACHE_VERSION = 'v30'; // ✅ تم تحديث الإصدار هنا
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -47,9 +47,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v29] Installing...');
+      console.log('[SW v30] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v29] Some files failed:', err);
+        console.warn('[SW v30] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -61,7 +61,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v29] Deleting old cache:', k);
+            console.log('[SW v30] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
