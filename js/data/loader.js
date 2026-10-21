@@ -26,7 +26,8 @@ const SLOW_FILES = [
 /* --- IndexedDB Cache Helpers --- */
 const DB_NAME = 'CheckDigaCacheDB';
 const STORE_NAME = 'codesStore';
-const CACHE_KEY = 'full_database_v3'; // تم تغيير الاسم لمسح الكاش القديم
+// ⚠️ تم تغيير هذا السطر من v3 إلى v4 لإجبار الموقع على تحميل قاعدة البيانات الجديدة
+const CACHE_KEY = 'full_database_v4'; 
 
 function openCacheDB() {
   return new Promise((resolve, reject) => {
@@ -188,6 +189,8 @@ async function loadWal33D() {
   try {
     if (typeof initSqlJs !== 'function') { log('ERR: مكتبة sql.js غير محملة!'); return 0; }
     const SQL = await initSqlJs({ locateFile: f => 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/' + f });
+    
+    // هنا يتم تحميل ملف قاعدة البيانات الذي قمت برفعه
     const resp = await fetch('./dtc_codes_v0.1.0.db');
     if (!resp.ok) { log('ERR: ملف Wal33D غير موجود'); return 0; }
     const buf = await resp.arrayBuffer();
