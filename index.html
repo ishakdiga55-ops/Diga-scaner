@@ -34,8 +34,8 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- تحديث CSP: تمت إزالة unsafe-inline و Tailwind CDN نهائياً لزيادة الأمان والسرعة -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<!-- تحديث CSP: تمت إعادة السماح لـ Tailwind CDN -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,8 +46,9 @@
 <!-- تقليل أوزان الخطوط -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 
-<!-- استبدال Tailwind CDN بملف محلي مضغوط يتم بناؤه تلقائياً -->
-<link rel="stylesheet" href="css/tailwind.min.css">
+<!-- إعادة Tailwind CDN مؤقتاً لإرجاع التصميم -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/themes/light.css">
 
@@ -92,7 +93,7 @@
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
-  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك من هاتفك</span><span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
+  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك900 من هاتفك</span><span class="block bg-gradient-to rounded-l from-blue-400 via-purple--400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
   <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
   
   <div class="my-6">
@@ -195,7 +196,7 @@
 <div id="panel-faults" class="panel space-y-4">
 <div id="healthBadge" class="hidden"></div>
 <div id="smartDiagnosis" class="hidden"></div>
-<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
+<div class="bg-gradient-to-br from-slate-800 to-slate-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
 <div class="gauge-box"><div class="gauge-title">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#ef4444"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-rpm">0</div><div class="gauge-unit">RPM</div></div></div>
 <div class="gauge-box"><div class="gauge-title">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#3b82f6"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-speed">0</div><div class="gauge-unit">km/h</div></div></div>
