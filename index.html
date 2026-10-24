@@ -9,7 +9,6 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ishakdiga55-ops.github.io/Diga-scaner/" />
 
-<!-- تحسينات SEO -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -34,7 +33,6 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- إعدادات CSP المتوافقة مع الـ CDN -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -43,23 +41,19 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-<!-- خطوط وأيقونات -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- مكتبات خارجية مع defer لعدم تعطيل التحميل -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js" defer></script>
 
-<!-- ملفات الـ CSS المحلية -->
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/themes/light.css">
 </head>
 <body class="bg-gray-900 text-gray-100">
 
-<!-- 🦅 عين الصقر (أداة تصيد الأخطاء) -->
 <div id="eagleEye" style="display:none; position:fixed; top:0; left:0; right:0; max-height:40vh; overflow-y:auto; background:#dc2626; color:#fff; z-index:999999; font-family:monospace; font-size:12px; padding:10px; direction:ltr; text-align:left; border-bottom:3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
   <div style="font-weight:bold; margin-bottom:5px; font-size:14px; color:#fef08a;">🦅 Eagle Eye Debugger:</div>
   <div id="eagleEyeContent"></div>
@@ -90,8 +84,19 @@
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
-  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك من هاتفك</span><span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
-  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
+  
+  <h1 class="text-3xl font-extrabold mb-3">
+    <span data-i18n="heroTitle">افحص سيارتك من هاتفك</span>
+    <span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">واكشف الكلمتراج الحقيقي</span>
+  </h1>
+  
+  <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">
+    قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي
+    <br>
+    <span class="text-emerald-400 font-bold mt-1 inline-block">
+      <i class="fa-solid fa-user-secret"></i> كشف التلاعب بالعداد وفحص ما قبل الشراء
+    </span>
+  </p>
   
   <div class="my-6">
     <div class="hero-number text-6xl md:text-7xl font-black bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-none" id="heroCount">10,098</div>
@@ -121,6 +126,11 @@
   <div class="flex gap-3 justify-center flex-wrap mt-6">
     <button id="btnStartNow" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2" data-i18n="startNow"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
     <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition" data-i18n="watchDemo"><i class="fa-solid fa-play"></i> شاهد العرض</button>
+    
+    <!-- ✅ زر تحميل التطبيق -->
+    <a href="https://github.com/ishakdiga55-ops/Diga-scaner/releases/download/v1.0.0/app-debug.apk" download class="bg-gradient-to-l from-emerald-600 to-green-500 text-white px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 shadow-lg shadow-green-500/20 hover:scale-105 transition transform">
+      <i class="fa-brands fa-android text-lg"></i> تحميل التطبيق (APK)
+    </a>
   </div>
 
   <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mt-6">
@@ -267,10 +277,10 @@
 <div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold" data-i"18n="browseFamily"><i class="fa-solid fa-folder-tree data text-blue-400"></i> تصفح حسب الفئة</h3-i>
-<div class="grid grid-cols-2 gap-2"18 idn="familyBrowser"></div>
+<h3 class="font-bold" data-i18n="browseFamily"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
+<div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
 </div>
-</="div>
+</div>
 
 <div id="panel-favorites" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -318,7 +328,7 @@
 
 <div id="panel-stats" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-boldstatsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
+<h3 class="font-bold" data-i18n="statsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
 <div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
 <div class="h-56 mt-3"><canvas id="statsChart"></canvas></div>
 </div>
@@ -334,7 +344,6 @@
 </div>
 </div>
 
-<!-- نافذة اختيار نوع الاتصال -->
 <div id="connectModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
   <div class="bg-gray-800 border border-gray-700 rounded-3xl p-6 w-full max-w-sm relative shadow-2xl">
     <button id="close-connect-modal" class="absolute top-4 left-4 text-gray-400 hover:text-white bg-gray-700/50 w-8 h-8 rounded-full flex items-center justify-center transition">×</button>
@@ -371,11 +380,32 @@
   </div>
 </div>
 
+<!-- قسم تحميل التطبيق في الأسفل -->
+<section class="max-w-4xl mx-auto my-10 px-4">
+  <div class="bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+    
+    <div class="text-center md:text-right z-10">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+        <i class="fa-brands fa-android text-green-400"></i> حمل تطبيق الأندرويد
+      </h2>
+      <p class="text-sm text-gray-400 max-w-md">احصل على تجربة أسرع وأفضل مع التطبيق الأصلي. يعمل بدون إنترنت ويدعم الاتصال المباشر بجهاز الفحص.</p>
+      <div class="mt-3 text-xs text-amber-300 bg-amber-900/30 inline-block px-3 py-1 rounded-lg">
+        ⚠️ عند التثبيت، اسمح لجهازك بتثبيت التطبيقات من هذا المصدر.
+      </div>
+    </div>
+    
+    <a href="https://github.com/ishakdiga55-ops/Diga-scaner/releases/download/v1.0.0/app-debug.apk" download class="z-10 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition shadow-lg shadow-green-600/30 shrink-0">
+      <i class="fa-solid fa-download text-xl"></i>
+      <span>تحميل مباشر</span>
+    </a>
+  </div>
+</section>
+
 <footer class="border-t border-gray-800 py-8 px-4 mt-10 text-center">
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500" data-i18n="footerDesc">أداة فحص سيارات احترافية</p>
 <p class="text-[10px] text-gray-600 mt-1" data-i18n="footerData">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
-<!-- روابط الصفحات القانونية -->
 <div class="mt-4 flex justify-center gap-4 text-xs font-bold text-gray-500">
   <a href="privacy.html" class="hover:text-blue-400 transition">سياسة الخصوصية</a>
   <a href="terms.html" class="hover:text-blue-400 transition">شروط الاستخدام</a>
@@ -383,7 +413,6 @@
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3" data-i18n="footerMade">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
 
-<!-- ═══════════ ربط ملفات الجافاسكريبت الخارجية ═══════════ -->
 <script type="module" src="js/main.js"></script>
 <script src="js/debugger.js" defer></script>
 <script src="js/video.js" defer></script>
