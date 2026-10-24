@@ -1,14 +1,16 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v36 — Stable Version (CDN Reverted)
+   v37 — Added Privacy & Terms Pages
    ============================================ */
 
-const CACHE_VERSION = 'v36'; // ✅ الإصدار الحالي
+const CACHE_VERSION = 'v37'; // ✅ تم تحديث الإصدار إلى v37
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
   './',
   './index.html',
+  './privacy.html', // ✅ الصفحة الجديدة
+  './terms.html',   // ✅ الصفحة الجديدة
   './manifest.json',
   './icon.svg',
   './logo.png',
@@ -38,7 +40,7 @@ const APP_SHELL = [
   './js/ui/tabs.js',
   './js/ui/events.js',
 
-  // ✅ الملفات الجديدة التي قمنا بفصلها
+  // ✅ الملفات المفصولة سابقاً
   './js/debugger.js',
   './js/video.js',
   './js/diagnostics.js',
@@ -57,9 +59,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v36] Installing...');
+      console.log('[SW v37] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v36] Some files failed to cache:', err);
+        console.warn('[SW v37] Some files failed to cache:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -71,7 +73,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v36] Deleting old cache:', k);
+            console.log('[SW v37] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
