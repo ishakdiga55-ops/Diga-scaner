@@ -34,8 +34,8 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- تحديث CSP: تمت إزالة unsafe-inline من script-src لحماية الموقع -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<!-- تحديث CSP: تمت إزالة unsafe-inline و Tailwind CDN نهائياً لزيادة الأمان والسرعة -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,18 +43,20 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-<!-- 1. تقليل أوزان الخطوط -->
+<!-- تقليل أوزان الخطوط -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+<!-- استبدال Tailwind CDN بملف محلي مضغوط يتم بناؤه تلقائياً -->
+<link rel="stylesheet" href="css/tailwind.min.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/themes/light.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" defer></script>
-<!-- 2. إضافة defer لملف قاعدة البيانات -->
+<!-- إضافة defer لملف قاعدة البيانات -->
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js" defer></script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/themes/light.css">
 </head>
 <body class="bg-gray-900 text-gray-100">
 
@@ -82,7 +84,7 @@
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
-  <!-- 3. إصلاح صورة الشعار -->
+  <!-- إصلاح صورة الشعار -->
   <img src="logo.png" width="192" height="192" fetchpriority="high" alt="شعار CheckDiga Pro - ماسح أعطال السيارات" class="w-48 h-auto mx-auto mb-4"/>
   
   <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
