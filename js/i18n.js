@@ -2,8 +2,8 @@ export const translations = {
   ar: {
     title: "CheckDiga Pro — فحص السيارات",
     heroTitle: "افحص سيارتك من هاتفك",
-    heroTitle2: "الآن",
-    heroDesc: "قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي",
+    heroTitle2: "واكشف الكلمتراج الحقيقي",
+    heroDesc: "قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي<br><span class='text-emerald-400 font-bold mt-1 inline-block'><i class='fa-solid fa-user-secret'></i> كشف التلاعب بالعداد وفحص ما قبل الشراء</span>",
     dbCodes: "كود عطل في القاعدة",
     startNow: "ابدأ الآن",
     watchDemo: "شاهد العرض",
@@ -76,8 +76,8 @@ export const translations = {
   fr: {
     title: "CheckDiga Pro — Diagnostic Auto",
     heroTitle: "Diagnostiquez votre voiture depuis votre téléphone",
-    heroTitle2: "Maintenant",
-    heroDesc: "Base de données massive + recherche instantanée + analyse intelligente",
+    heroTitle2: "et découvrez le vrai kilométrage",
+    heroDesc: "Base de données massive + recherche instantanée + analyse intelligente<br><span class='text-emerald-400 font-bold mt-1 inline-block'><i class='fa-solid fa-user-secret'></i> Détection de fraude au compteur et inspection avant achat</span>",
     dbCodes: "Codes de panne dans la base",
     startNow: "Commencer",
     watchDemo: "Voir la démo",
@@ -166,7 +166,8 @@ export function applyLanguage(lang) {
         if (icon) {
           el.innerHTML = icon.outerHTML + ' ' + dict[key];
         } else {
-          el.textContent = dict[key];
+          // استخدام innerHTML بدلاً من textContent لدعم وسوم HTML مثل <br> و <span>
+          el.innerHTML = dict[key]; 
         }
       }
     }
