@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ishakdiga55-ops.github.io/Diga-scaner/sitemap.xml
