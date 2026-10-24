@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v39 — Added APK Download Link
+   v41 — Final Stable Version (All files cached)
    ============================================ */
 
-const CACHE_VERSION = 'v39'; // ✅ تم تحديث الإصدار إلى v39
+const CACHE_VERSION = 'v41'; // ✅ الإصدار الحالي
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -15,9 +15,11 @@ const APP_SHELL = [
   './icon.svg',
   './logo.png',
   
+  // ملفات الـ CSS
   './css/main.css',
   './css/themes/light.css',
   
+  // ملفات الجافاسكريبت الأساسية
   './js/main.js',
   './js/state.js',
   './js/obd.js',
@@ -37,6 +39,8 @@ const APP_SHELL = [
   './js/ui/search.js',
   './js/ui/tabs.js',
   './js/ui/events.js',
+
+  // ✅ الملفات المفصولة
   './js/debugger.js',
   './js/video.js',
   './js/diagnostics.js',
@@ -55,9 +59,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v39] Installing...');
+      console.log('[SW v41] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v39] Some files failed to cache:', err);
+        console.warn('[SW v41] Some files failed to cache:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -69,7 +73,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v39] Deleting old cache:', k);
+            console.log('[SW v41] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
@@ -83,6 +87,7 @@ self.addEventListener('fetch', event => {
 
   if (req.method !== 'GET') return;
 
+  // استراتيجية الـ CDN (Tailwind, FontAwesome, Google Fonts)
   if (CDN_HOSTS.some(host => url.hostname.includes(host))) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -99,6 +104,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // استراتيجية ملفات البيانات (JSON/Database)
   if (url.pathname.endsWith('.json') || url.pathname.endsWith('.db')) {
     event.respondWith(
       caches.match(req).then(cached => {
@@ -115,6 +121,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // الاستراتيجية الافتراضية (Network First, Fallback to Cache)
   event.respondWith(
     fetch(req).then(res => {
       if (res && res.status === 200 && url.origin === location.origin) {
