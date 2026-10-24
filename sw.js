@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v34 — Forced Cache Clear for Updates
+   v35 — Forced Cache Clear for Updates
    ============================================ */
 
-const CACHE_VERSION = 'v34'; // ✅ تم تحديث الإصدار إلى v34
+const CACHE_VERSION = 'v35'; // ✅ تم تحديث الإصدار إلى v35
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -12,8 +12,13 @@ const APP_SHELL = [
   './manifest.json',
   './icon.svg',
   './logo.png',
+  
+  // ملفات الـ CSS (أضفنا tailwind.min.css)
+  './css/tailwind.min.css', 
   './css/main.css',
   './css/themes/light.css',
+  
+  // ملفات الجافاسكريبت الأساسية
   './js/main.js',
   './js/state.js',
   './js/obd.js',
@@ -33,7 +38,8 @@ const APP_SHELL = [
   './js/ui/search.js',
   './js/ui/tabs.js',
   './js/ui/events.js',
-  // ✅ إضافة الملفات الجديدة التي قمنا بفصلها
+
+  // ✅ الملفات الجديدة التي قمنا بفصلها
   './js/debugger.js',
   './js/video.js',
   './js/diagnostics.js',
@@ -52,9 +58,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v34] Installing...');
+      console.log('[SW v35] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v34] Some files failed:', err);
+        console.warn('[SW v35] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -66,7 +72,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v34] Deleting old cache:', k);
+            console.log('[SW v35] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
