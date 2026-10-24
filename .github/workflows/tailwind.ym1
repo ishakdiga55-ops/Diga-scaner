@@ -1,0 +1,29 @@
+name: Build Tailwind CSS
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-css:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Tailwind CSS
+        run: npm install -D tailwindcss@3.4.17
+
+      - name: Build CSS
+        run: npx tailwindcss -i ./css/input.css -o ./css/tailwind.min.css --minify
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Auto-build Tailwind CSS [skip ci]"
+          file_pattern: "css/tailwind.min.css"
