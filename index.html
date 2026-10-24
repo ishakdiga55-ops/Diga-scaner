@@ -34,7 +34,7 @@
 <meta name="apple-mobile-web-app-title" content="CheckDiga">
 <meta name="theme-color" content="#0f172a">
 
-<!-- تحديث CSP: تمت إعادة السماح لـ Tailwind CDN -->
+<!-- إعدادات CSP المتوافقة مع الـ CDN -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://raw.githack.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com wss: ws: https://raw.githack.com https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -43,21 +43,19 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-<!-- تقليل أوزان الخطوط -->
+<!-- خطوط وأيقونات -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-
-<!-- إعادة Tailwind CDN مؤقتاً لإرجاع التصميم -->
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/themes/light.css">
-
+<!-- مكتبات خارجية مع defer لعدم تعطيل التحميل -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" defer></script>
-<!-- إضافة defer لملف قاعدة البيانات -->
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js" defer></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- ملفات الـ CSS المحلية -->
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/themes/light.css">
 </head>
 <body class="bg-gray-900 text-gray-100">
 
@@ -85,7 +83,6 @@
 <div id="dbStatus"><span class="spinner" style="width:12px;height:12px;border-width:2px"></span> <span id="dbStatusText">جاري تحميل القاعدة...</span></div>
 
 <section class="relative pt-10 pb-12 px-4 border-b border-gray-800/50 text-center">
-  <!-- إصلاح صورة الشعار -->
   <img src="logo.png" width="192" height="192" fetchpriority="high" alt="شعار CheckDiga Pro - ماسح أعطال السيارات" class="w-48 h-auto mx-auto mb-4"/>
   
   <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-blue-400 mb-5">
@@ -93,7 +90,7 @@
     <span>CheckDiga</span>
     <span id="cacheBadge" class="cache-badge hidden">⚡ CACHE</span>
   </div>
-  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك900 من هاتفك</span><span class="block bg-gradient-to rounded-l from-blue-400 via-purple--400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
+  <h1 class="text-3xl font-extrabold mb-3"><span data-i18n="heroTitle">افحص سيارتك من هاتفك</span><span class="block bg-gradient-to-l from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" data-i18n="heroTitle2">الآن</span></h1>
   <p class="text-sm text-gray-400 max-w-lg mx-auto mb-4" data-i18n="heroDesc">قاعدة بيانات ضخمة + بحث فوري + تحليل ذكي</p>
   
   <div class="my-6">
@@ -122,7 +119,6 @@
   </div>
 
   <div class="flex gap-3 justify-center flex-wrap mt-6">
-    <!-- تعديل زر ابدأ الآن ليتوافق مع CSP -->
     <button id="btnStartNow" class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2" data-i18n="startNow"><i class="fa-solid fa-wrench"></i> ابدأ الآن</button>
     <button id="watchDemoBtn" class="bg-gray-800 border-2 border-purple-500 text-purple-300 px-6 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2 hover:bg-gray-700 transition" data-i18n="watchDemo"><i class="fa-solid fa-play"></i> شاهد العرض</button>
   </div>
@@ -196,7 +192,7 @@
 <div id="panel-faults" class="panel space-y-4">
 <div id="healthBadge" class="hidden"></div>
 <div id="smartDiagnosis" class="hidden"></div>
-<div class="bg-gradient-to-br from-slate-800 to-slate-2xl p-4 space-y-4">
+<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 space-y-4">
 <div class="grid grid-cols-2 gap-4 min-h-[350px] md:min-h-[450px]">
 <div class="gauge-box"><div class="gauge-title">RPM</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="rpmArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="rpmNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#ef4444"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-rpm">0</div><div class="gauge-unit">RPM</div></div></div>
 <div class="gauge-box"><div class="gauge-title">SPEED</div><svg viewBox="0 0 200 200" class="w-full h-full"><path d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="url(#metalTrack)" stroke-width="12" stroke-linecap="round"/><path id="spdArc" class="gauge-arc" d="M 30 130 A 70 70 0 1 1 170 130" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/><g class="gauge-needle" id="spdNeedle"><polygon points="96,100 104,100 100,115" fill="#1e293b"/><polygon points="97,100 103,100 100,25" fill="#3b82f6"/><circle cx="100" cy="100" r="9" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="100" cy="100" r="3" fill="#cbd5e1"/></g></svg><div class="gauge-value-box"><div class="gauge-value" id="gauge-speed">0</div><div class="gauge-unit">km/h</div></div></div>
@@ -271,10 +267,10 @@
 <div class="grid grid-cols-2 gap-2" id="popularCodes"></div>
 </div>
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold" data-i18n="browseFamily"><i class="fa-solid fa-folder-tree text-blue-400"></i> تصفح حسب الفئة</h3>
-<div class="grid grid-cols-2 gap-2" id="familyBrowser"></div>
+<h3 class="font-bold" data-i"18n="browseFamily"><i class="fa-solid fa-folder-tree data text-blue-400"></i> تصفح حسب الفئة</h3-i>
+<div class="grid grid-cols-2 gap-2"18 idn="familyBrowser"></div>
 </div>
-</div>
+</="div>
 
 <div id="panel-favorites" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
@@ -322,7 +318,7 @@
 
 <div id="panel-stats" class="panel hidden space-y-4">
 <div class="bg-gray-800 rounded-2xl p-4 space-y-3">
-<h3 class="font-bold" data-i18n="statsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
+<h3 class="font-boldstatsTitle"><i class="fa-solid fa-chart-pie text-blue-400"></i> الإحصائيات</h3>
 <div id="statsContent"><p class="text-center text-gray-500 py-4">...</p></div>
 <div class="h-56 mt-3"><canvas id="statsChart"></canvas></div>
 </div>
@@ -379,10 +375,10 @@
 <div class="flex items-center justify-center gap-2 mb-2"><i class="fa-solid fa-wrench text-blue-400"></i><span class="font-extrabold">CheckDiga Pro</span></div>
 <p class="text-xs text-gray-500" data-i18n="footerDesc">أداة فحص سيارات احترافية</p>
 <p class="text-[10px] text-gray-600 mt-1" data-i18n="footerData">بيانات الأعطال: OBDex + Wal33D + قاعدة محلية (أوروبية + صينية)</p>
-<!-- إضافة روابط قانونية -->
+<!-- روابط الصفحات القانونية -->
 <div class="mt-4 flex justify-center gap-4 text-xs font-bold text-gray-500">
-  <a href="privacy.html" class="hover:text-blue-400">سياسة الخصوصية</a>
-  <a href="terms.html" class="hover:text-blue-400">شروط الاستخدام</a>
+  <a href="privacy.html" class="hover:text-blue-400 transition">سياسة الخصوصية</a>
+  <a href="terms.html" class="hover:text-blue-400 transition">شروط الاستخدام</a>
 </div>
 <p class="text-xs text-gray-600 mt-3 border-t border-gray-800/50 pt-3" data-i18n="footerMade">2026 — صُنع في الجزائر 🇩🇿</p>
 </footer>
