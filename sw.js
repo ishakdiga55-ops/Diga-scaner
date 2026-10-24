@@ -1,9 +1,9 @@
 /* ============================================
    CheckDiga Pro — Service Worker
-   v33 — Forced Cache Clear for Updates
+   v34 — Forced Cache Clear for Updates
    ============================================ */
 
-const CACHE_VERSION = 'v33'; // ✅ تم تحديث الإصدار إلى v33
+const CACHE_VERSION = 'v34'; // ✅ تم تحديث الإصدار إلى v34
 const CACHE_NAME = 'checkdiga-' + CACHE_VERSION;
 
 const APP_SHELL = [
@@ -32,7 +32,12 @@ const APP_SHELL = [
   './js/ui/theme.js',
   './js/ui/search.js',
   './js/ui/tabs.js',
-  './js/ui/events.js'
+  './js/ui/events.js',
+  // ✅ إضافة الملفات الجديدة التي قمنا بفصلها
+  './js/debugger.js',
+  './js/video.js',
+  './js/diagnostics.js',
+  './js/sw-register.js'
 ];
 
 const CDN_HOSTS = [
@@ -47,9 +52,9 @@ const CDN_HOSTS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v33] Installing...');
+      console.log('[SW v34] Installing...');
       return cache.addAll(APP_SHELL).catch(err => {
-        console.warn('[SW v33] Some files failed:', err);
+        console.warn('[SW v34] Some files failed:', err);
       });
     }).then(() => self.skipWaiting())
   );
@@ -61,7 +66,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(k => k.startsWith('checkdiga-') && k !== CACHE_NAME)
           .map(k => {
-            console.log('[SW v33] Deleting old cache:', k);
+            console.log('[SW v34] Deleting old cache:', k);
             return caches.delete(k);
           })
       );
