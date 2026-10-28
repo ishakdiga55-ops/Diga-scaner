@@ -60,10 +60,18 @@ function init() {
     const btnNativeClassic = document.getElementById('connect-native-classic');
     if (btnNativeClassic) {
       btnNativeClassic.classList.remove('hidden');
-      btnNativeClassic.onclick = () => {
+      // ✅ تم إصلاح الخطأ هنا باستخدام async و try/catch/finally
+      btnNativeClassic.onclick = async () => {
         connectModal.classList.add('hidden');
         showLoader('جاري الاتصال...');
-        connectNativeBluetooth().finally(hideLoader);
+        try {
+          await connectNativeBluetooth();
+        } catch (error) {
+          console.error(error);
+          alert('فشل الاتصال.');
+        } finally {
+          hideLoader();
+        }
       };
     }
   } else {
